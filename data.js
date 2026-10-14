@@ -1,8 +1,8 @@
 // ============================================================================
-// CONFIGURAZIONE GLOBALE CLOUD (Incolla qui sotto il tuo URL Firebase!)
-// Esempio: "https://dnd-campagna-default-rtdb.europe-west1.firebasedatabase.app"
+// 1. CONFIGURAZIONE CLOUD FIREBASE & CREDENZIALI ESCLUSIVE ADMIN
 // ============================================================================
-const FIREBASE_DATABASE_URL = "https://yggdrasill-39093-default-rtdb.europe-
+const FIREBASE_DATABASE_URL = "https://yggdrasill-39093-default-rtdb.europe-west1.firebasedatabase.app/";
+
 // Credenziali dell'unico Account Admin che può gestire Cloud, Manutenzione e Reset DB
 const ADMIN_CREDENTIALS = {
   username: "admin",
@@ -29,9 +29,7 @@ const CARD_ARTWORKS = {
 };
 
 // ============================================================================
-// 2. FUNZIONE UNIVERSALE DI AUTO-ADATTAMENTO E RITAGLIO IMMAGINI PER LE CARTE
-// Prende qualsiasi immagine caricata dall'utente e la ridimensiona automaticamente
-// alle proporzioni esatte del box carta (400x260px) per non deformarla né appesantire il Cloud
+// 2. AUTO-ADATTAMENTO E RITAGLIO IMMAGINI PER LE CARTE (400x260px)
 // ============================================================================
 function autoFitImageFile(file, targetWidth, targetHeight, callback) {
   if (!file) return;
@@ -44,7 +42,6 @@ function autoFitImageFile(file, targetWidth, targetHeight, callback) {
       c.height = targetHeight;
       const context = c.getContext('2d');
 
-      // Calcolo ritaglio centrale proporzionato (Object-Fit Cover automatico)
       const imgRatio = img.width / img.height;
       const targetRatio = targetWidth / targetHeight;
       let drawW, drawH, offsetX, offsetY;
