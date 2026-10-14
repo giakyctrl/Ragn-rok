@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- Configurazione Ufficiale Apple iOS Web App -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="D&D Cloud Deck">
+  <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&w=256&q=80">
+
+  <title>D&D Duelist Cloud iOS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase Realtime Database SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #090b10;
+      color: #f3f4f6;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(80px + var(--safe-bottom));
+      overflow-x: hidden;
+    }
+
+    .font-cinzel { font-family: 'Cinzel', serif; }
+
+    /* Stile Carta Yu-Gi-Oh! */
+    .ygo-card {
+      position: relative;
+      width: 260px;
+      height: 385px;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .ygo-card:active { transform: scale(0.96); }
+
+    .type-arma { background: linear-gradient(145deg, #5c3a21, #321d0e); }
+    .type-incantesimo { background: linear-gradient(145deg, #155e75, #082f49); }
+    .type-armatura { background: linear-gradient(145deg, #374151, #111827); }
+    .type-oggetto { background: linear-gradient(145deg, #581c87, #2e1065); }
+
+    /* Bordi Rarità Yu-Gi-Oh */
+    .rarity-comune { border: 4px solid #9ca3af; box-shadow: 0 4px 12px rgba(156,163,175,0.2); }
+    .rarity-non-comune { border: 4px solid #10b981; box-shadow: 0 0 16px rgba(16,185,129,0.45); }
+    .rarity-raro { border: 4px solid #3b82f6; box-shadow: 0 0 20px rgba(59,130,246,0.65); }
+    .rarity-molto-raro { border: 4px solid #a855f7; box-shadow: 0 0 24px rgba(168,85,247,0.8); }
+    .rarity-leggendario {
+      border: 4px solid #f59e0b;
+      box-shadow: 0 0 28px rgba(245,158,11,0.95), inset 0 0 14px rgba(245,158,11,0.5);
+      animation: goldPulse 2s infinite alternate;
+    }
+
+    @keyframes goldPulse {
+      0% { border-color: #f59e0b; box-shadow: 0 0 18px rgba(245,158,11,0.7); }
+      100% { border-color: #fef08a; box-shadow: 0 0 32px rgba(250,204,21,1); }
+    }
+
+    .ygo-header {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 8px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ygo-art {
+      width: 100%;
+      height: 145px;
+      border: 3px inset #d4af37;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+    }
+
+    .ygo-lore {
+      background: #fef3c7;
+      color: #111827;
+      border: 2px solid #b45309;
+      padding: 6px;
+      height: 100px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @keyframes slamMobile {
+      0% { transform: scale(2.4) translateY(-130px) rotate(-14deg); opacity: 0; }
+      60% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+      80% { transform: scale(1.06); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-slam { animation: slamMobile 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    /* Animazione Shake per PIN Errato */
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+    .animate-shake { animation: shakeError 0.4s ease-in-out; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .ios-tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding-bottom: var(--safe-bottom);
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 40;
+    }
+
+    /* Bottoni Tastierino PIN */
+    .pin-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(31, 41, 55, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .pin-btn:active {
+      background: rgba(245, 158, 11, 0.8);
+      color: #000;
+      transform: scale(0.92);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER CON STATO CLOUD LIVE -->
+  <header class="px-4 py-3 flex justify-between items-center border-b border-gray-800 bg-gray-950/80 sticky top-0 z-30 backdrop-blur-md">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-red-600 flex items-center justify-center font-cinzel font-black text-xs shadow">
+        D20
+      </div>
+      <div>
+        <h1 class="font-cinzel font-bold text-xs text-amber-400 leading-none">DUELIST LIVE</h1>
+        <button onclick="openCloudModal()" class="flex items-center gap-1 mt-0.5">
+          <span id="cloud-dot" class="w-2 h-2 rounded-full bg-gray-500 inline-block"></span>
+          <span id="cloud-status-text" class="text-[10px] text-gray-400 underline">Configura Cloud</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <select id="mobile-player-select" onchange="changePlayer(this.value)" class="bg-gray-900 border border-gray-700 text-amber-300 text-xs font-bold rounded-xl px-2.5 py-1.5">
+      </select>
+    </div>
+  </header>
+
+  <!-- ==================== TAB 1: DECK CARTE YU-GI-OH ==================== -->
+  <main id="tab-deck" class="p-4 space-y-4">
+    <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-3.5 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <img id="m-avatar" src="" class="w-12 h-12 rounded-xl object-cover border border-amber-500">
+        <div>
+          <h2 id="m-name" class="font-cinzel font-bold text-base text-white leading-tight"></h2>
+          <p id="m-class" class="text-xs text-gray-400"></p>
+        </div>
+      </div>
+      <div class="text-right">
+        <span id="m-hp-badge" class="text-sm font-extrabold text-red-400 block"></span>
+        <span id="m-ac-badge" class="text-[11px] text-amber-400 font-semibold"></span>
+      </div>
+    </div>
+
+    <!-- Filtri Carte -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+      <button onclick="setFilter('tutti')" id="f-tutti" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-gray-950 flex-shrink-0">Tutte</button>
+      <button onclick="setFilter('arma')" id="f-arma" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 flex-shrink-0">⚔️ Armi</button>
+      <button onclick="setFilter('incantesimo')" id="f-incantesimo" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 flex-shrink-0">✨ Magie</button>
+      <button onclick="setFilter('armatura')" id="f-armatura" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 flex-shrink-0">🛡️ Armature</button>
+      <button onclick="setFilter('oggetto')" id="f-oggetto" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 flex-shrink-0">🧪 Oggetti</button>
+    </div>
+
+    <!-- Carosello Orizzontale Carte -->
+    <div id="m-cards-carousel" class="flex gap-5 overflow-x-auto no-scrollbar py-3 px-2 snap-x snap-mandatory"></div>
+    <p class="text-center text-[11px] text-gray-500">Quando schieri una carta, l'animazione apparirà in diretta su tutti gli iPhone connessi!</p>
+  </main>
+
+  <!-- ==================== TAB 2: SCHEDA EROE & STATISTICHE ==================== -->
+  <main id="tab-sheet" class="hidden p-4 space-y-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+      <div class="flex justify-between text-xs font-bold mb-1.5">
+        <span class="text-red-400 uppercase">Punti Vita Sincronizzati</span>
+        <span id="s-hp-label" class="text-white"></span>
+      </div>
+      <div class="w-full h-4 bg-gray-950 rounded-full overflow-hidden border border-gray-800 mb-3">
+        <div id="s-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-500 transition-all duration-300"></div>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <button onclick="changeHP(-5)" class="py-2.5 bg-red-950/80 active:bg-red-800 border border-red-800 text-red-200 rounded-xl font-bold text-xs">-5</button>
+        <button onclick="changeHP(-1)" class="py-2.5 bg-red-950/80 active:bg-red-800 border border-red-800 text-red-200 rounded-xl font-bold text-xs">-1</button>
+        <button onclick="changeHP(1)" class="py-2.5 bg-emerald-950/80 active:bg-emerald-800 border border-emerald-800 text-emerald-200 rounded-xl font-bold text-xs">+1</button>
+        <button onclick="changeHP(5)" class="py-2.5 bg-emerald-950/80 active:bg-emerald-800 border border-emerald-800 text-emerald-200 rounded-xl font-bold text-xs">+5</button>
+      </div>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+      <h3 class="font-cinzel text-xs font-bold text-amber-400 uppercase mb-3">Caratteristiche (Tocca per Test D20)</h3>
+      <div id="s-stats-grid" class="grid grid-cols-3 gap-2.5"></div>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+      <h3 class="font-cinzel text-xs font-bold text-amber-400 uppercase mb-2.5">Abilità & Privilegi</h3>
+      <ul id="s-skills-list" class="space-y-2 text-xs text-gray-300"></ul>
+    </div>
+  </main>
+
+  <!-- ==================== TAB 3: DUNGEON MASTER HUB (PROTETTA DA PIN) ==================== -->
+  <main id="tab-dm" class="hidden p-4 space-y-5">
+    
+    <!-- Barra Superiore Sicurezza DM -->
+    <div class="bg-red-950/40 border border-red-800/60 rounded-2xl p-3 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🔓</span>
+        <div>
+          <h4 class="font-cinzel font-bold text-xs text-amber-400">Modalità Dungeon Master Attiva</h4>
+          <p class="text-[10px] text-gray-400">Solo tu puoi modificare il mondo di gioco</p>
+        </div>
+      </div>
+      <div class="flex gap-1.5">
+        <button onclick="changeDmPin()" class="px-2.5 py-1.5 bg-gray-800 text-gray-300 rounded-xl text-[10px] font-bold border border-gray-700">🔑 Cambia PIN</button>
+        <button onclick="lockDmTab()" class="px-2.5 py-1.5 bg-red-600 text-white rounded-xl text-[10px] font-bold shadow">🔒 Blocca</button>
+      </div>
+    </div>
+
+    <!-- Controllo Party -->
+    <div class="space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="font-cinzel font-bold text-sm text-amber-400">🐉 Controllo Live Party (3 Player)</h3>
+        <button onclick="fullHealParty()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow">⛺ Riposo Lungo</button>
+      </div>
+      <div id="dm-mobile-party" class="space-y-2.5"></div>
+    </div>
+
+    <!-- Forgia Carte in Tempo Reale -->
+    <form onsubmit="forgeCardMobile(event)" class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-3">
+      <h3 class="font-cinzel font-bold text-sm text-amber-400">🔨 Forgia & Invia Carta in Diretta</h3>
+      <div class="grid grid-cols-2 gap-2.5 text-xs">
+        <div>
+          <label class="text-gray-400 block mb-1">Destinatario</label>
+          <select id="f-target" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2 text-white"></select>
+        </div>
+        <div>
+          <label class="text-gray-400 block mb-1">Rarità Bordo</label>
+          <select id="f-rarity" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2 text-white">
+            <option value="comune">⚪ Comune</option>
+            <option value="non-comune">🟢 Non Comune</option>
+            <option value="raro">🔵 Raro</option>
+            <option value="molto-raro">🟣 Molto Raro</option>
+            <option value="leggendario">🟡 Leggendario</option>
+          </select>
+        </div>
+      </div>
+
+      <input id="f-name" type="text" required placeholder="Nome Carta (es. Lama del Chaos)" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <select id="f-type" class="bg-gray-950 border border-gray-700 rounded-xl p-2 text-white">
+          <option value="arma">⚔️ Arma</option>
+          <option value="incantesimo">✨ Magia</option>
+          <option value="armatura">🛡️ Armatura</option>
+          <option value="oggetto">🧪 Oggetto</option>
+        </select>
+        <input id="f-dmg" type="text" required placeholder="Danno (2d8+4)" class="bg-gray-950 border border-gray-700 rounded-xl p-2 text-white">
+        <input id="f-weight" type="number" step="0.5" value="2" placeholder="Peso kg" class="bg-gray-950 border border-gray-700 rounded-xl p-2 text-white">
+      </div>
+
+      <div>
+        <label class="text-gray-400 text-xs block mb-1">Illustrazione Carta</label>
+        <select id="f-img" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2 text-xs text-white">
+          <option value="https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80">🔥 Spada Infuocata / Arma Sacra</option>
+          <option value="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80">⚡ Incantesimo Arcano / Energia</option>
+          <option value="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80">🛡️ Scudo Reale / Corazza</option>
+          <option value="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80">🧪 Reliquia / Pozione Alchemica</option>
+        </select>
+      </div>
+
+      <textarea id="f-desc" rows="2" required placeholder="Effetto speciale della carta..." class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2.5 text-xs text-white"></textarea>
+
+      <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-950 font-cinzel font-black text-xs rounded-xl shadow-lg">
+        ✨ MATERIALIZZA SULL'IPHONE DEL GIOCATORE
+      </button>
+    </form>
+
+    <!-- Registro Azioni Cloud -->
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+      <h3 class="font-cinzel font-bold text-xs text-amber-400 uppercase mb-2">📜 Ultimi Attacchi & Eventi Live</h3>
+      <div id="dm-cloud-logs" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
+    </div>
+  </main>
+
+  <!-- ==================== MODAL BLOCCO PIN DUNGEON MASTER (STILE iOS) ==================== -->
+  <div id="pin-modal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 hidden flex-col items-center justify-center p-6">
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/80 border border-red-700 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+        🐉
+      </div>
+      <h3 class="font-cinzel font-bold text-lg text-amber-400">Accesso Dungeon Master</h3>
+      <p id="pin-subtitle" class="text-xs text-gray-400 mt-1">Inserisci il PIN segreto a 4 cifre (Default: 2020)</p>
+    </div>
+
+    <!-- Pallini Indicatori 4 Cifre -->
+    <div id="pin-dots" class="flex gap-4 mb-8">
+      <div class="w-4 h-4 rounded-full border-2 border-amber-400 transition-all"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-amber-400 transition-all"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-amber-400 transition-all"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-amber-400 transition-all"></div>
+    </div>
+
+    <!-- Tastierino Numerico -->
+    <div class="grid grid-cols-3 gap-4 max-w-xs mx-auto">
+      <button onclick="pressPin('1')" class="pin-btn">1</button>
+      <button onclick="pressPin('2')" class="pin-btn">2</button>
+      <button onclick="pressPin('3')" class="pin-btn">3</button>
+      <button onclick="pressPin('4')" class="pin-btn">4</button>
+      <button onclick="pressPin('5')" class="pin-btn">5</button>
+      <button onclick="pressPin('6')" class="pin-btn">6</button>
+      <button onclick="pressPin('7')" class="pin-btn">7</button>
+      <button onclick="pressPin('8')" class="pin-btn">8</button>
+      <button onclick="pressPin('9')" class="pin-btn">9</button>
+      <button onclick="closePinModal()" class="text-xs font-bold text-gray-400 uppercase">Annulla</button>
+      <button onclick="pressPin('0')" class="pin-btn">0</button>
+      <button onclick="clearPinDigit()" class="text-lg font-bold text-amber-400">⌫</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL IMPOSTAZIONI CLOUD FIREBASE ==================== -->
+  <div id="cloud-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-700 rounded-2xl p-5 w-full max-w-sm space-y-4">
+      <h3 class="font-cinzel font-bold text-base text-amber-400">☁️ Connessione Stanza Cloud</h3>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        Inserisci l'URL del tuo Firebase Realtime Database e il nome della stanza su tutti e 4 gli iPhone per sincronizzarli in tempo reale.
+      </p>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-gray-300 font-bold block mb-1">Firebase Database URL</label>
+          <input id="cfg-db-url" type="url" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2.5 text-white">
+        </div>
+        <div>
+          <label class="text-gray-300 font-bold block mb-1">Codice Stanza Campagna</label>
+          <input id="cfg-room-id" type="text" value="CAMPAGNA_1" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-2.5 text-amber-300 font-bold uppercase">
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="saveCloudConfig()" class="flex-1 py-2.5 bg-amber-500 text-gray-950 font-bold rounded-xl text-xs">Connetti Live</button>
+        <button onclick="closeCloudModal()" class="px-4 py-2.5 bg-gray-800 text-gray-300 rounded-xl text-xs">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL ANIMAZIONE SCHIERAMENTO GLOBALE ==================== -->
+  <div id="slam-modal" class="fixed inset-0 bg-black/90 backdrop-blur-lg z-50 hidden flex-col items-center justify-center p-4">
+    <span id="slam-actor" class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-1"></span>
+    <h2 class="font-cinzel text-2xl font-black text-white mb-4">CARTA SCHIERATA!</h2>
+    <div id="slam-card-holder"></div>
+
+    <div class="mt-5 bg-gray-900 border-2 border-amber-500 rounded-2xl p-4 w-full max-w-xs text-center shadow-2xl">
+      <div class="grid grid-cols-2 divide-x divide-gray-800">
+        <div>
+          <span class="text-[10px] text-gray-400 uppercase block">Tiro Colpire (D20)</span>
+          <span id="slam-hit" class="font-cinzel text-2xl font-black text-amber-400"></span>
+        </div>
+        <div>
+          <span class="text-[10px] text-gray-400 uppercase block">Danno / Effetto</span>
+          <span id="slam-dmg" class="font-cinzel text-2xl font-black text-red-400"></span>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeSlam()" class="mt-5 px-8 py-2.5 bg-gray-800 text-white rounded-full text-xs font-bold border border-gray-600">
+      Chiudi
+    </button>
+  </div>
+
+  <!-- ==================== BOTTOM BAR iOS ==================== -->
+  <nav class="ios-tab-bar flex justify-around items-center h-16 px-2">
+    <button onclick="switchTab('deck')" id="nav-deck" class="flex flex-col items-center gap-1 text-amber-400">
+      <span class="text-xl">🃏</span>
+      <span class="text-[10px] font-bold">Deck Carte</span>
+    </button>
+    <button onclick="switchTab('sheet')" id="nav-sheet" class="flex flex-col items-center gap-1 text-gray-400">
+      <span class="text-xl">🛡️</span>
+      <span class="text-[10px] font-bold">Scheda & HP</span>
+    </button>
+    <button onclick="requestDmAccess()" id="nav-dm" class="flex flex-col items-center gap-1 text-gray-400">
+      <span class="text-xl" id="dm-lock-icon">🔒</span>
+      <span class="text-[10px] font-bold">Master DM</span>
+    </button>
+  </nav>
+
+  <script>
+    const DEFAULT_CAMPAIGN = {
+      dmPin: '2020', // PIN predefinito del Dungeon Master
+      lastDeploy: null,
+      logs: [
+        { time: 'Sistema', text: 'Campagna pronta. PIN predefinito per il DM: 2020' }
+      ],
+      players: [
+        {
+          id: 'p1', name: 'Kaelen Vane', class: 'Paladino Liv. 5', hp: 48, maxHp: 48, ac: 18, atkBonus: 7,
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+          stats: { FOR: 18, DES: 10, COS: 16, INT: 10, SAG: 14, CAR: 16 },
+          skills: ['Punizione Divina (+2d8 radiosi)', 'Imposizione delle Mani (25 PF)', 'Aura di Protezione (+3 TS)'],
+          cards: [
+            { id: 'c1', name: 'Lama Solare di Bahamut', type: 'arma', rarity: 'leggendario', stars: 7, damage: '2d8+5', weight: 3, img: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80', desc: 'Lama avvolta da fuoco sacro. Infligge 2d8+5 danni radiosi.' },
+            { id: 'c2', name: 'Egida del Leone Dorato', type: 'armatura', rarity: 'raro', stars: 5, damage: '+3 CA', weight: 6, img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80', desc: 'Scudo reale che riduce i danni fisici subiti di 2.' }
+          ]
+        },
+        {
+          id: 'p2', name: 'Lyra Noctis', class: 'Stregona Liv. 5', hp: 34, maxHp: 34, ac: 15, atkBonus: 8,
+          avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+          stats: { FOR: 8, DES: 16, COS: 14, INT: 13, SAG: 12, CAR: 19 },
+          skills: ['Metamagia (5 Punti Stregoneria)', 'Scurovisione Magica 36m', 'Fortezza della Tomba'],
+          cards: [
+            { id: 'c3', name: 'Palla di Fuoco Abissale', type: 'incantesimo', rarity: 'molto-raro', stars: 6, damage: '8d6', weight: 0, img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80', desc: 'Esplosione di fiamme viola in un raggio di 6 metri.' }
+          ]
+        },
+        {
+          id: 'p3', name: 'Vaelen Dusk', class: 'Ladro Assassino Liv. 5', hp: 38, maxHp: 38, ac: 17, atkBonus: 8,
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+          stats: { FOR: 11, DES: 20, COS: 14, INT: 14, SAG: 13, CAR: 12 },
+          skills: ['Attacco Furtivo (+3d6)', 'Azione Scaltra', 'Schivata Prodigiosa'],
+          cards: [
+            { id: 'c4', name: 'Zanna della Vipera', type: 'arma', rarity: 'molto-raro', stars: 6, damage: '1d4+3d6+5', weight: 0.5, img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80', desc: 'Pugnale avvelenato con danno da Attacco Furtivo incluso.' }
+          ]
+        }
+      ]
+    };
+
+    let localPlayerId = localStorage.getItem('dnd_my_player_id') || 'p1';
+    let localFilter = 'tutti';
+    let lastSeenDeployTimestamp = Date.now();
+    
+    // Gestione Sicurezza DM
+    let isDmUnlocked = sessionStorage.getItem('dnd_dm_unlocked') === 'true';
+    let enteredPin = '';
+
+    let campaign = JSON.parse(localStorage.getItem('dnd_cloud_campaign_cache')) || DEFAULT_CAMPAIGN;
+    let roomRef = null;
+
+    // ==================== SISTEMA DI SBLOCCO PIN DM ====================
+    function requestDmAccess() {
+      haptic();
+      if (isDmUnlocked) {
+        switchTab('dm');
+      } else {
+        enteredPin = '';
+        updatePinDots();
+        const modal = document.getElementById('pin-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function pressPin(digit) {
+      haptic();
+      if (enteredPin.length < 4) {
+        enteredPin += digit;
+        updatePinDots();
+      }
+      if (enteredPin.length === 4) {
+        setTimeout(verifyPin, 120);
+      }
+    }
+
+    function clearPinDigit() {
+      haptic();
+      enteredPin = enteredPin.slice(0, -1);
+      updatePinDots();
+    }
+
+    function updatePinDots() {
+      const dots = document.getElementById('pin-dots').children;
+      for (let i = 0; i < 4; i++) {
+        if (i < enteredPin.length) {
+          dots[i].classList.add('bg-amber-400', 'scale-110');
+        } else {
+          dots[i].classList.remove('bg-amber-400', 'scale-110');
+        }
+      }
+    }
+
+    function verifyPin() {
+      const correctPin = String(campaign.dmPin || '2020');
+      if (enteredPin === correctPin) {
+        isDmUnlocked = true;
+        sessionStorage.setItem('dnd_dm_unlocked', 'true');
+        document.getElementById('dm-lock-icon').textContent = '🐉';
+        closePinModal();
+        switchTab('dm');
+      } else {
+        if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+        const dotsContainer = document.getElementById('pin-dots');
+        dotsContainer.classList.add('animate-shake');
+        document.getElementById('pin-subtitle').textContent = '❌ PIN Errato! Solo il Dungeon Master può entrare.';
+        document.getElementById('pin-subtitle').className = 'text-xs text-red-400 font-bold mt-1';
+        setTimeout(() => {
+          dotsContainer.classList.remove('animate-shake');
+          enteredPin = '';
+          updatePinDots();
+        }, 450);
+      }
+    }
+
+    function closePinModal() {
+      const modal = document.getElementById('pin-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('pin-subtitle').textContent = 'Inserisci il PIN segreto a 4 cifre';
+      document.getElementById('pin-subtitle').className = 'text-xs text-gray-400 mt-1';
+    }
+
+    function lockDmTab() {
+      haptic();
+      isDmUnlocked = false;
+      sessionStorage.removeItem('dnd_dm_unlocked');
+      document.getElementById('dm-lock-icon').textContent = '🔒';
+      switchTab('deck');
+    }
+
+    function changeDmPin() {
+      const newPin = prompt('Inserisci il nuovo PIN a 4 cifre per la vista Dungeon Master:', campaign.dmPin || '2020');
+      if (!newPin) return;
+      if (!/^\d{4}$/.test(newPin.trim())) {
+        alert('Il PIN deve essere composto esattamente da 4 numeri (es. 1234).');
+        return;
+      }
+      campaign.dmPin = newPin.trim();
+      syncToCloud();
+      alert(`Nuovo PIN DM (${campaign.dmPin}) salvato e sincronizzato!`);
+    }
+
+    // ==================== CONNESSIONE REAL-TIME FIREBASE ====================
+    function initCloud() {
+      const dbUrl = localStorage.getItem('dnd_fb_url');
+      const roomId = localStorage.getItem('dnd_fb_room') || 'CAMPAGNA_1';
+
+      if (!dbUrl) return;
+
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({ databaseURL: dbUrl });
+        }
+        const db = firebase.database();
+        roomRef = db.ref('rooms/' + roomId);
+
+        roomRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            campaign = data;
+            if (!campaign.dmPin) campaign.dmPin = '2020';
+            localStorage.setItem('dnd_cloud_campaign_cache', JSON.stringify(campaign));
+            render();
+
+            if (campaign.lastDeploy && campaign.lastDeploy.timestamp > lastSeenDeployTimestamp) {
+              lastSeenDeployTimestamp = campaign.lastDeploy.timestamp;
+              showGlobalSlamAnimation(campaign.lastDeploy);
+            }
+          } else {
+            roomRef.set(campaign);
+          }
+        });
+
+        document.getElementById('cloud-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block';
+        document.getElementById('cloud-status-text').textContent = `Live: ${roomId}`;
+        document.getElementById('cloud-status-text').className = 'text-[10px] text-emerald-400 font-bold';
+      } catch (e) {
+        console.error('Errore Firebase:', e);
+      }
+    }
+
+    function syncToCloud() {
+      localStorage.setItem('dnd_cloud_campaign_cache', JSON.stringify(campaign));
+      if (roomRef) {
+        roomRef.set(campaign);
+      }
+      render();
+    }
+
+    function openCloudModal() {
+      document.getElementById('cfg-db-url').value = localStorage.getItem('dnd_fb_url') || '';
+      document.getElementById('cfg-room-id').value = localStorage.getItem('dnd_fb_room') || 'CAMPAGNA_1';
+      const m = document.getElementById('cloud-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeCloudModal() {
+      const m = document.getElementById('cloud-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function saveCloudConfig() {
+      const url = document.getElementById('cfg-db-url').value.trim();
+      const room = document.getElementById('cfg-room-id').value.trim().toUpperCase() || 'CAMPAGNA_1';
+      if (!url.startsWith('https://')) {
+        alert('Inserisci un URL Firebase valido che inizia con https://');
+        return;
+      }
+      localStorage.setItem('dnd_fb_url', url);
+      localStorage.setItem('dnd_fb_room', room);
+      closeCloudModal();
+      location.reload();
+    }
+
+    // ==================== LOGICA DI GIOCO & CARTE YU-GI-OH ====================
+    function haptic() {
+      if (navigator.vibrate) navigator.vibrate(35);
+    }
+
+    function switchTab(tab) {
+      haptic();
+      ['deck', 'sheet', 'dm'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('nav-' + t).className = t === tab
+          ? 'flex flex-col items-center gap-1 text-amber-400'
+          : 'flex flex-col items-center gap-1 text-gray-400';
+      });
+    }
+
+    function changePlayer(id) {
+      localPlayerId = id;
+      localStorage.setItem('dnd_my_player_id', id);
+      render();
+    }
+
+    function setFilter(f) {
+      localFilter = f;
+      ['tutti', 'arma', 'incantesimo', 'armatura', 'oggetto'].forEach(k => {
+        document.getElementById('f-' + k).className = k === f
+          ? 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-gray-950 flex-shrink-0'
+          : 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 flex-shrink-0';
+      });
+      render();
+    }
+
+    function rollFormula(formula) {
+      const clean = String(formula).toLowerCase().replace(/\s+/g, '');
+      let total = 0, isDice = false;
+      clean.split('+').forEach(p => {
+        if (p.includes('d')) {
+          isDice = true;
+          const [n, s] = p.split('d');
+          for (let i = 0; i < (parseInt(n) || 1); i++) total += Math.floor(Math.random() * (parseInt(s) || 6)) + 1;
+        } else if (!isNaN(parseInt(p))) total += parseInt(p);
+      });
+      return isDice ? total : formula;
+    }
+
+    function renderCardHTML(c, pId, interactive = true) {
+      const stars = '⭐'.repeat(Math.min(c.stars || 4, 7));
+      return `
+        <div class="ygo-card type-${c.type} rarity-${c.rarity} snap-center">
+          <div class="ygo-header">
+            <span class="font-cinzel font-bold text-xs text-amber-100 truncate">${c.name}</span>
+            <span class="text-xs">${c.type === 'arma' ? '⚔️' : c.type === 'incantesimo' ? '✨' : c.type === 'armatura' ? '🛡️' : '🧪'}</span>
+          </div>
+          <div class="flex justify-between items-center text-[10px] px-1">
+            <span class="uppercase font-bold text-gray-200 bg-black/40 px-1.5 py-0.5 rounded">${c.rarity}</span>
+            <span>${stars}</span>
+          </div>
+          <div class="ygo-art">
+            <img src="${c.img}" class="w-full h-full object-cover">
+          </div>
+          <div class="ygo-lore">
+            <p class="text-[11px] leading-snug overflow-y-auto">${c.desc}</p>
+            <div class="border-t border-amber-900/40 pt-1 flex justify-between font-mono text-[10px] font-bold">
+              <span>EFF: ${c.damage}</span>
+              <span>${c.weight} kg</span>
+            </div>
+          </div>
+          ${interactive ? `
+            <button onclick="deployCardLive('${pId}', '${c.id}')" class="w-full py-2 bg-gradient-to-r from-amber-500 to-red-600 text-white font-cinzel font-bold text-xs rounded-lg shadow">
+              ⚡ SCHIERA CARTA
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function deployCardLive(pId, cId) {
+      haptic();
+      const p = campaign.players.find(x => x.id === pId);
+      const c = (p.cards || []).find(x => x.id === cId);
+      if (!p || !c) return;
+
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const hit = d20 === 20 ? 'CRITICO 20!' : `${d20 + p.atkBonus} (${d20}+${p.atkBonus})`;
+      const dmg = rollFormula(c.damage);
+
+      const deployEvent = {
+        timestamp: Date.now(),
+        playerName: p.name,
+        card: c,
+        hitText: hit,
+        dmgText: dmg
+      };
+
+      campaign.lastDeploy = deployEvent;
+      if (!campaign.logs) campaign.logs = [];
+      campaign.logs.unshift({
+        time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+        text: `⚡ ${p.name} ha schierato [${c.name}] -> Colpire: ${hit} | Danno: ${dmg}`
+      });
+
+      lastSeenDeployTimestamp = deployEvent.timestamp;
+      showGlobalSlamAnimation(deployEvent);
+      syncToCloud();
+    }
+
+    function showGlobalSlamAnimation(deployData) {
+      haptic();
+      document.getElementById('slam-actor').textContent = `${deployData.playerName} ha schierato in campo`;
+      document.getElementById('slam-card-holder').innerHTML = `<div class="animate-slam">${renderCardHTML(deployData.card, '', false)}</div>`;
+      document.getElementById('slam-hit').textContent = deployData.hitText;
+      document.getElementById('slam-dmg').textContent = deployData.dmgText;
+
+      const modal = document.getElementById('slam-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSlam() {
+      const modal = document.getElementById('slam-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function changeHP(delta, targetId = null) {
+      haptic();
+      const p = campaign.players.find(x => x.id === (targetId || localPlayerId));
+      if (!p) return;
+      p.hp = Math.max(0, Math.min(p.maxHp, p.hp + delta));
+
+      if (!campaign.logs) campaign.logs = [];
+      campaign.logs.unshift({
+        time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+        text: `❤️ ${p.name}: ${delta > 0 ? '+' + delta : delta} PF (Attuali: ${p.hp}/${p.maxHp})`
+      });
+      syncToCloud();
+    }
+
+    function fullHealParty() {
+      haptic();
+      campaign.players.forEach(p => p.hp = p.maxHp);
+      if (!campaign.logs) campaign.logs = [];
+      campaign.logs.unshift({
+        time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+        text: `⛺ Il Dungeon Master ha attivato un Riposo Lungo (Tutti a 100% PF)`
+      });
+      syncToCloud();
+    }
+
+    function forgeCardMobile(e) {
+      e.preventDefault();
+      if (!isDmUnlocked) return;
+      haptic();
+      const p = campaign.players.find(x => x.id === document.getElementById('f-target').value);
+      if (!p.cards) p.cards = [];
+
+      const newCard = {
+        id: 'c_' + Date.now(),
+        name: document.getElementById('f-name').value,
+        type: document.getElementById('f-type').value,
+        rarity: document.getElementById('f-rarity').value,
+        damage: document.getElementById('f-dmg').value,
+        weight: parseFloat(document.getElementById('f-weight').value) || 1,
+        stars: 5,
+        img: document.getElementById('f-img').value,
+        desc: document.getElementById('f-desc').value
+      };
+
+      p.cards.unshift(newCard);
+      if (!campaign.logs) campaign.logs = [];
+      campaign.logs.unshift({
+        time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+        text: `🎁 DM ha forgiato [${newCard.name}] (${newCard.rarity.toUpperCase()}) per ${p.name}!`
+      });
+
+      e.target.reset();
+      syncToCloud();
+      alert(`Carta inviata in diretta nel Deck di ${p.name}!`);
+    }
+
+    function removeCardAsDm(pId, cId) {
+      if (!isDmUnlocked) return;
+      const p = campaign.players.find(x => x.id === pId);
+      if (!p || !p.cards) return;
+      p.cards = p.cards.filter(c => c.id !== cId);
+      syncToCloud();
+    }
+
+    function rollStatLive(statName, val) {
+      haptic();
+      const p = campaign.players.find(x => x.id === localPlayerId);
+      const mod = Math.floor((val - 10) / 2);
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const tot = d20 + mod;
+
+      if (!campaign.logs) campaign.logs = [];
+      campaign.logs.unshift({
+        time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+        text: `🎲 ${p.name} tira su ${statName}: ${tot} (D20: ${d20})`
+      });
+      syncToCloud();
+      alert(`Prova su ${statName}: ${tot} (Dado: ${d20})`);
+    }
+
+    function render() {
+      document.getElementById('dm-lock-icon').textContent = isDmUnlocked ? '🐉' : '🔒';
+
+      const sel = document.getElementById('mobile-player-select');
+      sel.innerHTML = campaign.players.map(p => `<option value="${p.id}" ${p.id === localPlayerId ? 'selected' : ''}>${p.name}</option>`).join('');
+
+      const fTarget = document.getElementById('f-target');
+      const prevTarget = fTarget.value;
+      fTarget.innerHTML = campaign.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      if (prevTarget) fTarget.value = prevTarget;
+
+      const p = campaign.players.find(x => x.id === localPlayerId) || campaign.players[0];
+      const pCards = p.cards || [];
+
+      document.getElementById('m-avatar').src = p.avatar;
+      document.getElementById('m-name').textContent = p.name;
+      document.getElementById('m-class').textContent = p.class;
+      document.getElementById('m-hp-badge').textContent = `❤️ ${p.hp}/${p.maxHp} PF`;
+      document.getElementById('m-ac-badge').textContent = `🛡️ CA ${p.ac} • Bonus +${p.atkBonus}`;
+
+      const filtered = localFilter === 'tutti' ? pCards : pCards.filter(c => c.type === localFilter);
+      document.getElementById('m-cards-carousel').innerHTML = filtered.map(c => renderCardHTML(c, p.id, true)).join('');
+
+      // Scheda & Statistiche
+      const pct = Math.round((p.hp / p.maxHp) * 100);
+      document.getElementById('s-hp-label').textContent = `${p.hp} / ${p.maxHp} PF`;
+      document.getElementById('s-hp-bar').style.width = `${pct}%`;
+
+      document.getElementById('s-stats-grid').innerHTML = Object.entries(p.stats || {}).map(([k, v]) => {
+        const mod = Math.floor((v - 10) / 2);
+        const modStr = mod >= 0 ? `+${mod}` : mod;
+        return `
+          <button onclick="rollStatLive('${k}', ${v})" class="bg-gray-950 border border-gray-800 p-3 rounded-xl text-center active:scale-95 transition">
+            <span class="text-[10px] text-gray-400 font-bold block">${k}</span>
+            <span class="font-cinzel text-lg font-black text-amber-400">${modStr}</span>
+            <span class="text-[10px] text-gray-500 block">(${v})</span>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('s-skills-list').innerHTML = (p.skills || []).map(s => `<li class="bg-gray-950 p-2.5 rounded-xl border border-gray-800">✦ ${s}</li>`).join('');
+
+      // Vista DM con gestione carte di ogni Player
+      document.getElementById('dm-mobile-party').innerHTML = campaign.players.map(pl => `
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-bold text-xs text-white block">${pl.name}</span>
+              <span class="text-[11px] text-red-400 font-bold">❤️ ${pl.hp}/${pl.maxHp} PF • CA ${pl.ac}</span>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="changeHP(-5, '${pl.id}')" class="px-2.5 py-1 bg-red-950 text-red-300 rounded-lg text-xs font-bold">-5</button>
+              <button onclick="changeHP(-1, '${pl.id}')" class="px-2.5 py-1 bg-red-950 text-red-300 rounded-lg text-xs font-bold">-1</button>
+              <button onclick="changeHP(1, '${pl.id}')" class="px-2.5 py-1 bg-emerald-950 text-emerald-300 rounded-lg text-xs font-bold">+1</button>
+              <button onclick="changeHP(5, '${pl.id}')" class="px-2.5 py-1 bg-emerald-950 text-emerald-300 rounded-lg text-xs font-bold">+5</button>
+            </div>
+          </div>
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar pt-1">
+            ${(pl.cards || []).map(c => `
+              <span class="inline-flex items-center gap-1 bg-gray-950 border border-gray-800 px-2 py-0.5 rounded text-[10px] text-gray-300 flex-shrink-0">
+                ${c.name}
+                <button onclick="removeCardAsDm('${pl.id}', '${c.id}')" class="text-red-400 font-bold ml-1">✕</button>
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('dm-cloud-logs').innerHTML = (campaign.logs || []).slice(0, 15).map(l => `
+        <div class="bg-gray-950 border border-gray-800 p-2 rounded-lg">
+          <span class="text-[10px] text-amber-400 font-bold mr-1">[${l.time}]</span>
+          <span class="text-gray-300">${l.text}</span>
+        </div>
+      `).join('');
+    }
+
+    render();
+    initCloud();
+  </script>
+</body>
+</html>
