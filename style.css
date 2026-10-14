@@ -56,7 +56,7 @@ body {
 }
 .gold-btn:active { transform: scale(0.96); }
 
-/* Barra Inferiore e Cerchio Elmo Vichingo Centrale */
+/* Barra Inferiore e Cerchi Elmo Vichingo */
 .bottom-nav-bar {
   position: fixed;
   bottom: 0;
@@ -64,7 +64,7 @@ body {
   right: 0;
   height: 76px;
   padding-bottom: var(--safe-bottom);
-  background: rgba(7, 11, 20, 0.94);
+  background: rgba(7, 11, 20, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(56, 189, 248, 0.25);
@@ -80,7 +80,43 @@ body {
   box-shadow: 0 0 25px rgba(56, 189, 248, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.6);
 }
 
-/* Carte Stile Yu-Gi-Oh! */
+.viking-helm-circle-gold {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #fde047, #d97706);
+  border: 3px solid #fef9c3;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+}
+
+/* Swipe-to-Delete Campagne DM */
+.swipe-row-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.swipe-delete-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #450a0a, #dc2626);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 20px;
+  border-radius: 16px;
+}
+
+.swipe-front-card {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.swipe-front-card.swiped-left {
+  transform: translateX(-110px);
+}
+
+/* Carte Yu-Gi-Oh! con Immagine Auto-Adattata */
 .ygo-card {
   position: relative;
   width: 245px;
@@ -97,8 +133,9 @@ body {
 .ygo-card:active { transform: scale(0.96); }
 
 .type-arma { background: linear-gradient(145deg, #3b1d11, #1a0c07); }
-.type-incantesimo { background: linear-gradient(145deg, #0c3b49, #061c24); }
+.type-scudo { background: linear-gradient(145deg, #1e293b, #0f172a); }
 .type-armatura { background: linear-gradient(145deg, #27303f, #11161f); }
+.type-incantesimo { background: linear-gradient(145deg, #0c3b49, #061c24); }
 .type-oggetto { background: linear-gradient(145deg, #35154d, #170824); }
 
 .rarity-comune { border: 3.5px solid #94a3b8; box-shadow: 0 4px 12px rgba(148,163,184,0.2); }
@@ -118,11 +155,18 @@ body {
 
 .ygo-art {
   width: 100%;
-  height: 138px;
+  height: 142px;
   border: 2px solid #d4af37;
   border-radius: 4px;
   overflow: hidden;
   background: #030712;
+}
+
+.ygo-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .ygo-lore {
