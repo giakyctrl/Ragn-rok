@@ -1,1 +1,154 @@
+:root {
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
 
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #050811;
+  color: #e2e8f0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+}
+
+.main-wrapper {
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+.font-norse { font-family: 'Cinzel Decorative', serif; }
+.font-cinzel { font-family: 'Cinzel', serif; }
+
+#frost-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.norse-panel {
+  background: linear-gradient(160deg, rgba(13, 21, 38, 0.92), rgba(7, 11, 20, 0.96));
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.norse-border-gold {
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.ice-btn {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border: 1px solid #7dd3fc;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+  transition: all 0.2s ease;
+}
+.ice-btn:active { transform: scale(0.96); }
+
+.gold-btn {
+  background: linear-gradient(135deg, #b45309, #78350f);
+  border: 1px solid #fcd34d;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s ease;
+}
+.gold-btn:active { transform: scale(0.96); }
+
+/* Barra Inferiore e Cerchio Elmo Vichingo Centrale */
+.bottom-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  padding-bottom: var(--safe-bottom);
+  background: rgba(7, 11, 20, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(56, 189, 248, 0.25);
+  z-index: 40;
+}
+
+.viking-helm-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #7dd3fc, #0284c7);
+  border: 3px solid #e0f2fe;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+}
+
+/* Carte Stile Yu-Gi-Oh! */
+.ygo-card {
+  position: relative;
+  width: 245px;
+  height: 365px;
+  border-radius: 10px;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+.ygo-card:active { transform: scale(0.96); }
+
+.type-arma { background: linear-gradient(145deg, #3b1d11, #1a0c07); }
+.type-incantesimo { background: linear-gradient(145deg, #0c3b49, #061c24); }
+.type-armatura { background: linear-gradient(145deg, #27303f, #11161f); }
+.type-oggetto { background: linear-gradient(145deg, #35154d, #170824); }
+
+.rarity-comune { border: 3.5px solid #94a3b8; box-shadow: 0 4px 12px rgba(148,163,184,0.2); }
+.rarity-non-comune { border: 3.5px solid #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.45); }
+.rarity-raro { border: 3.5px solid #38bdf8; box-shadow: 0 0 18px rgba(56,189,248,0.65); }
+.rarity-molto-raro { border: 3.5px solid #a855f7; box-shadow: 0 0 22px rgba(168,85,247,0.8); }
+.rarity-leggendario {
+  border: 4px solid #fbbf24;
+  box-shadow: 0 0 28px rgba(251,191,36,0.9), inset 0 0 14px rgba(251,191,36,0.45);
+  animation: ragnarokPulse 2.2s infinite alternate;
+}
+
+@keyframes ragnarokPulse {
+  0% { border-color: #d97706; box-shadow: 0 0 16px rgba(217,119,6,0.7); }
+  100% { border-color: #fef08a; box-shadow: 0 0 32px rgba(250,204,21,1); }
+}
+
+.ygo-art {
+  width: 100%;
+  height: 138px;
+  border: 2px solid #d4af37;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #030712;
+}
+
+.ygo-lore {
+  background: linear-gradient(180deg, #fef3c7, #fde68a);
+  color: #0f172a;
+  border: 2px solid #92400e;
+  padding: 6px;
+  height: 92px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@keyframes cardSlam {
+  0% { transform: scale(2.3) translateY(-120px) rotate(-10deg); opacity: 0; }
+  65% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-slam { animation: cardSlam 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes frostFlash {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-frost { animation: frostFlash 0.45s ease-out forwards; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
