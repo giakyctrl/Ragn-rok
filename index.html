@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- Configurazione Apple iOS Web App + Icona God of War Ragnarök -->
+  <!-- Configurazione iOS Web App + Logo God of War Ragnarök Proporzionato -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Yggdrasill">
-  <link rel="apple-touch-icon" href="https://wsrv.nl/?url=hips.hearstapps.com/hmg-prod/images/ragnarok-1600291665.png&w=512&h=512&fit=cover">
+  <link rel="apple-touch-icon" href="https://wsrv.nl/?url=hips.hearstapps.com/hmg-prod/images/ragnarok-1600291665.png&w=512&h=512&fit=contain&bg=050811">
 
-  <title>YGGDRASILL - Norse D&D Companion</title>
+  <title>YGGDRASILL - Norse D&D Beyond</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -18,1871 +18,633 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <style>
-    :root {
-      --safe-top: env(safe-area-inset-top, 20px);
-      --safe-bottom: env(safe-area-inset-bottom, 20px);
-      --ice-cyan: #38bdf8;
-      --ice-glow: rgba(56, 189, 248, 0.45);
-      --norse-gold: #d4af37;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #050811;
-      color: #e2e8f0;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      -webkit-user-select: none;
-      overflow-x: hidden;
-      min-height: 100vh;
-    }
-
-    .font-norse { font-family: 'Cinzel Decorative', serif; }
-    .font-cinzel { font-family: 'Cinzel', serif; }
-
-    /* Sfondo Canvas Tempesta di Ghiaccio e Vento */
-    #frost-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* Cornici Runiche Nordiche */
-    .norse-panel {
-      background: linear-gradient(160deg, rgba(13, 21, 38, 0.92), rgba(7, 11, 20, 0.96));
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.05);
-      backdrop-filter: blur(12px);
-    }
-
-    .norse-border-gold {
-      border: 1px solid rgba(212, 175, 55, 0.5);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
-    }
-
-    .ice-btn {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      border: 1px solid #7dd3fc;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
-      transition: all 0.2s ease;
-    }
-    .ice-btn:active {
-      transform: scale(0.96);
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
-    }
-
-    .gold-btn {
-      background: linear-gradient(135deg, #b45309, #78350f);
-      border: 1px solid #fcd34d;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
-      transition: all 0.2s ease;
-    }
-    .gold-btn:active { transform: scale(0.96); }
-
-    /* Stile Carte Equipaggiamento & Magie (Yu-Gi-Oh! Norse Edition) */
-    .ygo-card {
-      position: relative;
-      width: 245px;
-      height: 365px;
-      border-radius: 10px;
-      padding: 9px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex-shrink: 0;
-      transition: transform 0.28s ease, box-shadow 0.28s ease;
-      overflow: hidden;
-    }
-    .ygo-card:active { transform: scale(0.96); }
-
-    .type-arma { background: linear-gradient(145deg, #3b1d11, #1a0c07); }
-    .type-incantesimo { background: linear-gradient(145deg, #0c3b49, #061c24); }
-    .type-armatura { background: linear-gradient(145deg, #27303f, #11161f); }
-    .type-oggetto { background: linear-gradient(145deg, #35154d, #170824); }
-
-    /* Bordi Rarità */
-    .rarity-comune { border: 3.5px solid #94a3b8; box-shadow: 0 4px 12px rgba(148,163,184,0.2); }
-    .rarity-non-comune { border: 3.5px solid #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.45); }
-    .rarity-raro { border: 3.5px solid #38bdf8; box-shadow: 0 0 18px rgba(56,189,248,0.65); }
-    .rarity-molto-raro { border: 3.5px solid #a855f7; box-shadow: 0 0 22px rgba(168,85,247,0.8); }
-    .rarity-leggendario {
-      border: 4px solid #fbbf24;
-      box-shadow: 0 0 28px rgba(251,191,36,0.9), inset 0 0 14px rgba(251,191,36,0.45);
-      animation: ragnarokPulse 2.2s infinite alternate;
-    }
-
-    @keyframes ragnarokPulse {
-      0% { border-color: #d97706; box-shadow: 0 0 16px rgba(217,119,6,0.7); }
-      100% { border-color: #fef08a; box-shadow: 0 0 32px rgba(250,204,21,1); }
-    }
-
-    .ygo-art {
-      width: 100%;
-      height: 138px;
-      border: 2px solid #d4af37;
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-      background: #030712;
-    }
-
-    .ygo-lore {
-      background: linear-gradient(180deg, #fef3c7, #fde68a);
-      color: #0f172a;
-      border: 2px solid #92400e;
-      padding: 6px;
-      height: 92px;
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* Animazioni Eventi Globali */
-    @keyframes cardSlam {
-      0% { transform: scale(2.4) translateY(-120px) rotate(-10deg); opacity: 0; }
-      65% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
-      82% { transform: scale(1.05); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .animate-slam { animation: cardSlam 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-
-    @keyframes frostFlash {
-      0% { opacity: 0; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.05); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    .animate-frost { animation: frostFlash 0.6s ease-out forwards; }
-
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
+  <!-- Foglio di Stile Separato -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="relative">
 
   <!-- CANVAS NEVE, GHIACCIO E VENTO NORRENO -->
   <canvas id="frost-canvas"></canvas>
 
-  <!-- CONTENITORE PRINCIPALE SOPRA IL CANVAS -->
-  <div class="relative z-10 min-h-screen flex flex-col" style="padding-top: var(--safe-top); padding-bottom: var(--safe-bottom);">
+  <div class="relative z-10 min-h-screen flex flex-col main-wrapper">
 
     <!-- =========================================================================
-         1. SCHERMATA DI BENVENUTO (YGGDRASILL + ACCEDI / REGISTRATI IN ALTO A DX)
+         1. SCHERMATA DI BENVENUTO (ACCEDI / REGISTRATI IN ALTO A DESTRA)
          ========================================================================= -->
     <section id="screen-welcome" class="flex-1 flex flex-col justify-between p-6">
-      
-      <!-- Top Bar con Logo Runico a SX e Accedi / Registrati a DX -->
       <header class="flex justify-between items-center">
         <div class="flex items-center gap-2.5">
-          <!-- Icona Vettoriale Runa Algiz -->
           <svg class="w-8 h-8 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <path d="M12 2v20M12 9L5 3M12 9l7-6M8 22h8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <div>
             <span class="font-norse text-sm tracking-widest text-sky-300 block">YGGDRASILL</span>
-            <button onclick="openCloudConfigModal()" id="welcome-cloud-btn" class="text-[10px] text-sky-400/80 underline">Connetti Reame Cloud</button>
+            <button onclick="openCloudModal()" id="cloud-badge-btn" class="text-[10px] text-amber-400 underline">Verifica Cloud Database</button>
           </div>
         </div>
 
-        <!-- Pulsanti Accedi e Registrati in alto a destra -->
         <div class="flex items-center gap-2.5">
-          <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-sky-200 border border-sky-400/50 bg-sky-950/50 hover:bg-sky-900/60 transition">
+          <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-sky-200 border border-sky-400/50 bg-sky-950/50">
             ACCEDI
           </button>
-          <button onclick="openAuthModal('register')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-slate-950 bg-gradient-to-r from-sky-400 to-cyan-300 shadow-[0_0_15px_rgba(56,189,248,0.5)] transition">
+          <button onclick="openAuthModal('register')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-slate-950 bg-gradient-to-r from-sky-400 to-cyan-300 shadow-[0_0_15px_rgba(56,189,248,0.5)]">
             REGISTRATI
           </button>
         </div>
       </header>
 
-      <!-- Centro Schermata: Illustrazione Yggdrasill & Titolo Epico -->
       <div class="my-auto text-center max-w-lg mx-auto space-y-6 py-8">
-        <div class="relative w-48 h-48 mx-auto flex items-center justify-center">
-          <!-- Bagliore Glaciale Rotante -->
+        <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
           <div class="absolute inset-0 rounded-full bg-sky-500/20 blur-2xl animate-pulse"></div>
-          <div class="relative w-44 h-44 rounded-full border-2 border-sky-400/50 overflow-hidden shadow-[0_0_40px_rgba(56,189,248,0.4)] bg-slate-950 flex items-center justify-center">
-            <!-- Albero Cosmico Yggdrasill SVG Intricato -->
-            <svg class="w-36 h-36 text-sky-300 drop-shadow-[0_0_10px_rgba(56,189,248,0.9)]" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="relative w-40 h-40 rounded-full border-2 border-sky-400/50 shadow-[0_0_40px_rgba(56,189,248,0.4)] bg-slate-950 flex items-center justify-center">
+            <!-- Albero Cosmico Yggdrasill SVG -->
+            <svg class="w-32 h-32 text-sky-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="50" cy="50" r="46" stroke="rgba(212,175,55,0.4)" stroke-dasharray="4 3"/>
-              <!-- Radici -->
               <path d="M50 70 C42 82, 30 88, 22 90 M50 70 C58 82, 70 88, 78 90 M50 70 L50 94" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round"/>
-              <!-- Tronco -->
               <path d="M47 70 C48 55, 48 45, 50 35 C52 45, 52 55, 53 70" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2.5"/>
-              <!-- Chioma Cosmica -->
               <path d="M50 38 C35 35, 22 26, 18 16 M50 38 C65 35, 78 26, 82 16 M50 35 C40 24, 34 14, 36 8 M50 35 C60 24, 66 14, 64 8 M50 35 L50 6" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="50" cy="24" r="18" stroke="rgba(56,189,248,0.35)" fill="rgba(56,189,248,0.08)"/>
             </svg>
           </div>
         </div>
 
         <div class="space-y-2">
           <p class="font-cinzel text-xs uppercase tracking-[0.35em] text-sky-400">Cronache dei Nove Reami</p>
-          <h1 class="font-norse text-4xl sm:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-200 to-sky-500 drop-shadow-[0_4px_20px_rgba(56,189,248,0.5)]">
+          <h1 class="font-norse text-4xl sm:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-200 to-sky-500">
             YGGDRASILL
           </h1>
           <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed pt-2">
-            Forgia il tuo eroe, custodisci le tue reliquie nel ghiaccio eterno e unisciti alla campagna del tuo Game Master in tempo reale.
+            Compila la tua scheda eroe stile D&D Beyond, gestisci le tue carte reliquia e sincronizza la tua campagna tra PC, iPad e iPhone.
           </p>
         </div>
 
         <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
           <button onclick="openAuthModal('register')" class="ice-btn px-8 py-3.5 rounded-xl font-cinzel font-bold text-sm text-white tracking-wider">
-            INIZIA IL TUO VIAGGIO
+            CREA IL TUO ACCOUNT
           </button>
           <button onclick="openAuthModal('login')" class="norse-panel px-8 py-3.5 rounded-xl font-cinzel font-bold text-sm text-sky-300 border border-sky-500/40">
-            RIPRENDI SESSIONE
+            ACCEDI AL PROFILO
           </button>
         </div>
       </div>
 
-      <!-- Footer Runico -->
       <footer class="text-center text-[11px] text-slate-500 font-cinzel tracking-widest">
-        SISTEMA D&D 5E • SINCRONIZZAZIONE MULTI-DISPOSITIVO
+        ARCHITETTURA MODULARE • D&D 5E COMPANION
       </footer>
     </section>
 
     <!-- =========================================================================
-         2. WIZARD CREAZIONE PERSONAGGIO (STILE D&D BEYOND - 5 PASSI)
+         2. CREAZIONE PERSONAGGIO COMPLETA IN UN'UNICA PAGINA (COMPILAZIONE LIBERA)
          ========================================================================= -->
-    <section id="screen-builder" class="hidden flex-1 flex flex-col p-4 max-w-2xl mx-auto w-full">
-      <header class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+    <section id="screen-builder" class="hidden flex-1 p-4 max-w-3xl mx-auto w-full space-y-5 pb-28">
+      <header class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Forgia dell'Anima • Stile D&D Beyond</span>
-          <h2 class="font-cinzel text-lg font-bold text-white">Creazione del Personaggio</h2>
+          <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Scheda Ufficiale D&D Beyond</span>
+          <h2 class="font-cinzel text-xl font-bold text-white">Compilazione Completa del Personaggio</h2>
         </div>
-        <button onclick="cancelBuilder()" id="btn-cancel-builder" class="hidden text-xs text-slate-400 hover:text-white border border-slate-700 px-3 py-1.5 rounded-lg">
-          Annulla
+        <button onclick="cancelCharacterForm()" id="btn-cancel-form" class="hidden text-xs text-slate-400 border border-slate-700 px-3 py-1.5 rounded-lg">
+          Torna Indietro
         </button>
       </header>
 
-      <!-- Barra Progresso 5 Step -->
-      <div class="grid grid-cols-5 gap-1.5 mb-5 text-center text-[10px] font-cinzel font-bold">
-        <div id="step-ind-1" class="py-1.5 rounded bg-sky-500 text-slate-950">1. Identità</div>
-        <div id="step-ind-2" class="py-1.5 rounded bg-slate-900 text-slate-500 border border-slate-800">2. Stirpe</div>
-        <div id="step-ind-3" class="py-1.5 rounded bg-slate-900 text-slate-500 border border-slate-800">3. Classe</div>
-        <div id="step-ind-4" class="py-1.5 rounded bg-slate-900 text-slate-500 border border-slate-800">4. Attributi</div>
-        <div id="step-ind-5" class="py-1.5 rounded bg-slate-900 text-slate-500 border border-slate-800">5. Origine</div>
-      </div>
-
-      <!-- STEP 1: Nome & Ritratto -->
-      <div id="b-step-1" class="norse-panel rounded-2xl p-5 space-y-5 flex-1">
-        <h3 class="font-cinzel font-bold text-base text-sky-300">Scegli il Nome e il Volto del tuo Eroe</h3>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">Nome dell'Eroe</label>
-          <input id="b-name" type="text" placeholder="Es. Bjorn Ironside, Freya, Kaelen..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-sky-400 focus:outline-none">
-        </div>
-
-        <div>
-          <label class="text-xs text-slate-400 block mb-2">Seleziona un Ritratto Eroico</label>
-          <div id="b-avatar-grid" class="grid grid-cols-3 gap-3">
-            <!-- Popolato da JS -->
+      <form onsubmit="saveFullCharacterSheet(event)" class="space-y-5 text-xs">
+        
+        <!-- Blocco 1: Identità, Razza, Classe, Livello, Background -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">1. Identità & Origine dell'Eroe</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-slate-400 block mb-1">Nome del Personaggio *</label>
+              <input id="cf-name" type="text" required placeholder="Es. Kaelen, Bjorn, Lyra..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Razza / Stirpe *</label>
+              <input id="cf-race" type="text" required placeholder="Es. Umano, Elfo dei Boschi, Goliath..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Classe & Sottoclasse *</label>
+              <input id="cf-class" type="text" required placeholder="Es. Paladino del Giuramento Antico" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-1">Livello *</label>
+                <input id="cf-level" type="number" min="1" max="20" value="1" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Dado Vita</label>
+                <input id="cf-hitdie" type="text" value="1d10" required placeholder="Es. 1d10" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Background / Passato</label>
+              <input id="cf-bg" type="text" placeholder="Es. Soldato, Eroe Popolare, Sapiente..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Allineamento</label>
+              <input id="cf-align" type="text" placeholder="Es. Caotico Buono, Neutrale..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
           </div>
-        </div>
-      </div>
 
-      <!-- STEP 2: Scelta della Razza (Stirpe) -->
-      <div id="b-step-2" class="hidden norse-panel rounded-2xl p-5 space-y-4 flex-1">
-        <h3 class="font-cinzel font-bold text-base text-sky-300">Scegli la Stirpe (Razza D&D 5e)</h3>
-        <p class="text-xs text-slate-400">Ogni stirpe conferisce bonus automatici alle caratteristiche e tratti ancestrali.</p>
-        <div id="b-race-list" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
-      </div>
-
-      <!-- STEP 3: Scelta della Classe -->
-      <div id="b-step-3" class="hidden norse-panel rounded-2xl p-5 space-y-4 flex-1">
-        <h3 class="font-cinzel font-bold text-base text-sky-300">Scegli la Vocazione (Classe)</h3>
-        <p class="text-xs text-slate-400">Determina i tuoi Punti Ferita massimi, la Classe Armatura base e le carte iniziali del tuo Deck.</p>
-        <div id="b-class-list" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
-      </div>
-
-      <!-- STEP 4: Punteggi di Caratteristica (Point Buy / Standard Array) -->
-      <div id="b-step-4" class="hidden norse-panel rounded-2xl p-5 space-y-4 flex-1">
-        <div class="flex justify-between items-center">
+          <!-- Scelta Avatar o Link Personalizzato -->
           <div>
-            <h3 class="font-cinzel font-bold text-base text-sky-300">Punteggi di Caratteristica</h3>
-            <p class="text-xs text-slate-400">Distribuisci i punti (i bonus di Stirpe vengono sommati automaticamente).</p>
-          </div>
-          <div class="text-right bg-sky-950/80 border border-sky-500/40 px-3 py-1.5 rounded-xl">
-            <span class="text-[10px] text-sky-300 uppercase block">Punti Rimasti</span>
-            <span id="b-points-left" class="font-cinzel font-black text-lg text-white">27</span>
+            <label class="text-slate-400 block mb-2">Seleziona un Ritratto o incolla il link di un'immagine</label>
+            <div id="cf-avatar-Selector" class="grid grid-cols-6 gap-2 mb-2"></div>
+            <input id="cf-avatar-url" type="url" placeholder="Oppure incolla qui l'URL di un'immagine personalizzata..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
         </div>
-        <div id="b-stats-allocator" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-      </div>
 
-      <!-- STEP 5: Background & Riepilogo Finale -->
-      <div id="b-step-5" class="hidden norse-panel rounded-2xl p-5 space-y-4 flex-1">
-        <h3 class="font-cinzel font-bold text-base text-sky-300">Origine (Background) & Giuramento</h3>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">Passato dell'Eroe</label>
-          <select id="b-background" onchange="updateBuilderSummary()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white">
-            <option value="Eroe del Popolo">Eroe del Popolo (Sopravvivenza, Addestrare Animali)</option>
-            <option value="Soldato Veterano">Soldato Veterano (Atletica, Intimidire)</option>
-            <option value="Sapiente delle Rune">Sapiente delle Rune (Arcano, Storia)</option>
-            <option value="Criminale delle Ombre">Criminale delle Ombre (Furtività, Inganno)</option>
-            <option value="Accolito del Tempio">Accolito del Tempio (Religione, Intuizione)</option>
-          </select>
+        <!-- Blocco 2: Statistiche di Combattimento (PF, CA, Velocità, Bonus Attacco) -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">2. Parametri Vitali & Combattimento</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="text-slate-400 block mb-1">Punti Ferita Massimi *</label>
+              <input id="cf-maxhp" type="number" min="1" value="30" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Classe Armatura (CA) *</label>
+              <input id="cf-ac" type="number" min="1" value="16" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Bonus Attacco / Comp. *</label>
+              <input id="cf-atk" type="number" value="5" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Velocità (m)</label>
+              <input id="cf-speed" type="text" value="9m" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+          </div>
         </div>
 
-        <!-- Riepilogo Scheda D&D Beyond -->
-        <div id="b-summary-box" class="bg-slate-950/90 border border-sky-500/30 rounded-xl p-4 space-y-2 text-xs"></div>
-      </div>
+        <!-- Blocco 3: Le 6 Caratteristiche (Inserimento Diretto Libero) -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">3. Punteggi di Caratteristica (Valori Totali)</h3>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">FOR</label>
+              <input id="cf-stat-FOR" type="number" min="1" max="30" value="16" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">DES</label>
+              <input id="cf-stat-DES" type="number" min="1" max="30" value="14" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">COS</label>
+              <input id="cf-stat-COS" type="number" min="1" max="30" value="15" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">INT</label>
+              <input id="cf-stat-INT" type="number" min="1" max="30" value="10" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">SAG</label>
+              <input id="cf-stat-SAG" type="number" min="1" max="30" value="12" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <label class="font-cinzel font-bold text-sky-300 block mb-1">CAR</label>
+              <input id="cf-stat-CAR" type="number" min="1" max="30" value="14" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold">
+            </div>
+          </div>
+        </div>
 
-      <!-- Bottoni Navigazione Step -->
-      <div class="flex justify-between items-center pt-4 mt-4 border-t border-slate-800">
-        <button id="btn-prev-step" onclick="changeBuilderStep(-1)" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-cinzel font-bold">
-          INDIETRO
+        <!-- Blocco 4: Abilità, Privilegi di Classe e Tratti (Compilazione Libera) -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">4. Abilità, Competenze & Privilegi di Classe</h3>
+          <div>
+            <label class="text-slate-400 block mb-1">Scrivi i tuoi privilegi, competenze e abilità (uno per riga)</label>
+            <textarea id="cf-traits" rows="4" placeholder="Es.&#10;Punizione Divina (+2d8 danni radiosi)&#10;Scurovisione 18m&#10;Competenza in Atletica, Intimidire e Percezione" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white"></textarea>
+          </div>
+        </div>
+
+        <!-- Blocco 5: Prima Arma / Incantesimo Iniziale (Carta Yu-Gi-Oh!) -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase border-b border-slate-800 pb-2">5. Arma o Incantesimo Principale (Prima Carta del Deck)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input id="cf-card-name" type="text" required value="Lama Runica del Nord" placeholder="Nome Arma/Magia" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            <select id="cf-card-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              <option value="comune">Rarità: Comune</option>
+              <option value="non-comune">Rarità: Non Comune</option>
+              <option value="raro" selected>Rarità: Raro</option>
+              <option value="molto-raro">Rarità: Molto Raro</option>
+              <option value="leggendario">Rarità: Leggendario</option>
+            </select>
+            <input id="cf-card-dmg" type="text" required value="1d8+3" placeholder="Danno (es. 1d8+3)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+          </div>
+          <input id="cf-card-desc" type="text" value="Arma forgiata per affrontare i pericoli dei Nove Reami." placeholder="Descrizione della carta..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+        </div>
+
+        <button type="submit" class="ice-btn w-full py-4 rounded-2xl font-cinzel font-black text-sm text-white tracking-widest shadow-xl">
+          SALVA SCHEDA PERSONAGGIO E INIZIA A GIOCARE
         </button>
-        <button id="btn-next-step" onclick="changeBuilderStep(1)" class="ice-btn px-6 py-2.5 rounded-xl text-white text-xs font-cinzel font-bold">
-          AVANTI
-        </button>
-      </div>
+      </form>
     </section>
 
     <!-- =========================================================================
-         3. DASHBOARD PRINCIPALE LOGGATA (SWIPE TRA "PERSONAGGI" E "CAMPAGNE")
+         3. DASHBOARD PRINCIPALE LOGGATA CON BOTTOM BAR A 3 PULSANTI
          ========================================================================= -->
-    <section id="screen-main" class="hidden flex-1 flex flex-col">
+    <section id="screen-main" class="hidden flex-1 flex flex-col pb-28">
       
-      <!-- Top Bar Utente Loggato + Indicatori Pagina Swipe -->
-      <header class="px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center">
+      <!-- Top Header Utente -->
+      <header class="px-4 py-3 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center">
         <div class="flex items-center gap-2">
           <svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 2v20M12 9L5 3M12 9l7-6M8 22h8" stroke-linecap="round"/>
           </svg>
           <div>
             <span class="font-norse text-xs text-sky-300 tracking-wider block">YGGDRASILL</span>
-            <span id="user-badge" class="text-[10px] text-slate-400"></span>
+            <span id="top-user-label" class="text-[10px] text-slate-400"></span>
           </div>
         </div>
 
-        <!-- Switcher Pagina (Supporta anche lo Swipe Touch Destra/Sinistra) -->
-        <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
-          <button id="tab-btn-char" onclick="switchMainPage('personaggi')" class="px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] bg-sky-500 text-slate-950 transition">
-            PERSONAGGI
+        <div class="flex items-center gap-2">
+          <button onclick="openCloudModal()" class="text-[10px] px-2.5 py-1 rounded-lg bg-slate-900 border border-sky-500/30 text-sky-300">
+            Stato Cloud
           </button>
-          <button id="tab-btn-camp" onclick="switchMainPage('campagne')" class="px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] text-slate-400 transition">
-            CAMPAGNE
+          <button onclick="logoutUser()" class="text-[11px] text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1 rounded-lg">
+            Esci
           </button>
         </div>
-
-        <button onclick="logoutUser()" class="text-[11px] text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1.5 rounded-lg">
-          Esci
-        </button>
       </header>
 
-      <!-- AREA SWIPEABLE -->
-      <div id="swipe-area" class="flex-1 flex flex-col">
-
-        <!-- ================= PAGINA A: PERSONAGGI (SCHEDA D&D BEYOND + COMBATTIMENTO) ================= -->
-        <div id="page-personaggi" class="flex-1 p-4 space-y-4 max-w-4xl mx-auto w-full">
+      <!-- ================= VISTA 1 (SINISTRA): DUNGEON MASTER ================= -->
+      <div id="view-dm" class="hidden flex-1 p-4 space-y-5 max-w-4xl mx-auto w-full">
+        
+        <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-3">
+          <span class="text-[10px] font-cinzel uppercase tracking-widest text-amber-400">Sala del Trono • Game Master</span>
+          <h2 class="font-cinzel font-bold text-lg text-white">Crea o Gestisci la tua Campagna</h2>
+          <p class="text-xs text-slate-400">Genera un nuovo codice campagna da dare ai tuoi giocatori oppure seleziona una campagna che hai già fondato.</p>
           
-          <!-- Selettore Personaggio + Crea Nuovo -->
-          <div class="flex justify-between items-center gap-2">
-            <select id="char-select" onchange="selectCharacter(this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-cinzel font-bold text-sky-300"></select>
-            <button onclick="startCharacterBuilder(true)" class="px-3 py-2 rounded-xl bg-slate-800 border border-sky-500/40 text-sky-300 text-xs font-cinzel font-bold">
-              + Nuovo Eroe
+          <div class="flex flex-col sm:flex-row gap-2 pt-1">
+            <input id="dm-new-title" type="text" placeholder="Nome della nuova Campagna (es. Ragnarök)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+            <button onclick="createNewCampaignAsDM()" class="gold-btn px-5 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">
+              + CREA NUOVA CAMPAGNA
             </button>
           </div>
 
-          <!-- Header Eroico Personaggio (Vita, CA, Iniziativa, Velocità) -->
-          <div class="norse-panel rounded-2xl p-4 space-y-4">
-            <div class="flex items-center gap-3.5">
-              <img id="c-avatar" src="" class="w-16 h-16 rounded-xl object-cover border-2 border-sky-400 shadow-lg">
-              <div class="flex-1">
-                <div class="flex justify-between items-start">
-                  <h2 id="c-name" class="font-cinzel font-bold text-lg text-white"></h2>
-                  <span id="c-campaign-tag" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"></span>
-                </div>
-                <p id="c-subtitle" class="text-xs text-sky-300/90"></p>
-                <p id="c-bg" class="text-[11px] text-slate-400"></p>
-              </div>
-            </div>
+          <div class="pt-2">
+            <label class="text-[11px] text-slate-400 block mb-1">Le Campagne create da te come Dungeon Master:</label>
+            <select id="dm-owned-campaigns-select" onchange="selectDmCampaign(this.value)" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl p-2.5 text-xs font-cinzel font-bold text-amber-300"></select>
+          </div>
+        </div>
 
-            <!-- Barra Punti Ferita Interattiva -->
+        <!-- Console Tattica DM (Visibile quando il DM ha almeno una campagna creata) -->
+        <div id="dm-active-workspace" class="hidden space-y-5">
+          
+          <!-- Banner Codice da condividere -->
+          <div class="norse-panel rounded-2xl p-4 flex justify-between items-center border border-amber-500/40">
             <div>
-              <div class="flex justify-between text-xs font-bold mb-1">
-                <span class="text-red-400 font-cinzel uppercase tracking-wider">Punti Ferita (HP)</span>
-                <span id="c-hp-text" class="text-white"></span>
-              </div>
-              <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-                <div id="c-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-400 transition-all duration-300"></div>
-              </div>
-              <div class="grid grid-cols-4 gap-2 mt-2.5">
-                <button onclick="modifyCharHP(-5)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-5</button>
-                <button onclick="modifyCharHP(-1)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-1 Danno</button>
-                <button onclick="modifyCharHP(1)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+1 Cura</button>
-                <button onclick="modifyCharHP(5)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+5</button>
-              </div>
+              <span class="text-[10px] text-slate-400 uppercase block">Campagna Attiva in Gestione</span>
+              <h3 id="dm-work-title" class="font-cinzel font-bold text-base text-white"></h3>
             </div>
-
-            <!-- Box Statistiche Chiave D&D Beyond -->
-            <div class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-slate-800/80">
-              <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800">
-                <span class="text-[9px] text-slate-400 uppercase block">Classe Arm.</span>
-                <span id="c-ac" class="font-cinzel font-black text-base text-sky-300"></span>
-              </div>
-              <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800">
-                <span class="text-[9px] text-slate-400 uppercase block">Iniziativa</span>
-                <span id="c-init" class="font-cinzel font-black text-base text-amber-300"></span>
-              </div>
-              <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800">
-                <span class="text-[9px] text-slate-400 uppercase block">Bonus Att.</span>
-                <span id="c-atk" class="font-cinzel font-black text-base text-emerald-300"></span>
-              </div>
-              <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800">
-                <span class="text-[9px] text-slate-400 uppercase block">Dado Vita</span>
-                <span id="c-hd" class="font-cinzel font-black text-base text-purple-300"></span>
-              </div>
+            <div class="bg-slate-950 border border-amber-400 px-4 py-2 rounded-xl text-right">
+              <span class="text-[9px] text-slate-400 uppercase block">Codice Invito Giocatori</span>
+              <span id="dm-work-code" class="font-cinzel font-black text-base text-amber-400 tracking-widest"></span>
             </div>
           </div>
 
-          <!-- Sotto-Navigazione Scheda (Simile a D&D Beyond: Combattimento / Attributi & Abilità / Forgia Personale) -->
-          <div class="grid grid-cols-3 gap-2 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs font-cinzel font-bold">
-            <button id="sub-btn-combat" onclick="switchCharSubTab('combat')" class="py-2 rounded-lg bg-sky-500 text-slate-950">
-              COMBATTIMENTO
+          <!-- Pulsanti Tattici Globali -->
+          <div class="norse-panel rounded-2xl p-4 space-y-3">
+            <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Comandi Tattici (Animazione & Redirect sui telefoni dei Player)</h4>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="dmTriggerTactical('BATTLE')" class="p-3.5 rounded-xl bg-gradient-to-b from-red-900/80 to-red-950 border border-red-500/60 text-center space-y-1 active:scale-95 transition">
+                <svg class="w-6 h-6 text-red-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5"/>
+                </svg>
+                <span class="font-cinzel font-bold text-xs text-white block">BATTAGLIA</span>
+                <span class="text-[9px] text-red-200 block">Apre Combat ai Player</span>
+              </button>
+
+              <button onclick="dmTriggerTactical('SHORT_REST')" class="p-3.5 rounded-xl bg-gradient-to-b from-amber-900/80 to-amber-950 border border-amber-500/60 text-center space-y-1 active:scale-95 transition">
+                <svg class="w-6 h-6 text-amber-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-4 3-6 4-9zM6 21h12"/>
+                </svg>
+                <span class="font-cinzel font-bold text-xs text-white block">RIPOSO CORTO</span>
+                <span class="text-[9px] text-amber-200 block">+25% Punti Ferita</span>
+              </button>
+
+              <button onclick="dmTriggerTactical('LONG_REST')" class="p-3.5 rounded-xl bg-gradient-to-b from-sky-900/80 to-sky-950 border border-sky-400/60 text-center space-y-1 active:scale-95 transition">
+                <svg class="w-6 h-6 text-sky-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+                <span class="font-cinzel font-bold text-xs text-white block">RIPOSO LUNGO</span>
+                <span class="text-[9px] text-sky-200 block">Cura Totale 100%</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Schede dei Giocatori Iscritti alla Campagna -->
+          <div class="norse-panel rounded-2xl p-4 space-y-3">
+            <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Controllo Schede Giocatori Connessi</h4>
+            <div id="dm-players-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- Generatore Cassa del Dungeon -->
+          <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
+            <h4 class="font-cinzel font-bold text-sm text-amber-300">Generatore Cassa del Dungeon (Loot Condiviso)</h4>
+            <p class="text-xs text-slate-400">Inserisci gli oggetti nella cassa e inviala ai giocatori per farla aprire e dividere il bottino.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+              <input id="dm-loot-name" type="text" placeholder="Nome Oggetto" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
+              <select id="dm-loot-type" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
+                <option value="arma">Arma</option>
+                <option value="armatura">Armatura</option>
+                <option value="incantesimo">Incantesimo / Pergamena</option>
+                <option value="oggetto">Oggetto / Pozione</option>
+              </select>
+              <select id="dm-loot-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
+                <option value="comune">Comune</option>
+                <option value="non-comune">Non Comune</option>
+                <option value="raro">Raro</option>
+                <option value="molto-raro">Molto Raro</option>
+                <option value="leggendario">Leggendario</option>
+              </select>
+              <input id="dm-loot-dmg" type="text" placeholder="Danno/Effetto (es. 2d6+3)" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
+            </div>
+            <div class="flex gap-2">
+              <input id="dm-loot-desc" type="text" placeholder="Descrizione oggetto..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white">
+              <button onclick="dmAddLootToStaging()" class="px-4 py-2 bg-slate-800 border border-amber-500/40 text-amber-300 rounded-xl text-xs font-cinzel font-bold">
+                + Aggiungi
+              </button>
+            </div>
+            <div id="dm-staging-list" class="space-y-1 text-xs"></div>
+            <button onclick="dmPublishChest()" class="gold-btn w-full py-3 rounded-xl font-cinzel font-bold text-xs text-white">
+              INVIA CASSA DEL DUNGEON AI GIOCATORI
             </button>
-            <button id="sub-btn-stats" onclick="switchCharSubTab('stats')" class="py-2 rounded-lg text-slate-400">
-              ATTRIBUTI & TRATTI
-            </button>
-            <button id="sub-btn-addcard" onclick="switchCharSubTab('addcard')" class="py-2 rounded-lg text-slate-400">
-              + AGGIUNGI CARTA
-            </button>
           </div>
 
-          <!-- SOTTO-SCHEDA 1: COMBATTIMENTO & DECK YU-GI-OH + SCAMBIO + CASSA DUNGEON -->
-          <div id="char-sub-combat" class="space-y-4">
-            
-            <!-- BANNER CASSA DEL DUNGEON ATTIVA (Appare quando il DM genera un forziere) -->
-            <div id="active-chest-banner" class="hidden norse-panel norse-border-gold rounded-2xl p-4 space-y-3 animate-frost">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2.5">
-                  <!-- Icona SVG Forziere Runico -->
-                  <svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="8" width="18" height="13" rx="2"/>
-                    <path d="M3 12h18M12 10v4M5 8c0-3 3-5 7-5s7 2 7 5"/>
-                  </svg>
-                  <div>
-                    <h4 class="font-cinzel font-bold text-sm text-amber-300">Forziere del Dungeon Scoperto!</h4>
-                    <p class="text-[11px] text-slate-300">Tocca un oggetto per reclamarlo nel tuo Deck prima degli altri.</p>
-                  </div>
-                </div>
-              </div>
-              <div id="chest-loot-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-            </div>
-
-            <!-- Filtri Carte -->
-            <div class="flex gap-2 overflow-x-auto no-scrollbar">
-              <button onclick="filterCharCards('tutti')" id="cf-tutti" class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950">Tutte</button>
-              <button onclick="filterCharCards('arma')" id="cf-arma" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armi</button>
-              <button onclick="filterCharCards('incantesimo')" id="cf-incantesimo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Incantesimi</button>
-              <button onclick="filterCharCards('armatura')" id="cf-armatura" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armature</button>
-              <button onclick="filterCharCards('oggetto')" id="cf-oggetto" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Oggetti</button>
-            </div>
-
-            <!-- Carosello Carte Yu-Gi-Oh! (Con bottoni SCHIERA e SCAMBIA) -->
-            <div id="c-cards-carousel" class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory"></div>
-          </div>
-
-          <!-- SOTTO-SCHEDA 2: ATTRIBUTI D&D BEYOND & ABILITÀ -->
-          <div id="char-sub-stats" class="hidden space-y-4">
-            <div class="norse-panel rounded-2xl p-4">
-              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-3">Caratteristiche (Tocca per Test D20)</h4>
-              <div id="c-stats-grid" class="grid grid-cols-3 gap-2.5"></div>
-            </div>
-            <div class="norse-panel rounded-2xl p-4">
-              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-2.5">Competenze & Tratti Ancestrali</h4>
-              <ul id="c-traits-list" class="space-y-2 text-xs text-slate-300"></ul>
-            </div>
-          </div>
-
-          <!-- SOTTO-SCHEDA 3: AGGIUNGI CARTA PERSONALE -->
-          <div id="char-sub-addcard" class="hidden norse-panel rounded-2xl p-4">
-            <h4 class="font-cinzel font-bold text-sm text-sky-300 mb-3">Aggiungi Arma, Armatura o Incantesimo</h4>
-            <form onsubmit="addPersonalCard(event)" class="space-y-3 text-xs">
-              <input id="pc-name" type="text" required placeholder="Nome della Carta (es. Ascia del Leviatano)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-              <div class="grid grid-cols-2 gap-2">
-                <select id="pc-type" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                  <option value="arma">Arma</option>
-                  <option value="incantesimo">Incantesimo</option>
-                  <option value="armatura">Armatura</option>
-                  <option value="oggetto">Oggetto</option>
-                </select>
-                <select id="pc-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                  <option value="comune">Comune</option>
-                  <option value="non-comune">Non Comune</option>
-                  <option value="raro">Raro</option>
-                  <option value="molto-raro">Molto Raro</option>
-                  <option value="leggendario">Leggendario</option>
-                </select>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <input id="pc-dmg" type="text" required placeholder="Danno / Effetto (es. 1d12+4)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                <input id="pc-weight" type="number" step="0.5" value="2" placeholder="Peso (kg)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-              </div>
-              <textarea id="pc-desc" rows="2" required placeholder="Descrizione ed effetto in combattimento..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
-              <button type="submit" class="ice-btn w-full py-2.5 rounded-xl font-cinzel font-bold text-white">AGGIUNGI AL DECK</button>
-            </form>
+          <!-- Log Cronaca della Campagna -->
+          <div class="norse-panel rounded-2xl p-4 space-y-2">
+            <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase">Cronaca Live della Campagna</h4>
+            <div id="dm-logs-box" class="space-y-1.5 max-h-48 overflow-y-auto text-xs"></div>
           </div>
 
         </div>
+      </div>
 
-        <!-- ================= PAGINA B: CAMPAGNE (UNISCITI CON CODICE O CREA COME GAME MASTER) ================= -->
-        <div id="page-campagne" class="hidden flex-1 p-4 space-y-5 max-w-4xl mx-auto w-full">
+      <!-- ================= VISTA 2 (CENTRO - ELMO VICHINGO): PERSONAGGI ================= -->
+      <div id="view-characters" class="flex-1 p-4 space-y-4 max-w-4xl mx-auto w-full">
+        
+        <div class="flex justify-between items-center gap-2">
+          <select id="char-picker" onchange="switchActiveCharacter(this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-cinzel font-bold text-sky-300"></select>
+          <button onclick="openCharacterBuilder(true)" class="px-3.5 py-2.5 rounded-xl bg-slate-800 border border-sky-500/40 text-sky-300 text-xs font-cinzel font-bold">
+            + Nuovo Eroe
+          </button>
+        </div>
+
+        <!-- Pannello Vitale Eroe D&D Beyond -->
+        <div class="norse-panel rounded-2xl p-4 space-y-4">
+          <div class="flex items-center gap-3.5">
+            <img id="sheet-avatar" src="" class="w-16 h-16 rounded-xl object-cover border-2 border-sky-400 shadow-lg">
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h2 id="sheet-name" class="font-cinzel font-bold text-lg text-white"></h2>
+                <span id="sheet-camp-badge" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"></span>
+              </div>
+              <p id="sheet-race-class" class="text-xs text-sky-300"></p>
+              <p id="sheet-bg-align" class="text-[11px] text-slate-400"></p>
+            </div>
+          </div>
+
+          <!-- Punti Ferita -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-red-400 font-cinzel uppercase">Punti Ferita (HP)</span>
+              <span id="sheet-hp-label" class="text-white"></span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+              <div id="sheet-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-400 transition-all duration-300"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mt-2.5">
+              <button onclick="adjustMyHP(-5)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-5</button>
+              <button onclick="adjustMyHP(-1)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-1 Danno</button>
+              <button onclick="adjustMyHP(1)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+1 Cura</button>
+              <button onclick="adjustMyHP(5)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+5</button>
+            </div>
+          </div>
+
+          <!-- CA, Iniziativa, Bonus Attacco, Velocità -->
+          <div class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-slate-800">
+            <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9px] text-slate-400 uppercase block">CA</span>
+              <span id="sheet-ac" class="font-cinzel font-black text-base text-sky-300"></span>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9px] text-slate-400 uppercase block">Iniziativa</span>
+              <span id="sheet-init" class="font-cinzel font-black text-base text-amber-300"></span>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9px] text-slate-400 uppercase block">Bonus Att.</span>
+              <span id="sheet-atk" class="font-cinzel font-black text-base text-emerald-300"></span>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9px] text-slate-400 uppercase block">Velocità</span>
+              <span id="sheet-speed" class="font-cinzel font-black text-base text-purple-300"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sotto-schede D&D Beyond: Combattimento / Caratteristiche & Abilità / Forgia Carta -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-cinzel font-bold">
+          <button id="subtab-combat" onclick="setCharSubTab('combat')" class="py-2 rounded-lg bg-sky-500 text-slate-950">COMBATTIMENTO</button>
+          <button id="subtab-stats" onclick="setCharSubTab('stats')" class="py-2 rounded-lg text-slate-400">ATTRIBUTI & ABILITÀ</button>
+          <button id="subtab-forge" onclick="setCharSubTab('forge')" class="py-2 rounded-lg text-slate-400">+ NUOVA CARTA</button>
+        </div>
+
+        <!-- Sub-Tab 1: Combattimento & Carte Yu-Gi-Oh! -->
+        <div id="subcontent-combat" class="space-y-4">
           
-          <!-- PANNELLO SCELTA: UNISCITI COME PLAYER O CREA COME DM -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- Box 1: Unisciti a una Campagna esistente -->
-            <div class="norse-panel rounded-2xl p-5 space-y-3">
-              <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Giocatore</span>
-              <h3 class="font-cinzel font-bold text-base text-white">Unisciti a una Campagna</h3>
-              <p class="text-xs text-slate-400">Inserisci il Codice Runico fornito dal tuo Game Master per collegare il tuo personaggio attuale.</p>
-              <div class="flex gap-2 pt-1">
-                <input id="join-code-input" type="text" placeholder="Es. RAGNAR-77" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold uppercase text-sky-300">
-                <button onclick="joinCampaignWithCode()" class="ice-btn px-4 py-2 rounded-xl font-cinzel font-bold text-xs text-white">
-                  UNISCITI
-                </button>
-              </div>
-            </div>
-
-            <!-- Box 2: Diventa Game Master e Genera Codice -->
-            <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-3">
-              <span class="text-[10px] font-cinzel uppercase tracking-widest text-amber-400">Dungeon Master</span>
-              <h3 class="font-cinzel font-bold text-base text-white">Fonda una Nuova Campagna</h3>
-              <p class="text-xs text-slate-400">Genera un codice sala esclusivo, assumi il comando come Game Master e controlla il destino del party.</p>
-              <div class="flex gap-2 pt-1">
-                <input id="create-camp-name" type="text" placeholder="Nome Saga (es. Inverno di Fimbul)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <button onclick="createCampaignAsDM()" class="gold-btn px-4 py-2 rounded-xl font-cinzel font-bold text-xs text-amber-100">
-                  GENERA CODICE
-                </button>
-              </div>
-            </div>
+          <!-- Cassa del Dungeon (Se attiva nella campagna del personaggio) -->
+          <div id="player-chest-box" class="hidden norse-panel norse-border-gold rounded-2xl p-4 space-y-3 animate-frost">
+            <h4 class="font-cinzel font-bold text-sm text-amber-300">Forziere del Dungeon Aperto!</h4>
+            <p class="text-xs text-slate-300">Raccogli un oggetto per aggiungerlo al tuo Deck:</p>
+            <div id="player-chest-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
           </div>
 
-          <!-- ================= CONSOLE TATTICA DEL GAME MASTER (Visibile quando sei il DM della campagna attiva) ================= -->
-          <div id="dm-command-console" class="hidden space-y-5">
-            
-            <!-- Intestazione Codice Sala DM -->
-            <div class="norse-panel norse-border-gold rounded-2xl p-4 flex flex-wrap justify-between items-center gap-3">
-              <div>
-                <span class="text-[10px] font-cinzel uppercase tracking-widest text-amber-400 block">Trono del Game Master Attivo</span>
-                <h3 id="dm-camp-title" class="font-cinzel font-bold text-lg text-white"></h3>
-              </div>
-              <div class="bg-slate-950 border border-amber-500/50 px-4 py-2 rounded-xl text-right">
-                <span class="text-[9px] text-slate-400 uppercase block">Codice per i Giocatori</span>
-                <span id="dm-camp-code" class="font-cinzel font-black text-base text-amber-400 tracking-widest"></span>
-              </div>
-            </div>
-
-            <!-- PULSANTI TATTICI GLOBALI (Generano animazione + effetto su tutti i dispositivi dei player) -->
-            <div class="norse-panel rounded-2xl p-4 space-y-3">
-              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Comandi Tattici Globali (Effetto Live sui Dispositivi Player)</h4>
-              <div class="grid grid-cols-3 gap-3">
-                <button onclick="triggerGlobalEvent('BATTLE')" class="p-3.5 rounded-xl bg-gradient-to-b from-red-900/80 to-red-950 border border-red-500/60 text-center space-y-1 active:scale-95 transition shadow-lg">
-                  <svg class="w-6 h-6 text-red-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5M11 5L5 11M8 8L4 4M5 3L3 5"/>
-                  </svg>
-                  <span class="font-cinzel font-bold text-xs text-white block">BATTAGLIA</span>
-                  <span class="text-[9px] text-red-200 block">Apre Scheda Combat a tutti</span>
-                </button>
-
-                <button onclick="triggerGlobalEvent('SHORT_REST')" class="p-3.5 rounded-xl bg-gradient-to-b from-amber-900/80 to-amber-950 border border-amber-500/60 text-center space-y-1 active:scale-95 transition shadow-lg">
-                  <svg class="w-6 h-6 text-amber-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-4 3-6 4-9zM6 21h12M8 18h8"/>
-                  </svg>
-                  <span class="font-cinzel font-bold text-xs text-white block">RIPOSO CORTO</span>
-                  <span class="text-[9px] text-amber-200 block">+Dado Vita (+25% PF)</span>
-                </button>
-
-                <button onclick="triggerGlobalEvent('LONG_REST')" class="p-3.5 rounded-xl bg-gradient-to-b from-sky-900/80 to-sky-950 border border-sky-400/60 text-center space-y-1 active:scale-95 transition shadow-lg">
-                  <svg class="w-6 h-6 text-sky-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                  </svg>
-                  <span class="font-cinzel font-bold text-xs text-white block">RIPOSO LUNGO</span>
-                  <span class="text-[9px] text-sky-200 block">Cura Completa 100%</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- CONTROLLO SCHEDE DI TUTTI I GIOCATORI NELLA CAMPAGNA -->
-            <div class="norse-panel rounded-2xl p-4 space-y-3">
-              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Schede Eroi del Party in Tempo Reale</h4>
-              <div id="dm-party-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-            </div>
-
-            <!-- GENERATORE CASSA DEL DUNGEON (LOOT CHEST) -->
-            <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-4">
-              <div class="flex justify-between items-center">
-                <div>
-                  <h4 class="font-cinzel font-bold text-sm text-amber-300">Generatore Cassa del Dungeon (Loot Condiviso)</h4>
-                  <p class="text-xs text-slate-400">Prepara gli oggetti dentro il forziere e fallo apparire sugli schermi dei giocatori.</p>
-                </div>
-              </div>
-
-              <!-- Form Aggiunta Oggetto alla Cassa -->
-              <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
-                <input id="chest-item-name" type="text" placeholder="Nome Oggetto (es. Anello di Odino)" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
-                <select id="chest-item-type" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
-                  <option value="arma">Arma</option>
-                  <option value="armatura">Armatura</option>
-                  <option value="incantesimo">Pergamena / Magia</option>
-                  <option value="oggetto">Reliquia / Pozione</option>
-                </select>
-                <select id="chest-item-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
-                  <option value="comune">Comune</option>
-                  <option value="non-comune">Non Comune</option>
-                  <option value="raro">Raro</option>
-                  <option value="molto-raro">Molto Raro</option>
-                  <option value="leggendario">Leggendario</option>
-                </select>
-                <input id="chest-item-dmg" type="text" placeholder="Effetto (es. 2d8+3)" class="bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
-              </div>
-              <div class="flex gap-2">
-                <input id="chest-item-desc" type="text" placeholder="Descrizione breve della reliquia..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white">
-                <button onclick="addItemToStagingChest()" class="px-4 py-2 bg-slate-800 border border-amber-500/40 text-amber-300 rounded-xl text-xs font-cinzel font-bold">
-                  + Metti nella Cassa
-                </button>
-              </div>
-
-              <!-- Lista Oggetti Pronti nella Cassa -->
-              <div id="staging-chest-list" class="space-y-1.5 text-xs"></div>
-
-              <button onclick="spawnChestForPlayers()" class="gold-btn w-full py-3 rounded-xl font-cinzel font-bold text-xs text-white tracking-wider">
-                MATERIALIZZA CASSA SUI DISPOSITIVI DEI GIOCATORI
-              </button>
-            </div>
-
-            <!-- Cronaca Eventi della Campagna -->
-            <div class="norse-panel rounded-2xl p-4 space-y-2">
-              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase">Cronaca Runica della Sessione</h4>
-              <div id="camp-logs-list" class="space-y-1.5 max-h-48 overflow-y-auto text-xs"></div>
-            </div>
-
+          <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="setCardFilter('tutti')" id="flt-tutti" class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950">Tutte</button>
+            <button onclick="setCardFilter('arma')" id="flt-arma" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armi</button>
+            <button onclick="setCardFilter('incantesimo')" id="flt-incantesimo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Incantesimi</button>
+            <button onclick="setCardFilter('armatura')" id="flt-armatura" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armature</button>
+            <button onclick="setCardFilter('oggetto')" id="flt-oggetto" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Oggetti</button>
           </div>
 
-          <!-- VISTA PLAYER NELLA PAGINA CAMPAGNA (Quando sei unito come giocatore) -->
-          <div id="player-campaign-view" class="hidden norse-panel rounded-2xl p-5 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-              <div>
-                <span class="text-[10px] font-cinzel uppercase text-sky-400">Connesso alla Saga</span>
-                <h3 id="pl-camp-title" class="font-cinzel font-bold text-lg text-white"></h3>
-              </div>
-              <span id="pl-camp-code" class="px-3 py-1 rounded-lg bg-sky-950 border border-sky-500/40 font-cinzel font-bold text-xs text-sky-300"></span>
-            </div>
-            <p class="text-xs text-slate-400">I tuoi compagni di viaggio in questa campagna (puoi inviare loro oggetti direttamente dal tuo Deck nella pagina Personaggi):</p>
-            <div id="pl-party-fellows" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-          </div>
+          <div id="sheet-cards-carousel" class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory"></div>
+        </div>
 
+        <!-- Sub-Tab 2: Attributi & Tratti -->
+        <div id="subcontent-stats" class="hidden space-y-4">
+          <div class="norse-panel rounded-2xl p-4">
+            <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-3">Caratteristiche (Tocca per tirare 1d20 + Modificatore)</h4>
+            <div id="sheet-stats-grid" class="grid grid-cols-3 gap-2.5"></div>
+          </div>
+          <div class="norse-panel rounded-2xl p-4">
+            <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-2.5">Abilità, Competenze & Tratti</h4>
+            <ul id="sheet-traits-list" class="space-y-2 text-xs text-slate-300"></ul>
+          </div>
+        </div>
+
+        <!-- Sub-Tab 3: Aggiungi Nuova Carta -->
+        <div id="subcontent-forge" class="hidden norse-panel rounded-2xl p-4">
+          <h4 class="font-cinzel font-bold text-sm text-sky-300 mb-3">Crea una Nuova Carta nel tuo Deck</h4>
+          <form onsubmit="createPersonalCard(event)" class="space-y-3 text-xs">
+            <input id="newcard-name" type="text" required placeholder="Nome Arma, Armatura o Incantesimo" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            <div class="grid grid-cols-2 gap-2">
+              <select id="newcard-type" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option value="arma">Arma</option>
+                <option value="incantesimo">Incantesimo</option>
+                <option value="armatura">Armatura</option>
+                <option value="oggetto">Oggetto</option>
+              </select>
+              <select id="newcard-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option value="comune">Comune</option>
+                <option value="non-comune">Non Comune</option>
+                <option value="raro">Raro</option>
+                <option value="molto-raro">Molto Raro</option>
+                <option value="leggendario">Leggendario</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="newcard-dmg" type="text" required placeholder="Danno / CA (es. 2d6+4)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              <input id="newcard-weight" type="number" step="0.5" value="2" placeholder="Peso (kg)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <textarea id="newcard-desc" rows="2" required placeholder="Descrizione ed effetto..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
+            <button type="submit" class="ice-btn w-full py-2.5 rounded-xl font-cinzel font-bold text-white">AGGIUNGI CARTA AL DECK</button>
+          </form>
         </div>
 
       </div>
+
+      <!-- ================= VISTA 3 (DESTRA): LE TUE CAMPAGNE ================= -->
+      <div id="view-campaigns" class="hidden flex-1 p-4 space-y-5 max-w-4xl mx-auto w-full">
+        
+        <!-- Box Unisciti con Codice e Scegli quale Personaggio iscrivere -->
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Sala dei Giuramenti</span>
+          <h2 class="font-cinzel font-bold text-lg text-white">Unisciti a una Campagna</h2>
+          <p class="text-xs text-slate-400">Inserisci il codice fornito dal tuo Dungeon Master e scegli quale dei tuoi personaggi parteciperà a questa avventura.</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="text-slate-400 block mb-1">Codice Campagna del DM</label>
+              <input id="join-camp-code" type="text" placeholder="Es. YGG-4821" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 font-bold uppercase text-sky-300">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Personaggio da Iscrivere</label>
+              <select id="join-char-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white font-bold"></select>
+            </div>
+          </div>
+
+          <button onclick="joinCampaignAsPlayer()" class="ice-btn w-full py-3 rounded-xl font-cinzel font-bold text-xs text-white tracking-wider">
+            UNISCITI ALLA CAMPAGNA CON QUESTO PERSONAGGIO
+          </button>
+        </div>
+
+        <!-- Elenco "Le Tue Campagne" (Dove vedi in che campagna sei, con quale personaggio e i compagni) -->
+        <div class="space-y-3">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Le Campagne di cui fai parte</h3>
+          <div id="my-joined-campaigns-list" class="space-y-4"></div>
+        </div>
+
+      </div>
+
+      <!-- =========================================================================
+           BARRA DI NAVIGAZIONE INFERIORE CON CERCHIO CENTRALE ED ELMO VICHINGO
+           ========================================================================= -->
+      <nav class="bottom-nav-bar flex justify-around items-center px-4">
+        
+        <!-- SINISTRA: DUNGEON MASTER -->
+        <button onclick="switchBottomNav('dm')" id="bnav-dm" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Dungeon Master</span>
+        </button>
+
+        <!-- CENTRO: PERSONAGGI (DENTRO UN CERCHIO CON LOGO STILIZZATO DI ELMO VICHINGO) -->
+        <div class="relative -top-5 flex flex-col items-center">
+          <button onclick="switchBottomNav('characters')" id="bnav-characters" class="viking-helm-circle flex items-center justify-center transition transform active:scale-95">
+            <!-- Logo Stilizzato Elmo Vichingo con Corna e Nasale Runico (SVG) -->
+            <svg class="w-9 h-9 text-slate-950" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Corna Vichinghe Curvate -->
+              <path d="M18 26 C8 24, 4 14, 10 8 C12 14, 16 18, 22 20" fill="currentColor"/>
+              <path d="M46 26 C56 24, 60 14, 54 8 C52 14, 48 18, 42 20" fill="currentColor"/>
+              <!-- Calotta dell'Elmo -->
+              <path d="M18 32 C18 18, 46 18, 46 32 Z" fill="currentColor"/>
+              <!-- Fascia Frontale & Paraguance -->
+              <rect x="16" y="32" width="32" height="6" rx="2" fill="#0f172a"/>
+              <!-- Protezione Nasale e Oculare -->
+              <path d="M32 22 L32 48 M20 38 L20 48 L26 52 M44 38 L44 48 L38 52" stroke="#0f172a" stroke-width="3.5"/>
+            </svg>
+          </button>
+          <span id="bnav-char-label" class="font-cinzel font-black text-[10px] text-sky-300 tracking-widest mt-1 uppercase">Personaggi</span>
+        </div>
+
+        <!-- DESTRA: LE TUE CAMPAGNE -->
+        <button onclick="switchBottomNav('campaigns')" id="bnav-campaigns" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Le Tue Campagne</span>
+        </button>
+
+      </nav>
+
     </section>
 
   </div>
 
   <!-- =========================================================================
-       MODAL ACCEDI / REGISTRATI (AUTENTICAZIONE PERSISTENTE)
+       MODALI (LOGIN/REGISTRAZIONE, SCAMBIO CARTE, ANIMAZIONI GLOBALI, CLOUD)
        ========================================================================= -->
   <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="norse-panel rounded-2xl p-6 max-w-sm w-full space-y-5 border border-sky-400/40">
+    <div class="norse-panel rounded-2xl p-6 max-w-sm w-full space-y-4 border border-sky-400/40">
       <div class="flex justify-between items-center">
-        <h3 id="auth-title" class="font-cinzel font-bold text-lg text-sky-300">Accedi a Yggdrasill</h3>
-        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-sm font-bold">Chiudi</button>
+        <h3 id="auth-title" class="font-cinzel font-bold text-lg text-sky-300">Accedi</h3>
+        <button onclick="closeAuthModal()" class="text-slate-400 text-xs font-bold">Chiudi</button>
       </div>
-      <p id="auth-desc" class="text-xs text-slate-400">Inserisci le tue credenziali per ritrovare tutte le tue schede e campagne.</p>
-      <form onsubmit="submitAuth(event)" class="space-y-3.5 text-xs">
-        <div>
-          <label class="text-slate-300 font-bold block mb-1">Nome Utente</label>
-          <input id="auth-user" type="text" required placeholder="Es. GiacomoDM" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
-        </div>
-        <div>
-          <label class="text-slate-300 font-bold block mb-1">Password Segreta</label>
-          <input id="auth-pass" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
-        </div>
-        <button id="auth-submit-btn" type="submit" class="ice-btn w-full py-3 rounded-xl font-cinzel font-bold text-white tracking-wider">
-          ENTRA NEL REAME
-        </button>
+      <p id="auth-subtitle" class="text-xs text-slate-400"></p>
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-3 text-xs">
+        <input id="auth-username" type="text" required placeholder="Nome Utente" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
+        <input id="auth-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
+        <button id="auth-btn-submit" type="submit" class="ice-btn w-full py-3 rounded-xl font-cinzel font-bold text-white">CONFERMA</button>
       </form>
     </div>
   </div>
 
-  <!-- =========================================================================
-       MODAL SCAMBIO CARTE TRA GIOCATORI (PLAYER-TO-PLAYER TRADE)
-       ========================================================================= -->
   <div id="trade-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
     <div class="norse-panel rounded-2xl p-5 max-w-sm w-full space-y-4">
-      <h3 class="font-cinzel font-bold text-base text-sky-300">Scambia Oggetto con un Compagno</h3>
-      <p id="trade-card-name" class="text-xs text-amber-300 font-bold"></p>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Seleziona il Giocatore Destinatario</label>
-        <select id="trade-target-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></select>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="confirmCardTrade()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">INVIA OGGETTO</button>
+      <h3 class="font-cinzel font-bold text-base text-sky-300">Scambia Carta con un Compagno</h3>
+      <p id="trade-item-label" class="text-xs text-amber-300 font-bold"></p>
+      <select id="trade-recipient" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></select>
+      <div class="flex gap-2">
+        <button onclick="executeTrade()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">INVIA CARTA</button>
         <button onclick="closeTradeModal()" class="px-4 py-2.5 bg-slate-800 rounded-xl text-xs text-slate-300">Annulla</button>
       </div>
     </div>
   </div>
 
-  <!-- =========================================================================
-       MODAL ANIMAZIONE EVENTI GLOBALI (BATTAGLIA / RIPOSO / SLAM CARTA)
-       ========================================================================= -->
-  <div id="global-anim-modal" class="fixed inset-0 bg-black/92 backdrop-blur-xl z-50 hidden flex-col items-center justify-center p-6 text-center">
-    <div id="global-anim-content" class="max-w-md w-full space-y-5 animate-frost"></div>
-    <button onclick="closeGlobalAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">
+  <div id="anim-modal" class="fixed inset-0 bg-black/92 backdrop-blur-xl z-50 hidden flex-col items-center justify-center p-6 text-center">
+    <div id="anim-box" class="max-w-md w-full space-y-5 animate-frost"></div>
+    <button onclick="closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">
       CONTINUA
     </button>
   </div>
 
-  <!-- =========================================================================
-       MODAL CONFIGURAZIONE FIREBASE CLOUD
-       ========================================================================= -->
-  <div id="cloud-config-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+  <div id="cloud-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
     <div class="norse-panel rounded-2xl p-5 max-w-sm w-full space-y-4">
-      <h3 class="font-cinzel font-bold text-base text-sky-300">Connessione Cloud Firebase</h3>
-      <p class="text-xs text-slate-400">Inserisci l'URL del tuo Realtime Database Firebase per sincronizzare account, campagne, battaglie e casse tra tutti i dispositivi.</p>
-      <input id="fb-url-input" type="url" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+      <h3 class="font-cinzel font-bold text-base text-sky-300">Database Cloud Multi-Dispositivo</h3>
+      <p class="text-xs text-slate-400">
+        Per far accedere PC e Telefoni senza mai inserire link, incolla il tuo URL Firebase qui sotto (oppure salvalo direttamente dentro il file <code>data.js</code> su GitHub).
+      </p>
+      <input id="cloud-url-input" type="url" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
       <div class="flex gap-2">
-        <button onclick="saveFirebaseUrl()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">SALVA E CONNETTI</button>
-        <button onclick="closeCloudConfigModal()" class="px-4 py-2.5 bg-slate-800 rounded-xl text-xs text-slate-300">Chiudi</button>
+        <button onclick="saveCloudUrl()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">CONNETTI ORA</button>
+        <button onclick="closeCloudModal()" class="px-4 py-2.5 bg-slate-800 rounded-xl text-xs text-slate-300">Chiudi</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // =========================================================================
-    // 1. MOTORE GRAFICO TEMPESTA NORRENA (GHIACCIO E VENTO SU CANVAS)
-    // =========================================================================
-    const canvas = document.getElementById('frost-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    for (let i = 0; i < 65; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.2 + 0.6,
-        vx: Math.random() * 1.8 + 0.6,
-        vy: Math.random() * 1.2 + 0.4,
-        alpha: Math.random() * 0.65 + 0.15
-      });
-    }
-
-    function animateFrost() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x > canvas.width) p.x = -10;
-        if (p.y > canvas.height) p.y = -10;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(186, 230, 253, ${p.alpha})`;
-        ctx.fill();
-      });
-      requestAnimationFrame(animateFrost);
-    }
-    animateFrost();
-
-    // =========================================================================
-    // 2. DATI D&D BEYOND (STIRPI, CLASSI, AVATAR, CARTE INIZIALI)
-    // =========================================================================
-    const AVATARS = [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80'
-    ];
-
-    const RACES = [
-      { id: 'umano', name: 'Umano di Midgard', bonus: { FOR:1, DES:1, COS:1, INT:1, SAG:1, CAR:1 }, traits: ['Versatilità di Midgard (+1 a tutte le caratteristiche)', 'Determinazione Inrollabile'] },
-      { id: 'elfo', name: 'Elfo di Alfheim', bonus: { DES:2, INT:1 }, traits: ['Scurovisione 18m', 'Sensi Acuti', 'Retaggio Fatato (Vantaggio contro charme)'] },
-      { id: 'nano', name: 'Nano di Nidavellir', bonus: { COS:2, FOR:2 }, traits: ['Scurovisione 18m', 'Resilienza Nanica (Resistenza al veleno)', 'Maestria della Forgia Runica'] },
-      { id: 'goliath', name: ' Sangue di Jotunheim (Goliath)', bonus: { FOR:2, COS:1 }, traits: ['Resistenza della Pietra (Riduce danni con reazione)', 'Nato tra i Ghiacci (Resistenza al freddo)'] },
-      { id: 'tiefling', name: 'Progenie di Muspelheim (Tiefling)', bonus: { CAR:2, INT:1 }, traits: ['Resistenza Infernale al Fuoco', 'Eredità di Surtr (Taumaturgia & Intimorire)'] }
-    ];
-
-    const CLASSES = [
-      {
-        id: 'barbaro', name: 'Berserker (Barbaro)', hitDie: 12, baseAc: 15, atkBonus: 6,
-        traits: ['Ira del Berserker (+2 danni mischia, dimezza danni fisici)', 'Difesa Senza Armatura'],
-        starterCards: [
-          { id: 'sc_1', name: 'Grande Ascia del Gelo', type: 'arma', rarity: 'raro', stars: 5, damage: '1d12+4', weight: 3.5, img: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80', desc: '[Arma Pesante] Forgiata nel ghiaccio perenne. Infligge 1d12+4 danni taglienti.' },
-          { id: 'sc_2', name: 'Pelliccia del Lupo Fenrir', type: 'armatura', rarity: 'non-comune', stars: 4, damage: 'CA 15', weight: 2.5, img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80', desc: '[Armatura] Garantisce protezione senza ostacolare la furia.' }
-        ]
-      },
-      {
-        id: 'paladino', name: 'Einherjar (Paladino)', hitDie: 10, baseAc: 18, atkBonus: 6,
-        traits: ['Punizione Divina (+2d8 danni radiosi)', 'Imposizione delle Mani', 'Scudo della Valchiria'],
-        starterCards: [
-          { id: 'sc_3', name: 'Martello dei Fulmini', type: 'arma', rarity: 'leggendario', stars: 7, damage: '2d8+4', weight: 4.0, img: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80', desc: '[Reliquia di Asgard] Risuona di tuono ad ogni colpo. Infligge 2d8+4 danni.' },
-          { id: 'sc_4', name: 'Egida Dorata del Valhalla', type: 'armatura', rarity: 'raro', stars: 5, damage: 'CA 18', weight: 6.0, img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80', desc: '[Corazza a Piastre] Riduce i danni subiti da frecce e lame.' }
-        ]
-      },
-      {
-        id: 'stregone', name: 'Maestro delle Rune (Stregone)', hitDie: 6, baseAc: 14, atkBonus: 7,
-        traits: ['Metamagia delle Rune', 'Incantesimi del Gelo e del Fuoco', 'Sorgente Arcana'],
-        starterCards: [
-          { id: 'sc_5', name: 'Tempesta di Fimbulwinter', type: 'incantesimo', rarity: 'molto-raro', stars: 6, damage: '6d6', weight: 0, img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80', desc: '[Evocazione Runica] Una tormenta di schegge glaciali investe i nemici per 6d6 danni.' },
-          { id: 'sc_6', name: 'Bastone dei Corvi Huginn', type: 'arma', rarity: 'raro', stars: 5, damage: '1d8+4', weight: 1.5, img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80', desc: '[Focus Arcano] Canalizza il potere dell\'albero cosmico.' }
-        ]
-      },
-      {
-        id: 'ladro', name: 'Ombra di Loki (Ladro)', hitDie: 8, baseAc: 16, atkBonus: 7,
-        traits: ['Attacco Furtivo (+3d6 danni extra)', 'Azione Scaltra', 'Passo Silenzioso'],
-        starterCards: [
-          { id: 'sc_7', name: 'Zanna di Jormungandr', type: 'arma', rarity: 'molto-raro', stars: 6, damage: '1d4+3d6+4', weight: 0.5, img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80', desc: '[Pugnale Velenoso] Include il danno da Attacco Furtivo e intossica il bersaglio.' }
-        ]
-      }
-    ];
-
-    // =========================================================================
-    // 3. STATO DATABASE GLOBALE (USERS + CAMPAIGNS) & SINCRONIZZAZIONE CLOUD
-    // =========================================================================
-    let dbState = JSON.parse(localStorage.getItem('yggdrasill_db_v1')) || {
-      users: {},
-      campaigns: {}
-    };
-
-    let currentUser = localStorage.getItem('yggdrasill_current_user') || null;
-    let selectedCharId = null;
-    let activeCardFilter = 'tutti';
-    let authMode = 'login';
-    let fbRef = null;
-    let lastProcessedEventTime = Date.now();
-    let stagingChestItems = [];
-    let pendingTradeCardId = null;
-
-    function saveDatabase() {
-      localStorage.setItem('yggdrasill_db_v1', JSON.stringify(dbState));
-      if (fbRef) {
-        fbRef.set(dbState);
-      }
-      renderMainScreen();
-    }
-
-    function initFirebaseCloud() {
-      const url = localStorage.getItem('yggdrasill_fb_url') || localStorage.getItem('dnd_fb_url');
-      if (!url) return;
-
-      try {
-        if (!firebase.apps.length) {
-          firebase.initializeApp({ databaseURL: url });
-        }
-        fbRef = firebase.database().ref('yggdrasill_realm');
-        document.getElementById('welcome-cloud-btn').textContent = 'Reame Cloud Connesso';
-
-        fbRef.on('value', snap => {
-          const val = snap.val();
-          if (val) {
-            dbState = val;
-            if (!dbState.users) dbState.users = {};
-            if (!dbState.campaigns) dbState.campaigns = {};
-            localStorage.setItem('yggdrasill_db_v1', JSON.stringify(dbState));
-            renderMainScreen();
-            checkIncomingCampaignEvents();
-          } else {
-            fbRef.set(dbState);
-          }
-        });
-      } catch (e) {
-        console.error('Errore Firebase:', e);
-      }
-    }
-
-    function openCloudConfigModal() {
-      document.getElementById('fb-url-input').value = localStorage.getItem('yggdrasill_fb_url') || localStorage.getItem('dnd_fb_url') || '';
-      const m = document.getElementById('cloud-config-modal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
-    }
-
-    function closeCloudConfigModal() {
-      const m = document.getElementById('cloud-config-modal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
-    }
-
-    function saveFirebaseUrl() {
-      const u = document.getElementById('fb-url-input').value.trim();
-      if (!u.startsWith('https://')) {
-        alert('Inserisci un URL Firebase valido che inizia con https://');
-        return;
-      }
-      localStorage.setItem('yggdrasill_fb_url', u);
-      closeCloudConfigModal();
-      location.reload();
-    }
-
-    // =========================================================================
-    // 4. AUTENTICAZIONE (ACCEDI / REGISTRATI)
-    // =========================================================================
-    function openAuthModal(mode) {
-      authMode = mode;
-      document.getElementById('auth-title').textContent = mode === 'register' ? 'Registrati su Yggdrasill' : 'Accedi a Yggdrasill';
-      document.getElementById('auth-desc').textContent = mode === 'register'
-        ? 'Crea un account permanente: i tuoi personaggi rimarranno legati al tuo nome utente.'
-        : 'Bentornato, guerriero. Inserisci nome utente e password.';
-      document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'CREA ACCOUNT E INIZIA' : 'ACCEDI AL REAME';
-      
-      const m = document.getElementById('auth-modal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
-    }
-
-    function closeAuthModal() {
-      const m = document.getElementById('auth-modal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
-    }
-
-    function submitAuth(e) {
-      e.preventDefault();
-      const username = document.getElementById('auth-user').value.trim();
-      const password = document.getElementById('auth-pass').value.trim();
-      if (!username || !password) return;
-
-      const key = username.toLowerCase();
-      if (!dbState.users) dbState.users = {};
-
-      if (authMode === 'register') {
-        if (dbState.users[key]) {
-          alert('Questo nome utente esiste già. Usa il pulsante ACCEDI.');
-          return;
-        }
-        dbState.users[key] = {
-          username: username,
-          password: password,
-          characters: [],
-          activeCampaignCode: null
-        };
-        currentUser = key;
-        localStorage.setItem('yggdrasill_current_user', currentUser);
-        closeAuthModal();
-        saveDatabase();
-        routeAfterLogin();
-      } else {
-        const userObj = dbState.users[key];
-        if (!userObj || userObj.password !== password) {
-          alert('Nome utente o password non validi.');
-          return;
-        }
-        currentUser = key;
-        localStorage.setItem('yggdrasill_current_user', currentUser);
-        closeAuthModal();
-        routeAfterLogin();
-      }
-    }
-
-    function logoutUser() {
-      currentUser = null;
-      localStorage.removeItem('yggdrasill_current_user');
-      document.getElementById('screen-main').classList.add('hidden');
-      document.getElementById('screen-builder').classList.add('hidden');
-      document.getElementById('screen-welcome').classList.remove('hidden');
-    }
-
-    function routeAfterLogin() {
-      const u = dbState.users[currentUser];
-      document.getElementById('screen-welcome').classList.add('hidden');
-      if (!u.characters || u.characters.length === 0) {
-        startCharacterBuilder(false);
-      } else {
-        selectedCharId = u.characters[0].id;
-        document.getElementById('screen-builder').classList.add('hidden');
-        document.getElementById('screen-main').classList.remove('hidden');
-        renderMainScreen();
-      }
-    }
-
-    // =========================================================================
-    // 5. CREAZIONE PERSONAGGIO IN 5 FASI (STILE D&D BEYOND)
-    // =========================================================================
-    let builderData = {
-      step: 1,
-      name: '',
-      avatar: AVATARS[0],
-      raceId: 'umano',
-      classId: 'barbaro',
-      baseStats: { FOR: 14, DES: 12, COS: 14, INT: 10, SAG: 10, CAR: 10 },
-      pointsRemaining: 9,
-      background: 'Eroe del Popolo'
-    };
-
-    function startCharacterBuilder(canCancel) {
-      builderData = {
-        step: 1,
-        name: '',
-        avatar: AVATARS[0],
-        raceId: 'umano',
-        classId: 'barbaro',
-        baseStats: { FOR: 14, DES: 12, COS: 14, INT: 10, SAG: 10, CAR: 10 },
-        pointsRemaining: 9,
-        background: 'Eroe del Popolo'
-      };
-      document.getElementById('b-name').value = '';
-      document.getElementById('btn-cancel-builder').classList.toggle('hidden', !canCancel);
-      document.getElementById('screen-main').classList.add('hidden');
-      document.getElementById('screen-builder').classList.remove('hidden');
-      renderBuilderStep();
-    }
-
-    function cancelBuilder() {
-      document.getElementById('screen-builder').classList.add('hidden');
-      document.getElementById('screen-main').classList.remove('hidden');
-    }
-
-    function changeBuilderStep(delta) {
-      if (builderData.step === 1 && delta > 0) {
-        const n = document.getElementById('b-name').value.trim();
-        if (!n) {
-          alert('Inserisci il nome del tuo Eroe prima di proseguire.');
-          return;
-        }
-        builderData.name = n;
-      }
-
-      if (builderData.step === 5 && delta > 0) {
-        finalizeCharacterCreation();
-        return;
-      }
-
-      builderData.step = Math.max(1, Math.min(5, builderData.step + delta));
-      renderBuilderStep();
-    }
-
-    function renderBuilderStep() {
-      for (let i = 1; i <= 5; i++) {
-        document.getElementById('b-step-' + i).classList.toggle('hidden', i !== builderData.step);
-        document.getElementById('step-ind-' + i).className = i === builderData.step
-          ? 'py-1.5 rounded bg-sky-400 text-slate-950 font-bold'
-          : i < builderData.step
-            ? 'py-1.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40'
-            : 'py-1.5 rounded bg-slate-900 text-slate-500 border border-slate-800';
-      }
-
-      document.getElementById('btn-prev-step').style.visibility = builderData.step === 1 ? 'hidden' : 'visible';
-      document.getElementById('btn-next-step').textContent = builderData.step === 5 ? 'FORGIA EROE E GIOCA' : 'AVANTI';
-
-      // Step 1: Avatar Grid
-      document.getElementById('b-avatar-grid').innerHTML = AVATARS.map(url => `
-        <div onclick="builderData.avatar='${url}'; renderBuilderStep();" class="cursor-pointer rounded-xl overflow-hidden border-2 transition ${builderData.avatar === url ? 'border-sky-400 scale-105 shadow-[0_0_15px_rgba(56,189,248,0.6)]' : 'border-slate-800 opacity-60'}">
-          <img src="${url}" class="w-full h-24 object-cover">
-        </div>
-      `).join('');
-
-      // Step 2: Razze
-      document.getElementById('b-race-list').innerHTML = RACES.map(r => {
-        const bonusStr = Object.entries(r.bonus).map(([k,v]) => `${k} +${v}`).join(', ');
-        return `
-          <div onclick="builderData.raceId='${r.id}'; renderBuilderStep();" class="p-3.5 rounded-xl border cursor-pointer transition ${builderData.raceId === r.id ? 'bg-sky-950/70 border-sky-400' : 'bg-slate-950/80 border-slate-800'}">
-            <div class="flex justify-between items-center">
-              <span class="font-cinzel font-bold text-sm text-white">${r.name}</span>
-              <span class="text-[11px] font-bold text-sky-300">${bonusStr}</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">${r.traits.join(' • ')}</p>
-          </div>
-        `;
-      }).join('');
-
-      // Step 3: Classi
-      document.getElementById('b-class-list').innerHTML = CLASSES.map(c => `
-        <div onclick="builderData.classId='${c.id}'; renderBuilderStep();" class="p-3.5 rounded-xl border cursor-pointer transition ${builderData.classId === c.id ? 'bg-sky-950/70 border-sky-400' : 'bg-slate-950/80 border-slate-800'}">
-          <div class="flex justify-between items-center">
-            <span class="font-cinzel font-bold text-sm text-white">${c.name}</span>
-            <span class="text-[11px] font-bold text-amber-300">Dado Vita d${c.hitDie} • CA Base ${c.baseAc}</span>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">${c.traits.join(' • ')}</p>
-        </div>
-      `).join('');
-
-      // Step 4: Allocatore Caratteristiche
-      const raceObj = RACES.find(r => r.id === builderData.raceId);
-      document.getElementById('b-points-left').textContent = builderData.pointsRemaining;
-      document.getElementById('b-stats-allocator').innerHTML = Object.entries(builderData.baseStats).map(([stat, val]) => {
-        const rBonus = raceObj.bonus[stat] || 0;
-        const total = val + rBonus;
-        const mod = Math.floor((total - 10) / 2);
-        return `
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
-            <div>
-              <span class="font-cinzel font-bold text-xs text-sky-300 block">${stat}</span>
-              <span class="text-[10px] text-slate-400">Totale: <strong class="text-white">${total}</strong> (Mod ${mod >= 0 ? '+'+mod : mod})</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="adjustBuilderStat('${stat}', -1)" class="w-7 h-7 rounded-lg bg-slate-800 text-white font-bold">-</button>
-              <span class="font-cinzel font-bold text-sm w-6 text-center">${val}</span>
-              <button onclick="adjustBuilderStat('${stat}', 1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-bold">+</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Step 5: Summary
-      updateBuilderSummary();
-    }
-
-    function adjustBuilderStat(stat, delta) {
-      const cur = builderData.baseStats[stat];
-      if (delta > 0 && (cur >= 15 || builderData.pointsRemaining <= 0)) return;
-      if (delta < 0 && cur <= 8) return;
-      builderData.baseStats[stat] += delta;
-      builderData.pointsRemaining -= delta;
-      renderBuilderStep();
-    }
-
-    function updateBuilderSummary() {
-      builderData.background = document.getElementById('b-background').value;
-      const raceObj = RACES.find(r => r.id === builderData.raceId);
-      const classObj = CLASSES.find(c => c.id === builderData.classId);
-      const cosTotal = builderData.baseStats.COS + (raceObj.bonus.COS || 0);
-      const cosMod = Math.floor((cosTotal - 10) / 2);
-      const maxHp = classObj.hitDie + cosMod + 20; // Livello eroe pronto all'avventura
-
-      document.getElementById('b-summary-box').innerHTML = `
-        <div class="flex justify-between border-b border-slate-800 pb-2">
-          <span class="text-slate-400">Eroe:</span>
-          <strong class="text-white font-cinzel">${builderData.name || 'Senza Nome'}</strong>
-        </div>
-        <div class="flex justify-between border-b border-slate-800 pb-2">
-          <span class="text-slate-400">Stirpe & Vocazione:</span>
-          <strong class="text-sky-300">${raceObj.name} • ${classObj.name}</strong>
-        </div>
-        <div class="flex justify-between border-b border-slate-800 pb-2">
-          <span class="text-slate-400">Punti Ferita Iniziali & CA:</span>
-          <strong class="text-emerald-300">${maxHp} PF • CA ${classObj.baseAc}</strong>
-        </div>
-        <div>
-          <span class="text-slate-400 block mb-1">Carte Equipaggiamento Iniziali:</span>
-          <span class="text-amber-300 font-bold">${classObj.starterCards.map(c => c.name).join(', ')}</span>
-        </div>
-      `;
-    }
-
-    function finalizeCharacterCreation() {
-      const raceObj = RACES.find(r => r.id === builderData.raceId);
-      const classObj = CLASSES.find(c => c.id === builderData.classId);
-
-      const finalStats = {};
-      Object.keys(builderData.baseStats).forEach(k => {
-        finalStats[k] = builderData.baseStats[k] + (raceObj.bonus[k] || 0);
-      });
-
-      const cosMod = Math.floor((finalStats.COS - 10) / 2);
-      const maxHp = classObj.hitDie + cosMod + 20;
-
-      const newChar = {
-        id: 'char_' + Date.now(),
-        owner: currentUser,
-        name: builderData.name,
-        avatar: builderData.avatar,
-        raceName: raceObj.name,
-        className: classObj.name,
-        background: builderData.background,
-        hitDie: `1d${classObj.hitDie}`,
-        hp: maxHp,
-        maxHp: maxHp,
-        ac: classObj.baseAc,
-        atkBonus: classObj.atkBonus,
-        stats: finalStats,
-        traits: [...raceObj.traits, ...classObj.traits],
-        cards: JSON.parse(JSON.stringify(classObj.starterCards))
-      };
-
-      const userObj = dbState.users[currentUser];
-      if (!userObj.characters) userObj.characters = [];
-      userObj.characters.push(newChar);
-      selectedCharId = newChar.id;
-
-      document.getElementById('screen-builder').classList.add('hidden');
-      document.getElementById('screen-main').classList.remove('hidden');
-      saveDatabase();
-    }
-
-    // =========================================================================
-    // 6. GESTIONE SWIPE TRA "PERSONAGGI" E "CAMPAGNE" + RENDERING SCHEDA
-    // =========================================================================
-    let touchStartX = 0;
-    const swipeArea = document.getElementById('swipe-area');
-
-    swipeArea.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    swipeArea.addEventListener('touchend', e => {
-      const diff = e.changedTouches[0].screenX - touchStartX;
-      if (Math.abs(diff) > 90) {
-        if (diff < 0) switchMainPage('campagne'); // Swipe verso sinistra -> vai a Campagne
-        if (diff > 0) switchMainPage('personaggi'); // Swipe verso destra -> torna a Personaggi
-      }
-    }, { passive: true });
-
-    function switchMainPage(page) {
-      const isChar = page === 'personaggi';
-      document.getElementById('page-personaggi').classList.toggle('hidden', !isChar);
-      document.getElementById('page-campagne').classList.toggle('hidden', isChar);
-
-      document.getElementById('tab-btn-char').className = isChar
-        ? 'px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] bg-sky-500 text-slate-950 transition'
-        : 'px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] text-slate-400 transition';
-      document.getElementById('tab-btn-camp').className = !isChar
-        ? 'px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] bg-sky-500 text-slate-950 transition'
-        : 'px-3 py-1.5 rounded-lg font-cinzel font-bold text-[11px] text-slate-400 transition';
-
-      renderMainScreen();
-    }
-
-    function switchCharSubTab(sub) {
-      ['combat', 'stats', 'addcard'].forEach(s => {
-        document.getElementById('char-sub-' + s).classList.toggle('hidden', s !== sub);
-        document.getElementById('sub-btn-' + s).className = s === sub
-          ? 'py-2 rounded-lg bg-sky-500 text-slate-950'
-          : 'py-2 rounded-lg text-slate-400';
-      });
-    }
-
-    function selectCharacter(id) {
-      selectedCharId = id;
-      renderMainScreen();
-    }
-
-    function getActiveCharacter() {
-      if (!currentUser || !dbState.users[currentUser]) return null;
-      const chars = dbState.users[currentUser].characters || [];
-      return chars.find(c => c.id === selectedCharId) || chars[0] || null;
-    }
-
-    function filterCharCards(f) {
-      activeCardFilter = f;
-      ['tutti', 'arma', 'incantesimo', 'armatura', 'oggetto'].forEach(k => {
-        document.getElementById('cf-' + k).className = k === f
-          ? 'px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950'
-          : 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300';
-      });
-      renderMainScreen();
-    }
-
-    function buildCardHTML(card, interactive = true) {
-      const starsSvg = Array.from({ length: Math.min(card.stars || 4, 7) }).map(() => `
-        <svg class="w-2.5 h-2.5 text-amber-400 inline" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-        </svg>
-      `).join('');
-
-      return `
-        <div class="ygo-card type-${card.type} rarity-${card.rarity} snap-center">
-          <div class="bg-black/60 border border-white/20 px-2 py-1 rounded flex justify-between items-center">
-            <span class="font-cinzel font-bold text-[11px] text-amber-100 truncate">${card.name}</span>
-            <span class="text-[9px] uppercase font-bold text-sky-300">${card.type}</span>
-          </div>
-          <div class="flex justify-between items-center px-1">
-            <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-black/50 text-slate-200">${card.rarity}</span>
-            <div>${starsSvg}</div>
-          </div>
-          <div class="ygo-art">
-            <img src="${card.img}" class="w-full h-full object-cover">
-          </div>
-          <div class="ygo-lore">
-            <p class="text-[10px] leading-snug overflow-y-auto">${card.desc}</p>
-            <div class="border-t border-amber-900/40 pt-1 flex justify-between font-mono text-[10px] font-bold">
-              <span>EFF: ${card.damage}</span>
-              <span>${card.weight || 1} kg</span>
-            </div>
-          </div>
-          ${interactive ? `
-            <div class="grid grid-cols-3 gap-1.5 pt-1">
-              <button onclick="deployCardAttack('${card.id}')" class="col-span-2 py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 text-white font-cinzel font-bold text-[10px] shadow">
-                SCHIERA
-              </button>
-              <button onclick="openTradeModal('${card.id}')" class="py-1.5 rounded bg-slate-800 border border-slate-600 text-amber-300 font-cinzel font-bold text-[10px]">
-                SCAMBIA
-              </button>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }
-
-    function modifyCharHP(delta) {
-      const ch = getActiveCharacter();
-      if (!ch) return;
-      ch.hp = Math.max(0, Math.min(ch.maxHp, ch.hp + delta));
-      syncCharacterToActiveCampaign(ch);
-      saveDatabase();
-    }
-
-    function addPersonalCard(e) {
-      e.preventDefault();
-      const ch = getActiveCharacter();
-      if (!ch) return;
-      if (!ch.cards) ch.cards = [];
-
-      ch.cards.unshift({
-        id: 'card_' + Date.now(),
-        name: document.getElementById('pc-name').value,
-        type: document.getElementById('pc-type').value,
-        rarity: document.getElementById('pc-rarity').value,
-        damage: document.getElementById('pc-dmg').value,
-        weight: parseFloat(document.getElementById('pc-weight').value) || 1,
-        stars: 5,
-        img: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80',
-        desc: document.getElementById('pc-desc').value
-      });
-
-      e.target.reset();
-      syncCharacterToActiveCampaign(ch);
-      switchCharSubTab('combat');
-      saveDatabase();
-    }
-
-    // =========================================================================
-    // 7. SISTEMA CAMPAGNE, COMANDI TATTICI DM, CASSA DUNGEON E SCAMBIO
-    // =========================================================================
-    function createCampaignAsDM() {
-      const title = document.getElementById('create-camp-name').value.trim() || 'Saga di Midgard';
-      const code = 'YGG-' + Math.floor(1000 + Math.random() * 9000);
-
-      if (!dbState.campaigns) dbState.campaigns = {};
-      dbState.campaigns[code] = {
-        code: code,
-        title: title,
-        dmUser: currentUser,
-        members: {},
-        chest: [],
-        logs: [{ time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }), text: `La saga "${title}" ha inizio. Codice Runico: ${code}` }],
-        globalEvent: null
-      };
-
-      dbState.users[currentUser].activeCampaignCode = code;
-      document.getElementById('create-camp-name').value = '';
-      saveDatabase();
-    }
-
-    function joinCampaignWithCode() {
-      const code = document.getElementById('join-code-input').value.trim().toUpperCase();
-      if (!code || !dbState.campaigns || !dbState.campaigns[code]) {
-        alert('Codice Campagna non trovato. Verifica con il tuo Game Master.');
-        return;
-      }
-
-      const ch = getActiveCharacter();
-      if (!ch) {
-        alert('Crea prima un personaggio per unirti alla campagna.');
-        return;
-      }
-
-      dbState.users[currentUser].activeCampaignCode = code;
-      if (!dbState.campaigns[code].members) dbState.campaigns[code].members = {};
-      dbState.campaigns[code].members[currentUser] = ch;
-
-      if (!dbState.campaigns[code].logs) dbState.campaigns[code].logs = [];
-      dbState.campaigns[code].logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: `${ch.name} (${ch.className}) si è unito alla campagna.`
-      });
-
-      document.getElementById('join-code-input').value = '';
-      saveDatabase();
-    }
-
-    function syncCharacterToActiveCampaign(ch) {
-      const u = dbState.users[currentUser];
-      if (!u || !u.activeCampaignCode) return;
-      const camp = dbState.campaigns[u.activeCampaignCode];
-      if (camp && camp.dmUser !== currentUser) {
-        if (!camp.members) camp.members = {};
-        camp.members[currentUser] = ch;
-      }
-    }
-
-    function triggerGlobalEvent(eventType) {
-      const u = dbState.users[currentUser];
-      if (!u || !u.activeCampaignCode) return;
-      const camp = dbState.campaigns[u.activeCampaignCode];
-      if (!camp || camp.dmUser !== currentUser) return;
-
-      const members = camp.members || {};
-      Object.keys(members).forEach(userKey => {
-        const mChar = members[userKey];
-        if (eventType === 'SHORT_REST') {
-          const heal = Math.max(4, Math.round(mChar.maxHp * 0.25));
-          mChar.hp = Math.min(mChar.maxHp, mChar.hp + heal);
-        } else if (eventType === 'LONG_REST') {
-          mChar.hp = mChar.maxHp;
-        }
-        // Aggiorna anche la copia nell'account del giocatore
-        if (dbState.users[userKey] && dbState.users[userKey].characters) {
-          const idx = dbState.users[userKey].characters.findIndex(x => x.id === mChar.id);
-          if (idx !== -1) dbState.users[userKey].characters[idx] = mChar;
-        }
-      });
-
-      const evtObj = {
-        type: eventType,
-        timestamp: Date.now()
-      };
-      camp.globalEvent = evtObj;
-
-      if (!camp.logs) camp.logs = [];
-      const labelMap = {
-        'BATTLE': 'Il Game Master ha chiamato alle armi: INIZIA LA BATTAGLIA!',
-        'SHORT_REST': 'Il Party si ferma attorno al bivacco per un Riposo Corto.',
-        'LONG_REST': 'L\'aurora di Yggdrasill avvolge il Party: Riposo Lungo completato (100% PF).'
-      };
-      camp.logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: labelMap[eventType]
-      });
-
-      lastProcessedEventTime = evtObj.timestamp;
-      showEventAnimationOverlay(evtObj);
-      saveDatabase();
-    }
-
-    function checkIncomingCampaignEvents() {
-      if (!currentUser || !dbState.users[currentUser]) return;
-      const code = dbState.users[currentUser].activeCampaignCode;
-      if (!code || !dbState.campaigns[code]) return;
-      const camp = dbState.campaigns[code];
-
-      // Sincronizza i dati del personaggio se il DM ha modificato PF o carte
-      if (camp.members && camp.members[currentUser]) {
-        const updatedChar = camp.members[currentUser];
-        const chars = dbState.users[currentUser].characters || [];
-        const idx = chars.findIndex(c => c.id === updatedChar.id);
-        if (idx !== -1) chars[idx] = updatedChar;
-      }
-
-      if (camp.globalEvent && camp.globalEvent.timestamp > lastProcessedEventTime) {
-        lastProcessedEventTime = camp.globalEvent.timestamp;
-        showEventAnimationOverlay(camp.globalEvent);
-
-        // Se il DM avvia BATTAGLIA, reindirizza automaticamente i giocatori sulla scheda Combattimento
-        if (camp.globalEvent.type === 'BATTLE' && camp.dmUser !== currentUser) {
-          switchMainPage('personaggi');
-          switchCharSubTab('combat');
-        }
-      }
-    }
-
-    function showEventAnimationOverlay(evt) {
-      const modal = document.getElementById('global-anim-modal');
-      const box = document.getElementById('global-anim-content');
-
-      if (evt.type === 'BATTLE') {
-        box.innerHTML = `
-          <div class="w-24 h-24 mx-auto rounded-full bg-red-950/80 border-2 border-red-500 flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.8)]">
-            <svg class="w-12 h-12 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5"/>
-            </svg>
-          </div>
-          <h2 class="font-norse text-3xl font-black text-red-400 tracking-wider">CHIAMATA ALLE ARMI</h2>
-          <p class="text-xs text-slate-300">Il Game Master ha iniziato uno scontro. La tua scheda Combattimento è pronta!</p>
-        `;
-      } else if (evt.type === 'SHORT_REST') {
-        box.innerHTML = `
-          <div class="w-24 h-24 mx-auto rounded-full bg-amber-950/80 border-2 border-amber-400 flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.8)]">
-            <svg class="w-12 h-12 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-4 3-6 4-9zM6 21h12"/>
-            </svg>
-          </div>
-          <h2 class="font-norse text-3xl font-black text-amber-300 tracking-wider">BIVACCO RUNICO</h2>
-          <p class="text-xs text-slate-300">Riposo Corto completato. Le ferite superficiali si rimarginano (+25% PF).</p>
-        `;
-      } else if (evt.type === 'LONG_REST') {
-        box.innerHTML = `
-          <div class="w-24 h-24 mx-auto rounded-full bg-sky-950/80 border-2 border-sky-400 flex items-center justify-center shadow-[0_0_40px_rgba(56,189,248,0.8)]">
-            <svg class="w-12 h-12 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-            </svg>
-          </div>
-          <h2 class="font-norse text-3xl font-black text-sky-300 tracking-wider">LUCE DI YGGDRASILL</h2>
-          <p class="text-xs text-slate-300">Riposo Lungo completato. Tutti i Punti Ferita e le energie sono al 100%.</p>
-        `;
-      } else if (evt.type === 'CARD_DEPLOY') {
-        box.innerHTML = `
-          <span class="text-xs font-cinzel uppercase tracking-widest text-sky-400">${evt.actor} schiera in battaglia</span>
-          <div class="flex justify-center my-2 animate-slam">${buildCardHTML(evt.card, false)}</div>
-          <div class="norse-panel rounded-xl p-3 grid grid-cols-2 divide-x divide-slate-800">
-            <div>
-              <span class="text-[10px] text-slate-400 uppercase block">Tiro Colpire (D20)</span>
-              <span class="font-cinzel font-black text-xl text-sky-300">${evt.hit}</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-slate-400 uppercase block">Danno / Effetto</span>
-              <span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span>
-            </div>
-          </div>
-        `;
-      }
-
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeGlobalAnimModal() {
-      const modal = document.getElementById('global-anim-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    // Schieramento Carta in Combattimento
-    function deployCardAttack(cardId) {
-      const ch = getActiveCharacter();
-      if (!ch || !ch.cards) return;
-      const card = ch.cards.find(c => c.id === cardId);
-      if (!card) return;
-
-      const d20 = Math.floor(Math.random() * 20) + 1;
-      const hitStr = d20 === 20 ? 'CRITICO 20!' : `${d20 + ch.atkBonus} (${d20}+${ch.atkBonus})`;
-      
-      // Calcolo formula danno
-      let dmgVal = card.damage;
-      const clean = String(card.damage).toLowerCase().replace(/\s+/g, '');
-      if (clean.includes('d')) {
-        let tot = 0;
-        clean.split('+').forEach(p => {
-          if (p.includes('d')) {
-            const [n, s] = p.split('d');
-            for (let i = 0; i < (parseInt(n)||1); i++) tot += Math.floor(Math.random() * (parseInt(s)||6)) + 1;
-          } else if (!isNaN(parseInt(p))) tot += parseInt(p);
-        });
-        dmgVal = d20 === 20 ? tot * 2 : tot;
-      }
-
-      const evt = {
-        type: 'CARD_DEPLOY',
-        timestamp: Date.now(),
-        actor: ch.name,
-        card: card,
-        hit: hitStr,
-        dmg: dmgVal
-      };
-
-      const code = dbState.users[currentUser].activeCampaignCode;
-      if (code && dbState.campaigns[code]) {
-        dbState.campaigns[code].globalEvent = evt;
-        if (!dbState.campaigns[code].logs) dbState.campaigns[code].logs = [];
-        dbState.campaigns[code].logs.unshift({
-          time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-          text: `${ch.name} ha schierato [${card.name}] -> Colpire: ${hitStr} | Danno: ${dmgVal}`
-        });
-      }
-
-      lastProcessedEventTime = evt.timestamp;
-      showEventAnimationOverlay(evt);
-      saveDatabase();
-    }
-
-    // Cassa del Dungeon (Loot Chest)
-    function addItemToStagingChest() {
-      const name = document.getElementById('chest-item-name').value.trim();
-      if (!name) return;
-      stagingChestItems.push({
-        id: 'loot_' + Date.now() + '_' + Math.floor(Math.random()*999),
-        name: name,
-        type: document.getElementById('chest-item-type').value,
-        rarity: document.getElementById('chest-item-rarity').value,
-        damage: document.getElementById('chest-item-dmg').value.trim() || '+2',
-        weight: 1.5,
-        stars: 5,
-        img: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80',
-        desc: document.getElementById('chest-item-desc').value.trim() || 'Reliquia rinvenuta in un antico forziere.'
-      });
-      document.getElementById('chest-item-name').value = '';
-      document.getElementById('chest-item-dmg').value = '';
-      document.getElementById('chest-item-desc').value = '';
-      renderMainScreen();
-    }
-
-    function spawnChestForPlayers() {
-      const code = dbState.users[currentUser].activeCampaignCode;
-      if (!code || !dbState.campaigns[code]) return;
-      if (stagingChestItems.length === 0) {
-        alert('Aggiungi almeno un oggetto nella cassa prima di materializzarla.');
-        return;
-      }
-
-      const camp = dbState.campaigns[code];
-      if (!camp.chest) camp.chest = [];
-      camp.chest.push(...stagingChestItems);
-      stagingChestItems = [];
-
-      if (!camp.logs) camp.logs = [];
-      camp.logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: 'Il Game Master ha generato un Forziere del Dungeon! I giocatori possono reclamare il bottino.'
-      });
-
-      saveDatabase();
-      alert('Forziere materializzato sugli schermi di tutti i giocatori!');
-    }
-
-    function claimLootFromChest(lootId) {
-      const ch = getActiveCharacter();
-      const code = dbState.users[currentUser].activeCampaignCode;
-      if (!ch || !code || !dbState.campaigns[code]) return;
-      const camp = dbState.campaigns[code];
-      const idx = (camp.chest || []).findIndex(item => item.id === lootId);
-      if (idx === -1) return;
-
-      const item = camp.chest.splice(idx, 1)[0];
-      if (!ch.cards) ch.cards = [];
-      ch.cards.unshift(item);
-      syncCharacterToActiveCampaign(ch);
-
-      if (!camp.logs) camp.logs = [];
-      camp.logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: `${ch.name} ha raccolto [${item.name}] dal forziere del dungeon!`
-      });
-
-      saveDatabase();
-    }
-
-    // Scambio Carte tra Giocatori
-    function openTradeModal(cardId) {
-      const ch = getActiveCharacter();
-      const code = dbState.users[currentUser].activeCampaignCode;
-      if (!code || !dbState.campaigns[code]) {
-        alert('Unisciti prima a una Campagna per scambiare oggetti con gli altri giocatori.');
-        return;
-      }
-      const camp = dbState.campaigns[code];
-      const members = camp.members || {};
-      const otherPlayers = Object.entries(members).filter(([uKey]) => uKey !== currentUser);
-
-      if (otherPlayers.length === 0) {
-        alert('Non ci sono ancora altri giocatori connessi a questa campagna.');
-        return;
-      }
-
-      const card = ch.cards.find(c => c.id === cardId);
-      pendingTradeCardId = cardId;
-      document.getElementById('trade-card-name').textContent = `Oggetto: ${card.name} (${card.rarity.toUpperCase()})`;
-      document.getElementById('trade-target-select').innerHTML = otherPlayers.map(([uKey, mChar]) => `
-        <option value="${uKey}">${mChar.name} (${mChar.className})</option>
-      `).join('');
-
-      const m = document.getElementById('trade-modal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
-    }
-
-    function closeTradeModal() {
-      const m = document.getElementById('trade-modal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
-    }
-
-    function confirmCardTrade() {
-      const targetUserKey = document.getElementById('trade-target-select').value;
-      const ch = getActiveCharacter();
-      const code = dbState.users[currentUser].activeCampaignCode;
-      const camp = dbState.campaigns[code];
-
-      const cardIdx = ch.cards.findIndex(c => c.id === pendingTradeCardId);
-      if (cardIdx === -1) return;
-
-      const tradedCard = ch.cards.splice(cardIdx, 1)[0];
-      syncCharacterToActiveCampaign(ch);
-
-      const targetChar = camp.members[targetUserKey];
-      if (!targetChar.cards) targetChar.cards = [];
-      targetChar.cards.unshift(tradedCard);
-
-      if (dbState.users[targetUserKey] && dbState.users[targetUserKey].characters) {
-        const tIdx = dbState.users[targetUserKey].characters.findIndex(x => x.id === targetChar.id);
-        if (tIdx !== -1) dbState.users[targetUserKey].characters[tIdx] = targetChar;
-      }
-
-      if (!camp.logs) camp.logs = [];
-      camp.logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: `Scambio: ${ch.name} ha ceduto [${tradedCard.name}] a ${targetChar.name}.`
-      });
-
-      closeTradeModal();
-      saveDatabase();
-    }
-
-    // Controllo DM sui PF dei Player
-    function dmAdjustPlayerHP(targetUserKey, delta) {
-      const code = dbState.users[currentUser].activeCampaignCode;
-      const camp = dbState.campaigns[code];
-      if (!camp || !camp.members || !camp.members[targetUserKey]) return;
-
-      const mChar = camp.members[targetUserKey];
-      mChar.hp = Math.max(0, Math.min(mChar.maxHp, mChar.hp + delta));
-
-      if (dbState.users[targetUserKey] && dbState.users[targetUserKey].characters) {
-        const idx = dbState.users[targetUserKey].characters.findIndex(x => x.id === mChar.id);
-        if (idx !== -1) dbState.users[targetUserKey].characters[idx] = mChar;
-      }
-      saveDatabase();
-    }
-
-    // =========================================================================
-    // 8. RENDERING GENERALE DELL'INTERFACCIA
-    // =========================================================================
-    function renderMainScreen() {
-      if (!currentUser || !dbState.users[currentUser]) return;
-      const userObj = dbState.users[currentUser];
-      document.getElementById('user-badge').textContent = `Account: ${userObj.username}`;
-
-      const chars = userObj.characters || [];
-      const ch = getActiveCharacter();
-
-      if (ch) {
-        document.getElementById('char-select').innerHTML = chars.map(c => `
-          <option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} — ${c.raceName} ${c.className}</option>
-        `).join('');
-
-        document.getElementById('c-avatar').src = ch.avatar;
-        document.getElementById('c-name').textContent = ch.name;
-        document.getElementById('c-subtitle').textContent = `${ch.raceName} • ${ch.className}`;
-        document.getElementById('c-bg').textContent = `Origine: ${ch.background}`;
-        document.getElementById('c-campaign-tag').textContent = userObj.activeCampaignCode ? `Saga: ${userObj.activeCampaignCode}` : 'Senza Campagna';
-
-        const hpPct = Math.round((ch.hp / ch.maxHp) * 100);
-        document.getElementById('c-hp-text').textContent = `${ch.hp} / ${ch.maxHp} PF`;
-        document.getElementById('c-hp-bar').style.width = `${hpPct}%`;
-
-        const desMod = Math.floor(((ch.stats?.DES || 10) - 10) / 2);
-        document.getElementById('c-ac').textContent = ch.ac;
-        document.getElementById('c-init').textContent = desMod >= 0 ? `+${desMod}` : desMod;
-        document.getElementById('c-atk').textContent = `+${ch.atkBonus}`;
-        document.getElementById('c-hd').textContent = ch.hitDie || '1d10';
-
-        // Carte
-        const allCards = ch.cards || [];
-        const filtered = activeCardFilter === 'tutti' ? allCards : allCards.filter(c => c.type === activeCardFilter);
-        document.getElementById('c-cards-carousel').innerHTML = filtered.map(c => buildCardHTML(c, true)).join('');
-
-        // Attributi
-        document.getElementById('c-stats-grid').innerHTML = Object.entries(ch.stats || {}).map(([k, v]) => {
-          const mod = Math.floor((v - 10) / 2);
-          return `
-            <button onclick="alert('Tiro su ${k}: ' + (Math.floor(Math.random()*20)+1 + ${mod}))" class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-center active:scale-95 transition">
-              <span class="text-[10px] text-slate-400 font-bold block">${k}</span>
-              <span class="font-cinzel text-lg font-black text-sky-300">${mod >= 0 ? '+'+mod : mod}</span>
-              <span class="text-[10px] text-slate-500 block">(${v})</span>
-            </button>
-          `;
-        }).join('');
-
-        document.getElementById('c-traits-list').innerHTML = (ch.traits || []).map(t => `
-          <li class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">${t}</li>
-        `).join('');
-      }
-
-      // Gestione Cassa del Dungeon e Pagina Campagna
-      const activeCode = userObj.activeCampaignCode;
-      const camp = activeCode && dbState.campaigns ? dbState.campaigns[activeCode] : null;
-
-      if (camp) {
-        // Cassa attiva visibile ai player
-        const chestBanner = document.getElementById('active-chest-banner');
-        const chestItems = camp.chest || [];
-        if (chestItems.length > 0) {
-          chestBanner.classList.remove('hidden');
-          document.getElementById('chest-loot-items').innerHTML = chestItems.map(item => `
-            <div class="bg-slate-950 border border-amber-500/40 p-2.5 rounded-xl flex justify-between items-center text-xs">
-              <div>
-                <span class="font-cinzel font-bold text-amber-300 block">${item.name}</span>
-                <span class="text-[10px] text-slate-400 uppercase">${item.rarity} • ${item.damage}</span>
-              </div>
-              <button onclick="claimLootFromChest('${item.id}')" class="gold-btn px-3 py-1.5 rounded-lg font-cinzel font-bold text-[10px] text-white">
-                PRENDI
-              </button>
-            </div>
-          `).join('');
-        } else {
-          chestBanner.classList.add('hidden');
-        }
-
-        const isDM = camp.dmUser === currentUser;
-        document.getElementById('dm-command-console').classList.toggle('hidden', !isDM);
-        document.getElementById('player-campaign-view').classList.toggle('hidden', isDM);
-
-        if (isDM) {
-          document.getElementById('dm-camp-title').textContent = camp.title;
-          document.getElementById('dm-camp-code').textContent = camp.code;
-
-          const membersEntries = Object.entries(camp.members || {});
-          document.getElementById('dm-party-cards').innerHTML = membersEntries.length === 0
-            ? `<p class="text-xs text-slate-500 col-span-2">In attesa che i giocatori inseriscano il codice <strong>${camp.code}</strong>...</p>`
-            : membersEntries.map(([uKey, mChar]) => `
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2.5">
-                      <img src="${mChar.avatar}" class="w-10 h-10 rounded-lg object-cover border border-sky-400">
-                      <div>
-                        <span class="font-cinzel font-bold text-xs text-white block">${mChar.name}</span>
-                        <span class="text-[10px] text-sky-300">${mChar.raceName} • ${mChar.className}</span>
-                      </div>
-                    </div>
-                    <span class="text-xs font-bold text-red-400">${mChar.hp}/${mChar.maxHp} PF</span>
-                  </div>
-                  <div class="grid grid-cols-4 gap-1.5 pt-1">
-                    <button onclick="dmAdjustPlayerHP('${uKey}', -5)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-5 PF</button>
-                    <button onclick="dmAdjustPlayerHP('${uKey}', -1)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-1 PF</button>
-                    <button onclick="dmAdjustPlayerHP('${uKey}', 1)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+1 PF</button>
-                    <button onclick="dmAdjustPlayerHP('${uKey}', 5)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+5 PF</button>
-                  </div>
-                  <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
-                    CA ${mChar.ac} • Carte nel Deck: ${(mChar.cards || []).map(c => c.name).join(', ')}
-                  </div>
-                </div>
-              `).join('');
-
-          document.getElementById('staging-chest-list').innerHTML = stagingChestItems.map(i => `
-            <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg flex justify-between">
-              <span class="text-amber-300 font-bold">${i.name} (${i.rarity})</span>
-              <span class="text-slate-400">${i.damage}</span>
-            </div>
-          `).join('');
-
-          document.getElementById('camp-logs-list').innerHTML = (camp.logs || []).slice(0, 15).map(l => `
-            <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg">
-              <span class="text-[10px] text-sky-400 font-bold mr-1">[${l.time}]</span>
-              <span class="text-slate-300">${l.text}</span>
-            </div>
-          `).join('');
-        } else {
-          document.getElementById('pl-camp-title').textContent = camp.title;
-          document.getElementById('pl-camp-code').textContent = camp.code;
-          const fellows = Object.values(camp.members || {});
-          document.getElementById('pl-party-fellows').innerHTML = fellows.map(f => `
-            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
-              <img src="${f.avatar}" class="w-10 h-10 rounded-lg object-cover border border-sky-400">
-              <div>
-                <span class="font-cinzel font-bold text-xs text-white block">${f.name}</span>
-                <span class="text-[10px] text-slate-400">${f.className} • ${f.hp}/${f.maxHp} PF</span>
-              </div>
-            </div>
-          `).join('');
-        }
-      }
-    }
-
-    // Avvio automatico
-    initFirebaseCloud();
-    if (currentUser && dbState.users && dbState.users[currentUser]) {
-      routeAfterLogin();
-    }
-  </script>
+  <!-- Script Modulari Separati -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
