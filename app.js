@@ -12,12 +12,12 @@ function resizeFrostCanvas() {
 window.addEventListener('resize', resizeFrostCanvas);
 resizeFrostCanvas();
 
-for (let i = 0; i < 60; i++) {
+for (let i = 0; i < 55; i++) {
   snowParticles.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    r: Math.random() * 2.2 + 0.5,
-    vx: Math.random() * 1.6 + 0.5,
+    r: Math.random() * 2.1 + 0.5,
+    vx: Math.random() * 1.5 + 0.4,
     vy: Math.random() * 1.1 + 0.4,
     alpha: Math.random() * 0.6 + 0.15
   });
@@ -40,23 +40,26 @@ function drawFrostLoop() {
 drawFrostLoop();
 
 // ============================================================================
-// 2. DATABASE SINCRONIZZATO (PC + TELEFONI)
+// 2. STATO GLOBALE, CLOUD & CONTROLLO MANUTENZIONE ADMIN
 // ============================================================================
-let dbState = JSON.parse(localStorage.getItem('yggdrasill_modular_db')) || {
+let dbState = JSON.parse(localStorage.getItem('yggdrasill_v3_db')) || {
+  maintenance: false,
   users: {},
   campaigns: {}
 };
 
-let currentUser = localStorage.getItem('yggdrasill_logged_user') || null;
+let currentUser = localStorage.getItem('yggdrasill_v3_user') || null;
 let activeCharId = null;
-let selectedDmCampCode = null;
 let cardFilter = 'tutti';
 let authMode = 'login';
 let fbRef = null;
-let isCloudReady = false;
 let lastSeenEventTimestamp = Date.now();
-let dmStagingLoot = [];
 let pendingTradeCardId = null;
+let uploadedPlayerCardImg = "";
+
+function isCurrentUserAdmin() {
+  return currentUser === ADMIN_CREDENTIALS.username.toLowerCase();
+}
 
 function getEffectiveFirebaseUrl() {
   return (FIREBASE_DATABASE_URL && FIREBASE_DATABASE_URL.trim() !== "")
@@ -66,29 +69,23 @@ function getEffectiveFirebaseUrl() {
 
 function initCloudConnection() {
   const url = getEffectiveFirebaseUrl();
-  const badge = document.getElementById('cloud-badge-btn');
-  if (!url) {
-    badge.textContent = "Cloud Non Configurato (Tocca qui)";
-    badge.className = "text-[10px] text-amber-400 underline";
-    return;
-  }
+  if (!url) return;
 
   try {
     if (!firebase.apps.length) {
       firebase.initializeApp({ databaseURL: url });
     }
-    fbRef = firebase.database().ref('yggdrasill_v2_realm');
-    badge.textContent = "Reame Cloud Connesso (PC & Mobile Sync)";
-    badge.className = "text-[10px] text-emerald-400 font-bold";
+    fbRef = firebase.database().ref('yggdrasill_v3_realm');
+    document.getElementById('welcome-status-sub').textContent = "Reame Sincronizzato in Cloud";
 
     fbRef.on('value', snap => {
       const remoteData = snap.val();
-      isCloudReady = true;
       if (remoteData) {
         dbState = remoteData;
         if (!dbState.users) dbState.users = {};
         if (!dbState.campaigns) dbState.campaigns = {};
-        localStorage.setItem('yggdrasill_modular_db', JSON.stringify(dbState));
+        localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState));
+        enforceMaintenanceCheck();
         renderAllViews();
         checkIncomingLiveEvents();
       } else {
@@ -96,51 +93,116 @@ function initCloudConnection() {
       }
     });
   } catch (err) {
-    console.error("Errore connessione Firebase:", err);
+    console.error("Errore Firebase:", err);
   }
 }
 
 function saveDB() {
-  localStorage.setItem('yggdrasill_modular_db', JSON.stringify(dbState));
+  localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState));
   if (fbRef) {
     fbRef.set(dbState);
   }
+  enforceMaintenanceCheck();
   renderAllViews();
 }
 
-function openCloudModal() {
-  document.getElementById('cloud-url-input').value = getEffectiveFirebaseUrl();
-  const m = document.getElementById('cloud-modal');
+function enforceMaintenanceCheck() {
+  const maintScreen = document.getElementById('screen-maintenance');
+  const welcomeScreen = document.getElementById('screen-welcome');
+  const mainScreen = document.getElementById('screen-main');
+  const builderScreen = document.getElementById('screen-builder');
+
+  if (dbState.maintenance === true && !isCurrentUserAdmin()) {
+    maintScreen.classList.remove('hidden');
+    welcomeScreen.classList.add('hidden');
+    mainScreen.classList.add('hidden');
+    builderScreen.classList.add('hidden');
+  } else {
+    maintScreen.classList.add('hidden');
+  }
+}
+
+// ============================================================================
+// 3. CONSOLE ESCLUSIVA AMMINISTRATORE
+// ============================================================================
+function openAdminConsole() {
+  if (!isCurrentUserAdmin()) return;
+  document.getElementById('admin-cloud-url').value = getEffectiveFirebaseUrl();
+  updateAdminConsoleUI();
+  const m = document.getElementById('admin-modal');
   m.classList.remove('hidden');
   m.classList.add('flex');
 }
 
-function closeCloudModal() {
-  const m = document.getElementById('cloud-modal');
+function closeAdminConsole() {
+  const m = document.getElementById('admin-modal');
   m.classList.add('hidden');
   m.classList.remove('flex');
 }
 
-function saveCloudUrl() {
-  const url = document.getElementById('cloud-url-input').value.trim();
+function updateAdminConsoleUI() {
+  const btn = document.getElementById('admin-maint-btn');
+  const status = document.getElementById('admin-maint-status');
+  if (dbState.maintenance) {
+    btn.textContent = "RIAPRI SITO";
+    btn.className = "px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-emerald-600 text-white";
+    status.textContent = "Sito in MANUTENZIONE. I giocatori sono bloccati.";
+    status.className = "text-[11px] text-amber-400 font-bold";
+  } else {
+    btn.textContent = "MANDALO IN MANUTENZIONE";
+    btn.className = "px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-red-600 text-white";
+    status.textContent = "Il sito è attualmente online per tutti.";
+    status.className = "text-[11px] text-slate-400";
+  }
+}
+
+function adminToggleMaintenance() {
+  if (!isCurrentUserAdmin()) return;
+  dbState.maintenance = !dbState.maintenance;
+  updateAdminConsoleUI();
+  saveDB();
+}
+
+function adminSaveCloudUrl() {
+  if (!isCurrentUserAdmin()) return;
+  const url = document.getElementById('admin-cloud-url').value.trim();
   if (!url.startsWith('https://')) {
-    alert("Inserisci un indirizzo Firebase valido che inizia con https://");
+    alert("Inserisci un URL Firebase valido che inizia con https://");
     return;
   }
   localStorage.setItem('yggdrasill_fb_url', url);
-  closeCloudModal();
+  closeAdminConsole();
   location.reload();
 }
 
+function adminWipeDatabase() {
+  if (!isCurrentUserAdmin()) return;
+  if (!confirm("Sei sicuro di voler SVUOTARE l'intero database? Verranno eliminate tutte le campagne, le carte e gli account dei giocatori.")) return;
+
+  const adminKey = ADMIN_CREDENTIALS.username.toLowerCase();
+  const adminAccount = dbState.users[adminKey];
+
+  dbState = {
+    maintenance: false,
+    users: {},
+    campaigns: {}
+  };
+  if (adminAccount) dbState.users[adminKey] = adminAccount;
+
+  saveDB();
+  closeAdminConsole();
+  alert("Database svuotato con successo.");
+}
+
 // ============================================================================
-// 3. REGISTRAZIONE E LOGIN SINCRONIZZATI CON IL CLOUD
+// 4. REGISTRAZIONE E LOGIN (CON RICONOSCIMENTO AUTOMATICO ADMIN)
 // ============================================================================
 function openAuthModal(mode) {
   authMode = mode;
-  document.getElementById('auth-title').textContent = mode === 'register' ? 'Registrati su Yggdrasill' : 'Accedi al tuo Account';
+  document.getElementById('auth-title').textContent = mode === 'register' ? 'Registrati su Yggdrasill' : 'Accedi a Yggdrasill';
   document.getElementById('auth-subtitle').textContent = mode === 'register'
-    ? 'Crea un profilo: potrai accedere sia da PC che da Telefono.'
-    : 'Inserisci le credenziali che hai registrato.';
+    ? 'Crea un account permanente legato alle tue schede.'
+    : 'Inserisci il tuo nome utente e password.';
   const m = document.getElementById('auth-modal');
   m.classList.remove('hidden');
   m.classList.add('flex');
@@ -160,7 +222,6 @@ async function handleAuthSubmit(e) {
 
   const userKey = uName.toLowerCase();
 
-  // Se Firebase è configurato, scarica prima l'elenco utenti aggiornato dal Cloud
   if (fbRef) {
     try {
       const snap = await fbRef.once('value');
@@ -169,78 +230,89 @@ async function handleAuthSubmit(e) {
         if (!dbState.users) dbState.users = {};
         if (!dbState.campaigns) dbState.campaigns = {};
       }
-    } catch (err) {
-      console.warn("Lettura cloud fallita, uso cache locale", err);
+    } catch (err) {}
+  }
+
+  // Controllo se è l'Account Admin speciale definito in data.js
+  if (userKey === ADMIN_CREDENTIALS.username.toLowerCase() && uPass === ADMIN_CREDENTIALS.password) {
+    if (!dbState.users[userKey]) {
+      dbState.users[userKey] = {
+        username: ADMIN_CREDENTIALS.username,
+        password: ADMIN_CREDENTIALS.password,
+        characters: []
+      };
     }
+    currentUser = userKey;
+    localStorage.setItem('yggdrasill_v3_user', currentUser);
+    closeAuthModal();
+    saveDB();
+    enterAfterLogin();
+    return;
   }
 
   if (authMode === 'register') {
     if (dbState.users[userKey]) {
-      alert("Questo Nome Utente è già registrato. Usa il pulsante ACCEDI.");
+      alert("Questo Nome Utente è già in uso. Clicca su ACCEDI.");
       return;
     }
     dbState.users[userKey] = {
       username: uName,
       password: uPass,
-      characters: [],
-      joinedCampaigns: {} // { [campCode]: charId }
+      characters: []
     };
     currentUser = userKey;
-    localStorage.setItem('yggdrasill_logged_user', currentUser);
+    localStorage.setItem('yggdrasill_v3_user', currentUser);
     closeAuthModal();
     saveDB();
-    enterRealmAfterAuth();
+    enterAfterLogin();
   } else {
-    const account = dbState.users[userKey];
-    if (!account) {
-      const cloudHint = !getEffectiveFirebaseUrl()
-        ? "\n\nNOTA: Non hai ancora collegato l'URL Firebase! Se ti sei registrato su PC, tocca 'Verifica Cloud Database' in alto a sinistra e incolla lo stesso URL Firebase su entrambi i dispositivi."
-        : "";
-      alert("Account non trovato." + cloudHint);
-      return;
-    }
-    if (account.password !== uPass) {
-      alert("Password errata.");
+    const acc = dbState.users[userKey];
+    if (!acc || acc.password !== uPass) {
+      alert("Credenziali non valide.");
       return;
     }
     currentUser = userKey;
-    localStorage.setItem('yggdrasill_logged_user', currentUser);
+    localStorage.setItem('yggdrasill_v3_user', currentUser);
     closeAuthModal();
-    enterRealmAfterAuth();
+    enterAfterLogin();
   }
 }
 
-function enterRealmAfterAuth() {
-  const account = dbState.users[currentUser];
-  document.getElementById('screen-welcome').classList.add('hidden');
+function enterAfterLogin() {
+  enforceMaintenanceCheck();
+  if (dbState.maintenance && !isCurrentUserAdmin()) return;
 
-  if (!account.characters || account.characters.length === 0) {
+  const acc = dbState.users[currentUser];
+  document.getElementById('screen-welcome').classList.add('hidden');
+  document.getElementById('btn-admin-console').classList.toggle('hidden', !isCurrentUserAdmin());
+
+  if (!acc.characters || acc.characters.length === 0) {
     openCharacterBuilder(false);
   } else {
-    activeCharId = account.characters[0].id;
+    activeCharId = acc.characters[0].id;
     document.getElementById('screen-builder').classList.add('hidden');
     document.getElementById('screen-main').classList.remove('hidden');
-    switchBottomNav('characters');
+    switchStandardNav('characters');
     renderAllViews();
   }
 }
 
 function logoutUser() {
   currentUser = null;
-  localStorage.removeItem('yggdrasill_logged_user');
+  localStorage.removeItem('yggdrasill_v3_user');
   document.getElementById('screen-main').classList.add('hidden');
   document.getElementById('screen-builder').classList.add('hidden');
   document.getElementById('screen-welcome').classList.remove('hidden');
+  enforceMaintenanceCheck();
 }
 
 // ============================================================================
-// 4. COMPILAZIONE LIBERA DEL PERSONAGGIO (PAGINA UNICA)
+// 5. COMPILAZIONE LIBERA PERSONAGGIO
 // ============================================================================
 let selectedFormAvatar = PRESET_AVATARS[0];
 
 function openCharacterBuilder(allowCancel) {
   selectedFormAvatar = PRESET_AVATARS[0];
-  document.getElementById('cf-avatar-url').value = '';
   document.getElementById('btn-cancel-form').classList.toggle('hidden', !allowCancel);
   document.getElementById('screen-main').classList.add('hidden');
   document.getElementById('screen-builder').classList.remove('hidden');
@@ -248,11 +320,20 @@ function openCharacterBuilder(allowCancel) {
 }
 
 function renderAvatarSelector() {
-  document.getElementById('cf-avatar-Selector').innerHTML = PRESET_AVATARS.map(url => `
+  document.getElementById('cf-avatar-selector').innerHTML = PRESET_AVATARS.map(url => `
     <div onclick="selectedFormAvatar='${url}'; renderAvatarSelector();" class="cursor-pointer rounded-xl overflow-hidden border-2 transition ${selectedFormAvatar === url ? 'border-sky-400 scale-105' : 'border-slate-800 opacity-50'}">
       <img src="${url}" class="w-full h-14 object-cover">
     </div>
   `).join('');
+}
+
+function handleAvatarFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  autoFitImageFile(file, 300, 300, dataUrl => {
+    selectedFormAvatar = dataUrl;
+    renderAvatarSelector();
+  });
 }
 
 function cancelCharacterForm() {
@@ -262,26 +343,9 @@ function cancelCharacterForm() {
 
 function saveFullCharacterSheet(e) {
   e.preventDefault();
-  const customUrl = document.getElementById('cf-avatar-url').value.trim();
-  const finalAvatar = customUrl !== '' ? customUrl : selectedFormAvatar;
-  const maxHp = parseInt(document.getElementById('cf-maxhp').value) || 25;
-
+  const maxHp = parseInt(document.getElementById('cf-maxhp').value) || 30;
   const traitsRaw = document.getElementById('cf-traits').value.trim();
-  const traitsList = traitsRaw
-    ? traitsRaw.split('\n').map(s => s.trim()).filter(Boolean)
-    : ['Avventuriero di Midgard'];
-
-  const starterCard = {
-    id: 'card_' + Date.now(),
-    name: document.getElementById('cf-card-name').value.trim() || 'Arma Runica',
-    type: 'arma',
-    rarity: document.getElementById('cf-card-rarity').value,
-    damage: document.getElementById('cf-card-dmg').value.trim() || '1d8+3',
-    weight: 2.0,
-    stars: 5,
-    img: CARD_ARTWORKS.arma,
-    desc: document.getElementById('cf-card-desc').value.trim()
-  };
+  const traitsList = traitsRaw ? traitsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Eroe di Midgard'];
 
   const newChar = {
     id: 'char_' + Date.now(),
@@ -291,9 +355,9 @@ function saveFullCharacterSheet(e) {
     className: document.getElementById('cf-class').value.trim(),
     level: parseInt(document.getElementById('cf-level').value) || 1,
     hitDie: document.getElementById('cf-hitdie').value.trim() || '1d10',
-    background: document.getElementById('cf-bg').value.trim() || 'Eroe',
+    background: document.getElementById('cf-bg').value.trim() || 'Avventuriero',
     alignment: document.getElementById('cf-align').value.trim() || 'Neutrale',
-    avatar: finalAvatar,
+    avatar: selectedFormAvatar,
     hp: maxHp,
     maxHp: maxHp,
     ac: parseInt(document.getElementById('cf-ac').value) || 15,
@@ -308,37 +372,41 @@ function saveFullCharacterSheet(e) {
       CAR: parseInt(document.getElementById('cf-stat-CAR').value) || 10
     },
     traits: traitsList,
-    cards: [starterCard]
+    cards: []
   };
 
-  const account = dbState.users[currentUser];
-  if (!account.characters) account.characters = [];
-  account.characters.push(newChar);
+  const acc = dbState.users[currentUser];
+  if (!acc.characters) acc.characters = [];
+  acc.characters.push(newChar);
   activeCharId = newChar.id;
 
   document.getElementById('screen-builder').classList.add('hidden');
   document.getElementById('screen-main').classList.remove('hidden');
-  switchBottomNav('characters');
+  switchStandardNav('characters');
   saveDB();
 }
 
 // ============================================================================
-// 5. NAVIGAZIONE A 3 COLONNE (SINISTRA: DM | CENTRO: PERSONAGGI | DESTRA: CAMPAGNE)
+// 6. NAVIGAZIONE MODALITÀ STANDARD (GIOCATORE & LISTA CAMPAGNE DM)
 // ============================================================================
-function switchBottomNav(tab) {
-  document.getElementById('view-dm').classList.toggle('hidden', tab !== 'dm');
-  document.getElementById('view-characters').classList.toggle('hidden', tab !== 'characters');
-  document.getElementById('view-campaigns').classList.toggle('hidden', tab !== 'campaigns');
+function switchStandardNav(tab) {
+  document.getElementById('mode-standard-views').classList.remove('hidden');
+  document.getElementById('mode-dm-campaign-workspace').classList.add('hidden');
+  document.getElementById('bottom-nav-standard').classList.remove('hidden');
+  document.getElementById('bottom-nav-dm-workspace').classList.add('hidden');
+  document.getElementById('btn-exit-dm-campaign').classList.add('hidden');
 
-  document.getElementById('bnav-dm').className = tab === 'dm'
+  document.getElementById('view-dm-list').classList.toggle('hidden', tab !== 'dm');
+  document.getElementById('view-my-characters').classList.toggle('hidden', tab !== 'characters');
+  document.getElementById('view-my-campaigns').classList.toggle('hidden', tab !== 'campaigns');
+
+  document.getElementById('snav-dm').className = tab === 'dm'
     ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2'
     : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
-
-  document.getElementById('bnav-campaigns').className = tab === 'campaigns'
+  document.getElementById('snav-campaigns').className = tab === 'campaigns'
     ? 'flex flex-col items-center gap-1 text-sky-400 w-28 py-2'
     : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
-
-  document.getElementById('bnav-char-label').className = tab === 'characters'
+  document.getElementById('snav-char-label').className = tab === 'characters'
     ? 'font-cinzel font-black text-[10px] text-sky-300 tracking-widest mt-1 uppercase'
     : 'font-cinzel font-bold text-[10px] text-slate-400 tracking-widest mt-1 uppercase';
 
@@ -367,23 +435,23 @@ function getMyCharacter() {
 
 function setCardFilter(f) {
   cardFilter = f;
-  ['tutti', 'arma', 'incantesimo', 'armatura', 'oggetto'].forEach(k => {
-    document.getElementById('flt-' + k).className = k === f
-      ? 'px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950'
-      : 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300';
+  ['tutti', 'arma', 'scudo', 'armatura', 'incantesimo', 'oggetto'].forEach(k => {
+    const el = document.getElementById('flt-' + k);
+    if (el) {
+      el.className = k === f
+        ? 'px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950'
+        : 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300';
+    }
   });
   renderAllViews();
 }
 
-// ============================================================================
-// 6. AZIONI GIOCATORE (HP, CARTE YU-GI-OH, SCHIERAMENTO, SCAMBIO)
-// ============================================================================
-function adjustMyHP(delta) {
-  const ch = getMyCharacter();
-  if (!ch) return;
-  ch.hp = Math.max(0, Math.min(ch.maxHp, ch.hp + delta));
-  propagateCharacterToCampaigns(ch);
-  saveDB();
+function handlePlayerCardImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  autoFitImageFile(file, 400, 260, resizedDataUrl => {
+    uploadedPlayerCardImg = resizedDataUrl;
+  });
 }
 
 function createPersonalCard(e) {
@@ -393,6 +461,9 @@ function createPersonalCard(e) {
   if (!ch.cards) ch.cards = [];
 
   const type = document.getElementById('newcard-type').value;
+  const manualUrl = document.getElementById('newcard-img-url').value.trim();
+  const finalImg = uploadedPlayerCardImg || manualUrl || CARD_ARTWORKS[type];
+
   ch.cards.unshift({
     id: 'card_' + Date.now(),
     name: document.getElementById('newcard-name').value.trim(),
@@ -401,19 +472,27 @@ function createPersonalCard(e) {
     damage: document.getElementById('newcard-dmg').value.trim(),
     weight: parseFloat(document.getElementById('newcard-weight').value) || 1,
     stars: 5,
-    img: CARD_ARTWORKS[type] || CARD_ARTWORKS.arma,
+    img: finalImg,
     desc: document.getElementById('newcard-desc').value.trim()
   });
 
+  uploadedPlayerCardImg = "";
   e.target.reset();
   propagateCharacterToCampaigns(ch);
   setCharSubTab('combat');
   saveDB();
 }
 
+function adjustMyHP(delta) {
+  const ch = getMyCharacter();
+  if (!ch) return;
+  ch.hp = Math.max(0, Math.min(ch.maxHp, ch.hp + delta));
+  propagateCharacterToCampaigns(ch);
+  saveDB();
+}
+
 function propagateCharacterToCampaigns(ch) {
-  if (!dbState.campaigns) return;
-  Object.values(dbState.campaigns).forEach(camp => {
+  Object.values(dbState.campaigns || {}).forEach(camp => {
     if (camp.members && camp.members[currentUser] && camp.members[currentUser].id === ch.id) {
       camp.members[currentUser] = ch;
     }
@@ -438,7 +517,7 @@ function buildYgoCardHTML(card, interactive = true) {
         <div>${starsSvg}</div>
       </div>
       <div class="ygo-art">
-        <img src="${card.img || CARD_ARTWORKS.arma}" class="w-full h-full object-cover">
+        <img src="${card.img || CARD_ARTWORKS.arma}" alt="${card.name}">
       </div>
       <div class="ygo-lore">
         <p class="text-[10px] leading-snug overflow-y-auto">${card.desc}</p>
@@ -492,15 +571,9 @@ function deployCardInCombat(cardId) {
     dmg: dmgResult
   };
 
-  // Invia l'evento a tutte le campagne di cui fa parte questo personaggio
   Object.values(dbState.campaigns || {}).forEach(camp => {
     if (camp.members && camp.members[currentUser] && camp.members[currentUser].id === ch.id) {
       camp.globalEvent = eventPayload;
-      if (!camp.logs) camp.logs = [];
-      camp.logs.unshift({
-        time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-        text: `${ch.name} ha schierato [${card.name}] -> Colpire: ${hitStr} | Danno: ${dmgResult}`
-      });
     }
   });
 
@@ -509,40 +582,12 @@ function deployCardInCombat(cardId) {
   saveDB();
 }
 
-// ============================================================================
-// 7. GESTIONE CAMPAGNE (DESTRA: LE TUE CAMPAGNE | SINISTRA: DUNGEON MASTER)
-// ============================================================================
-function createNewCampaignAsDM() {
-  const title = document.getElementById('dm-new-title').value.trim() || 'Saga dei Nove Reami';
-  const code = 'YGG-' + Math.floor(1000 + Math.random() * 9000);
-
-  if (!dbState.campaigns) dbState.campaigns = {};
-  dbState.campaigns[code] = {
-    code: code,
-    title: title,
-    dmUser: currentUser,
-    members: {},
-    chest: [],
-    logs: [{ time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }), text: `Campagna "${title}" fondata dal DM. Codice: ${code}` }],
-    globalEvent: null
-  };
-
-  selectedDmCampCode = code;
-  document.getElementById('dm-new-title').value = '';
-  saveDB();
-}
-
-function selectDmCampaign(code) {
-  selectedDmCampCode = code;
-  renderAllViews();
-}
-
 function joinCampaignAsPlayer() {
   const code = document.getElementById('join-camp-code').value.trim().toUpperCase();
   const charId = document.getElementById('join-char-select').value;
 
   if (!code || !dbState.campaigns || !dbState.campaigns[code]) {
-    alert("Codice Campagna non trovato. Verifica che il DM l'abbia generato.");
+    alert("Codice Campagna non trovato.");
     return;
   }
 
@@ -550,117 +595,13 @@ function joinCampaignAsPlayer() {
   const charObj = (account.characters || []).find(c => c.id === charId);
   if (!charObj) return;
 
-  if (!account.joinedCampaigns) account.joinedCampaigns = {};
-  account.joinedCampaigns[code] = charObj.id;
-
   const camp = dbState.campaigns[code];
   if (!camp.members) camp.members = {};
   camp.members[currentUser] = charObj;
 
-  if (!camp.logs) camp.logs = [];
-  camp.logs.unshift({
-    time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-    text: `${charObj.name} (${charObj.race} ${charObj.className}) si è unito alla campagna!`
-  });
-
   document.getElementById('join-camp-code').value = '';
   saveDB();
-  alert(`Ora fai parte della campagna "${camp.title}" con il personaggio ${charObj.name}!`);
-}
-
-function dmTriggerTactical(type) {
-  if (!selectedDmCampCode || !dbState.campaigns[selectedDmCampCode]) return;
-  const camp = dbState.campaigns[selectedDmCampCode];
-
-  Object.entries(camp.members || {}).forEach(([uKey, mChar]) => {
-    if (type === 'SHORT_REST') {
-      const heal = Math.max(4, Math.round(mChar.maxHp * 0.25));
-      mChar.hp = Math.min(mChar.maxHp, mChar.hp + heal);
-    } else if (type === 'LONG_REST') {
-      mChar.hp = mChar.maxHp;
-    }
-    if (dbState.users[uKey] && dbState.users[uKey].characters) {
-      const idx = dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-      if (idx !== -1) dbState.users[uKey].characters[idx] = mChar;
-    }
-  });
-
-  const evt = { type: type, timestamp: Date.now() };
-  camp.globalEvent = evt;
-
-  const msgMap = {
-    'BATTLE': 'Il Dungeon Master ha dichiarato l\'inizio di una BATTAGLIA!',
-    'SHORT_REST': 'Il Dungeon Master ha concesso un Riposo Corto al party (+25% PF).',
-    'LONG_REST': 'Il Dungeon Master ha avviato un Riposo Lungo: tutti i PF sono al 100%.'
-  };
-  if (!camp.logs) camp.logs = [];
-  camp.logs.unshift({
-    time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-    text: msgMap[type]
-  });
-
-  lastSeenEventTimestamp = evt.timestamp;
-  displayGlobalAnimation(evt);
-  saveDB();
-}
-
-function dmAdjustMemberHP(uKey, delta) {
-  if (!selectedDmCampCode || !dbState.campaigns[selectedDmCampCode]) return;
-  const camp = dbState.campaigns[selectedDmCampCode];
-  const mChar = camp.members[uKey];
-  if (!mChar) return;
-
-  mChar.hp = Math.max(0, Math.min(mChar.maxHp, mChar.hp + delta));
-  if (dbState.users[uKey] && dbState.users[uKey].characters) {
-    const idx = dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) dbState.users[uKey].characters[idx] = mChar;
-  }
-  saveDB();
-}
-
-// Cassa del Dungeon & Scambio
-function dmAddLootToStaging() {
-  const name = document.getElementById('dm-loot-name').value.trim();
-  if (!name) return;
-  const type = document.getElementById('dm-loot-type').value;
-
-  dmStagingLoot.push({
-    id: 'loot_' + Date.now() + '_' + Math.floor(Math.random()*999),
-    name: name,
-    type: type,
-    rarity: document.getElementById('dm-loot-rarity').value,
-    damage: document.getElementById('dm-loot-dmg').value.trim() || '+2',
-    weight: 1.5,
-    stars: 5,
-    img: CARD_ARTWORKS[type] || CARD_ARTWORKS.oggetto,
-    desc: document.getElementById('dm-loot-desc').value.trim() || 'Tesoro custodito nel forziere del dungeon.'
-  });
-
-  document.getElementById('dm-loot-name').value = '';
-  document.getElementById('dm-loot-dmg').value = '';
-  document.getElementById('dm-loot-desc').value = '';
-  renderAllViews();
-}
-
-function dmPublishChest() {
-  if (!selectedDmCampCode || !dbState.campaigns[selectedDmCampCode]) return;
-  if (dmStagingLoot.length === 0) {
-    alert("Aggiungi prima almeno un oggetto nella cassa con il pulsante '+ Aggiungi'.");
-    return;
-  }
-  const camp = dbState.campaigns[selectedDmCampCode];
-  if (!camp.chest) camp.chest = [];
-  camp.chest.push(...dmStagingLoot);
-  dmStagingLoot = [];
-
-  if (!camp.logs) camp.logs = [];
-  camp.logs.unshift({
-    time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-    text: 'Una Cassa del Dungeon è apparsa! I giocatori possono aprirla e dividersi il bottino.'
-  });
-
-  saveDB();
-  alert("Cassa del Dungeon inviata sugli schermi dei giocatori!");
+  alert(`Ti sei unito a "${camp.title}" con ${charObj.name}!`);
 }
 
 function playerClaimChestItem(campCode, itemId) {
@@ -675,13 +616,6 @@ function playerClaimChestItem(campCode, itemId) {
   if (!ch.cards) ch.cards = [];
   ch.cards.unshift(item);
   propagateCharacterToCampaigns(ch);
-
-  if (!camp.logs) camp.logs = [];
-  camp.logs.unshift({
-    time: new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }),
-    text: `${ch.name} ha reclamato [${item.name}] dalla Cassa del Dungeon!`
-  });
-
   saveDB();
 }
 
@@ -689,7 +623,6 @@ function openTradeCardModal(cardId) {
   const ch = getMyCharacter();
   if (!ch) return;
 
-  // Trova compagni di campagna
   let fellows = [];
   Object.values(dbState.campaigns || {}).forEach(camp => {
     if (camp.members && camp.members[currentUser] && camp.members[currentUser].id === ch.id) {
@@ -700,7 +633,7 @@ function openTradeCardModal(cardId) {
   });
 
   if (fellows.length === 0) {
-    alert("Per scambiare carte, il tuo personaggio deve far parte di una campagna con altri giocatori connessi.");
+    alert("Nessun altro giocatore connesso nella campagna di questo personaggio.");
     return;
   }
 
@@ -748,12 +681,10 @@ function executeTrade() {
   saveDB();
 }
 
-// Controllo Eventi Live e Reindirizzamento in Battaglia
 function checkIncomingLiveEvents() {
   if (!currentUser || !dbState.users[currentUser]) return;
   const account = dbState.users[currentUser];
 
-  // Aggiorna i personaggi locali se il DM o una cassa li ha modificati
   Object.values(dbState.campaigns || {}).forEach(camp => {
     if (camp.members && camp.members[currentUser]) {
       const updated = camp.members[currentUser];
@@ -766,7 +697,7 @@ function checkIncomingLiveEvents() {
       displayGlobalAnimation(camp.globalEvent);
 
       if (camp.globalEvent.type === 'BATTLE' && camp.dmUser !== currentUser) {
-        switchBottomNav('characters');
+        switchStandardNav('characters');
         setCharSubTab('combat');
       }
     }
@@ -779,37 +710,26 @@ function displayGlobalAnimation(evt) {
 
   if (evt.type === 'BATTLE') {
     box.innerHTML = `
-      <div class="w-24 h-24 mx-auto rounded-full bg-red-950 border-2 border-red-500 flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.8)]">
-        <svg class="w-12 h-12 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5"/>
-        </svg>
-      </div>
-      <h2 class="font-norse text-3xl font-black text-red-400">INIZIA LA BATTAGLIA</h2>
-      <p class="text-xs text-slate-300">Il Dungeon Master ha chiamato alle armi! Sei stato reindirizzato sulla tua scheda Combattimento.</p>
+      <h2 class="font-norse text-3xl font-black text-red-400">CHIAMATA ALLE ARMI</h2>
+      <p class="text-xs text-slate-300">Il Dungeon Master ha avviato una Battaglia! La tua scheda Combattimento è pronta.</p>
     `;
   } else if (evt.type === 'SHORT_REST') {
     box.innerHTML = `
       <h2 class="font-norse text-3xl font-black text-amber-300">RIPOSO CORTO</h2>
-      <p class="text-xs text-slate-300">Il party riposa attorno al fuoco. Hai recuperato il 25% dei tuoi Punti Ferita!</p>
+      <p class="text-xs text-slate-300">Il party riposa attorno al fuoco (+25% PF).</p>
     `;
   } else if (evt.type === 'LONG_REST') {
     box.innerHTML = `
       <h2 class="font-norse text-3xl font-black text-sky-300">RIPOSO LUNGO</h2>
-      <p class="text-xs text-slate-300">Le energie di Yggdrasill rigenerano completamente il party (100% PF).</p>
+      <p class="text-xs text-slate-300">Luce di Yggdrasill: tutti i Punti Ferita sono tornati al 100%.</p>
     `;
   } else if (evt.type === 'CARD_DEPLOY') {
     box.innerHTML = `
-      <span class="text-xs font-cinzel uppercase tracking-widest text-sky-400">${evt.actor} schiera in campo</span>
+      <span class="text-xs font-cinzel uppercase tracking-widest text-sky-400">${evt.actor} schiera in battaglia</span>
       <div class="flex justify-center my-2 animate-slam">${buildYgoCardHTML(evt.card, false)}</div>
       <div class="norse-panel rounded-xl p-3 grid grid-cols-2 divide-x divide-slate-800">
-        <div>
-          <span class="text-[10px] text-slate-400 uppercase block">Tiro Colpire</span>
-          <span class="font-cinzel font-black text-xl text-sky-300">${evt.hit}</span>
-        </div>
-        <div>
-          <span class="text-[10px] text-slate-400 uppercase block">Danno / Effetto</span>
-          <span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span>
-        </div>
+        <div><span class="text-[10px] text-slate-400 uppercase block">Tiro Colpire</span><span class="font-cinzel font-black text-xl text-sky-300">${evt.hit}</span></div>
+        <div><span class="text-[10px] text-slate-400 uppercase block">Danno / Effetto</span><span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span></div>
       </div>
     `;
   }
@@ -824,21 +744,19 @@ function closeAnimModal() {
   modal.classList.remove('flex');
 }
 
-// ============================================================================
-// 8. RENDERING DELLE 3 SEZIONI PRINCIPALI
-// ============================================================================
 function renderAllViews() {
   if (!currentUser || !dbState.users[currentUser]) return;
   const account = dbState.users[currentUser];
-  document.getElementById('top-user-label').textContent = `Guerriero: ${account.username}`;
+  document.getElementById('top-user-label').textContent = isCurrentUserAdmin()
+    ? `AMMINISTRATORE (${account.username})`
+    : `Guerriero: ${account.username}`;
 
   const chars = account.characters || [];
   const ch = getMyCharacter();
 
-  // --- RENDER VISTA CENTRALE: PERSONAGGI ---
   if (ch) {
     document.getElementById('char-picker').innerHTML = chars.map(c => `
-      <option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} (Liv. ${c.level || 1} ${c.race} ${c.className})</option>
+      <option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} (Liv.${c.level || 1} ${c.race} ${c.className})</option>
     `).join('');
 
     document.getElementById('sheet-avatar').src = ch.avatar;
@@ -846,7 +764,6 @@ function renderAllViews() {
     document.getElementById('sheet-race-class').textContent = `Liv. ${ch.level || 1} • ${ch.race} • ${ch.className}`;
     document.getElementById('sheet-bg-align').textContent = `${ch.background} • ${ch.alignment || 'Neutrale'}`;
 
-    // Trova in quale campagna è iscritto questo personaggio
     let activeCampForChar = null;
     Object.values(dbState.campaigns || {}).forEach(camp => {
       if (camp.members && camp.members[currentUser] && camp.members[currentUser].id === ch.id) {
@@ -854,9 +771,7 @@ function renderAllViews() {
       }
     });
 
-    document.getElementById('sheet-camp-badge').textContent = activeCampForChar
-      ? `Campagna: ${activeCampForChar.title}`
-      : 'Nessuna Campagna';
+    document.getElementById('sheet-camp-badge').textContent = activeCampForChar ? `Saga: ${activeCampForChar.title}` : 'Senza Campagna';
 
     const pct = Math.round((ch.hp / ch.maxHp) * 100);
     document.getElementById('sheet-hp-label').textContent = `${ch.hp} / ${ch.maxHp} PF`;
@@ -868,7 +783,6 @@ function renderAllViews() {
     document.getElementById('sheet-atk').textContent = `+${ch.atkBonus}`;
     document.getElementById('sheet-speed').textContent = ch.speed || '9m';
 
-    // Cassa del Dungeon attiva
     const chestBox = document.getElementById('player-chest-box');
     if (activeCampForChar && activeCampForChar.chest && activeCampForChar.chest.length > 0) {
       chestBox.classList.remove('hidden');
@@ -876,11 +790,9 @@ function renderAllViews() {
         <div class="bg-slate-950 border border-amber-500/40 p-2.5 rounded-xl flex justify-between items-center text-xs">
           <div>
             <span class="font-cinzel font-bold text-amber-300 block">${item.name}</span>
-            <span class="text-[10px] text-slate-400 uppercase">${item.rarity} • ${item.damage}</span>
+            <span class="text-[10px] text-slate-400 uppercase">${item.type} • ${item.rarity} • ${item.damage}</span>
           </div>
-          <button onclick="playerClaimChestItem('${activeCampForChar.code}', '${item.id}')" class="gold-btn px-3 py-1.5 rounded-lg font-cinzel font-bold text-[10px] text-white">
-            PRENDI
-          </button>
+          <button onclick="playerClaimChestItem('${activeCampForChar.code}', '${item.id}')" class="gold-btn px-3 py-1.5 rounded-lg font-cinzel font-bold text-[10px] text-white">PRENDI</button>
         </div>
       `).join('');
     } else {
@@ -907,29 +819,28 @@ function renderAllViews() {
     `).join('');
   }
 
-  // --- RENDER VISTA DESTRA: LE TUE CAMPAGNE ---
+  // Vista Destra: Le Tue Campagne
   document.getElementById('join-char-select').innerHTML = chars.map(c => `
     <option value="${c.id}">${c.name} (${c.race} ${c.className})</option>
   `).join('');
 
   const myJoinedCamps = Object.values(dbState.campaigns || {}).filter(camp => camp.members && camp.members[currentUser]);
   document.getElementById('my-joined-campaigns-list').innerHTML = myJoinedCamps.length === 0
-    ? `<div class="norse-panel rounded-2xl p-5 text-xs text-slate-400 text-center">Non ti sei ancora unito a nessuna campagna come giocatore. Inserisci il codice del tuo DM qui sopra!</div>`
+    ? `<div class="norse-panel rounded-2xl p-5 text-xs text-slate-400 text-center">Non fai ancora parte di nessuna campagna. Inserisci il codice del tuo DM qui sopra!</div>`
     : myJoinedCamps.map(camp => {
-        const myEnrolledChar = camp.members[currentUser];
+        const myChar = camp.members[currentUser];
         const fellows = Object.values(camp.members || {});
         return `
           <div class="norse-panel rounded-2xl p-5 space-y-3 border border-sky-500/30">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
               <div>
-                <span class="text-[10px] font-cinzel uppercase text-sky-400">Campagna Attiva • Codice: ${camp.code}</span>
+                <span class="text-[10px] font-cinzel uppercase text-sky-400">Codice Campagna: ${camp.code}</span>
                 <h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4>
               </div>
               <span class="px-3 py-1 rounded-lg bg-sky-950 border border-sky-500/40 text-xs font-bold text-sky-300">
-                Il tuo Eroe: ${myEnrolledChar.name}
+                Personaggio Iscritto: ${myChar.name}
               </span>
             </div>
-            <p class="text-[11px] text-slate-400">Membri del Party in questa campagna:</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               ${fellows.map(f => `
                 <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center gap-2.5">
@@ -945,71 +856,12 @@ function renderAllViews() {
         `;
       }).join('');
 
-  // --- RENDER VISTA SINISTRA: DUNGEON MASTER ---
-  const myOwnedCamps = Object.values(dbState.campaigns || {}).filter(camp => camp.dmUser === currentUser);
-  const dmSelect = document.getElementById('dm-owned-campaigns-select');
-
-  if (myOwnedCamps.length === 0) {
-    dmSelect.innerHTML = `<option value="">Nessuna campagna creata</option>`;
-    document.getElementById('dm-active-workspace').classList.add('hidden');
-  } else {
-    if (!selectedDmCampCode || !dbState.campaigns[selectedDmCampCode]) {
-      selectedDmCampCode = myOwnedCamps[0].code;
-    }
-    dmSelect.innerHTML = myOwnedCamps.map(c => `
-      <option value="${c.code}" ${c.code === selectedDmCampCode ? 'selected' : ''}>${c.title} (Codice: ${c.code})</option>
-    `).join('');
-
-    const activeDmCamp = dbState.campaigns[selectedDmCampCode];
-    document.getElementById('dm-active-workspace').classList.remove('hidden');
-    document.getElementById('dm-work-title').textContent = activeDmCamp.title;
-    document.getElementById('dm-work-code').textContent = activeDmCamp.code;
-
-    const membersList = Object.entries(activeDmCamp.members || {});
-    document.getElementById('dm-players-grid').innerHTML = membersList.length === 0
-      ? `<p class="text-xs text-slate-400 col-span-2">Nessun giocatore unito. Condividi il codice <strong>${activeDmCamp.code}</strong> con i tuoi player!</p>`
-      : membersList.map(([uKey, mChar]) => `
-          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2.5">
-                <img src="${mChar.avatar}" class="w-10 h-10 rounded-lg object-cover border border-sky-400">
-                <div>
-                  <span class="font-cinzel font-bold text-xs text-white block">${mChar.name}</span>
-                  <span class="text-[10px] text-sky-300">Liv.${mChar.level || 1} ${mChar.race} ${mChar.className}</span>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-red-400">${mChar.hp}/${mChar.maxHp} PF</span>
-            </div>
-            <div class="grid grid-cols-4 gap-1.5 pt-1">
-              <button onclick="dmAdjustMemberHP('${uKey}', -5)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-5 PF</button>
-              <button onclick="dmAdjustMemberHP('${uKey}', -1)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-1 PF</button>
-              <button onclick="dmAdjustMemberHP('${uKey}', 1)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+1 PF</button>
-              <button onclick="dmAdjustMemberHP('${uKey}', 5)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+5 PF</button>
-            </div>
-            <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
-              CA ${mChar.ac} • Bonus Att. +${mChar.atkBonus} • Carte: ${(mChar.cards || []).map(c => c.name).join(', ')}
-            </div>
-          </div>
-        `).join('');
-
-    document.getElementById('dm-staging-list').innerHTML = dmStagingLoot.map(i => `
-      <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg flex justify-between">
-        <span class="text-amber-300 font-bold">${i.name} (${i.rarity})</span>
-        <span class="text-slate-400">${i.damage}</span>
-      </div>
-    `).join('');
-
-    document.getElementById('dm-logs-box').innerHTML = (activeDmCamp.logs || []).slice(0, 15).map(l => `
-      <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg">
-        <span class="text-[10px] text-sky-400 font-bold mr-1">[${l.time}]</span>
-        <span class="text-slate-300">${l.text}</span>
-      </div>
-    `).join('');
+  if (typeof renderDmViews === 'function') {
+    renderDmViews();
   }
 }
 
-// Avvio iniziale
 initCloudConnection();
 if (currentUser && dbState.users && dbState.users[currentUser]) {
-  enterRealmAfterAuth();
+  enterAfterLogin();
 }
