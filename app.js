@@ -1,46 +1,169 @@
 // ============================================================================
-// 1. CANVAS NEVE NORRENA
+// 1. MOTORE CANVAS REATTIVO ALLE CONDIZIONI DEL PERSONAGGIO
+// (Normale: Neve | Avvelenato: Gas Verde | Stordito: Onde Senso di Ragno Bianche
+//  Invisibile: Onde Trasparenti | Spaventato: Onde Violacee | Prono: Polvere Terrosa)
 // ============================================================================
-(function initSnow() {
+window.currentCanvasCondition = 'Normale';
+
+(function initDynamicConditionCanvas() {
   try {
     const canvas = document.getElementById('frost-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let flakes = [];
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    let particles = [];
+    let tick = 0;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
     window.addEventListener('resize', resize);
     resize();
 
-    for (let i = 0; i < 45; i++) {
-      flakes.push({
+    for (let i = 0; i < 55; i++) {
+      particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 0.5,
-        vx: Math.random() * 1.3 + 0.4,
-        vy: Math.random() * 1 + 0.3,
-        a: Math.random() * 0.5 + 0.15
+        r: Math.random() * 2.5 + 1,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: Math.random() * 1.2 + 0.4,
+        a: Math.random() * 0.55 + 0.15,
+        phase: Math.random() * Math.PI * 2
       });
     }
 
-    function loop() {
+    function renderLoop() {
+      tick += 0.035;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      flakes.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x > canvas.width) p.x = -5;
-        if (p.y > canvas.height) p.y = -5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(186, 230, 253, ${p.a})`;
-        ctx.fill();
-      });
-      requestAnimationFrame(loop);
+
+      // Condizione attiva solo quando siamo nella schermata Personaggi, altrimenti Neve classica
+      const charView = document.getElementById('view-my-characters');
+      const isViewingChar = charView && !charView.classList.contains('hidden');
+      const cond = isViewingChar ? (window.currentCanvasCondition || 'Normale') : 'Normale';
+
+      if (cond === 'Avvelenato') {
+        // a. Gas verde tossico che sale dal basso
+        const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        grad.addColorStop(0, 'rgba(16, 185, 129, 0.16)');
+        grad.addColorStop(1, 'rgba(5, 46, 22, 0.02)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.y -= (p.vy * 0.9 + 0.3);
+          p.x += Math.sin(tick + p.phase) * 0.9;
+          if (p.y < -30) { p.y = canvas.height + 30; p.x = Math.random() * canvas.width; }
+          const rad = p.r * 12;
+          const rg = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rad);
+          rg.addColorStop(0, `rgba(52, 211, 153, ${p.a * 0.42})`);
+          rg.addColorStop(1, 'rgba(16, 185, 129, 0)');
+          ctx.fillStyle = rg;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+      } else if (cond === 'Stordito') {
+        // b. Onde del senso di ragno bianche vibranti
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+        ctx.lineWidth = 2;
+
+        for (let w = 0; w < 5; w++) {
+          const baseR = ((tick * 45 + w * 75) % (Math.max(canvas.width, canvas.height) * 0.65)) + 30;
+          ctx.beginPath();
+          for (let angle = 0; angle <= Math.PI * 2; angle += 0.12) {
+            const jag = Math.sin(angle * 18 + tick * 6) * 9;
+            const r = baseR + jag;
+            const x = cx + Math.cos(angle) * r;
+            const y = cy + Math.sin(angle) * r;
+            if (angle === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
+
+      } else if (cond === 'Invisibile') {
+        // c. Movimenti ad onda trasparenti ed eterei
+        for (let i = 0; i < 7; i++) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(224, 242, 254, ${0.12 + (i % 3) * 0.06})`;
+          ctx.lineWidth = 2.5;
+          const yOffset = (canvas.height / 8) * (i + 1);
+          for (let x = 0; x <= canvas.width; x += 15) {
+            const y = yOffset + Math.sin(x * 0.015 + tick * 1.5 + i) * 22;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+      } else if (cond === 'Spaventato') {
+        // d. Onde violacee oscure e inquietanti
+        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 40, canvas.width/2, canvas.height/2, canvas.height * 0.8);
+        grad.addColorStop(0, 'rgba(88, 28, 135, 0.04)');
+        grad.addColorStop(1, 'rgba(147, 51, 234, 0.22)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < 6; i++) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(192, 132, 252, ${0.28 + (i % 2) * 0.15})`;
+          ctx.lineWidth = 3;
+          const yBase = (canvas.height / 7) * (i + 1);
+          for (let x = 0; x <= canvas.width; x += 12) {
+            const y = yBase + Math.sin(x * 0.025 - tick * 2.2 + i) * 28 + Math.cos(tick * 4 + x * 0.05) * 6;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+      } else if (cond === 'Prono') {
+        // e. Polvere terrosa e detriti rasoterra
+        const grad = ctx.createLinearGradient(0, canvas.height, 0, canvas.height * 0.35);
+        grad.addColorStop(0, 'rgba(120, 53, 15, 0.28)');
+        grad.addColorStop(1, 'rgba(120, 53, 15, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += (Math.abs(p.vx) + 1.8);
+          p.y += Math.sin(tick + p.phase) * 0.4;
+          if (p.x > canvas.width + 20) {
+            p.x = -20;
+            p.y = canvas.height * 0.45 + Math.random() * (canvas.height * 0.55);
+          }
+          ctx.fillStyle = `rgba(217, 119, 6, ${p.a * 0.75})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+      } else {
+        // Default ("Normale"): Tempesta di fiocchi di neve di Midgardr
+        particles.forEach(p => {
+          p.x += Math.abs(p.vx) + 0.4;
+          p.y += p.vy;
+          if (p.x > canvas.width) p.x = -5;
+          if (p.y > canvas.height) p.y = -5;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(186, 230, 253, ${p.a})`;
+          ctx.fill();
+        });
+      }
+
+      requestAnimationFrame(renderLoop);
     }
-    loop();
+    renderLoop();
   } catch (e) {}
 })();
 
 // ============================================================================
-// 2. STATO & SERVER (INDICATORE SEMPLICE PER PLAYER, DETTAGLIATO PER ADMIN)
+// 2. STATO GLOBALE & SERVER
 // ============================================================================
 function loadLocalDB() {
   try {
@@ -146,7 +269,7 @@ window.enforceMaintenanceCheck = function() {
 };
 
 // ============================================================================
-// 3. CONSOLE ADMIN (INFO TECNICHE DETTAGLIATE)
+// 3. CONSOLE ADMIN
 // ============================================================================
 window.openAdminConsole = function() {
   if (!window.isCurrentUserAdmin()) return;
@@ -155,7 +278,7 @@ window.openAdminConsole = function() {
   const uCount = Object.keys(window.dbState.users || {}).length;
   const cCount = Object.keys(window.dbState.campaigns || {}).length;
   document.getElementById('admin-tech-diagnostics').innerHTML = `
-    <div class="font-bold text-amber-300 mb-1">Diagnostica Tecnica Server (Admin):</div>
+    <div class="font-bold text-amber-300 mb-1">Diagnostica Tecnica Server (Solo Admin):</div>
     <div>• Stato Socket: <strong class="${window.isServerConnected ? 'text-emerald-400' : 'text-rose-400'}">${window.isServerConnected ? 'ONLINE (Sincronizzato)' : 'OFFLINE'}</strong></div>
     <div>• Endpoint: <code>/yggdrasill_v3_realm</code></div>
     <div>• Utenti Totali: <strong>${uCount}</strong> | Campagne: <strong>${cCount}</strong></div>
@@ -282,12 +405,15 @@ window.enterAfterLogin = function() {
   if (window.isCurrentUserAdmin()) {
     if (!acc.characters || acc.characters.length === 0) {
       acc.characters = [{
-        id: 'admin_char', owner: window.currentUser, name: 'Custode Admin', race: 'Aesir', className: 'Master',
-        level: 20, hitDie: '1d20', background: 'Admin', alignment: 'Neutrale', avatar: window.PRESET_AVATARS[1],
-        hp: 100, maxHp: 100, ac: 20, atkBonus: 10, speed: '9m', inspiration: true, condition: 'Normal',
+        id: 'admin_char', owner: window.currentUser, name: 'Odhinn (Admin)', race: 'Aesir', clanName: 'Occhio di Odhinn',
+        classId: 'maestro_rune', className: 'Maestro delle Rune', subclass: 'Ætt di Tyr',
+        level: 20, hitDie: '1d8', background: 'Gothi', alignment: 'Legale Onorevole', virtue: 'Onore (Honour)',
+        avatar: window.PRESET_AVATARS[1], hp: 100, maxHp: 100, ac: 20, atkBonus: 6, speed: '9m',
+        inspiration: true, condition: 'Normale',
         stats: { FOR: 20, DES: 20, COS: 20, INT: 20, SAG: 20, CAR: 20 },
         saves: { FOR: true, DES: true, COS: true, INT: true, SAG: true, CAR: true },
-        defenses: 'Immunità Admin', traits: ['Controllo Totale'], proficiencies: 'Tutte', notes: '', cards: []
+        proficientSkills: ['asatru', 'percezione', 'arcano'],
+        defenses: 'Immunità Divina', traits: ['Controllo Totale dei Nove Mondi'], proficiencies: 'Tutte le Rune Futhark', notes: '', cards: []
       }];
       window.saveDB();
     }
@@ -318,16 +444,36 @@ window.logoutUser = function() {
 };
 
 // ============================================================================
-// 5. CREAZIONE PERSONAGGIO & LIVE UP AUTOMATICO/INTERATTIVO D&D 5E
+// 5. CREAZIONE GUIDATA A SCELTA MULTIPLA (JOURNEY TO RAGNAROK)
 // ============================================================================
 window.selectedFormAvatar = window.PRESET_AVATARS[0];
+window.selectedBuilderClanId = window.JTR_CLANS[0].id;
 
 window.openCharacterBuilder = function(allowCancel) {
   window.selectedFormAvatar = window.PRESET_AVATARS[0];
+  window.selectedBuilderClanId = window.JTR_CLANS[0].id;
   document.getElementById('btn-cancel-form').classList.toggle('hidden', !allowCancel);
   document.getElementById('screen-main').classList.add('hidden');
   document.getElementById('screen-builder').classList.remove('hidden');
+
+  // Popola menu a scelta multipla da data.js
+  document.getElementById('cf-race').innerHTML = window.JTR_RACES.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  document.getElementById('cf-class').innerHTML = window.JTR_CLASSES.map(c => `<option value="${c.id}">${c.name} (${c.hitDie})</option>`).join('');
+  document.getElementById('cf-bg').innerHTML = window.JTR_BACKGROUNDS.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+  document.getElementById('cf-align').innerHTML = window.JTR_ALIGNMENTS.map(a => `<option value="${a}">${a}</option>`).join('');
+  document.getElementById('cf-virtue').innerHTML = window.JTR_VIRTUES.map(v => `<option value="${v}">${v}</option>`).join('');
+
+  // Popola Checkboxes Abilità
+  document.getElementById('cf-skills-checkboxes').innerHTML = window.DDB_SKILLS.map(sk => `
+    <label class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" name="cf-skill" value="${sk.id}" class="accent-sky-400">
+      <span class="text-[11px] text-slate-200">${sk.name} <strong class="text-sky-400">(${sk.stat})</strong></span>
+    </label>
+  `).join('');
+
   window.renderAvatarSelector();
+  window.renderBuilderClans();
+  window.onBuilderSelectionChange();
 };
 
 window.renderAvatarSelector = function() {
@@ -338,6 +484,94 @@ window.renderAvatarSelector = function() {
       <img src="${url}" class="w-full h-14 object-cover">
     </div>
   `).join('');
+};
+
+window.renderBuilderClans = function() {
+  const container = document.getElementById('cf-clan-cards');
+  if (!container) return;
+  container.innerHTML = window.JTR_CLANS.map(clan => {
+    const active = window.selectedBuilderClanId === clan.id;
+    return `
+      <div onclick="window.selectedBuilderClanId='${clan.id}'; window.renderBuilderClans(); window.recalcBuilderStats();"
+           class="cursor-pointer rounded-xl p-3 border transition ${active ? 'bg-sky-950/70 border-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.35)]' : 'bg-slate-950 border-slate-800 opacity-75'}">
+        <div class="flex justify-between items-center">
+          <span class="font-cinzel font-bold text-xs text-white">${clan.name}</span>
+          <span class="text-[10px] text-amber-300 font-bold">${clan.bonusText.split(',')[0]}</span>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1 leading-snug">${clan.trait}</p>
+      </div>
+    `;
+  }).join('');
+};
+
+window.onBuilderSelectionChange = function() {
+  const classId = document.getElementById('cf-class').value;
+  const lvl = parseInt(document.getElementById('cf-level').value) || 1;
+  const bgId = document.getElementById('cf-bg').value;
+
+  const clsObj = window.JTR_CLASSES.find(c => c.id === classId) || window.JTR_CLASSES[0];
+  const bgObj = window.JTR_BACKGROUNDS.find(b => b.id === bgId) || window.JTR_BACKGROUNDS[0];
+
+  // Mostra i privilegi della classe selezionata fino al livello scelto e il selettore di Archetipo/Ætt
+  let unlockedTraits = [];
+  for (let l = 1; l <= lvl; l++) {
+    if (clsObj.levelFeatures[l]) unlockedTraits.push(...clsObj.levelFeatures[l].map(f => `[Liv.${l}] ${f}`));
+  }
+
+  document.getElementById('cf-class-preview').innerHTML = `
+    <div class="flex flex-wrap justify-between gap-2 border-b border-slate-800 pb-2">
+      <span>Dado Vita: <strong class="text-amber-300">${clsObj.hitDie}</strong></span>
+      <span>Tiri Salvezza Competenti: <strong class="text-sky-300">${clsObj.saves.join(', ')}</strong></span>
+    </div>
+    <div>
+      <label class="text-amber-300 font-bold block mb-1">${clsObj.archetypeTitle} (Journey to Ragnarok):</label>
+      <select id="cf-subclass" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-semibold">
+        ${clsObj.archetypes.map(a => `<option value="${a}">${a}</option>`).join('')}
+      </select>
+    </div>
+    <div class="text-[11px] text-slate-300 space-y-1 pt-1">
+      <span class="text-slate-400 font-semibold block">Privilegi di Classe sbloccati automaticamente:</span>
+      ${unlockedTraits.map(t => `<div class="text-sky-200">• ${t}</div>`).join('')}
+    </div>
+  `;
+
+  document.getElementById('cf-bg-preview').innerHTML = `
+    <strong class="text-amber-300">${bgObj.name}:</strong> ${bgObj.desc} (Competenze consigliate spuntate in automatico: <strong>${bgObj.skills.join(', ').toUpperCase()}</strong>).
+  `;
+
+  // Spunta automaticamente le abilità del background scelto
+  document.querySelectorAll('input[name="cf-skill"]').forEach(cb => {
+    if (bgObj.skills.includes(cb.value)) cb.checked = true;
+  });
+
+  window.recalcBuilderStats();
+};
+
+window.applyStandardArray = function() {
+  const std = { FOR: 15, DES: 13, COS: 14, INT: 10, SAG: 12, CAR: 8 };
+  Object.entries(std).forEach(([k, v]) => { document.getElementById('cf-stat-' + k).value = v; });
+  window.recalcBuilderStats();
+};
+
+window.recalcBuilderStats = function() {
+  const raceObj = window.JTR_RACES.find(r => r.id === document.getElementById('cf-race').value) || window.JTR_RACES[0];
+  const clsObj = window.JTR_CLASSES.find(c => c.id === document.getElementById('cf-class').value) || window.JTR_CLASSES[0];
+  const clanObj = window.JTR_CLANS.find(c => c.id === window.selectedBuilderClanId) || window.JTR_CLANS[0];
+  const lvl = parseInt(document.getElementById('cf-level').value) || 1;
+
+  const cosVal = (parseInt(document.getElementById('cf-stat-COS').value) || 10) + (raceObj.bonus.COS || 0) + (clanObj.bonus.COS || 0);
+  const desVal = (parseInt(document.getElementById('cf-stat-DES').value) || 10) + (raceObj.bonus.DES || 0) + (clanObj.bonus.DES || 0);
+  const cosMod = Math.floor((cosVal - 10) / 2);
+  const desMod = Math.floor((desVal - 10) / 2);
+
+  const dieMax = parseInt(clsObj.hitDie.replace('1d', '')) || 8;
+  const avgPerLvl = Math.floor(dieMax / 2) + 1;
+  const jotunnBonus = clanObj.id === 'jotunn_sons' ? lvl : 0;
+  const calcHp = Math.max(lvl, (dieMax + cosMod) + ((lvl - 1) * (avgPerLvl + cosMod)) + jotunnBonus);
+
+  document.getElementById('cf-maxhp').value = calcHp;
+  document.getElementById('cf-ac').value = clsObj.baseAc + Math.min(2, Math.max(0, desMod));
+  document.getElementById('cf-speed').value = raceObj.speed || '9m';
 };
 
 window.handleAvatarFileUpload = function(e) {
@@ -353,44 +587,70 @@ window.cancelCharacterForm = function() {
 
 window.saveFullCharacterSheet = function(e) {
   e.preventDefault();
-  const maxHp = parseInt(document.getElementById('cf-maxhp').value) || 19;
-  const traitsRaw = document.getElementById('cf-traits').value.trim();
+  const raceObj = window.JTR_RACES.find(r => r.id === document.getElementById('cf-race').value) || window.JTR_RACES[0];
+  const clsObj = window.JTR_CLASSES.find(c => c.id === document.getElementById('cf-class').value) || window.JTR_CLASSES[0];
+  const clanObj = window.JTR_CLANS.find(c => c.id === window.selectedBuilderClanId) || window.JTR_CLANS[0];
+  const bgObj = window.JTR_BACKGROUNDS.find(b => b.id === document.getElementById('cf-bg').value) || window.JTR_BACKGROUNDS[0];
+
+  const lvl = parseInt(document.getElementById('cf-level').value) || 1;
+  const maxHp = parseInt(document.getElementById('cf-maxhp').value) || 15;
+  const subclass = document.getElementById('cf-subclass')?.value || clsObj.archetypes[0];
+  const profBonus = lvl >= 17 ? 6 : lvl >= 13 ? 5 : lvl >= 9 ? 4 : lvl >= 5 ? 3 : 2;
+
+  // Statistiche finali comprensive dei bonus di Stirpe e Clan di Midgardr
+  const finalStats = {};
+  ['FOR', 'DES', 'COS', 'INT', 'SAG', 'CAR'].forEach(st => {
+    const base = parseInt(document.getElementById('cf-stat-' + st).value) || 10;
+    finalStats[st] = Math.min(20, base + (raceObj.bonus[st] || 0) + (clanObj.bonus[st] || 0));
+  });
+
+  const savesMap = {};
+  ['FOR', 'DES', 'COS', 'INT', 'SAG', 'CAR'].forEach(st => {
+    savesMap[st] = clsObj.saves.includes(st);
+  });
+
+  const checkedSkills = Array.from(document.querySelectorAll('input[name="cf-skill"]:checked')).map(cb => cb.value);
+  if (clanObj.id === 'odhinns_eye' && !checkedSkills.includes('asatru')) checkedSkills.push('asatru');
+
+  let compiledTraits = [
+    clanObj.trait,
+    ...raceObj.traits.map(t => `[Stirpe] ${t}`),
+    `[Archetipo] ${subclass}`
+  ];
+  for (let l = 1; l <= lvl; l++) {
+    if (clsObj.levelFeatures[l]) {
+      compiledTraits.push(...clsObj.levelFeatures[l].map(f => `[Liv.${l}] ${f}`));
+    }
+  }
 
   const newChar = {
     id: 'char_' + Date.now(),
     owner: window.currentUser,
     name: document.getElementById('cf-name').value.trim(),
-    race: document.getElementById('cf-race').value.trim(),
-    className: document.getElementById('cf-class').value.trim(),
-    level: parseInt(document.getElementById('cf-level').value) || 1,
-    hitDie: document.getElementById('cf-hitdie').value || '1d8',
-    background: document.getElementById('cf-bg').value.trim() || 'Outlander',
-    alignment: document.getElementById('cf-align').value.trim() || 'Neutrale',
+    race: raceObj.name,
+    clanName: clanObj.name,
+    classId: clsObj.id,
+    className: clsObj.name.split(' (')[0],
+    subclass: subclass,
+    level: lvl,
+    hitDie: clsObj.hitDie,
+    background: bgObj.name,
+    alignment: document.getElementById('cf-align').value,
+    virtue: document.getElementById('cf-virtue').value,
     avatar: window.selectedFormAvatar,
-    hp: maxHp, maxHp: maxHp,
+    hp: maxHp,
+    maxHp: maxHp,
     ac: parseInt(document.getElementById('cf-ac').value) || 14,
-    atkBonus: parseInt(document.getElementById('cf-atk').value) || 2,
+    atkBonus: profBonus,
     speed: document.getElementById('cf-speed').value.trim() || '9m',
-    defenses: document.getElementById('cf-defenses').value.trim() || 'Nessuna',
-    inspiration: false, condition: 'Normal',
-    stats: {
-      FOR: parseInt(document.getElementById('cf-stat-FOR').value) || 10,
-      DES: parseInt(document.getElementById('cf-stat-DES').value) || 10,
-      COS: parseInt(document.getElementById('cf-stat-COS').value) || 10,
-      INT: parseInt(document.getElementById('cf-stat-INT').value) || 10,
-      SAG: parseInt(document.getElementById('cf-stat-SAG').value) || 10,
-      CAR: parseInt(document.getElementById('cf-stat-CAR').value) || 10
-    },
-    saves: {
-      FOR: document.getElementById('cf-save-FOR').checked,
-      DES: document.getElementById('cf-save-DES').checked,
-      COS: document.getElementById('cf-save-COS').checked,
-      INT: document.getElementById('cf-save-INT').checked,
-      SAG: document.getElementById('cf-save-SAG').checked,
-      CAR: document.getElementById('cf-save-CAR').checked
-    },
-    traits: traitsRaw ? traitsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Privilegi base'],
-    proficiencies: document.getElementById('cf-proficiencies').value.trim() || 'Competenze standard',
+    defenses: clanObj.id === 'jotunn_sons' ? 'Resistenza al Freddo Glaciale' : 'Standard dei Nove Mondi',
+    inspiration: false,
+    condition: 'Normale',
+    stats: finalStats,
+    saves: savesMap,
+    proficientSkills: checkedSkills,
+    traits: compiledTraits,
+    proficiencies: `Armi e armature di ${clsObj.name.split(' (')[0]}, Lingua Norrena e Runico Futhark`,
     notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota.',
     cards: []
   };
@@ -402,12 +662,14 @@ window.saveFullCharacterSheet = function(e) {
 
   document.getElementById('screen-builder').classList.add('hidden');
   document.getElementById('screen-main').classList.remove('hidden');
-  window.switchStandardNav('characters'); window.saveDB();
+  window.switchStandardNav('characters');
+  window.saveDB();
 };
 
-// --- LOGICA LEVEL UP AUTOMATICO + SCELTA GIOCATORE ---
+// ============================================================================
+// 6. LEVEL UP COERENTE CON IL MANUALE "JOURNEY TO RAGNAROK"
+// ============================================================================
 let currentLevelUpCharId = null;
-let chosenHpMethod = 'avg';
 let computedHpGain = 0;
 
 window.openLevelUpModal = function() {
@@ -416,31 +678,47 @@ window.openLevelUpModal = function() {
   currentLevelUpCharId = ch.id;
   const nextLvl = (ch.level || 1) + 1;
 
-  document.getElementById('lvlup-title').textContent = `Passaggio al Livello ${nextLvl}`;
-  
-  // Calcolo automatico bonus competenza D&D 5e (+2 fino a liv 4, +3 a liv 5, +4 a liv 9, +5 a liv 13, +6 a liv 17)
+  const clsObj = window.JTR_CLASSES.find(c => c.id === ch.classId) ||
+                 window.JTR_CLASSES.find(c => ch.className && c.name.toLowerCase().includes(ch.className.toLowerCase())) ||
+                 window.JTR_CLASSES[0];
+
+  document.getElementById('lvlup-title').textContent = `${ch.name} ➔ Livello ${nextLvl}`;
+
   const newProf = nextLvl >= 17 ? 6 : nextLvl >= 13 ? 5 : nextLvl >= 9 ? 4 : nextLvl >= 5 ? 3 : 2;
   const cosMod = Math.floor(((ch.stats?.COS || 10) - 10) / 2);
-  const dieNum = parseInt((ch.hitDie || '1d8').replace('1d','')) || 8;
-  const avgGain = Math.floor(dieNum / 2) + 1 + cosMod;
-
+  const dieNum = parseInt((ch.hitDie || clsObj.hitDie || '1d8').replace('1d','')) || 8;
+  const avgGain = Math.max(1, Math.floor(dieNum / 2) + 1 + cosMod);
   computedHpGain = avgGain;
-  chosenHpMethod = 'avg';
+
+  const newFeatures = clsObj.levelFeatures[nextLvl] || [`Privilegio di Classe di Livello ${nextLvl}`];
 
   document.getElementById('lvlup-auto-summary').innerHTML = `
-    <div>• Nuovo Livello: <strong>${nextLvl}</strong></div>
-    <div>• Nuovo Bonus di Competenza: <strong class="text-sky-300">+${newProf}</strong></div>
-    <div>• Modificatore Costituzione (COS): <strong>${cosMod >= 0 ? '+'+cosMod : cosMod}</strong></div>
+    <div class="font-bold text-amber-300">Privilegi di Journey to Ragnarok sbloccati al Livello ${nextLvl}:</div>
+    ${newFeatures.map(f => `<div class="text-sky-300 font-semibold">• ${f}</div>`).join('')}
+    <div class="pt-1 text-[11px] text-slate-400">Bonus Competenza: <strong>+${newProf}</strong> | Mod. Costituzione: <strong>${cosMod >= 0 ? '+'+cosMod : cosMod}</strong></div>
   `;
 
-  document.getElementById('lvlup-hp-desc').textContent = `Dado Vita: d${dieNum}. Valore medio fisso consigliato: +${avgGain} PF max.`;
+  document.getElementById('lvlup-hp-desc').textContent = `Dado Vita (${clsObj.hitDie}): Media Fissa consigliata +${avgGain} PF max.`;
   document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
   document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
-  document.getElementById('lvlup-hp-result').textContent = `Aumento PF scelti: +${avgGain}`;
+  document.getElementById('lvlup-hp-result').textContent = `Incremento PF: +${avgGain}`;
 
-  // Mostra/Nascondi box ASI (Aumento Caratteristiche) se il livello è divisibile per 4
-  const isAsiLevel = (nextLvl % 4 === 0 || nextLvl === 6 || nextLvl === 8 || nextLvl === 12 || nextLvl === 14 || nextLvl === 16 || nextLvl === 19);
-  document.getElementById('lvlup-asi-box').classList.toggle('hidden', !isAsiLevel);
+  // Se a questo livello si sblocca o si potenzia l'Archetipo / Ætt Runico, chiedi conferma al giocatore
+  const choiceBox = document.getElementById('lvlup-class-choice-box');
+  if (nextLvl === clsObj.archetypeLevel) {
+    choiceBox.classList.remove('hidden');
+    document.getElementById('lvlup-choice-label').textContent = `Scegli il tuo ${clsObj.archetypeTitle}:`;
+    document.getElementById('lvlup-choice-select').innerHTML = clsObj.archetypes.map(a => `<option value="${a}" ${ch.subclass === a ? 'selected' : ''}>${a}</option>`).join('');
+  } else {
+    choiceBox.classList.add('hidden');
+  }
+
+  // Mostra Aumento Caratteristiche (ASI) ai livelli previsti
+  const isAsi = (nextLvl === 4 || nextLvl === 8 || nextLvl === 12 || nextLvl === 16 || nextLvl === 19 || (clsObj.id === 'guerriero' && (nextLvl === 6 || nextLvl === 14)));
+  document.getElementById('lvlup-asi-box').classList.toggle('hidden', !isAsi);
+  document.getElementById('lvlup-stat-1').value = "";
+  document.getElementById('lvlup-stat-2').value = "";
+  document.getElementById('lvlup-new-trait').value = "";
 
   const m = document.getElementById('levelup-modal');
   m.classList.remove('hidden'); m.classList.add('flex');
@@ -452,63 +730,67 @@ window.closeLevelUpModal = function() {
 };
 
 window.chooseLevelUpHpMethod = function(method) {
-  chosenHpMethod = method;
   const ch = window.getMyCharacter();
   const cosMod = Math.floor(((ch?.stats?.COS || 10) - 10) / 2);
   const dieNum = parseInt((ch?.hitDie || '1d8').replace('1d','')) || 8;
 
   if (method === 'avg') {
-    computedHpGain = Math.floor(dieNum / 2) + 1 + cosMod;
+    computedHpGain = Math.max(1, Math.floor(dieNum / 2) + 1 + cosMod);
     document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
     document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
+    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Media): +${computedHpGain}`;
   } else {
     const roll = Math.floor(Math.random() * dieNum) + 1;
     computedHpGain = Math.max(1, roll + cosMod);
     document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
     document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
+    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Tiro d${dieNum}=${roll}): +${computedHpGain}`;
   }
-  document.getElementById('lvlup-hp-result').textContent = `Aumento PF scelti: +${computedHpGain} ${method==='roll' ? '(Tiro dado: '+(computedHpGain-cosMod)+')' : ''}`;
 };
 
 window.confirmPlayerLevelUp = function() {
   const ch = window.getMyCharacter();
   if (!ch || ch.id !== currentLevelUpCharId) return;
 
+  const clsObj = window.JTR_CLASSES.find(c => c.id === ch.classId) || window.JTR_CLASSES[0];
   ch.level = (ch.level || 1) + 1;
   ch.maxHp += computedHpGain;
-  ch.hp += computedHpGain; // Cura automatica pari all'aumento di PF max
-
-  // Ricalcolo automatico Bonus Competenza
+  ch.hp += computedHpGain;
   ch.atkBonus = ch.level >= 17 ? 6 : ch.level >= 13 ? 5 : ch.level >= 9 ? 4 : ch.level >= 5 ? 3 : 2;
 
-  // Applicazione eventuale Aumento Caratteristiche (ASI)
+  // Aggiungi automaticamente i privilegi del manuale per questo livello
+  const unlocked = clsObj.levelFeatures[ch.level] || [];
+  if (!ch.traits) ch.traits = [];
+  unlocked.forEach(feat => {
+    ch.traits.push(`[Liv.${ch.level}] ${feat}`);
+  });
+
+  // Se era il livello dell'Archetipo / Ætt
+  if (ch.level === clsObj.archetypeLevel) {
+    const chosenSub = document.getElementById('lvlup-choice-select').value;
+    if (chosenSub) {
+      ch.subclass = chosenSub;
+      ch.traits.push(`[${clsObj.archetypeTitle}] ${chosenSub}`);
+    }
+  }
+
+  // Aumento Punteggi Caratteristica (ASI)
   const s1 = document.getElementById('lvlup-stat-1').value;
   const s2 = document.getElementById('lvlup-stat-2').value;
   if (s1 && ch.stats[s1]) ch.stats[s1] = Math.min(20, ch.stats[s1] + 1);
   if (s2 && ch.stats[s2]) ch.stats[s2] = Math.min(20, ch.stats[s2] + 1);
 
-  // Nuovo Privilegio
-  const newTrait = document.getElementById('lvlup-new-trait').value.trim();
-  if (newTrait) {
-    if (!ch.traits) ch.traits = [];
-    ch.traits.push(`[Livello ${ch.level}] ${newTrait}`);
-  }
+  const manualNote = document.getElementById('lvlup-new-trait').value.trim();
+  if (manualNote) ch.traits.push(`[Scelta Liv.${ch.level}] ${manualNote}`);
 
-  // Rimuovi flag pending Level Up dalla campagna
-  Object.values(window.dbState.campaigns || {}).forEach(camp => {
-    if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) {
-      if (camp.members[window.currentUser].pendingLevelUp) delete camp.members[window.currentUser].pendingLevelUp;
-    }
-  });
-
+  delete ch.pendingLevelUp;
   window.propagateCharacterToCampaigns(ch);
   window.closeLevelUpModal();
   window.saveDB();
-  alert(`Congratulazioni! Il tuo eroe è ora di Livello ${ch.level}!`);
 };
 
 // ============================================================================
-// 6. MENU SEZIONI D&D BEYOND (CON SFONDO BLURRATO E ANIMAZIONE A CASCATA)
+// 7. NAVIGAZIONE, CONDIZIONI CON SFONDO REATTIVO E SALTO DIRETTO DALLA CAMPAGNA
 // ============================================================================
 window.openDdbSectionModal = function() {
   const list = document.getElementById('ddb-section-list');
@@ -553,14 +835,23 @@ window.toggleHeroicInspiration = function() {
   window.saveDB();
 };
 
+// Cicla tra le 6 condizioni in italiano (Normale, Avvelenato, Stordito, Invisibile, Spaventato, Prono)
 window.cycleCharacterCondition = function() {
   const ch = window.getMyCharacter();
   if (!ch) return;
-  const conds = ['Normal', 'Avvelenato', 'Spaventato', 'Prono', 'Stunned', 'Invisibile'];
-  const idx = conds.indexOf(ch.condition || 'Normal');
+  const conds = ['Normale', 'Avvelenato', 'Stordito', 'Invisibile', 'Spaventato', 'Prono'];
+  const current = (ch.condition === 'Normal' ? 'Normale' : ch.condition === 'Stunned' ? 'Stordito' : ch.condition) || 'Normale';
+  const idx = conds.indexOf(current);
   ch.condition = conds[(idx + 1) % conds.length];
+  window.currentCanvasCondition = ch.condition;
   window.propagateCharacterToCampaigns(ch);
   window.saveDB();
+};
+
+// Funzione per saltare direttamente da "Le Tue Campagne" al proprio personaggio cliccato
+window.jumpToCharacterSheet = function(charId) {
+  window.activeCharId = charId;
+  window.switchStandardNav('characters');
 };
 
 window.switchStandardNav = function(tab) {
@@ -570,9 +861,19 @@ window.switchStandardNav = function(tab) {
   document.getElementById('bottom-nav-dm-workspace').classList.add('hidden');
   document.getElementById('btn-exit-dm-campaign').classList.add('hidden');
 
-  document.getElementById('view-dm-list').classList.toggle('hidden', tab !== 'dm');
-  document.getElementById('view-my-characters').classList.toggle('hidden', tab !== 'characters');
-  document.getElementById('view-my-campaigns').classList.toggle('hidden', tab !== 'campaigns');
+  const dmView = document.getElementById('view-dm-list');
+  const charView = document.getElementById('view-my-characters');
+  const campView = document.getElementById('view-my-campaigns');
+
+  dmView.classList.toggle('hidden', tab !== 'dm');
+  charView.classList.toggle('hidden', tab !== 'characters');
+  campView.classList.toggle('hidden', tab !== 'campaigns');
+
+  // Riattiva animazione minimal di cambio scheda
+  const activeEl = tab === 'dm' ? dmView : tab === 'characters' ? charView : campView;
+  activeEl.classList.remove('animate-page-switch');
+  void activeEl.offsetWidth;
+  activeEl.classList.add('animate-page-switch');
 
   document.getElementById('snav-dm').className = tab === 'dm' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
   document.getElementById('snav-campaigns').className = tab === 'campaigns' ? 'flex flex-col items-center gap-1 text-sky-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
@@ -608,7 +909,7 @@ window.propagateCharacterToCampaigns = function(ch) {
 
 window.buildYgoCardHTML = function(card, interactive = true) {
   const sec = window.classifyCardToDdbSection(card);
-  const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA' : 'INVENTARIO';
+  const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA / RUNA' : 'INVENTARIO';
 
   return `
     <div class="ygo-card type-${card.type} rarity-${card.rarity} snap-center">
@@ -688,7 +989,7 @@ window.joinCampaignAsPlayer = function() {
 
   document.getElementById('join-camp-code').value = '';
   window.saveDB();
-  alert(`Unito a "${camp.title}" con ${charObj.name}!`);
+  alert(`Ti sei unito a "${camp.title}" con ${charObj.name}!`);
 };
 
 window.playerClaimChestItem = function(campCode, itemId) {
@@ -762,13 +1063,7 @@ window.checkIncomingLiveEvents = function() {
     if (camp.members && camp.members[window.currentUser]) {
       const updated = camp.members[window.currentUser];
       const idx = (account.characters || []).findIndex(c => c.id === updated.id);
-      if (idx !== -1) {
-        // Controlla se il DM ha avviato un Level Up
-        if (updated.pendingLevelUp && !account.characters[idx].pendingLevelUp) {
-          document.getElementById('pending-levelup-banner').classList.remove('hidden');
-        }
-        account.characters[idx] = updated;
-      }
+      if (idx !== -1) account.characters[idx] = updated;
     }
 
     if (camp.globalEvent && camp.globalEvent.timestamp > window.lastSeenEventTimestamp) {
@@ -814,7 +1109,7 @@ window.closeAnimModal = function() {
 };
 
 // ============================================================================
-// 7. RENDER SCHEDA D&D BEYOND IN ITALIANO
+// 8. RENDERING SCHEDA D&D BEYOND E CAMPAGNE CON BOX CELESTE GHIACCIATO
 // ============================================================================
 window.renderDdbSectionContent = function(ch) {
   const body = document.getElementById('ddb-section-body');
@@ -827,8 +1122,8 @@ window.renderDdbSectionContent = function(ch) {
   const saves = ch.saves || {};
   const profBonus = ch.atkBonus || 2;
   const allCards = ch.cards || [];
+  const profSkills = ch.proficientSkills || [];
 
-  // 1. CARATTERISTICHE, SALVEZZA E SENSI
   if (window.activeDdbSection === 'abilities') {
     const statNames = { FOR:'FORZA', DES:'DESTREZZA', COS:'COSTITUZIONE', INT:'INTELLIGENZA', SAG:'SAGGEZZA', CAR:'CARISMA' };
     const abilitiesHTML = Object.entries(statNames).map(([key, label]) => {
@@ -860,38 +1155,39 @@ window.renderDdbSectionContent = function(ch) {
       `;
     }).join('');
 
-    const wisMod = Math.floor(((stats.SAG || 10) - 10) / 2);
-    const intMod = Math.floor(((stats.INT || 10) - 10) / 2);
+    const wisMod = Math.floor(((stats.SAG || 10) - 10) / 2) + (profSkills.includes('percezione') ? profBonus : 0);
+    const intMod = Math.floor(((stats.INT || 10) - 10) / 2) + (profSkills.includes('indagare') ? profBonus : 0);
 
     body.innerHTML = `
       <div class="grid grid-cols-3 gap-2.5">${abilitiesHTML}</div>
       <div class="pt-2 space-y-2">
-        <h3 class="text-base font-extrabold text-white">Tiri Salvezza</h3>
+        <h3 class="text-base font-extrabold text-white">Tiri Salvezza (Bonus Competenza +${profBonus})</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${savesHTML}</div>
       </div>
       <div class="pt-2 space-y-2">
         <h3 class="text-base font-extrabold text-white">Sensi</h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="ddb-save-pill"><span>Percezione Passiva</span><span class="ddb-save-val">${10 + wisMod}</span></div>
-          <div class="ddb-save-pill"><span>Investigazione Passiva</span><span class="ddb-save-val">${10 + intMod}</span></div>
+          <div class="ddb-save-pill"><span>Indagare Passivo</span><span class="ddb-save-val">${10 + intMod}</span></div>
         </div>
       </div>
     `;
     return;
   }
 
-  // 2. ABILITÀ
   if (window.activeDdbSection === 'skills') {
     body.innerHTML = `
       <div class="space-y-2">
         ${window.DDB_SKILLS.map(sk => {
-          const mod = Math.floor(((stats[sk.stat] || 10) - 10) / 2);
+          const isProf = profSkills.includes(sk.id);
+          const mod = Math.floor(((stats[sk.stat] || 10) - 10) / 2) + (isProf ? profBonus : 0);
           const mStr = mod >= 0 ? `+${mod}` : `${mod}`;
           return `
             <button type="button" onclick="alert('Abilità ${sk.name}: ' + (Math.floor(Math.random()*20)+1 +${mod}))" class="ddb-save-pill w-full">
               <div class="flex items-center gap-2.5">
+                <span class="ddb-prof-dot ${isProf ? 'proficient' : ''}"></span>
                 <span class="text-[10px] font-bold text-slate-400 w-8">${sk.stat}</span>
-                <span class="text-xs font-bold text-white">${sk.name}</span>
+                <span class="text-xs font-bold ${sk.id === 'asatru' ? 'text-amber-300' : 'text-white'}">${sk.name}</span>
               </div>
               <span class="ddb-save-val">${mStr}</span>
             </button>
@@ -902,36 +1198,33 @@ window.renderDdbSectionContent = function(ch) {
     return;
   }
 
-  // 3, 4, 5. AZIONI, INVENTARIO, INCANTESIMI
   if (window.activeDdbSection === 'actions' || window.activeDdbSection === 'inventory' || window.activeDdbSection === 'spells') {
     const sectionCards = allCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
     body.innerHTML = sectionCards.length === 0
-      ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessun elemento in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti e magie!</div>`
+      ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna carta in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti, rune e incantesimi!</div>`
       : `<div class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
     return;
   }
 
-  // 6. VELOCITÀ E DIFESE
   if (window.activeDdbSection === 'defenses') {
     body.innerHTML = `
       <div class="ddb-top-card rounded-2xl p-4 space-y-2 text-xs">
         <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Velocità di Movimento</span><strong class="text-white">${ch.speed || '9m'}</strong></div>
+        <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Condizione Attiva</span><strong class="text-amber-300">${ch.condition || 'Normale'}</strong></div>
         <div><span class="text-slate-400 block mb-1">Difese e Resistenze</span><p class="text-white font-semibold">${ch.defenses || 'Nessuna'}</p></div>
       </div>
     `;
     return;
   }
 
-  // 7. PRIVILEGI E TRATTI
   if (window.activeDdbSection === 'features') {
     body.innerHTML = `<div class="space-y-2 text-xs">${(ch.traits || []).map(t => `<div class="ddb-top-card p-3.5 rounded-xl text-slate-200">${t}</div>`).join('')}</div>`;
     return;
   }
 
-  // 8, 9, 10, 11. COMPETENZE, ORIGINE, NOTE, CREATURE
   const infoMap = {
     proficiencies: ch.proficiencies || 'Competenze standard',
-    background: `${ch.background || 'Outlander'} • Allineamento: ${ch.alignment || 'Neutrale'}`,
+    background: `Clan di Midgardr: ${ch.clanName || 'Guerrieri dell\'Orso'}\nBackground: ${ch.background || 'Vikingr'}\nAllineamento: ${ch.alignment || 'Legale Onorevole'}\nVirtù Guida: ${ch.virtue || 'Onore'}`,
     notes: ch.notes || 'Nessuna nota.',
     creatures: ch.notes || 'Nessuna creatura registrata.'
   };
@@ -947,24 +1240,30 @@ window.renderAllViews = function() {
   const ch = window.getMyCharacter();
 
   if (ch) {
-    document.getElementById('char-picker').innerHTML = chars.map(c => `<option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} (${c.race} ${c.className} ${c.level || 1})</option>`).join('');
+    // Sincronizza la condizione del personaggio con lo sfondo Canvas
+    const normCond = (ch.condition === 'Normal' ? 'Normale' : ch.condition === 'Stunned' ? 'Stordito' : ch.condition) || 'Normale';
+    ch.condition = normCond;
+    window.currentCanvasCondition = normCond;
+
+    document.getElementById('char-picker').innerHTML = chars.map(c => `<option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} (${c.className} Liv.${c.level || 1})</option>`).join('');
     document.getElementById('sheet-name').textContent = ch.name;
-    document.getElementById('sheet-race-class').textContent = `${ch.race} ${ch.className} • Livello ${ch.level || 1}`;
+    document.getElementById('sheet-race-class').textContent = `${ch.clanName ? ch.clanName.split(' (')[0] + ' • ' : ''}${ch.className} ${ch.subclass ? '('+ch.subclass.split(' (')[0]+')' : ''} • Liv. ${ch.level || 1}`;
     document.getElementById('sheet-avatar').src = ch.avatar;
 
     const inspBtn = document.getElementById('sheet-insp-badge');
     if (inspBtn) inspBtn.className = ch.inspiration ? 'ddb-insp-btn active' : 'ddb-insp-btn';
 
     const condBtn = document.getElementById('sheet-condition-btn');
-    if (condBtn) condBtn.textContent = ch.condition && ch.condition !== 'Normal' ? `⚠️ ${ch.condition}` : 'CONDIZIONI';
+    if (condBtn) {
+      condBtn.textContent = normCond !== 'Normale' ? `⚠️ ${normCond.toUpperCase()}` : 'CONDIZIONI';
+    }
 
     let activeCamp = null;
     Object.values(window.dbState.campaigns || {}).forEach(camp => {
       if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) activeCamp = camp;
     });
-    document.getElementById('sheet-camp-badge').textContent = activeCamp ? `Campagna: ${activeCamp.title}` : 'Senza Campagna';
+    document.getElementById('sheet-camp-badge').textContent = activeCamp ? `Saga: ${activeCamp.title}` : `Virtù: ${ch.virtue || 'Onore'}`;
 
-    // Banner Level Up in sospeso
     const lvlBanner = document.getElementById('pending-levelup-banner');
     if (lvlBanner) lvlBanner.classList.toggle('hidden', !ch.pendingLevelUp);
 
@@ -992,27 +1291,41 @@ window.renderAllViews = function() {
     window.renderDdbSectionContent(ch);
   }
 
-  document.getElementById('join-char-select').innerHTML = chars.map(c => `<option value="${c.id}">${c.name} (${c.race} ${c.className})</option>`).join('');
+  document.getElementById('join-char-select').innerHTML = chars.map(c => `<option value="${c.id}">${c.name} (${c.className} Liv.${c.level || 1})</option>`).join('');
 
+  // RENDER "LE TUE CAMPAGNE": Evidenzia il tuo personaggio con il riquadro celeste ghiacciato e rendilo cliccabile!
   const myJoinedCamps = Object.values(window.dbState.campaigns || {}).filter(camp => camp.members && camp.members[window.currentUser]);
   document.getElementById('my-joined-campaigns-list').innerHTML = myJoinedCamps.length === 0
     ? `<div class="norse-panel rounded-2xl p-5 text-xs text-slate-400 text-center">Non fai parte di nessuna campagna. Inserisci il codice qui sopra!</div>`
     : myJoinedCamps.map(camp => {
-        const myChar = camp.members[window.currentUser];
-        const fellows = Object.values(camp.members || {});
+        const membersEntries = Object.entries(camp.members || {});
         return `
           <div class="norse-panel rounded-2xl p-4 space-y-3 border border-sky-500/30">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-              <div><span class="text-[10px] text-sky-400 font-bold">Codice: ${camp.code}</span><h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4></div>
-              <span class="px-2.5 py-1 rounded bg-sky-950 text-xs font-bold text-sky-300">Eroe: ${myChar.name}</span>
+              <div>
+                <span class="text-[10px] text-sky-400 font-bold uppercase">Codice Sala: ${camp.code}</span>
+                <h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4>
+              </div>
+              <span class="text-[10px] text-slate-400">${membersEntries.length} Eroi nel Party</span>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              ${fellows.map(f => `
-                <div class="bg-slate-950 border border-slate-800 p-2 rounded-xl flex items-center gap-2.5">
-                  <img src="${f.avatar}" class="w-8 h-8 rounded-lg object-cover">
-                  <div><span class="font-bold text-xs text-white block">${f.name}</span><span class="text-[10px] text-slate-400">${f.className} • ${f.hp}/${f.maxHp} HP</span></div>
-                </div>
-              `).join('')}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${membersEntries.map(([uKey, f]) => {
+                const isMe = (uKey === window.currentUser);
+                return `
+                  <div ${isMe ? `onclick="window.jumpToCharacterSheet('${f.id}')"` : ''}
+                       class="${isMe ? 'my-campaign-hero-card' : 'bg-slate-950 border border-slate-800'} p-3 rounded-xl flex items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2.5">
+                      <img src="${f.avatar}" class="w-10 h-10 rounded-lg object-cover border ${isMe ? 'border-sky-300' : 'border-slate-700'}">
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-bold text-xs text-white">${f.name}</span>${isMe ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-400 text-slate-950 font-extrabold uppercase">TU • APRI SCHEDA</span>` : ''}
+                        </div>
+                        <span class="text-[10px] ${isMe ? 'text-sky-200' : 'text-slate-400'} block">Liv.${f.level \vert{}\vert{} 1}${f.className} • ${f.hp}/${f.maxHp} PF</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           </div>
         `;
