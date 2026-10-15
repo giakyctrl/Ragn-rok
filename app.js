@@ -196,6 +196,22 @@ window.addEventListener('storage', (e) => {
   }
 });
 
+// BroadcastChannel per sincronizzazione istantanea a bassissima latenza tra schede (Admin <-> Giocatori)
+try {
+  const syncChannel = new BroadcastChannel('ragnarok_sync_channel');
+  syncChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'DB_UPDATE' && event.data.dbState) {
+      window.dbState = event.data.dbState;
+      if (!window.dbState.users) window.dbState.users = {};
+      if (!window.dbState.campaigns) window.dbState.campaigns = {};
+      localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState));
+      window.enforceMaintenanceCheck();
+      window.renderAllViews();
+      window.checkIncomingLiveEvents();
+    }
+  };
+} catch (e) {}
+
 setInterval(() => {
   if (window.currentUser) {
     window.checkIncomingLiveEvents();
@@ -266,6 +282,10 @@ window.saveDB = function() {
   if (window.fbRef) {
     try { window.fbRef.set(window.dbState); } catch (e) {}
   }
+  try {
+    const bc = new BroadcastChannel('ragnarok_sync_channel');
+    bc.postMessage({ type: 'DB_UPDATE', dbState: window.dbState });
+  } catch (e) {}
   window.enforceMaintenanceCheck();
   window.renderAllViews();
 };
@@ -280,6 +300,18 @@ window.enforceMaintenanceCheck = function() {
     document.getElementById('screen-builder').classList.add('hidden');
   } else {
     maint.classList.add('hidden');
+    const welcome = document.getElementById('screen-welcome');
+    const main = document.getElementById('screen-main');
+    const builder = document.getElementById('screen-builder');
+    if (welcome && main && builder) {
+      if (welcome.classList.contains('hidden') && main.classList.contains('hidden') && builder.classList.contains('hidden')) {
+        if (window.currentUser && window.dbState.users && window.dbState.users[window.currentUser]) {
+          main.classList.remove('hidden');
+        } else {
+          welcome.classList.remove('hidden');
+        }
+      }
+    }
   }
 };
 
@@ -415,11 +447,10 @@ window.enterAfterLogin = function() {
   if (!acc) return;
 
   document.getElementById('screen-welcome').classList.add('hidden');
-  document.getElementById('btn-admin-console').classList.toggle('hidden', !window.isCurrentUserAdmin());
-
-  if (window.isCurrentUserAdmin()) {
-    window.location.href = "admin.html";
-    return;
+  const adminBtn = document.getElementById('btn-admin-console');
+  if (adminBtn) {
+    adminBtn.classList.toggle('hidden', !window.isCurrentUserAdmin());
+    adminBtn.onclick = function() { window.location.href = "admin.html"; };
   }
 
   if (!acc.characters || acc.characters.length === 0) {
@@ -435,6 +466,7 @@ window.enterAfterLogin = function() {
 window.logoutUser = function() {
   window.currentUser = null;
   localStorage.removeItem('yggdrasill_v3_user');
+  localStorage.removeItem('yggdrasill_current_user');
   document.getElementById('screen-main').classList.add('hidden');
   document.getElementById('screen-builder').classList.add('hidden');
   document.getElementById('screen-welcome').classList.remove('hidden');
@@ -471,6 +503,7 @@ window.openCharacterBuilder = function(allowCancel) {
 
   window.renderAvatarSelector();
   window.renderBuilderClans();
+  window.renderBuilderClasses();
   window.onBuilderSelectionChange();
 };
 
@@ -478,10 +511,40 @@ window.renderAvatarSelector = function() {
   const el = document.getElementById('cf-avatar-selector');
   if (!el) return;
   el.innerHTML = window.PRESET_AVATARS.map(url => `
-    <div onclick="window.selectedFormAvatar='${url}'; window.renderAvatarSelector();" class="cursor-pointer rounded-xl overflow-hidden border-2 ${window.selectedFormAvatar === url ? 'border-sky-400 scale-105' : 'border-slate-800 opacity-50'}">
-      <img src="${url}" class="w-full h-14 object-cover">
+    <div onclick="window.selectedFormAvatar='${url}'; window.renderAvatarSelector();" class="cursor-pointer rounded-xl overflow-hidden border-2 transition ${window.selectedFormAvatar === url ? 'border-sky-400 scale-105 shadow-[0_0_12px_rgba(56,189,248,0.7)]' : 'border-slate-800 opacity-60 hover:opacity-100'}">
+      <img src="${url}" class="w-full h-16 sm:h-20 object-cover" alt="Ritratto Nordico">
     </div>
   `).join('');
+};
+
+window.selectedBuilderClassId = (window.JTR_CLASSES && window.JTR_CLASSES[0]) ? window.JTR_CLASSES[0].id : "barbaro";
+
+window.renderBuilderClasses = function() {
+  const container = document.getElementById('cf-class-cards-grid');
+  if (!container) return;
+  const currentClassId = document.getElementById('cf-class')?.value || window.selectedBuilderClassId;
+
+  container.innerHTML = window.JTR_CLASSES.map(cls => {
+    const active = currentClassId === cls.id;
+    return `
+      <div onclick="window.selectBuilderClass('${cls.id}')"
+           class="cursor-pointer rounded-xl p-2 border transition text-center flex flex-col items-center justify-between gap-1.5 ${active ? 'bg-sky-950/80 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] scale-[1.02]' : 'bg-slate-950 border-slate-800 opacity-70 hover:opacity-100 hover:border-slate-600'}">
+        <img src="${cls.avatar}" class="w-16 h-20 object-contain drop-shadow-md" alt="${cls.name}">
+        <div class="w-full">
+          <strong class="font-cinzel text-xs text-white block truncate">${cls.name}</strong>
+          <span class="text-[10px] text-amber-300 font-bold block">${cls.hitDie}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.selectBuilderClass = function(classId) {
+  window.selectedBuilderClassId = classId;
+  const sel = document.getElementById('cf-class');
+  if (sel) sel.value = classId;
+  window.renderBuilderClasses();
+  window.onBuilderSelectionChange();
 };
 
 window.renderBuilderClans = function() {
@@ -522,19 +585,29 @@ window.onBuilderSelectionChange = function() {
   }
 
   document.getElementById('cf-class-preview').innerHTML = `
-    <div class="flex flex-wrap justify-between gap-2 border-b border-slate-800 pb-2">
-      <span>Dado Vita: <strong class="text-amber-300">${clsObj.hitDie}</strong></span>
-      <span>Tiri Salvezza Competenti: <strong class="text-sky-300">${clsObj.saves.join(', ')}</strong></span>
-    </div>
-    <div>
-      <label class="text-amber-300 font-bold block mb-1">${clsObj.archetypeTitle} (Journey to Ragnarok):</label>
-      <select id="cf-subclass" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-semibold">
-        ${clsObj.archetypes.map(a => `<option value="${a}">${a}</option>`).join('')}
-      </select>
-    </div>
-    <div class="text-[11px] text-slate-300 space-y-1 pt-1">
-      <span class="text-slate-400 font-semibold block">Privilegi di Classe sbloccati automaticamente:</span>
-      ${unlockedTraits.map(t => `<div class="text-sky-200">• ${t}</div>`).join('')}
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+      <div class="flex flex-col items-center bg-slate-900/80 p-2.5 rounded-xl border border-sky-500/40 shadow-lg flex-shrink-0">
+        <img src="${clsObj.avatar}" class="w-24 h-32 object-contain" alt="${clsObj.name}">
+        <span class="font-cinzel font-bold text-xs text-amber-300 mt-1">${clsObj.name}</span>
+      </div>
+      <div class="flex-1 space-y-2.5 w-full">
+        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-3 text-xs">
+            <span>Dado Vita: <strong class="text-amber-300 font-bold">${clsObj.hitDie}</strong></span>
+            <span>Tiri Salvezza: <strong class="text-sky-300 font-bold">${clsObj.saves.join(', ')}</strong></span>
+          </div>
+        </div>
+        <div>
+          <label class="text-amber-300 font-bold block mb-1 text-xs">${clsObj.archetypeTitle} (Journey to Ragnarok):</label>
+          <select id="cf-subclass" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-semibold text-xs">
+            ${clsObj.archetypes.map(a => `<option value="${a}">${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="text-[11px] text-slate-300 space-y-1 pt-1">
+          <span class="text-slate-400 font-semibold block">Privilegi di Classe sbloccati automaticamente:</span>
+          ${unlockedTraits.map(t => `<div class="text-sky-200">• ${t}</div>`).join('')}
+        </div>
+      </div>
     </div>
   `;
 
@@ -1307,7 +1380,11 @@ window.renderAllViews = function() {
     if (inspBtn) inspBtn.className = ch.inspiration ? 'ddb-insp-btn active' : 'ddb-insp-btn';
 
     const condBtn = document.getElementById('sheet-condition-btn');
-    if (condBtn) {
+    const condLabel = document.getElementById('sheet-cond-label');
+    if (condLabel) {
+      condLabel.textContent = normCond.toUpperCase();
+      condLabel.className = normCond !== 'Normale' ? 'text-rose-400 font-black' : 'text-amber-400 font-bold';
+    } else if (condBtn) {
       condBtn.textContent = normCond !== 'Normale' ? `⚠️ ${normCond.toUpperCase()}` : 'CONDIZIONI';
     }
 
@@ -1321,12 +1398,14 @@ window.renderAllViews = function() {
     if (lvlBanner) lvlBanner.classList.toggle('hidden', !ch.pendingLevelUp);
 
     const pct = Math.round((ch.hp / ch.maxHp) * 100);
-    document.getElementById('sheet-hp-label').textContent = `${ch.hp}/${ch.maxHp}`;
+    document.getElementById('sheet-hp-label').textContent = `${ch.hp} / ${ch.maxHp}`;
     document.getElementById('sheet-hp-bar').style.width = `${pct}%`;
 
     const desMod = Math.floor(((ch.stats?.DES || 10) - 10) / 2);
-    document.getElementById('sheet-ac').textContent = ch.ac;
+    document.getElementById('sheet-ac').textContent = ch.ac || 14;
     document.getElementById('sheet-init').textContent = desMod >= 0 ? `+${desMod}` : desMod;
+    const speedEl = document.getElementById('sheet-speed');
+    if (speedEl) speedEl.textContent = ch.speed || '9m';
 
     const chestBox = document.getElementById('player-chest-box');
     if (activeCamp && activeCamp.chest && activeCamp.chest.length > 0) {

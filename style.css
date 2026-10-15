@@ -427,17 +427,43 @@ body {
 /* Mobile decluttering (max-width: 768px) */
 @media (max-width: 768px) {
   .main-container-responsive {
-    padding: 10px 12px 90px 12px;
+    padding: 8px 10px 96px 10px;
+    max-width: 100% !important;
   }
 
   .desktop-sheet-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+  }
+
+  .ddb-top-card {
+    padding: 12px !important;
   }
 
   .mobile-hide {
     display: none !important;
+  }
+
+  .cards-flow-grid {
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)) !important;
+    gap: 12px !important;
+    justify-content: center;
+  }
+
+  .ygo-card {
+    width: 100% !important;
+    max-width: 220px !important;
+    height: 330px !important;
+    padding: 7px !important;
+  }
+
+  .ygo-art {
+    height: 120px !important;
+  }
+
+  .ygo-lore {
+    height: 82px !important;
   }
 
   .mobile-compact-stats {

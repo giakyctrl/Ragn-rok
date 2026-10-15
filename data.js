@@ -8,21 +8,28 @@ window.ADMIN_CREDENTIALS = {
   password: "ragnarok2026"
 };
 
-// Avatar Ufficiali estratti dal Manuale e forniti in D:\JTR
+// Ritratti Ufficiali dell'Eroe (Personaggi Nordici Fantasy Disegnati)
 window.PRESET_AVATARS = [
-  "assets/heroes/Brabaro.png",
-  "assets/heroes/Guerriero.png",
-  "assets/heroes/MaestroDelleRune.png",
-  "assets/heroes/Clerico.png",
-  "assets/heroes/Druido.png",
-  "assets/heroes/Bardo.png",
-  "assets/heroes/Monaco.png",
-  "assets/heroes/Paladino.png",
-  "assets/heroes/Ranger.png",
-  "assets/heroes/Ladro.png",
-  "assets/heroes/Stregone.png",
-  "assets/heroes/Warlock.png",
-  "assets/heroes/Mago.png"
+  "assets/heroes/portraits/norse_hero_01.jpg",
+  "assets/heroes/portraits/norse_hero_02.jpg",
+  "assets/heroes/portraits/norse_hero_03.jpg",
+  "assets/heroes/portraits/norse_hero_04.jpg",
+  "assets/heroes/portraits/norse_hero_05.jpg",
+  "assets/heroes/portraits/norse_hero_06.jpg",
+  "assets/heroes/portraits/norse_hero_07.jpg",
+  "assets/heroes/portraits/norse_hero_08.jpg",
+  "assets/heroes/portraits/norse_hero_09.jpg",
+  "assets/heroes/portraits/norse_hero_10.jpg",
+  "assets/heroes/portraits/norse_hero_11.jpg",
+  "assets/heroes/portraits/norse_hero_12.jpg",
+  "assets/heroes/portraits/norse_hero_13.jpg",
+  "assets/heroes/portraits/norse_hero_14.jpg",
+  "assets/heroes/portraits/norse_hero_15.jpg",
+  "assets/heroes/portraits/norse_hero_16.jpg",
+  "assets/heroes/portraits/norse_hero_17.jpg",
+  "assets/heroes/portraits/norse_hero_18.jpg",
+  "assets/heroes/portraits/norse_hero_19.jpg",
+  "assets/heroes/portraits/norse_hero_20.jpg"
 ];
 
 window.CLASS_FACE_AVATARS = {

@@ -55,7 +55,6 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <a href="mappa.html" target="_blank" class="px-3 py-2 rounded-lg font-cinzel font-bold text-xs text-amber-300 border border-amber-400/40 bg-amber-950/40 hover:bg-amber-900/50 transition">🗺️ MAPPA</a>
           <button type="button" onclick="window.openAuthModal('login')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-sky-200 border border-sky-400/50 bg-sky-950/50">ACCEDI</button>
           <button type="button" onclick="window.openAuthModal('register')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-slate-950 bg-gradient-to-r from-sky-400 to-cyan-300">REGISTRATI</button>
         </div>
@@ -127,24 +126,20 @@
           </div>
 
           <div>
-            <label class="text-slate-400 block mb-1.5">Ritratto dell'Eroe</label>
-            <div id="cf-avatar-selector" class="grid grid-cols-6 gap-2 mb-2"></div>
-            <input type="file" accept="image/*" onchange="window.handleAvatarFileUpload(event)" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2">
+            <label class="text-slate-400 block mb-1.5 font-bold text-xs uppercase tracking-wider text-sky-300">Ritratto dell'Eroe (Illustrazioni Nordiche Disegnate)</label>
+            <p class="text-[11px] text-slate-400 mb-2">Scegli il volto del tuo Eroe tra le illustrazioni nordiche disegnate o carica un'immagine personale:</p>
+            <div id="cf-avatar-selector" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-10 gap-2 mb-2"></div>
+            <input type="file" accept="image/*" onchange="window.handleAvatarFileUpload(event)" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs">
           </div>
         </div>
 
         <!-- 2. SCELTA MULTIPLA CLASSE E ARCHETIPO NORRENO (INCLUSO MAESTRO DELLE RUNE) -->
         <div class="norse-panel rounded-2xl p-4 space-y-3.5">
-          <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase border-b border-slate-800 pb-1.5">2. Classe e Archetipo di Journey to Ragnarok</h3>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div class="sm:col-span-2">
-              <label class="text-slate-400 block mb-1">Classe Principale (Calcola Dado Vita, PF e Tiri Salvezza) *</label>
-              <select id="cf-class" onchange="window.onBuilderSelectionChange()" class="w-full bg-slate-950 border border-sky-500/50 rounded-xl p-2.5 text-white font-bold"></select>
-            </div>
-            <div>
-              <label class="text-slate-400 block mb-1">Livello Iniziale *</label>
-              <select id="cf-level" onchange="window.onBuilderSelectionChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+            <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase">2. Classe e Archetipo di Journey to Ragnarok</h3>
+            <div class="flex items-center gap-1.5">
+              <label class="text-[10px] text-slate-400 font-bold uppercase">Livello:</label>
+              <select id="cf-level" onchange="window.onBuilderSelectionChange()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-bold text-xs">
                 <option value="1" selected>Livello 1</option>
                 <option value="2">Livello 2</option>
                 <option value="3">Livello 3</option>
@@ -153,9 +148,15 @@
               </select>
             </div>
           </div>
+          
+          <div>
+            <label class="text-slate-400 block mb-2 text-xs font-semibold">Tocca una Classe per visualizzarne l'illustrazione ufficiale del manuale e i poteri sbloccati:</label>
+            <div id="cf-class-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-3"></div>
+            <select id="cf-class" onchange="window.onBuilderSelectionChange()" class="hidden"></select>
+          </div>
 
           <!-- Box informativo automatico Classe + Scelta Archetipo/Ætt -->
-          <div id="cf-class-preview" class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2"></div>
+          <div id="cf-class-preview" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-3"></div>
         </div>
 
         <!-- 3. BACKGROUND NORRENO, ALLINEAMENTO ONOREVOLE E NOVE VIRTÙ -->
@@ -235,10 +236,9 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <a href="mappa.html" target="_blank" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 font-cinzel font-bold text-[10px] text-amber-300 hover:bg-amber-500/30 transition flex items-center gap-1">🗺️ MAPPA</a>
-          <button type="button" id="btn-admin-console" onclick="window.openAdminConsole()" class="hidden px-3 py-1.5 rounded-lg gold-btn font-cinzel font-bold text-[10px] text-white">ADMIN</button>
+          <button type="button" id="btn-admin-console" onclick="window.location.href='admin.html'" class="hidden px-3 py-1.5 rounded-lg gold-btn font-cinzel font-bold text-[10px] text-white">👑 CONSOLLE ADMIN</button>
           <button type="button" id="btn-exit-dm-campaign" onclick="window.exitDmCampaignWorkspace()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-[10px] text-sky-300">ESCI CAMPAGNA</button>
-          <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 border border-slate-800 px-2.5 py-1 rounded-lg">Esci</button>
+          <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 px-2.5 py-1 rounded-lg transition">Esci</button>
         </div>
       </header>
 
@@ -287,50 +287,61 @@
           <div class="desktop-sheet-grid">
             <!-- COLONNA 1 (Sinistra): Vitals, Ritratto Eroe, CA, Iniziativa, HP -->
             <div class="desktop-col-left">
-              <div class="ddb-top-card rounded-2xl p-3.5 space-y-3">
-                <div class="text-center">
-                  <h2 id="sheet-name" class="text-xl font-extrabold text-white tracking-tight"></h2>
-                  <p id="sheet-race-class" class="text-xs text-slate-400 font-semibold"></p>
-                  <span id="sheet-camp-badge" class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300"></span>
+              <div class="ddb-top-card rounded-2xl p-4 space-y-4">
+                
+                <!-- Identità Eroe -->
+                <div class="flex items-center gap-3.5 pb-2 border-b border-slate-800/80">
+                  <div class="relative flex-shrink-0">
+                    <img id="sheet-avatar" src="" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-500/50 shadow-[0_0_15px_rgba(201,160,80,0.25)]">
+                    <button type="button" onclick="window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica">☀</button>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h2 id="sheet-name" class="text-lg sm:text-xl font-cinzel font-extrabold text-white tracking-tight truncate"></h2>
+                    <p id="sheet-race-class" class="text-xs text-sky-300 font-semibold truncate"></p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="grid grid-cols-12 gap-2 items-center">
-                  <div class="col-span-4 flex justify-around items-center">
-                    <div class="ddb-ac-shield">
-                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">CLASSE</span>
-                      <span id="sheet-ac" class="text-lg font-extrabold text-white leading-none my-0.5">14</span>
-                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">ARMATURA</span>
+                <!-- Vitali da Combattimento: CA, Iniziativa, Velocità -->
+                <div class="flex justify-center items-center gap-3 sm:gap-4 py-1">
+                  <div class="ddb-ac-shield flex-shrink-0">
+                    <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">CLASSE</span>
+                    <span id="sheet-ac" class="text-xl font-extrabold text-white leading-none my-0.5">14</span>
+                    <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">ARMATURA</span>
+                  </div>
+                  <div class="ddb-init-hex flex-shrink-0">
+                    <span id="sheet-init" class="text-lg font-extrabold text-white leading-none">+1</span>
+                    <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider mt-1">INIZIATIVA</span>
+                  </div>
+                  <div class="ddb-init-hex flex-shrink-0 bg-slate-900 border-slate-700">
+                    <span id="sheet-speed" class="text-base font-extrabold text-sky-300 leading-none">9m</span>
+                    <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider mt-1">VELOCITÀ</span>
+                  </div>
+                </div>
+
+                <!-- Box Punti Ferita e Condizione -->
+                <div class="space-y-2">
+                  <div class="ddb-hp-box p-3 rounded-xl text-center space-y-2 border border-slate-700/60 shadow-inner">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-300 px-1">
+                      <span class="uppercase tracking-wider">PUNTI FERITA</span>
+                      <span id="sheet-hp-label" class="text-sm font-mono font-extrabold text-emerald-400">19 / 19</span>
                     </div>
-                    <div class="ddb-init-hex">
-                      <span id="sheet-init" class="text-base font-extrabold text-white leading-none">+1</span>
-                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider mt-1">INIZIATIVA</span>
+                    <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                      <div id="sheet-hp-bar" class="h-full bg-gradient-to-r from-emerald-500 to-sky-400 transition-all duration-300"></div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1.5 pt-1">
+                      <button type="button" onclick="window.adjustMyHP(-5)" class="py-1.5 bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 rounded-lg text-xs font-bold transition active:scale-95">-5</button>
+                      <button type="button" onclick="window.adjustMyHP(-1)" class="py-1.5 bg-rose-950/90 hover:bg-rose-900 border border-rose-700 text-rose-200 rounded-lg text-xs font-bold transition active:scale-95">-1</button>
+                      <button type="button" onclick="window.adjustMyHP(1)" class="py-1.5 bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-700 text-emerald-200 rounded-lg text-xs font-bold transition active:scale-95">+1</button>
+                      <button type="button" onclick="window.adjustMyHP(5)" class="py-1.5 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded-lg text-xs font-bold transition active:scale-95">+5</button>
                     </div>
                   </div>
 
-                  <div class="col-span-4 flex flex-col items-center">
-                    <div class="relative">
-                      <img id="sheet-avatar" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-slate-600 shadow-lg">
-                      <button type="button" onclick="window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica">☀</button>
-                    </div>
-                    <span class="text-[8px] font-bold text-slate-300 uppercase tracking-wider mt-2 text-center leading-tight">ISPIRAZIONE<br>EROICA</span>
-                  </div>
-
-                  <div class="col-span-4 space-y-1.5">
-                    <div class="ddb-hp-box p-2 rounded-xl text-center space-y-1">
-                      <span class="text-[8px] font-bold text-slate-300 uppercase block">PUNTI FERITA</span>
-                      <span id="sheet-hp-label" class="text-base font-extrabold text-white block leading-none">19/19</span>
-                      <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                        <div id="sheet-hp-bar" class="h-full bg-sky-400 transition-all duration-300"></div>
-                      </div>
-                      <div class="grid grid-cols-2 gap-1 pt-0.5">
-                        <button type="button" onclick="window.adjustMyHP(-1)" class="py-1 bg-rose-950/80 border border-rose-700/60 text-rose-200 rounded text-[10px] font-bold">-1</button>
-                        <button type="button" onclick="window.adjustMyHP(1)" class="py-1 bg-emerald-950/80 border border-emerald-700/60 text-emerald-200 rounded text-[10px] font-bold">+1</button>
-                      </div>
-                    </div>
-                    <button type="button" onclick="window.cycleCharacterCondition()" id="sheet-condition-btn" class="w-full py-1.5 rounded-xl bg-[#0e131a] border border-slate-800 text-[9px] font-extrabold text-slate-200 uppercase tracking-wider transition">
-                      CONDIZIONI
-                    </button>
-                  </div>
+                  <button type="button" onclick="window.cycleCharacterCondition()" id="sheet-condition-btn" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-extrabold text-slate-200 uppercase tracking-wider transition flex items-center justify-center gap-1.5">
+                    <span>🛡️ CONDIZIONE:</span> <span id="sheet-cond-label" class="text-amber-400 font-bold">NORMALE</span>
+                  </button>
                 </div>
               </div>
 

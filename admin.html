@@ -42,8 +42,12 @@
         </button>
 
         <a href="index.html" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-xs border border-slate-700 transition">
-          Torna al Gioco ➔
+          🛡️ Portale Giocatori
         </a>
+
+        <button type="button" onclick="window.adminLogout()" class="px-4 py-2 rounded-xl bg-red-950/60 hover:bg-red-900 border border-red-700/60 text-red-200 font-cinzel font-bold text-xs transition">
+          🚪 Esci da Admin
+        </button>
       </div>
     </header>
 
@@ -285,7 +289,7 @@
         if (!firebase.apps.length) {
           firebase.initializeApp({ databaseURL: cloudUrl });
         }
-        const ref = firebase.database().ref('ragnarok_v3');
+        const ref = firebase.database().ref('yggdrasill_v3_realm');
         ref.on('value', snap => {
           if (snap && snap.val()) {
             dbState = snap.val();
@@ -304,8 +308,12 @@
       localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState));
       try {
         if (firebase.apps.length) {
-          firebase.database().ref('ragnarok_v3').set(dbState);
+          firebase.database().ref('yggdrasill_v3_realm').set(dbState);
         }
+      } catch (e) {}
+      try {
+        const bc = new BroadcastChannel('ragnarok_sync_channel');
+        bc.postMessage({ type: 'DB_UPDATE', dbState: dbState });
       } catch (e) {}
       updateUI();
     }
@@ -335,6 +343,12 @@
     window.adminToggleMaintenance = function() {
       dbState.maintenance = !dbState.maintenance;
       saveDB();
+    };
+
+    window.adminLogout = function() {
+      localStorage.removeItem('yggdrasill_current_user');
+      sessionStorage.removeItem('admin_session');
+      window.location.href = "index.html";
     };
 
     window.switchAdminTab = function(tab) {
