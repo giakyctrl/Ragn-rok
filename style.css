@@ -5,7 +5,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #0b0f17;
+  background-color: #090d12;
   color: #e2e8f0;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -29,7 +29,7 @@ body {
 }
 
 .norse-panel {
-  background: linear-gradient(160deg, rgba(20, 27, 38, 0.94), rgba(11, 15, 23, 0.98));
+  background: linear-gradient(160deg, rgba(16, 23, 32, 0.95), rgba(9, 13, 18, 0.98));
   border: 1px solid rgba(56, 189, 248, 0.22);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(12px);
@@ -43,54 +43,49 @@ body {
 .ice-btn {
   background: linear-gradient(135deg, #0284c7, #0369a1);
   border: 1px solid #7dd3fc;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
-  transition: all 0.2s ease;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
 }
 .ice-btn:active { transform: scale(0.96); }
 
 .gold-btn {
   background: linear-gradient(135deg, #b45309, #78350f);
   border: 1px solid #fcd34d;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
-  transition: all 0.2s ease;
 }
 .gold-btn:active { transform: scale(0.96); }
 
 /* ============================================================================
-   STILE D&D BEYOND MOBILE (TEMA NORDICO SCURO)
+   STILE D&D BEYOND SCHEDA PERSONAGGIO (SCREENSHOT 2 & 3)
    ============================================================================ */
-.ddb-top-dashboard {
-  background: #151b24;
-  border-bottom: 1px solid #263040;
+.ddb-top-card {
+  background: #141b24;
+  border: 1px solid #263241;
 }
 
-/* Scudo Armor Class */
 .ddb-ac-shield {
-  width: 64px;
-  height: 74px;
-  background: #0d1117;
-  border: 2px solid #3b4658;
-  border-radius: 10px 10px 32px 32px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-}
-
-/* Esagono Initiative */
-.ddb-init-hex {
-  width: 68px;
+  width: 60px;
   height: 70px;
-  background: #0d1117;
-  border: 2px solid #3b4658;
+  background: #0e131a;
+  border: 2px solid #334155;
+  border-radius: 10px 10px 30px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ddb-init-hex {
+  width: 62px;
+  height: 66px;
+  background: #0e131a;
+  border: 2px solid #334155;
   border-radius: 14px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Box Hit Points e Bottoni Azione Superiore */
-.ddb-hp-box, .ddb-icon-btn {
-  background: #0c0f14;
-  border: 1px solid #263040;
-}
-
-.ddb-insp-badge {
+.ddb-insp-btn {
   position: absolute;
   bottom: -10px;
   left: 50%;
@@ -98,75 +93,68 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 9999px;
-  background: #334155;
-  border: 2px solid #94a3b8;
+  background: #1e293b;
+  border: 2px solid #64748b;
   color: #94a3b8;
-  transition: all 0.2s ease;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.ddb-insp-badge.inspired-active {
+.ddb-insp-btn.active {
   background: #0284c7;
-  border-color: #bae6fd;
+  border-color: #7dd3fc;
   color: #ffffff;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.9);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
 }
 
-/* Barra Selettore Sezioni (Abilities, Saves, Senses...) */
-.ddb-section-bar {
-  background: #283240;
-  border: 1px solid #3c495c;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+.ddb-hp-box {
+  background: #0e131a;
+  border: 1px solid #263241;
 }
 
-/* Riquadri delle 6 Caratteristiche (Strength, Dexterity, Constitution...) */
+/* I 6 Box Caratteristiche D&D Beyond (Modificatore grande al centro, Punteggio nell'ovale in basso) */
 .ddb-ability-card {
-  position: relative;
-  background: #0f131a;
-  border: 2px solid #384456;
+  background: #121820;
+  border: 2px solid #2d3b4e;
   border-radius: 14px;
-  padding: 8px 6px 22px 6px;
+  padding: 8px 6px 14px 6px;
   text-align: center;
-  box-shadow: inset 0 0 14px rgba(0,0,0,0.85);
-}
-.ddb-ability-card::before {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 10px;
-  pointer-events: none;
+  position: relative;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
 }
 
-.ddb-mod-box {
-  background: #141923;
-  border: 1px solid #2c3646;
+.ddb-ability-mod-box {
+  background: #19222d;
+  border: 1px solid #334155;
   border-radius: 8px;
-  padding: 4px 0;
-  margin-top: 5px;
+  padding: 6px 0;
+  margin: 4px 6px 8px 6px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
-.ddb-score-oval {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
+.ddb-ability-score-pill {
+  width: 44px;
   height: 26px;
-  background: #0b0e14;
-  border: 2px solid #384456;
+  margin: 0 auto;
+  background: #0b0f14;
+  border: 2px solid #334155;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
   font-size: 13px;
-  color: #ffffff;
+  font-weight: 800;
+  color: #e2e8f0;
 }
 
-/* Pillole Saving Throws e Skills */
+/* Box Tiri Salvezza (Saving Throws) */
 .ddb-save-pill {
-  background: #0f131a;
-  border: 2px solid #384456;
-  border-radius: 14px;
+  background: #121820;
+  border: 1.5px solid #2d3b4e;
+  border-radius: 12px;
   padding: 8px 10px;
   display: flex;
   align-items: center;
@@ -174,97 +162,79 @@ body {
 }
 
 .ddb-prof-dot {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   border-radius: 9999px;
-  border: 1.5px dashed #64748b;
-  flex-shrink: 0;
+  border: 2px solid #64748b;
 }
-.ddb-prof-dot.prof-active {
-  background: #f8fafc;
-  border: 2px solid #38bdf8;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+.ddb-prof-dot.proficient {
+  background: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(255,255,255,0.8);
 }
 
-.ddb-save-bonus-box {
-  background: #141923;
-  border: 1px solid #2e3848;
+.ddb-save-val {
+  background: #19222d;
+  border: 1px solid #334155;
   border-radius: 8px;
-  min-width: 40px;
-  padding: 4px 6px;
-  text-align: center;
+  padding: 3px 9px;
   font-weight: 800;
+  font-size: 14px;
   color: #ffffff;
 }
 
-/* Floating Red D20 Button in basso a destra */
-.ddb-fab-d20 {
-  position: fixed;
-  right: 18px;
-  bottom: 92px;
-  width: 54px;
-  height: 54px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
-  border: 2px solid #fca5a5;
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.65);
-  z-index: 35;
-}
-
-/* Voci del Drawer Menu Sezioni */
-.ddb-drawer-row {
-  background: #11161d;
-  border: 1.5px solid #263040;
+/* Voci del Menu Sezioni (Screenshot 3) */
+.ddb-menu-item {
+  background: #182029;
+  border: 1.5px solid #263241;
   border-radius: 10px;
-  padding: 13px 16px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   font-weight: 700;
   font-size: 14px;
   color: #f1f5f9;
-  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
 }
-.ddb-drawer-row.drawer-active {
-  border-color: #dc2626;
-  background: #161b22;
-  box-shadow: 0 0 12px rgba(220, 38, 38, 0.25);
+.ddb-menu-item.active {
+  background: #0b0f14;
+  border-color: #ef4444;
 }
 
-/* Barra Inferiore e Cerchi Elmo Vichingo */
+/* Barra Inferiore & Swipe Campagne */
 .bottom-nav-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 76px;
+  height: 74px;
   padding-bottom: var(--safe-bottom);
-  background: rgba(12, 16, 24, 0.96);
+  background: rgba(11, 15, 22, 0.96);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(56, 189, 248, 0.22);
+  border-top: 1px solid rgba(56, 189, 248, 0.2);
   z-index: 40;
 }
 
 .viking-helm-circle {
-  width: 64px;
-  height: 64px;
+  width: 62px;
+  height: 62px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #7dd3fc, #0284c7);
   border: 3px solid #e0f2fe;
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.8);
 }
 
 .viking-helm-circle-gold {
-  width: 64px;
-  height: 64px;
+  width: 62px;
+  height: 62px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #fde047, #d97706);
   border: 3px solid #fef9c3;
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.8);
 }
 
-/* Swipe-to-Delete Campagne DM */
 .swipe-row-container { position: relative; overflow: hidden; border-radius: 16px; }
 .swipe-delete-bg {
   position: absolute; inset: 0;
@@ -272,60 +242,31 @@ body {
   display: flex; justify-content: flex-end; align-items: center;
   padding-right: 20px; border-radius: 16px;
 }
-.swipe-front-card { position: relative; z-index: 2; transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+.swipe-front-card { position: relative; z-index: 2; transition: transform 0.25s ease; }
 .swipe-front-card.swiped-left { transform: translateX(-110px); }
 
 /* Carte Yu-Gi-Oh! */
 .ygo-card {
-  position: relative; width: 245px; height: 365px;
+  position: relative; width: 235px; height: 350px;
   border-radius: 10px; padding: 9px;
   display: flex; flex-direction: column; justify-content: space-between;
-  flex-shrink: 0; transition: transform 0.25s ease, box-shadow 0.25s ease; overflow: hidden;
+  flex-shrink: 0; overflow: hidden;
 }
-.ygo-card:active { transform: scale(0.96); }
-
 .type-arma { background: linear-gradient(145deg, #3b1d11, #1a0c07); }
 .type-scudo { background: linear-gradient(145deg, #1e293b, #0f172a); }
 .type-armatura { background: linear-gradient(145deg, #27303f, #11161f); }
 .type-incantesimo { background: linear-gradient(145deg, #0c3b49, #061c24); }
 .type-oggetto { background: linear-gradient(145deg, #35154d, #170824); }
 
-.rarity-comune { border: 3.5px solid #94a3b8; }
-.rarity-non-comune { border: 3.5px solid #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.45); }
-.rarity-raro { border: 3.5px solid #38bdf8; box-shadow: 0 0 18px rgba(56,189,248,0.65); }
-.rarity-molto-raro { border: 3.5px solid #a855f7; box-shadow: 0 0 22px rgba(168,85,247,0.8); }
-.rarity-leggendario {
-  border: 4px solid #fbbf24;
-  box-shadow: 0 0 28px rgba(251,191,36,0.9), inset 0 0 14px rgba(251,191,36,0.45);
-  animation: ragnarokPulse 2.2s infinite alternate;
-}
+.rarity-comune { border: 3px solid #94a3b8; }
+.rarity-non-comune { border: 3px solid #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.4); }
+.rarity-raro { border: 3px solid #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.6); }
+.rarity-molto-raro { border: 3px solid #a855f7; box-shadow: 0 0 18px rgba(168,85,247,0.75); }
+.rarity-leggendario { border: 3.5px solid #fbbf24; box-shadow: 0 0 24px rgba(251,191,36,0.9); }
 
-@keyframes ragnarokPulse {
-  0% { border-color: #d97706; box-shadow: 0 0 16px rgba(217,119,6,0.7); }
-  100% { border-color: #fef08a; box-shadow: 0 0 32px rgba(250,204,21,1); }
-}
-
-.ygo-art { width: 100%; height: 142px; border: 2px solid #d4af37; border-radius: 4px; overflow: hidden; background: #030712; }
+.ygo-art { width: 100%; height: 135px; border: 2px solid #d4af37; border-radius: 4px; overflow: hidden; background: #030712; }
 .ygo-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-
-.ygo-lore {
-  background: linear-gradient(180deg, #fef3c7, #fde68a);
-  color: #0f172a; border: 2px solid #92400e; padding: 6px;
-  height: 92px; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between;
-}
-
-@keyframes cardSlam {
-  0% { transform: scale(2.3) translateY(-120px) rotate(-10deg); opacity: 0; }
-  65% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.animate-slam { animation: cardSlam 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-
-@keyframes frostFlash {
-  0% { opacity: 0; transform: scale(0.85); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.animate-frost { animation: frostFlash 0.45s ease-out forwards; }
+.ygo-lore { background: linear-gradient(180deg, #fef3c7, #fde68a); color: #0f172a; border: 2px solid #92400e; padding: 6px; height: 88px; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
