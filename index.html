@@ -14,7 +14,8 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body class="relative">
 
@@ -52,6 +53,7 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <a href="mappa.html" target="_blank" class="px-3 py-2 rounded-lg font-cinzel font-bold text-xs text-amber-300 border border-amber-400/40 bg-amber-950/40 hover:bg-amber-900/50 transition">🗺️ MAPPA</a>
           <button type="button" onclick="window.openAuthModal('login')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-sky-200 border border-sky-400/50 bg-sky-950/50">ACCEDI</button>
           <button type="button" onclick="window.openAuthModal('register')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-slate-950 bg-gradient-to-r from-sky-400 to-cyan-300">REGISTRATI</button>
         </div>
@@ -228,6 +230,7 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <a href="mappa.html" target="_blank" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 font-cinzel font-bold text-[10px] text-amber-300 hover:bg-amber-500/30 transition flex items-center gap-1">🗺️ MAPPA</a>
           <button type="button" id="btn-admin-console" onclick="window.openAdminConsole()" class="hidden px-3 py-1.5 rounded-lg gold-btn font-cinzel font-bold text-[10px] text-white">ADMIN</button>
           <button type="button" id="btn-exit-dm-campaign" onclick="window.exitDmCampaignWorkspace()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-[10px] text-sky-300">ESCI CAMPAGNA</button>
           <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 border border-slate-800 px-2.5 py-1 rounded-lg">Esci</button>
@@ -374,9 +377,14 @@
             <span class="text-[9px] font-cinzel uppercase tracking-widest text-amber-400 block">Comando Dungeon Master</span>
             <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
           </div>
-          <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
-            <span class="text-[8px] text-slate-400 uppercase block">Codice Sala</span>
-            <span id="dm-ws-code" class="font-cinzel font-black text-sm text-amber-400 tracking-widest"></span>
+          <div class="flex items-center gap-2">
+            <a href="mappa.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/30 transition shadow">
+              🗺️ MAPPA TATTICA
+            </a>
+            <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
+              <span class="text-[8px] text-slate-400 uppercase block">Codice Sala</span>
+              <span id="dm-ws-code" class="font-cinzel font-black text-sm text-amber-400 tracking-widest"></span>
+            </div>
           </div>
         </div>
 
@@ -656,8 +664,8 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=8"></script>
-  <script src="app.js?v=8"></script>
-  <script src="dm.js?v=8"></script>
+  <script src="data.js?v=9"></script>
+  <script src="app.js?v=9"></script>
+  <script src="dm.js?v=9"></script>
 </body>
 </html>
