@@ -1,11 +1,11 @@
 // ============================================================================
-// 1. CONFIGURAZIONE CLOUD, CREDENZIALI ADMIN & SEZIONI D&D BEYOND
+// 1. CONFIGURAZIONE CLOUD, CREDENZIALI ADMIN & SEZIONI D&D BEYOND IN ITALIANO
 // ============================================================================
 window.FIREBASE_DATABASE_URL = "https://yggdrasill-39093-default-rtdb.europe-west1.firebasedatabase.app/";
 
 window.ADMIN_CREDENTIALS = {
   username: "admin",
-  password: "qwerty"
+  password: "ragnarok2026"
 };
 
 window.PRESET_AVATARS = [
@@ -25,52 +25,51 @@ window.CARD_ARTWORKS = {
   oggetto: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80"
 };
 
-// Elenco Ufficiale Sezioni Scheda D&D Beyond
+// Sezioni D&D Beyond tradotte in italiano
 window.DDB_SECTIONS = [
-  { id: "abilities", label: "Abilities, Saves, Senses", icon: "🐉" },
-  { id: "skills", label: "Skills", icon: "✨" },
-  { id: "actions", label: "Actions", icon: "💥" },
-  { id: "inventory", label: "Inventory", icon: "🧰" },
-  { id: "spells", label: "Spells", icon: "🔥" },
-  { id: "defenses", label: "Speed & Defenses", icon: "🛡️" },
-  { id: "features", label: "Features & Traits", icon: "👤" },
-  { id: "proficiencies", label: "Proficiencies & Training", icon: "🔍" },
-  { id: "background", label: "Background", icon: "📜" },
-  { id: "notes", label: "Notes", icon: "💬" },
-  { id: "creatures", label: "Extras: Creatures", icon: "🐺" }
+  { id: "abilities", label: "Caratteristiche, Salvezza e Sensi", icon: "🐉" },
+  { id: "skills", label: "Abilità", icon: "✨" },
+  { id: "actions", label: "Azioni e Attacchi", icon: "💥" },
+  { id: "inventory", label: "Inventario", icon: "🧰" },
+  { id: "spells", label: "Incantesimi", icon: "🔥" },
+  { id: "defenses", label: "Velocità e Difese", icon: "🛡️" },
+  { id: "features", label: "Privilegi e Tratti", icon: "👤" },
+  { id: "proficiencies", label: "Competenze e Addestramento", icon: "🔍" },
+  { id: "background", label: "Origine e Background", icon: "📜" },
+  { id: "notes", label: "Note di Viaggio", icon: "💬" },
+  { id: "creatures", label: "Creature e Compagni", icon: "🐺" }
 ];
 
-// Elenco Abilità D&D 5e collegate alla relativa Caratteristica
 window.DDB_SKILLS = [
-  { name: "Acrobatics", stat: "DES" },
-  { name: "Animal Handling", stat: "SAG" },
-  { name: "Arcana", stat: "INT" },
-  { name: "Athletics", stat: "FOR" },
-  { name: "Deception", stat: "CAR" },
-  { name: "History", stat: "INT" },
-  { name: "Insight", stat: "SAG" },
-  { name: "Intimidation", stat: "CAR" },
-  { name: "Investigation", stat: "INT" },
-  { name: "Medicine", stat: "SAG" },
-  { name: "Nature", stat: "INT" },
-  { name: "Perception", stat: "SAG" },
-  { name: "Performance", stat: "CAR" },
-  { name: "Persuasion", stat: "CAR" },
-  { name: "Religion", stat: "INT" },
-  { name: "Sleight of Hand", stat: "DES" },
-  { name: "Stealth", stat: "DES" },
-  { name: "Survival", stat: "SAG" }
+  { name: "Acrobazia (DES)", stat: "DES" },
+  { name: "Addestrare Animali (SAG)", stat: "SAG" },
+  { name: "Arcano (INT)", stat: "INT" },
+  { name: "Atletica (FOR)", stat: "FOR" },
+  { name: "Furtività (DES)", stat: "DES" },
+  { name: " Indagare (INT)", stat: "INT" },
+  { name: "Inganno (CAR)", stat: "CAR" },
+  { name: "Intimidire (CAR)", stat: "CAR" },
+  { name: "Intuizione (SAG)", stat: "SAG" },
+  { name: "Medicina (SAG)", stat: "SAG" },
+  { name: "Natura (INT)", stat: "INT" },
+  { name: "Percezione (SAG)", stat: "SAG" },
+  { name: "Persuasione (CAR)", stat: "CAR" },
+  { name: "Rapidità di Mano (DES)", stat: "DES" },
+  { name: "Religione (INT)", stat: "INT" },
+  { name: "Rapidità (DES)", stat: "DES" },
+  { name: "Sopravvivenza (SAG)", stat: "SAG" },
+  { name: "Storia (INT)", stat: "INT" },
+  { name: "Intrattenere (CAR)", stat: "CAR" }
 ];
 
-// Decifratore automatico: smista la carta nella categoria D&D Beyond adeguata
+// Smistamento automatico nelle sezioni D&D Beyond
 window.classifyCardToDdbSection = function(card) {
   const t = (card.type || "").toLowerCase();
   if (t === "arma") return "actions";
   if (t === "incantesimo") return "spells";
-  return "inventory"; // Armature, Scudi e Oggetti vari vanno in Inventory
+  return "inventory";
 };
 
-// Auto-Crop & Resize automatico delle immagini caricate manualmente (400x260px)
 window.autoFitImageFile = function(file, targetW, targetH, callback) {
   if (!file) return;
   const reader = new FileReader();
