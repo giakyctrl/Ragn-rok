@@ -187,6 +187,21 @@ window.isServerConnected = false;
 window.lastSeenEventTimestamp = Date.now();
 window.pendingTradeCardId = null;
 
+window.addEventListener('storage', (e) => {
+  if (e.key === 'yggdrasill_v3_db') {
+    window.dbState = loadLocalDB();
+    window.enforceMaintenanceCheck();
+    window.renderAllViews();
+    window.checkIncomingLiveEvents();
+  }
+});
+
+setInterval(() => {
+  if (window.currentUser) {
+    window.checkIncomingLiveEvents();
+  }
+}, 3000);
+
 window.isCurrentUserAdmin = function() {
   return window.currentUser === window.ADMIN_CREDENTIALS.username.toLowerCase();
 };
@@ -726,7 +741,7 @@ window.openLevelUpModal = function() {
 
 window.closeLevelUpModal = function() {
   const m = document.getElementById('levelup-modal');
-  m.classList.add('hidden'); m.classList.remove('flex');
+  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
 };
 
 window.chooseLevelUpHpMethod = function(method) {
@@ -1320,7 +1335,7 @@ window.renderAllViews = function() {
                         <div class="flex items-center gap-1.5">
                           <span class="font-bold text-xs text-white">${f.name}</span>${isMe ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-400 text-slate-950 font-extrabold uppercase">TU • APRI SCHEDA</span>` : ''}
                         </div>
-                        <span class="text-[10px] ${isMe ? 'text-sky-200' : 'text-slate-400'} block">Liv.${f.level \vert{}\vert{} 1}${f.className} • ${f.hp}/${f.maxHp} PF</span>
+                        <span class="text-[10px] ${isMe ? 'text-sky-200' : 'text-slate-400'} block">Liv. ${f.level || 1} • ${f.className} • ${f.hp}/${f.maxHp} PF</span>
                       </div>
                     </div>
                   </div>
