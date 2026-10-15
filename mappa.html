@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey to Ragnarok - Mappa Tattica Interattiva</title>
+    <!-- Font Cinzel e Lato per lo stile nordico concorde a giakyctrl.github.io/Ragn-rok/ -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <!-- PDF.js per estrarre e ritagliare automaticamente le mappe dal file MapPack.pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0e14;
+            --bg-panel: rgba(18, 23, 33, 0.95);
+            --gold-primary: #c9a050;
+            --gold-bright: #f3c663;
+            --gold-dim: #6e5525;
+            --ice-blue: #4ea8de;
+            --blood-red: #b91c1c;
+            --forest-green: #16a34a;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-runic: 1px solid #c9a050;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Lato', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        h1, h2, h3, .runic-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* BARRA SUPERIORE */
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 54px;
+            background: linear-gradient(180deg, #161b26 0%, #0b0e14 100%);
+            border-bottom: 2px solid var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-toggle-btn {
+            background: #1e2636;
+            color: var(--gold-primary);
+            border: var(--border-runic);
+            padding: 7px 14px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .menu-toggle-btn:hover {
+            background: var(--gold-primary);
+            color: #0b0e14;
+        }
+
+        .campaign-badge {
+            background: rgba(201, 160, 80, 0.12);
+            border: 1px solid var(--gold-dim);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .campaign-badge span {
+            color: var(--gold-bright);
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        .status-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .role-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .role-dm {
+            background: rgba(185, 28, 28, 0.25);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+
+        .role-player {
+            background: rgba(78, 168, 222, 0.2);
+            color: #7dd3fc;
+            border: 1px solid var(--ice-blue);
+        }
+
+        .external-link {
+            color: var(--gold-primary);
+            text-decoration: none;
+            font-size: 0.82rem;
+            border: 1px solid var(--gold-dim);
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .external-link:hover {
+            background: rgba(201, 160, 80, 0.2);
+        }
+
+        /* MENU A TENDA LATERALE */
+        #curtain-menu {
+            position: fixed;
+            top: 54px;
+            left: 0;
+            width: 390px;
+            height: calc(100vh - 54px);
+            background: var(--bg-panel);
+            border-right: 2px solid var(--gold-primary);
+            z-index: 95;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 6px 0 25px rgba(0, 0, 0, 0.85);
+        }
+
+        #curtain-menu.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .curtain-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gold-dim);
+            background: #10141d;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 6px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-family: 'Cinzel', serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--gold-bright);
+            border-bottom-color: var(--gold-primary);
+            background: rgba(201, 160, 80, 0.08);
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .panel-box {
+            background: rgba(11, 14, 20, 0.75);
+            border: 1px solid var(--gold-dim);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .panel-box h3 {
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(201, 160, 80, 0.25);
+            padding-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            margin-top: 8px;
+        }
+
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            background: #161c28;
+            border: 1px solid var(--gold-dim);
+            color: var(--text-light);
+            padding: 7px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--gold-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: linear-gradient(180deg, #2a3449 0%, #19202e 100%);
+            color: var(--gold-bright);
+            border: 1px solid var(--gold-primary);
+            padding: 8px 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: var(--gold-primary);
+            color: #0b0e14;
+        }
+
+        .btn-danger {
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-success {
+            border-color: #22c55e;
+            color: #86efac;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+            color: white;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .tool-btn.active {
+            background: var(--gold-primary);
+            color: #0b0e14;
+            box-shadow: 0 0 10px rgba(201, 160, 80, 0.5);
+        }
+
+        /* EDITOR DI DISEGNO PNG */
+        #sprite-Canvas-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #141923;
+            padding: 10px;
+            border: 1px dashed var(--gold-dim);
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        #sprite-editor {
+            background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 16px 16px;
+            border: 1px solid var(--gold-primary);
+            cursor: crosshair;
+            border-radius: 4px;
+        }
+
+        .palette-bar {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            width: 100%;
+            align-items: center;
+        }
+
+        /* LIBRERIA PNG */
+        .png-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .png-card {
+            background: #141924;
+            border: 1px solid var(--gold-dim);
+            border-radius: 4px;
+            padding: 6px;
+            text-align: center;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .png-card:hover {
+            border-color: var(--gold-bright);
+            transform: translateY(-2px);
+        }
+
+        .png-card img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 4px;
+        }
+
+        /* AREA CANVAS MAPPA */
+        #map-viewport {
+            position: fixed;
+            top: 54px;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 54px);
+            background: radial-gradient(circle at center, #1a2232 0%, #07090e 100%);
+            overflow: hidden;
+        }
+
+        #map-canvas {
+            display: block;
+            cursor: grab;
+        }
+
+        #map-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* TENDINA AZIONI SOPRA IL PERSONAGGIO DI TURNO */
+        #turn-action-hud {
+            position: fixed;
+            z-index: 85;
+            background: rgba(14, 18, 27, 0.96);
+            border: 2px solid var(--gold-bright);
+            border-radius: 6px;
+            padding: 8px 10px;
+            min-width: 210px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9), 0 0 15px rgba(243, 198, 99, 0.35);
+            display: none;
+            transform: translate(-50%, -115%);
+            pointer-events: auto;
+        }
+
+        #turn-action-hud::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 9px 9px 0;
+            border-style: solid;
+            border-color: var(--gold-bright) transparent transparent;
+        }
+
+        .hud-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.78rem;
+            color: var(--gold-bright);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        /* MODAL DI APPROVAZIONE DM / PLOT TWIST */
+        #dm-decision-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 360px;
+            background: var(--bg-panel);
+            border: 2px solid var(--gold-bright);
+            border-radius: 8px;
+            padding: 14px;
+            z-index: 98;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            display: none;
+        }
+
+        /* BANNER NARRATIVO PLOT TWIST */
+        #plot-twist-overlay {
+            position: fixed;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, rgba(127,29,29,0.95), rgba(24,24,27,0.98), rgba(127,29,29,0.95));
+            border: 2px solid var(--gold-bright);
+            padding: 12px 28px;
+            border-radius: 6px;
+            z-index: 99;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.6);
+        }
+
+        .legend-bar {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(11, 14, 20, 0.88);
+            border: 1px solid var(--gold-dim);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 14px;
+            z-index: 80;
+            pointer-events: none;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <header id="top-bar">
+        <div class="brand-section">
+            <button class="menu-toggle-btn" id="toggle-menu-btn">☰ MENU RUNICO</button>
+            <h1 style="font-size: 1.15rem;">Journey to Ragnarok</h1>
+            <div class="campaign-badge">
+                Campagna: <span id="matricola-label">RAG-001</span>
+            </div>
+        </div>
+
+        <div class="status-controls">
+            <span id="active-role-badge" class="role-pill role-dm">TAG: DM</span>
+            <!-- Selettore rapido per simulare l'accesso come DM o come uno dei Giocatori del portale -->
+            <select id="identity-switcher" style="width: auto; font-size: 0.78rem;" title="Simula l'utente autenticato da Ragn-rok">
+                <option value="DM">Accesso: Dungeon Master (Tag DM)</option>
+                <option value="PG_BJORN">Accesso: Giocatore (Björn - Guerriero)</option>
+                <option value="PG_ASTRID">Accesso: Giocatore (Astrid - Ladra Runica)</option>
+                <option value="PG_ERIK">Accesso: Giocatore (Erik - Berserker)</option>
+            </select>
+            <a href="https://giakyctrl.github.io/Ragn-rok/" target="_blank" class="external-link">⚔️ Portale Ragn-rok</a>
+        </div>
+    </header>
+
+    <!-- OVERLAY PLOT TWIST -->
+    <div id="plot-twist-overlay">
+        <div class="runic-title" style="font-size: 0.85rem; color: #fca5a5;">⚡ Volere del Fato (Plot Twist del DM) ⚡</div>
+        <div id="plot-twist-text" style="font-size: 1rem; margin-top: 4px; font-weight: bold;"></div>
+    </div>
+
+    <!-- MENU A TENDA LATERALE -->
+    <aside id="curtain-menu">
+        <div class="curtain-tabs">
+            <button class="tab-btn active" data-tab="tab-map">🗺️ Mappa & Atti</button>
+            <button class="tab-btn" data-tab="tab-forge">🎨 Forgia PNG</button>
+            <button class="tab-btn" data-tab="tab-turns">⏳ Turni & DB</button>
+        </div>
+
+        <!-- TAB 1: MAPPA, ATTI E STRUMENTI DM -->
+        <div class="tab-content active" id="tab-map">
+            <!-- Controlli riservati al DM -->
+            <div id="dm-map-controls" class="panel-box">
+                <h3>Cambio Atto & Mappa (Solo DM)</h3>
+                <label for="act-map-select">Seleziona Mappa dal MapPack (Senza testo esplicativo):</label>
+                <select id="act-map-select"></select>
+
+                <label for="pdf-upload-input" style="margin-top: 10px;">Carica <code>MapPack.pdf</code> originale per estrarre le texture ad alta risoluzione:</label>
+                <input type="file" id="pdf-upload-input" accept="application/pdf" style="font-size: 0.75rem; margin-top: 4px;">
+
+                <label for="token-scale-slider">Scala Globale PNG sulla Mappa: <strong id="scale-val-label">1.0x</strong></label>
+                <input type="range" id="token-scale-slider" min="0.4" max="2.5" step="0.1" value="1.0">
+
+                <h3 style="margin-top: 14px;">Strumenti Geometria & Spawnpoint</h3>
+                <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Le modifiche vengono salvate nella struttura della mappa e riutilizzate in qualsiasi campagna.
+                </p>
+                <div class="tool-grid">
+                    <button class="btn tool-btn active" data-tool="navigate">🖐️ Naviga / Muovi</button>
+                    <button class="btn tool-btn" data-tool="spawn">📍 Imposta Spawn</button>
+                    <button class="btn tool-btn" data-tool="red-road">➖ Strada Rossa</button>
+                    <button class="btn tool-btn" data-tool="red-block">🛑 Blocco Edificio</button>
+                    <button class="btn tool-btn" data-tool="green-square">🟩 Cella Quadrata</button>
+                    <button class="btn tool-btn" data-tool="green-hex">⬢ Cella Esagono</button>
+                </div>
+                <button class="btn" id="finish-poly-btn" style="display:none; border-color: var(--gold-bright);">✔️ Chiudi Poligono Corrente</button>
+                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <button class="btn btn-danger" id="undo-geom-btn">↩️ Annulla Ultima</button>
+                    <button class="btn btn-danger" id="clear-geom-btn">🗑️ Pulisci Geometrie</button>
+                </div>
+            </div>
+
+            <!-- Informazioni Mappa visibili a tutti -->
+            <div class="panel-box">
+                <h3>Stato Mappa Attuale</h3>
+                <div style="font-size: 0.82rem; line-height: 1.5;">
+                    <div><strong>Mondo / Area:</strong> <span id="info-map-title">-</span></div>
+                    <div><strong>Scala Griglia:</strong> <span id="info-map-scale">-</span></div>
+                    <div><strong>Geometrie Salvate:</strong> <span id="info-geom-count">0</span> elementi</div>
+                </div>
+                <button class="btn" id="spawn-all-party-btn" style="margin-top:10px;">⚡ Schiera Personaggi allo Spawnpoint</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: FORGIA PNG (DINAMICA DM vs GIOCATORE) -->
+        <div class="tab-content" id="tab-forge">
+            <div class="panel-box">
+                <h3 id="forge-role-header">Forgia PNG</h3>
+                <p id="forge-role-desc" style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px;"></p>
+
+                <label for="png-name-input">Nome Elemento / Personaggio:</label>
+                <input type="text" id="png-name-input" placeholder="Es. Runa Ansuz, Draugr, Ascia del Gelo...">
+
+                <label for="png-category-select">Categoria PNG:</label>
+                <select id="png-category-select"></select>
+
+                <label>Disegna PNG o Carica File Immagine:</label>
+                <div id="sprite-Canvas-wrap">
+                    <canvas id="sprite-editor" width="128" height="128"></canvas>
+                    <div class="palette-bar">
+                        <input type="color" id="brush-color" value="#f3c663" style="width: 36px; height: 28px; border:none; background:none;">
+                        <input type="range" id="brush-size" min="2" max="16" value="5" style="flex:1;">
+                        <button class="btn" id="clear-sprite-btn" style="width:auto; margin:0; padding:4px 8px;">Pulisci</button>
+                    </div>
+                    <input type="file" id="upload-png-file" accept="image/png,image/jpeg,image/webp" style="font-size: 0.73rem; margin-top: 8px; width: 100%;">
+                </div>
+
+                <button class="btn btn-success" id="save-png-btn">💾 Salva PNG nella Campagna</button>
+            </div>
+
+            <div class="panel-box">
+                <h3>Archivio PNG della Campagna</h3>
+                <p style="font-size: 0.73rem; color: var(--text-muted);">Clicca su una Creatura o Personaggio per aggiungerlo allo Spawnpoint sulla mappa.</p>
+                <div class="png-gallery" id="campaign-png-gallery"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: GESTIONE TURNI, VALIDAZIONE DM E DATABASE -->
+        <div class="tab-content" id="tab-turns">
+            <div class="panel-box">
+                <h3>Ordine di Iniziativa & Turni</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Il personaggio di turno brilla di un'aura giallo/verde sulla mappa e mostra la tendina delle azioni.
+                </p>
+                <div id="turn-order-list" style="font-size: 0.82rem; margin-bottom: 10px;"></div>
+                <button class="btn" id="next-turn-btn">⏭️ Passa al Turno Successivo</button>
+            </div>
+
+            <div class="panel-box" id="dm-plot-twist-box">
+                <h3>Controllo Decisionale DM & Plot Twist</h3>
+                <label for="plot-twist-input">Crea un Plot Twist Immediato:</label>
+                <input type="text" id="plot-twist-input" placeholder="Es. Il ghiaccio cede sotto i vostri piedi!">
+                <button class="btn btn-danger" id="trigger-twist-btn">⚡ Scatena Plot Twist nella Storia</button>
+            </div>
+
+            <div class="panel-box">
+                <h3>Database Multi-Campagna (Matricola)</h3>
+                <label for="switch-matricola-input">Codice Matricola Campagna:</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" id="switch-matricola-input" placeholder="Es. RAG-2026">
+                    <button class="btn" id="load-matricola-btn" style="width:auto; margin:0;">Carica</button>
+                </div>
+                <button class="btn" id="export-db-btn" style="margin-top:8px;">📤 Esporta JSON Database</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- TENDINA AZIONI SOPRA IL TOKEN DI TURNO -->
+    <div id="turn-action-hud">
+        <div class="hud-title">
+            <span id="hud-char-name">Personaggio</span>
+            <span style="font-size:0.68rem; color:#86efac;">● TURNO ATTIVO</span>
+        </div>
+        <select id="hud-action-select" style="margin-bottom: 5px; font-size: 0.78rem;">
+            <option value="attacco">⚔️ Attacco con Arma Equipaggiata</option>
+            <option value="runa">ᚱ Evoca Potere di una Runa</option>
+            <option value="interagisci">🛡️ Postura Difensiva / Interagisci</option>
+            <option value="rimuovi_arma">❌ Rinfodera Arma / Oggetto</option>
+        </select>
+        <select id="hud-weapon-select" style="font-size: 0.78rem;"></select>
+        <div class="hud-row">
+            <button class="btn btn-success" id="hud-execute-btn" style="margin-top:4px; padding:5px;">Proponi Azione al DM</button>
+        </div>
+    </div>
+
+    <!-- BANNER DECISIONALE DEL DM (APPROVA / NEGA AZIONE GIOCATORE) -->
+    <div id="dm-decision-banner">
+        <h3 style="font-size: 0.9rem; color: var(--gold-bright);">⚖️ Giudizio del Dungeon Master</h3>
+        <p id="pending-action-desc" style="font-size: 0.83rem; margin: 8px 0; line-height: 1.4;"></p>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-success" id="dm-confirm-action-btn">✔️ Conferma</button>
+            <button class="btn btn-danger" id="dm-deny-action-btn">✖️ Nega</button>
+        </div>
+    </div>
+
+    <!-- AREA MAPPA PRINCIPALE -->
+    <main id="map-viewport">
+        <canvas id="map-canvas"></canvas>
+    </main>
+
+    <!-- LEGENDA IN BASSO -->
+    <div class="legend-bar">
+        <span><i class="dot" style="background:#ef4444;"></i>Linea Rossa: Confine Strada</span>
+        <span><i class="dot" style="background:rgba(239,68,68,0.45); border:1px solid #ef4444;"></i>Poligono Rosso: Blocco Edificio</span>
+        <span><i class="dot" style="background:#22c55e;"></i>Cella Verde: Griglia Movimento</span>
+        <span><i class="dot" style="background:#facc15;"></i>Aura: Turno Attivo</span>
+    </div>
+
+<script>
+/**
+ * ============================================================================
+ * 1. CATALOGO MAPPE ESTRATTE DA MAPPACK.PDF (ESCLUSE PAGINE SOLO TESTO/SCHEDE)
+ * Include le coordinate di ritaglio (crop) per escludere le colonne di testo!
+ * ============================================================================
+ */
+const RAGNAROK_MAPS = [
+    { id: "yggdrasill_9worlds", pdfPage: 1, title: "Atto 0 - I Nove Mondi (Yggdrasill)", scale: "Cosmica", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#0f172a", "#1e3a8a", "#38bdf8"] },
+    { id: "midgardr_north", pdfPage: 2, title: "Atto I - Midgardr: Terre del Nord", scale: "1 Hex = 500 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#162436", "#274c6b", "#93c5fd"] },
+    { id: "battle_shipyard", pdfPage: 4, title: "Atto I - Cantiere Navale / Porto", scale: "1 Quadrato = 15 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#1e293b", "#334155", "#64748b"] },
+    { id: "norvgr_snowy_crop", pdfPage: 5, title: "Atto I - Norvgr: Montagne Innevate (Ritagliata)", scale: "Regionale", crop: { x: 0.0, y: 0.0, w: 1.0, h: 0.44 }, theme: ["#1e293b", "#475569", "#e2e8f0"] },
+    { id: "battle_bandit_camp", pdfPage: 6, title: "Atto I - Accampamento di Guthrum", scale: "1 Quadrato = 15 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#27272a", "#3f3f46", "#a1a1aa"] },
+    { id: "battle_mountain_pass", pdfPage: 7, title: "Atto I - Il Sentiero tra i Ghiacci", scale: "1 Quadrato = 15 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#0f172a", "#334155", "#cbd5e1"] },
+    { id: "battle_uppsala", pdfPage: 10, title: "Atto II - Tempio Sacro di Uppsala", scale: "1 Quadrato = 15 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#14261c", "#1e3f2b", "#86efac"] },
+    { id: "fenmark_swamp_crop", pdfPage: 11, title: "Atto II - Fenmark: La Palude (Ritagliata)", scale: "Regionale", crop: { x: 0.0, y: 0.0, w: 1.0, h: 0.44 }, theme: ["#132a2e", "#1d4ed8", "#6ee7b7"] },
+    { id: "battle_danevirke", pdfPage: 14, title: "Atto II - Il Vallo di Danevirke", scale: "1 Quadrato = 5 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#292524", "#44403c", "#d6d3d1"] },
+    { id: "niflheimr_realm", pdfPage: 16, title: "Atto III - Niflheimr: Terre del Gelo", scale: "1 Hex = 50 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#082f49", "#0369a1", "#bae6fd"] },
+    { id: "helheimr_realm", pdfPage: 17, title: "Atto III - Helheimr: Regno dei Morti", scale: "1 Hex = 100 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#090d16", "#1e293b", "#94a3b8"] },
+    { id: "asaheimr_realm", pdfPage: 18, title: "Atto IV - Asaheimr: Dimora degli Dei", scale: "1 Hex = 200 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#2e1f0f", "#78350f", "#fde047"] },
+    { id: "svartalfaheimr_city", pdfPage: 20, title: "Atto IV - Svartalfaheimr: Città Sotterranea", scale: "1 Hex = 50 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#042f2e", "#115e59", "#5eead4"] },
+    { id: "battle_hall_of_gods", pdfPage: 21, title: "Atto IV - Sala delle Colonne Runiche", scale: "1 Quadrato = 10 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#1e1b4b", "#312e81", "#fcd34d"] },
+    { id: "ljosalfheimr_realm", pdfPage: 22, title: "Atto V - Ljosalfheimr", scale: "1 Hex = 50 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#1e293b", "#0f766e", "#99f6e4"] },
+    { id: "vanaheimr_realm", pdfPage: 23, title: "Atto V - Vanaheimr", scale: "1 Hex = 500 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#064e3b", "#047857", "#6ee7b7"] },
+    { id: "jotunheimr_realm", pdfPage: 24, title: "Atto V - Jotunheimr: Terra dei Giganti", scale: "1 Hex = 500 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#172554", "#1d4ed8", "#dbeafe"] },
+    { id: "muspellsheimr_realm", pdfPage: 26, title: "Atto Finale - Muspellsheimr", scale: "1 Hex = 250 Miglia", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#450a0a", "#991b1b", "#fb923c"] },
+    { id: "battle_muspellsheimr_lava", pdfPage: 27, title: "Atto Finale - Fiume di Lava e Sigilli", scale: "1 Quadrato = 10 ft", crop: { x: 0, y: 0, w: 1, h: 1 }, theme: ["#431407", "#9a3412", "#facc15"] }
+];
+
+/**
+ * ============================================================================
+ * 2. STRUTTURA DATABASE MULTI-CAMPAGNA (CODICE MATRICOLA) + INTEGRAZIONE RAGN-ROK
+ * ============================================================================
+ */
+const urlParams = new URLSearchParams(window.location.search);
+let currentMatricola = urlParams.get("matricola") || "RAG-001";
+let currentRoleTag = (urlParams.get("role") || "DM").toUpperCase(); // Verifica tag DM
+
+// Generatore procedurale di icone PNG di base (Personaggi, Armi, Rune, Creature)
+function createDefaultSvgDataUrl(label, bg, border, symbol) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="42" fill="${bg}" stroke="${border}" stroke-width="5"/>
+        <text x="48" y="55" font-size="34" text-anchor="middle" fill="#fff" font-family="Cinzel, serif">${symbol}</text>
+        <rect x="8" y="72" width="80" height="18" rx="4" fill="rgba(0,0,0,0.75)"/>
+        <text x="48" y="85" font-size="11" text-anchor="middle" fill="#f3c663" font-family="sans-serif">${label}</text>
+    </svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+// Struttura del Database Globale salvata in LocalStorage (o sincronizzabile col backend di Ragn-rok)
+const DB_KEY = "JOURNEY_TO_RAGNAROK_MASTER_DB_V1";
+
+function loadMasterDatabase() {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) { console.error(e); }
+    }
+    return {
+        // Le modifiche geometriche sulle mappe sono salvate come parte integrante della mappa
+        // così da poter essere riaperte in un secondo momento in qualsiasi campagna!
+        sharedMapGeometries: {
+            "battle_uppsala": {
+                spawn: { x: 520, y: 420 },
+                redRoads: [
+                    [{ x: 450, y: 350 }, { x: 580, y: 490 }],
+                    [{ x: 410, y: 390 }, { x: 540, y: 530 }]
+                ],
+                redBlocks: [
+                    [{ x: 420, y: 120 }, { x: 530, y: 120 }, { x: 530, y: 220 }, { x: 420, y: 220 }]
+                ],
+                greenCells: [
+                    { type: "square", cx: 520, cy: 420, r: 35 },
+                    { type: "square", cx: 590, cy: 420, r: 35 },
+                    { type: "square", cx: 520, cy: 490, r: 35 }
+                ]
+            }
+        },
+        campaigns: {}
+    };
+}
+
+let masterDB = loadMasterDatabase();
+
+function ensureCampaignExists(matricola) {
+    // Tentativo di lettura personaggi dal localStorage condiviso con https://giakyctrl.github.io/Ragn-rok/
+    let externalChars = null;
+    try {
+        const extRaw = localStorage.getItem("ragnarok_characters") || localStorage.getItem("characters");
+        if (extRaw) externalChars = JSON.parse(extRaw);
+    } catch (e) {}
+
+    if (!masterDB.campaigns[matricola]) {
+        const defaultSprites = [
+            { id: "sp_bjorn", name: "Björn", category: "pg", owner: "PG_BJORN", img: createDefaultSvgDataUrl("Björn", "#1e3a8a", "#93c5fd", "🛡️") },
+            { id: "sp_astrid", name: "Astrid", category: "pg", owner: "PG_ASTRID", img: createDefaultSvgDataUrl("Astrid", "#065f46", "#6ee7b7", "🗡️") },
+            { id: "sp_erik", name: "Erik", category: "pg", owner: "PG_ERIK", img: createDefaultSvgDataUrl("Erik", "#7f1d1d", "#fca5a5", "🪓") },
+            { id: "sp_draugr", name: "Draugr", category: "creatura", owner: "DM", img: createDefaultSvgDataUrl("Draugr", "#312e81", "#c084fc", "💀") },
+            { id: "sp_axe", name: "Ascia di Skadi", category: "arma_unica", owner: "PG_BJORN", img: createDefaultSvgDataUrl("Ascia", "#78350f", "#fde047", "🪓") },
+            { id: "sp_bow", name: "Arco di Ydalir", category: "arma_unica", owner: "PG_ASTRID", img: createDefaultSvgDataUrl("Arco", "#14532d", "#86efac", "🏹") },
+            { id: "sp_rune_ansuz", name: "Runa Ansuz", category: "runa", owner: "DM", img: createDefaultSvgDataUrl("Ansuz", "#4c1d95", "#ddd6fe", "ᚨ") },
+            { id: "sp_potion", name: "Idromele Sacro", category: "inventario", owner: "DM", img: createDefaultSvgDataUrl("Idromele", "#713f12", "#fef08a", "🍺") }
+        ];
+
+        masterDB.campaigns[matricola] = {
+            matricola: matricola,
+            currentMapId: "battle_uppsala",
+            tokenScale: 1.0,
+            turnIndex: 0,
+            pendingAction: null,
+            plotTwistBanner: "",
+            sprites: externalChars || defaultSprites,
+            tokensOnMap: [
+                { id: "tok_1", name: "Björn", owner: "PG_BJORN", x: 520, y: 420, img: defaultSprites[0].img, equippedImg: defaultSprites[4].img, equippedName: "Ascia di Skadi" },
+                { id: "tok_2", name: "Astrid", owner: "PG_ASTRID", x: 590, y: 420, img: defaultSprites[1].img, equippedImg: null, equippedName: null },
+                { id: "tok_3", name: "Draugr Guardiano", owner: "DM", x: 520, y: 490, img: defaultSprites[3].img, equippedImg: null, equippedName: null }
+            ]
+        };
+        saveMasterDatabase();
+    }
+    return masterDB.campaigns[matricola];
+}
+
+function saveMasterDatabase() {
+    localStorage.setItem(DB_KEY, JSON.stringify(masterDB));
+}
+
+// Sincronizzazione in tempo reale tra schede aperte (DM e Giocatori sullo stesso browser)
+window.addEventListener("storage", (e) => {
+    if (e.key === DB_KEY) {
+        masterDB = loadMasterDatabase();
+        campaign = ensureCampaignExists(currentMatricola);
+        syncUIWithCampaign();
+    }
+});
+
+let campaign = ensureCampaignExists(currentMatricola);
+
+function getCurrentMapGeometry() {
+    const mapId = campaign.currentMapId;
+    if (!masterDB.sharedMapGeometries[mapId]) {
+        masterDB.sharedMapGeometries[mapId] = {
+            spawn: { x: 480, y: 360 },
+            redRoads: [],
+            redBlocks: [],
+            greenCells: []
+        };
+    }
+    return masterDB.sharedMapGeometries[mapId];
+}
+
+/**
+ * ============================================================================
+ * 3. VERIFICA RUOLO (TAG DM vs GIOCATORE) E AGGIORNAMENTO INTERFACCIA
+ * ============================================================================
+ */
+function isUserDM() {
+    return currentRoleTag === "DM";
+}
+
+function updateRolePermissionsUI() {
+    const badge = document.getElementById("active-role-badge");
+    const dmMapControls = document.getElementById("dm-map-controls");
+    const dmTwistBox = document.getElementById("dm-plot-twist-box");
+    const forgeHeader = document.getElementById("forge-role-header");
+    const forgeDesc = document.getElementById("forge-role-desc");
+    const catSelect = document.getElementById("png-category-select");
+
+    if (isUserDM()) {
+        badge.textContent = "TAG: DM (Master)";
+        badge.className = "role-pill role-dm";
+        dmMapControls.style.display = "block";
+        dmTwistBox.style.display = "block";
+        forgeHeader.textContent = "Forgia PNG del Dungeon Master";
+        forgeDesc.textContent = "Crea o carica PNG per Rune, Inventario Base dei giocatori e Creature da affrontare o con cui interagire.";
+        catSelect.innerHTML = `
+            <option value="creatura">🐉 Creatura / Boss / PNG Interagibile</option>
+            <option value="runa">ᚱ Runa Divina</option>
+            <option value="inventario">🎒 Oggetto Inventario Base</option>
+        `;
+    } else {
+        badge.textContent = "GIOCATORE: " + currentRoleTag;
+        badge.className = "role-pill role-player";
+        dmMapControls.style.display = "none";
+        dmTwistBox.style.display = "none";
+        activeTool = "navigate";
+        forgeHeader.textContent = "Forgia Eroe & Armi Uniche";
+        forgeDesc.textContent = "Disegna o carica il PNG del tuo Personaggio e le sue Armi Speciali e Uniche (che appariranno affiancate al tuo token!).";
+        catSelect.innerHTML = `
+            <option value="pg">🛡️ PNG del Proprio Personaggio</option>
+            <option value="arma_unica">⚔️ Arma Speciale & Unica del Personaggio</option>
+        `;
+    }
+    checkPendingDecisionBanner();
+}
+
+/**
+ * ============================================================================
+ * 4. MOTORE GRAFICO MAPPA, RITAGLIO PDF.JS E GEOMETRIE DI COLLISIONE
+ * ============================================================================
+ */
+const canvas = document.getElementById("map-canvas");
+const ctx = canvas.getContext("2d");
+let camera = { x: 60, y: 30, zoom: 1.0 };
+let isDraggingMap = false;
+let dragStart = { x: 0, y: 0 };
+let draggedToken = null;
+let activeTool = "navigate";
+let currentPolygonPoints = [];
+let loadedPdfDoc = null;
+const mapTextureCache = {};
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 54;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Estrazione e Ritaglio (Crop) della pagina del PDF tramite PDF.js
+async function renderPdfPageCropped(mapMeta) {
+    if (!loadedPdfDoc) return null;
+    try {
+        const page = await loadedPdfDoc.getPage(mapMeta.pdfPage);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = viewport.width;
+        tempCanvas.height = viewport.height;
+        const tempCtx = tempCanvas.getContext("2d");
+        await page.render({ canvasContext: tempCtx, viewport: viewport }).promise;
+
+        // Applichiamo il ritaglio (escludendo i paragrafi di spiegazione della pagina)
+        const cropCanvas = document.createElement("canvas");
+        const cw = viewport.width * mapMeta.crop.w;
+        const ch = viewport.height * mapMeta.crop.h;
+        cropCanvas.width = 1000;
+        cropCanvas.height = Math.round(1000 * (ch / cw));
+        const cropCtx = cropCanvas.getContext("2d");
+        cropCtx.drawImage(
+            tempCanvas,
+            viewport.width * mapMeta.crop.x,
+            viewport.height * mapMeta.crop.y,
+            cw, ch,
+            0, 0, cropCanvas.width, cropCanvas.height
+        );
+        return cropCanvas;
+    } catch (err) {
+        console.warn("Impossibile estrarre pagina PDF:", err);
+        return null;
+    }
+}
+
+// Tentativo automatico di caricare MapPack.pdf se presente nella stessa cartella di mappa.html
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    pdfjsLib.getDocument("MapPack.pdf").promise.then(pdf => {
+        loadedPdfDoc = pdf;
+        mapTextureCache[campaign.currentMapId] = null;
+        loadActiveMapTexture();
+    }).catch(() => {
+        // Se aperto via file:// senza server locale, l'utente può selezionare MapPack.pdf dal pulsante dedicato
+    });
+}
+
+document.getElementById("pdf-upload-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file || !window.pdfjsLib) return;
+    const arrayBuffer = await file.arrayBuffer();
+    loadedPdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    Object.keys(mapTextureCache).forEach(k => delete mapTextureCache[k]);
+    await loadActiveMapTexture();
+});
+
+async function loadActiveMapTexture() {
+    const mapMeta = RAGNAROK_MAPS.find(m => m.id === campaign.currentMapId) || RAGNAROK_MAPS[0];
+    if (!mapTextureCache[mapMeta.id] && loadedPdfDoc) {
+        const rendered = await renderPdfPageCropped(mapMeta);
+        if (rendered) mapTextureCache[mapMeta.id] = rendered;
+    }
+}
+
+// Disegno procedurale di fallback fedele all'atmosfera nordica se MapPack.pdf non è ancora stato caricato
+function drawFallbackNordicMap(ctx, mapMeta) {
+    const W = 1000, H = 720;
+    const grad = ctx.createRadialGradient(W/2, H/2, 80, W/2, H/2, 650);
+    grad.addColorStop(0, mapMeta.theme[1]);
+    grad.addColorStop(1, mapMeta.theme[0]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Griglia cartografica sottile
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 50) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += 50) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Cornice runica decorativa
+    ctx.strokeStyle = mapMeta.theme[2];
+    ctx.lineWidth = 4;
+    ctx.strokeRect(12, 12, W - 24, H - 24);
+
+    ctx.fillStyle = "rgba(255,255,255,0.12)";
+    ctx.font = "700 28px Cinzel, serif";
+    ctx.textAlign = "center";
+    ctx.fillText(mapMeta.title.toUpperCase(), W / 2, H - 36);
+    ctx.font = "14px Lato, sans-serif";
+    ctx.fillText("Scala: " + mapMeta.scale + " (Carica MapPack.pdf dal menu per la texture fotografica ritagliata)", W / 2, H - 18);
+}
+
+/**
+ * ============================================================================
+ * 5. ALGORITMI DI COLLISIONE: STRADE ROSSE, BLOCCHI CHIUSI E CELLE VERDI
+ * ============================================================================
+ */
+// Verifica se due segmenti AB e CD si intersecano (impedisce di attraversare le linee rosse)
+function segmentsIntersect(p1, p2, p3, p4) {
+    function ccw(A, B, C) {
+        return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+    }
+    return ccw(p1, p3, p4) !== ccw(p2, p3, p4) && ccw(p1, p2, p3) !== ccw(p1, p2, p4);
+}
+
+// Algoritmo Ray-Casting: verifica se il punto P cade dentro un poligono rosso chiuso (es. edificio)
+function pointInPolygon(point, vs) {
+    let x = point.x, y = point.y;
+    let inside = false;
+    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        let xi = vs[i].x, yi = vs[i].y;
+        let xj = vs[j].x, yj = vs[j].y;
+        let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi + 0.00001) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
+
+// Verifica se lo spostamento da A a B è valido rispetto alle barriere disegnate dal DM
+function validateMovementGeometry(fromPt, toPt) {
+    const geom = getCurrentMapGeometry();
+
+    // 1. Controllo Linee Rosse (non si può passare attraverso una linea rossa)
+    for (const road of geom.redRoads) {
+        for (let i = 0; i < road.length - 1; i++) {
+            if (segmentsIntersect(fromPt, toPt, road[i], road[i + 1])) {
+                return { valid: false, reason: "Movimento bloccato: non puoi attraversare una barriera stradale rossa!" };
+            }
+        }
+    }
+
+    // 2. Controllo Poligoni Rossi Chiusi (edifici / ostacoli totali)
+    for (const block of geom.redBlocks) {
+        if (pointInPolygon(toPt, block)) {
+            return { valid: false, reason: "Movimento bloccato: quest'area chiusa (edificio/ostacolo) è inaccessibile!" };
+        }
+        for (let i = 0; i < block.length; i++) {
+            const next = block[(i + 1) % block.length];
+            if (segmentsIntersect(fromPt, toPt, block[i], next)) {
+                return { valid: false, reason: "Movimento bloccato: un edificio o muro ostacola il percorso!" };
+            }
+        }
+    }
+
+    // 3. Snap sulle Celle Verdi (Quadrate o Esagonali) se presenti vicino alla destinazione
+    let finalPt = { x: toPt.x, y: toPt.y };
+    for (const cell of geom.greenCells) {
+        const dist = Math.hypot(toPt.x - cell.cx, toPt.y - cell.cy);
+        if (dist <= cell.r * 1.15) {
+            finalPt = { x: cell.cx, y: cell.cy };
+            break;
+        }
+    }
+
+    return { valid: true, snappedPt: finalPt };
+}
+
+/**
+ * ============================================================================
+ * 6. CICLO DI RENDERING PRINCIPALE (MAPPA, BARRIERE, AURA TURNO E ARMI OFFSET)
+ * ============================================================================
+ */
+const imageObjCache = {};
+function getCachedImage(src) {
+    if (!src) return null;
+    if (!imageObjCache[src]) {
+        const img = new Image();
+        img.src = src;
+        imageObjCache[src] = img;
+    }
+    return imageObjCache[src];
+}
+
+function drawRegularPolygon(ctx, cx, cy, r, sides, rotation = 0) {
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+        const a = rotation + (i * 2 * Math.PI) / sides;
+        const px = cx + r * Math.cos(a);
+        const py = cy + r * Math.sin(a);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+}
+
+function renderLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(camera.x, camera.y);
+    ctx.scale(camera.zoom, camera.zoom);
+
+    const mapMeta = RAGNAROK_MAPS.find(m => m.id === campaign.currentMapId) || RAGNAROK_MAPS[0];
+    const cachedTex = mapTextureCache[mapMeta.id];
+    if (cachedTex) {
+        ctx.drawImage(cachedTex, 0, 0);
+    } else {
+        drawFallbackNordicMap(ctx, mapMeta);
+    }
+
+    const geom = getCurrentMapGeometry();
+
+    // 1. Disegna Celle Verdi (Quadrate o Esagonali)
+    for (const cell of geom.greenCells) {
+        ctx.save();
+        ctx.strokeStyle = "#22c55e";
+        ctx.fillStyle = "rgba(34, 197, 94, 0.14)";
+        ctx.lineWidth = 2.5;
+        if (cell.type === "square") {
+            drawRegularPolygon(ctx, cell.cx, cell.cy, cell.r, 4, Math.PI / 4);
+        } else {
+            drawRegularPolygon(ctx, cell.cx, cell.cy, cell.r, 6, Math.PI / 6);
+        }
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // 2. Disegna Linee Rosse Aperte (Strade percorribili all'interno o all'esterno ma non attraversabili)
+    for (const road of geom.redRoads) {
+        if (road.length < 2) continue;
+        ctx.save();
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 4;
+        ctx.shadowColor = "#ef4444";
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(road[0].x, road[0].y);
+        for (let i = 1; i < road.length; i++) ctx.lineTo(road[i].x, road[i].y);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // 3. Disegna Poligoni Rossi Chiusi (Edifici / Blocchi Totali)
+    for (const block of geom.redBlocks) {
+        if (block.length < 3) continue;
+        ctx.save();
+        ctx.strokeStyle = "#dc2626";
+        ctx.fillStyle = "rgba(220, 38, 38, 0.32)";
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(block[0].x, block[0].y);
+        for (let i = 1; i < block.length; i++) ctx.lineTo(block[i].x, block[i].y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // Poligono attualmente in costruzione dal DM
+    if (currentPolygonPoints.length > 0) {
+        ctx.save();
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(currentPolygonPoints[0].x, currentPolygonPoints[0].y);
+        for (let i = 1; i < currentPolygonPoints.length; i++) {
+            ctx.lineTo(currentPolygonPoints[i].x, currentPolygonPoints[i].y);
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // 4. Disegna lo Spawnpoint
+    if (geom.spawn) {
+        ctx.save();
+        ctx.strokeStyle = "#38bdf8";
+        ctx.fillStyle = "rgba(56, 189, 248, 0.2)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(geom.spawn.x, geom.spawn.y, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#bae6fd";
+        ctx.font = "bold 10px Cinzel, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("SPAWN", geom.spawn.x, geom.spawn.y + 4);
+        ctx.restore();
+    }
+
+    // 5. Disegna i Token PNG dei Personaggi (con Scala decisa dal DM, Aura Turno e Arma in Offset!)
+    const baseRadius = 26 * (campaign.tokenScale || 1.0);
+    const activeTurnToken = campaign.tokensOnMap[campaign.turnIndex % Math.max(1, campaign.tokensOnMap.length)];
+    const pulse = 0.5 + 0.5 * Math.sin( performance.now() / 220 );
+
+    campaign.tokensOnMap.forEach((tok, idx) => {
+        const isTurn = activeTurnToken && activeTurnToken.id === tok.id;
+        ctx.save();
+
+        // Aura verde/gialla ad alto contrasto per capire a chi spetta il turno
+        if (isTurn) {
+            const auraGrad = ctx.createRadialGradient(tok.x, tok.y, baseRadius * 0.6, tok.x, tok.y, baseRadius * (1.7 + pulse * 0.25));
+            auraGrad.addColorStop(0, "rgba(250, 204, 21, 0.95)");
+            auraGrad.addColorStop(0.55, "rgba(74, 222, 128, 0.65)");
+            auraGrad.addColorStop(1, "rgba(34, 197, 94, 0)");
+            ctx.fillStyle = auraGrad;
+            ctx.beginPath();
+            ctx.arc(tok.x, tok.y, baseRadius * 1.9, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Disegno PNG Personaggio
+        const img = getCachedImage(tok.img);
+        if (img && img.complete) {
+            ctx.drawImage(img, tok.x - baseRadius, tok.y - baseRadius, baseRadius * 2, baseRadius * 2);
+        } else {
+            ctx.fillStyle = "#334155";
+            ctx.beginPath();
+            ctx.arc(tok.x, tok.y, baseRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // SE IL PERSONAGGIO USA UN'ARMA/OGGETTO: compare sovrapposta a fianco con un divertente offset
+        // in modo da visualizzare entrambi i PNG chiaramente!
+        if (tok.equippedImg) {
+            const weapImg = getCachedImage(tok.equippedImg);
+            const weapSize = baseRadius * 1.15;
+            const offsetX = baseRadius * 0.85;
+            const offsetY = -baseRadius * 0.55 + Math.sin(performance.now() / 180) * 3;
+            if (weapImg && weapImg.complete) {
+                ctx.save();
+                ctx.shadowColor = "#000";
+                ctx.shadowBlur = 8;
+                ctx.drawImage(weapImg, tok.x + offsetX - weapSize/2, tok.y + offsetY - weapSize/2, weapSize, weapSize);
+                ctx.restore();
+            }
+        }
+
+        ctx.restore();
+    });
+
+    ctx.restore();
+
+    // Posiziona la tendina delle azioni esattamente sopra al personaggio di turno
+    updateTurnHudPosition(activeTurnToken, baseRadius);
+
+    requestAnimationFrame(renderLoop);
+}
+
+function updateTurnHudPosition(activeToken, baseRadius) {
+    const hud = document.getElementById("turn-action-hud");
+    if (!activeToken) {
+        hud.style.display = "none";
+        return;
+    }
+    hud.style.display = "block";
+    const screenX = camera.x + activeToken.x * camera.zoom;
+    const screenY = camera.y + (activeToken.y - baseRadius * 1.3) * camera.zoom + 54;
+    hud.style.left = `${Math.max(120, Math.min(window.innerWidth - 120, screenX))}px`;
+    hud.style.top = `${Math.max(130, Math.min(window.innerHeight - 60, screenY))}px`;
+    document.getElementById("hud-char-name").textContent = activeToken.name;
+}
+
+/**
+ * ============================================================================
+ * 7. INTERAZIONE MOUSE SULLA MAPPA (DISEGNO DM + MOVIMENTO GIOCATORI)
+ * ============================================================================
+ */
+function screenToWorld(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (clientX - rect.left - camera.x) / camera.zoom,
+        y: (clientY - rect.top - camera.y) / camera.zoom
+    };
+}
+
+canvas.addEventListener("mousedown", (e) => {
+    const pt = screenToWorld(e.clientX, e.clientY);
+    const geom = getCurrentMapGeometry();
+
+    // Se il DM sta usando uno strumento di disegno
+    if (isUserDM() && activeTool !== "navigate") {
+        if (activeTool === "spawn") {
+            geom.spawn = { x: Math.round(pt.x), y: Math.round(pt.y) };
+            saveMasterDatabase();
+            syncUIWithCampaign();
+            return;
+        }
+        if (activeTool === "green-square" || activeTool === "green-hex") {
+            geom.greenCells.push({
+                type: activeTool === "green-square" ? "square" : "hex",
+                cx: Math.round(pt.x),
+                cy: Math.round(pt.y),
+                r: 36
+            });
+            saveMasterDatabase();
+            syncUIWithCampaign();
+            return;
+        }
+        if (activeTool === "red-road" || activeTool === "red-block") {
+            currentPolygonPoints.push({ x: Math.round(pt.x), y: Math.round(pt.y) });
+            document.getElementById("finish-poly-btn").style.display = "inline-flex";
+            return;
+        }
+    }
+
+    // Controlla se si è cliccato su un token PNG
+    const radius = 26 * (campaign.tokenScale || 1.0);
+    for (let i = campaign.tokensOnMap.length - 1; i >= 0; i--) {
+        const tok = campaign.tokensOnMap[i];
+        if (Math.hypot(pt.x - tok.x, pt.y - tok.y) <= radius) {
+            draggedToken = { token: tok, startX: tok.x, startY: tok.y };
+            return;
+        }
+    }
+
+    // Altrimenti trascina la visuale della mappa
+    isDraggingMap = true;
+    dragStart = { x: e.clientX - camera.x, y: e.clientY - camera.y };
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (draggedToken) {
+        const pt = screenToWorld(e.clientX, e.clientY);
+        draggedToken.token.x = pt.x;
+        draggedToken.token.y = pt.y;
+        return;
+    }
+    if (isDraggingMap) {
+        camera.x = e.clientX - dragStart.x;
+        camera.y = e.clientY - dragStart.y;
+    }
+});
+
+window.addEventListener("mouseup", () => {
+    if (draggedToken) {
+        const tok = draggedToken.token;
+        const fromPt = { x: draggedToken.startX, y: draggedToken.startY };
+        const toPt = { x: tok.x, y: tok.y };
+
+        // Verifica collisioni contro le linee rosse e i blocchi chiusi
+        const check = validateMovementGeometry(fromPt, toPt);
+        if (!check.valid) {
+            alert(check.reason);
+            tok.x = fromPt.x;
+            tok.y = fromPt.y;
+        } else {
+            // Se chi muove è un giocatore (non DM), la decisione passa al vaglio del DM!
+            if (!isUserDM()) {
+                tok.x = fromPt.x;
+                tok.y = fromPt.y;
+                campaign.pendingAction = {
+                    type: "movimento",
+                    tokenId: tok.id,
+                    actorName: tok.name,
+                    targetX: Math.round(check.snappedPt.x),
+                    targetY: Math.round(check.snappedPt.y),
+                    description: `${tok.name} chiede di muoversi alle coordinate (${Math.round(check.snappedPt.x)}, ${Math.round(check.snappedPt.y)}).`
+                };
+            } else {
+                tok.x = Math.round(check.snappedPt.x);
+                tok.y = Math.round(check.snappedPt.y);
+            }
+            saveMasterDatabase();
+            syncUIWithCampaign();
+        }
+        draggedToken = null;
+    }
+    isDraggingMap = false;
+});
+
+canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    camera.zoom = Math.max(0.35, Math.min(2.8, camera.zoom * factor));
+}, { passive: false });
+
+// Chiusura poligono rosso o linea rossa
+document.getElementById("finish-poly-btn").addEventListener("click", () => {
+    const geom = getCurrentMapGeometry();
+    if (activeTool === "red-road" && currentPolygonPoints.length >= 2) {
+        geom.redRoads.push([...currentPolygonPoints]);
+    } else if (activeTool === "red-block" && currentPolygonPoints.length >= 3) {
+        geom.redBlocks.push([...currentPolygonPoints]);
+    }
+    currentPolygonPoints = [];
+    document.getElementById("finish-poly-btn").style.display = "none";
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+/**
+ * ============================================================================
+ * 8. EDITOR DI DISEGNO PNG E CARICAMENTO FILE (PER DM E GIOCATORI)
+ * ============================================================================
+ */
+const spriteCanvas = document.getElementById("sprite-editor");
+const sCtx = spriteCanvas.getContext("2d");
+let drawingSprite = false;
+
+function getSpritePos(e) {
+    const r = spriteCanvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+spriteCanvas.addEventListener("mousedown", (e) => {
+    drawingSprite = true;
+    const p = getSpritePos(e);
+    sCtx.beginPath();
+    sCtx.moveTo(p.x, p.y);
+});
+
+spriteCanvas.addEventListener("mousemove", (e) => {
+    if (!drawingSprite) return;
+    const p = getSpritePos(e);
+    sCtx.strokeStyle = document.getElementById("brush-color").value;
+    sCtx.lineWidth = document.getElementById("brush-size").value;
+    sCtx.lineCap = "round";
+    sCtx.lineTo(p.x, p.y);
+    sCtx.stroke();
+});
+
+window.addEventListener("mouseup", () => { drawingSprite = false; });
+
+document.getElementById("clear-sprite-btn").addEventListener("click", () => {
+    sCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+});
+
+document.getElementById("upload-png-file").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+            sCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+            sCtx.drawImage(img, 0, 0, spriteCanvas.width, spriteCanvas.height);
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("save-png-btn").addEventListener("click", () => {
+    const name = document.getElementById("png-name-input").value.trim() || "Nuovo PNG";
+    const category = document.getElementById("png-category-select").value;
+    const dataUrl = spriteCanvas.toDataURL("image/png");
+
+    campaign.sprites.push({
+        id: "sp_" + Date.now(),
+        name: name,
+        category: category,
+        owner: currentRoleTag,
+        img: dataUrl
+    });
+    document.getElementById("png-name-input").value = "";
+    sCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+/**
+ * ============================================================================
+ * 9. AZIONI DEL TURNO, ARMI SOVRAPPOSTE E APPROVAZIONE/NEGAZIONE DEL DM
+ * ============================================================================
+ */
+document.getElementById("hud-execute-btn").addEventListener("click", () => {
+    const activeToken = campaign.tokensOnMap[campaign.turnIndex % Math.max(1, campaign.tokensOnMap.length)];
+    if (!activeToken) return;
+
+    const actionType = document.getElementById("hud-action-select").value;
+    const weaponId = document.getElementById("hud-weapon-select").value;
+    const chosenSprite = campaign.sprites.find(s => s.id === weaponId);
+
+    const payload = {
+        type: actionType,
+        tokenId: activeToken.id,
+        actorName: activeToken.name,
+        spriteImg: chosenSprite ? chosenSprite.img : null,
+        spriteName: chosenSprite ? chosenSprite.name : "Nessuno",
+        description: `${activeToken.name} vuole eseguire [${actionType.toUpperCase()}] utilizzando "${chosenSprite ? chosenSprite.name : 'mani nude'}".`
+    };
+
+    if (isUserDM()) {
+        applyConfirmedAction(payload);
+    } else {
+        campaign.pendingAction = payload;
+        saveMasterDatabase();
+        syncUIWithCampaign();
+        alert("Azione inviata al Dungeon Master per la conferma!");
+    }
+});
+
+function applyConfirmedAction(act) {
+    const tok = campaign.tokensOnMap.find(t => t.id === act.tokenId);
+    if (!tok) return;
+
+    if (act.type === "movimento") {
+        tok.x = act.targetX;
+        tok.y = act.targetY;
+    } else if (act.type === "rimuovi_arma") {
+        tok.equippedImg = null;
+        tok.equippedName = null;
+    } else if (act.spriteImg) {
+        tok.equippedImg = act.spriteImg;
+        tok.equippedName = act.spriteName;
+    }
+    campaign.pendingAction = null;
+    saveMasterDatabase();
+    syncUIWithCampaign();
+}
+
+function checkPendingDecisionBanner() {
+    const banner = document.getElementById("dm-decision-banner");
+    if (isUserDM() && campaign.pendingAction) {
+        banner.style.display = "block";
+        document.getElementById("pending-action-desc").textContent = campaign.pendingAction.description;
+    } else {
+        banner.style.display = "none";
+    }
+}
+
+document.getElementById("dm-confirm-action-btn").addEventListener("click", () => {
+    if (campaign.pendingAction) applyConfirmedAction(campaign.pendingAction);
+});
+
+document.getElementById("dm-deny-action-btn").addEventListener("click", () => {
+    campaign.pendingAction = null;
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+document.getElementById("trigger-twist-btn").addEventListener("click", () => {
+    if (!isUserDM()) return;
+    const text = document.getElementById("plot-twist-input").value.trim() || "Un presagio oscuro scuote il campo di battaglia!";
+    campaign.plotTwistBanner = text;
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+/**
+ * ============================================================================
+ * 10. SINCRONIZZAZIONE GENERALE UI E CONTROLLI EVENTI
+ * ============================================================================
+ */
+function populateMapSelect() {
+    const sel = document.getElementById("act-map-select");
+    sel.innerHTML = RAGNAROK_MAPS.map(m => `<option value="${m.id}">${m.title}</option>`).join("");
+    sel.value = campaign.currentMapId;
+}
+
+function syncUIWithCampaign() {
+    document.getElementById("matricola-label").textContent = campaign.matricola;
+    document.getElementById("switch-matricola-input").value = campaign.matricola;
+    document.getElementById("act-map-select").value = campaign.currentMapId;
+    document.getElementById("token-scale-slider").value = campaign.tokenScale || 1.0;
+    document.getElementById("scale-val-label").textContent = (campaign.tokenScale || 1.0).toFixed(1) + "x";
+
+    const mapMeta = RAGNAROK_MAPS.find(m => m.id === campaign.currentMapId) || RAGNAROK_MAPS[0];
+    const geom = getCurrentMapGeometry();
+    document.getElementById("info-map-title").textContent = mapMeta.title;
+    document.getElementById("info-map-scale").textContent = mapMeta.scale;
+    document.getElementById("info-geom-count").textContent =
+        geom.redRoads.length + geom.redBlocks.length + geom.greenCells.length;
+
+    // Galleria PNG
+    const gallery = document.getElementById("campaign-png-gallery");
+    gallery.innerHTML = campaign.sprites.map(sp => `
+        <div class="png-card" data-id="${sp.id}" title="Clicca per schierare o equipaggiare">
+            <img src="${sp.img}" alt="${sp.name}">
+            <div style="font-weight:bold; color:var(--gold-bright); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${sp.name}</div>
+            <div style="color:var(--text-muted); font-size:0.65rem;">${sp.category}</div>
+        </div>
+    `).join("");
+
+    gallery.querySelectorAll(".png-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const sp = campaign.sprites.find(s => s.id === card.dataset.id);
+            if (!sp) return;
+            if (sp.category === "pg" || sp.category === "creatura") {
+                const g = getCurrentMapGeometry();
+                campaign.tokensOnMap.push({
+                    id: "tok_" + Date.now(),
+                    name: sp.name,
+                    owner: sp.owner,
+                    x: g.spawn.x + (Math.random() * 40 - 20),
+                    y: g.spawn.y + (Math.random() * 40 - 20),
+                    img: sp.img,
+                    equippedImg: null,
+                    equippedName: null
+                });
+                saveMasterDatabase();
+                syncUIWithCampaign();
+            } else {
+                alert(`"${sp.name}" è disponibile nel menu a tendina sopra il personaggio durante il suo turno!`);
+            }
+        });
+    });
+
+    // Popola armi/rune/inventario nella tendina sopra al personaggio di turno
+    const weapSelect = document.getElementById("hud-weapon-select");
+    const equippable = campaign.sprites.filter(s => ["arma_unica", "runa", "inventario"].includes(s.category));
+    weapSelect.innerHTML = equippable.map(s => `<option value="${s.id}">${s.name} (${s.category})</option>`).join("");
+
+    // Lista Ordine Turni
+    const turnList = document.getElementById("turn-order-list");
+    const activeIdx = campaign.turnIndex % Math.max(1, campaign.tokensOnMap.length);
+    turnList.innerHTML = campaign.tokensOnMap.map((t, idx) => `
+        <div style="padding:6px 8px; margin-bottom:4px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;
+            background:${idx === activeIdx ? 'rgba(250, 204, 21, 0.18)' : '#141923'};
+            border:1px solid ${idx === activeIdx ? '#facc15' : 'transparent'};">
+            <span>${idx === activeIdx ? '🌟 ' : ''}${t.name} ${t.equippedName ? `<small style="color:#86efac;">[${t.equippedName}]</small>` : ''}</span>
+            ${isUserDM() ? `<button data-del="${t.id}" style="background:none;border:none;color:#f87171;cursor:pointer;">✖</button>` : ''}
+        </div>
+    `).join("");
+
+    turnList.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            campaign.tokensOnMap = campaign.tokensOnMap.filter(t => t.id !== btn.dataset.del);
+            saveMasterDatabase();
+            syncUIWithCampaign();
+        });
+    });
+
+    // Plot Twist Banner
+    const twistOverlay = document.getElementById("plot-twist-overlay");
+    if (campaign.plotTwistBanner) {
+        twistOverlay.style.display = "block";
+        document.getElementById("plot-twist-text").textContent = campaign.plotTwistBanner;
+        setTimeout(() => { twistOverlay.style.display = "none"; }, 6500);
+    }
+
+    checkPendingDecisionBanner();
+}
+
+// Event Listeners Controlli UI
+document.getElementById("toggle-menu-btn").addEventListener("click", () => {
+    document.getElementById("curtain-menu").classList.toggle("collapsed");
+});
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+});
+
+document.getElementById("identity-switcher").addEventListener("change", (e) => {
+    currentRoleTag = e.target.value;
+    updateRolePermissionsUI();
+    syncUIWithCampaign();
+});
+
+document.getElementById("act-map-select").addEventListener("change", async (e) => {
+    if (!isUserDM()) return;
+    campaign.currentMapId = e.target.value;
+    saveMasterDatabase();
+    await loadActiveMapTexture();
+    syncUIWithCampaign();
+});
+
+document.getElementById("token-scale-slider").addEventListener("input", (e) => {
+    if (!isUserDM()) return;
+    campaign.tokenScale = parseFloat(e.target.value);
+    document.getElementById("scale-val-label").textContent = campaign.tokenScale.toFixed(1) + "x";
+    saveMasterDatabase();
+});
+
+document.querySelectorAll(".tool-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeTool = btn.dataset.tool;
+        currentPolygonPoints = [];
+        document.getElementById("finish-poly-btn").style.display = "none";
+    });
+});
+
+document.getElementById("undo-geom-btn").addEventListener("click", () => {
+    const geom = getCurrentMapGeometry();
+    if (geom.greenCells.length > 0) geom.greenCells.pop();
+    else if (geom.redBlocks.length > 0) geom.redBlocks.pop();
+    else if (geom.redRoads.length > 0) geom.redRoads.pop();
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+document.getElementById("clear-geom-btn").addEventListener("click", () => {
+    const geom = getCurrentMapGeometry();
+    geom.redRoads = [];
+    geom.redBlocks = [];
+    geom.greenCells = [];
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+document.getElementById("spawn-all-party-btn").addEventListener("click", () => {
+    const geom = getCurrentMapGeometry();
+    campaign.tokensOnMap.forEach((t, i) => {
+        t.x = geom.spawn.x + (i % 3) * 55;
+        t.y = geom.spawn.y + Math.floor(i / 3) * 55;
+    });
+    saveMasterDatabase();
+});
+
+document.getElementById("next-turn-btn").addEventListener("click", () => {
+    campaign.turnIndex = (campaign.turnIndex + 1) % Math.max(1, campaign.tokensOnMap.length);
+    saveMasterDatabase();
+    syncUIWithCampaign();
+});
+
+document.getElementById("load-matricola-btn").addEventListener("click", () => {
+    const code = document.getElementById("switch-matricola-input").value.trim() || "RAG-001";
+    currentMatricola = code;
+    campaign = ensureCampaignExists(currentMatricola);
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("matricola", currentMatricola);
+    window.history.replaceState({}, "", newUrl);
+    loadActiveMapTexture();
+    syncUIWithCampaign();
+});
+
+document.getElementById("export-db-btn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(masterDB, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `database_ragnarok_${campaign.matricola}.json`;
+    a.click();
+});
+
+// Avvio iniziale
+populateMapSelect();
+updateRolePermissionsUI();
+loadActiveMapTexture();
+syncUIWithCampaign();
+requestAnimationFrame(renderLoop);
+</script>
+</body>
+</html>
