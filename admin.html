@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journey to Ragnarok - Consolle di Amministrazione Suprema</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&family=Metamorphous&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=11">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="data.js?v=11"></script>
+  <style>
+    body { background-color: #06090e; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+    .font-norse { font-family: 'MedievalSharp', cursive; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .admin-card { background: rgba(14, 19, 29, 0.95); border: 1px solid rgba(201, 160, 80, 0.3); }
+    .admin-tab-btn.active { background: #c9a050; color: #0b0e14; font-weight: 800; border-color: #f3c663; }
+    .admin-tab-btn { background: #131924; color: #94a3b8; border: 1px solid #1e293b; }
+  </style>
+</head>
+<body class="p-4 md:p-6">
+
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- TOP HEADER ADMIN -->
+    <header class="admin-card rounded-2xl p-5 flex flex-wrap justify-between items-center gap-4 border-2 border-amber-500/40 shadow-[0_0_25px_rgba(201,160,80,0.2)]">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-inner">
+          👑
+        </div>
+        <div>
+          <span class="text-[10px] font-cinzel font-bold text-amber-400 tracking-widest uppercase block">Sede dei Nove Mondi • Accesso Root</span>
+          <h1 class="font-cinzel font-black text-xl md:text-2xl text-white tracking-wide">Consolle Amministratore (Odhinn)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Badge Stato Manutenzione -->
+        <button type="button" id="admin-status-toggle" onclick="window.adminToggleMaintenance()" class="px-4 py-2 rounded-xl font-cinzel font-black text-xs transition duration-200 shadow-md">
+          Caricamento...
+        </button>
+
+        <a href="index.html" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-xs border border-slate-700 transition">
+          Torna al Gioco ➔
+        </a>
+      </div>
+    </header>
+
+    <!-- ADMIN NAV TABS -->
+    <nav class="flex flex-wrap gap-2">
+      <button type="button" onclick="window.switchAdminTab('cards')" id="tab-btn-cards" class="admin-tab-btn active px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
+        <span>🃏</span> Gestione Carte & Compendio
+      </button>
+      <button type="button" onclick="window.switchAdminTab('campaigns')" id="tab-btn-campaigns" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
+        <span>🏰</span> Gestione Campagne
+      </button>
+      <button type="button" onclick="window.switchAdminTab('players')" id="tab-btn-players" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
+        <span>👥</span> Gestione Player & Account
+      </button>
+      <button type="button" onclick="window.switchAdminTab('system')" id="tab-btn-system" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
+        <span>⚙️</span> Manutenzione & Cloud DB
+      </button>
+    </nav>
+
+    <!-- TAB 1: GESTIONE CARTE -->
+    <section id="admin-view-cards" class="admin-card rounded-2xl p-5 space-y-5">
+      <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-cinzel font-bold text-lg text-white">Database Globale delle Carte</h2>
+          <p class="text-xs text-slate-400">Visualizza, modifica o crea nuove carte (armi, incantesimi, armature, cimeli) disponibili per tutti i giocatori.</p>
+        </div>
+        <button type="button" onclick="window.openCreateCardModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs tracking-wider shadow-[0_0_15px_rgba(201,160,80,0.4)] flex items-center gap-2">
+          <span>✨</span> + CREA NUOVA CARTA
+        </button>
+      </div>
+
+      <!-- Filtri & Ricerca -->
+      <div class="flex flex-wrap gap-3 items-center text-xs">
+        <input id="card-search-input" type="text" placeholder="Cerca carta per nome o effetto..." oninput="window.renderAdminCardsList()" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+        <select id="card-type-filter" onchange="window.renderAdminCardsList()" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sky-300 font-bold">
+          <option value="all">Tutti i Tipi</option>
+          <option value="incantesimo">Incantesimi & Rune</option>
+          <option value="arma">Armi</option>
+          <option value="scudo">Scudi</option>
+          <option value="armatura">Armature</option>
+          <option value="oggetto">Oggetti & Reliquie</option>
+        </select>
+        <span id="card-count-badge" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-[11px] text-amber-300 font-bold"></span>
+      </div>
+
+      <!-- Griglia Carte Admin -->
+      <div id="admin-cards-grid" class="cards-flow-grid pt-2"></div>
+    </section>
+
+    <!-- TAB 2: GESTIONE CAMPAGNE -->
+    <section id="admin-view-campaigns" class="admin-card rounded-2xl p-5 space-y-5 hidden">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-cinzel font-bold text-lg text-white">Gestione Campagne & Sale di Gioco</h2>
+          <p class="text-xs text-slate-400">Elenco completo delle campagne create dai Dungeon Master.</p>
+        </div>
+      </div>
+      <div id="admin-campaigns-list" class="space-y-4"></div>
+    </section>
+
+    <!-- TAB 3: GESTIONE PLAYER & ACCOUNT -->
+    <section id="admin-view-players" class="admin-card rounded-2xl p-5 space-y-5 hidden">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-cinzel font-bold text-lg text-white">Gestione Player & Personaggi</h2>
+          <p class="text-xs text-slate-400">Ispezione e modifica degli account registrati e dei relativi eroi.</p>
+        </div>
+      </div>
+      <div id="admin-players-list" class="space-y-4"></div>
+    </section>
+
+    <!-- TAB 4: MANUTENZIONE & CLOUD DB -->
+    <section id="admin-view-system" class="admin-card rounded-2xl p-5 space-y-6 hidden">
+      <div class="border-b border-slate-800 pb-4">
+        <h2 class="font-cinzel font-bold text-lg text-white">Stato del Server & Database</h2>
+        <p class="text-xs text-slate-400">Controllo globale della manutenzione, backup, diagnostica e connessione cloud.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="font-cinzel font-bold text-amber-300">Blocco Manutenzione Sito</h3>
+          <p class="text-slate-400">Se attivo, i giocatori normali non possono entrare e visualizzano la schermata di blocco dei Nove Mondi.</p>
+          <button type="button" onclick="window.adminToggleMaintenance()" id="btn-maint-large" class="w-full py-3 rounded-xl font-cinzel font-black text-xs text-white">
+            ATTIVA / DISATTIVA
+          </button>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="font-cinzel font-bold text-sky-300">URL Firebase Realtime Database</h3>
+          <input id="admin-sys-cloud-url" type="url" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs">
+          <button type="button" onclick="window.adminSaveCloudUrl()" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-cinzel font-bold text-xs text-white">
+            SALVA URL FIREBASE
+          </button>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="font-cinzel font-bold text-emerald-300">Backup & Ripristino</h3>
+          <p class="text-slate-400">Esporta l'intero database (utenti, personaggi, campagne, carte) in formato JSON.</p>
+          <div class="flex gap-2">
+            <button type="button" onclick="window.adminExportDatabaseJSON()" class="flex-1 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 font-cinzel font-bold text-xs text-white">
+              ⬇️ SCARICA BACKUP JSON
+            </button>
+            <label class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 font-cinzel font-bold text-xs text-white text-center cursor-pointer">
+              ⬆️ RIPRISTINA JSON
+              <input type="file" accept=".json" onchange="window.adminImportDatabaseJSON(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 border border-red-900/50 rounded-xl p-4 space-y-3">
+          <h3 class="font-cinzel font-bold text-red-400">Svuota Intero Database (Wipe)</h3>
+          <p class="text-slate-400">Azione irreversibile. Cancella tutte le campagne, utenti e personaggi, mantenendo unicamente l'amministratore.</p>
+          <button type="button" onclick="window.adminWipeDatabase()" class="w-full py-2.5 rounded-xl bg-red-700 hover:bg-red-600 font-cinzel font-bold text-xs text-white">
+            ⚠️ SVUOTA DATABASE
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODALE CREA / MODIFICA CARTA -->
+  <div id="admin-card-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/80 backdrop-blur-md">
+    <div class="admin-card max-w-xl w-full rounded-2xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border-2 border-amber-500/50 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 id="card-modal-title" class="font-cinzel font-bold text-base text-amber-300">Crea Nuova Carta nel Database</h3>
+        <button type="button" onclick="window.closeCardModal()" class="text-slate-400 hover:text-white font-bold text-sm">Chiudi ✕</button>
+      </div>
+
+      <form id="admin-card-form" onsubmit="window.handleSaveCardSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="acm-id">
+
+        <div>
+          <label class="text-slate-300 font-bold block mb-1">Nome Carta *</label>
+          <input id="acm-name" type="text" required placeholder="Es. Mjolnir, Runa Othala, Palla di Fuoco..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Tipo Carta *</label>
+            <select id="acm-type" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              <option value="incantesimo">Incantesimo / Runa</option>
+              <option value="arma">Arma</option>
+              <option value="scudo">Scudo</option>
+              <option value="armatura">Armatura</option>
+              <option value="oggetto">Oggetto / Reliquia</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Rarità *</label>
+            <select id="acm-rarity" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-amber-300 font-bold">
+              <option value="Comune">Comune</option>
+              <option value="Non Comune">Non Comune</option>
+              <option value="Raro">Raro</option>
+              <option value="Molto Raro">Molto Raro</option>
+              <option value="Leggendario">Leggendario</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Livello Incantesimo (0..9)</label>
+            <input id="acm-level" type="number" min="0" max="9" placeholder="Es. 1 (o 0 per trucchetto)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+          </div>
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Danno / Effetto</label>
+            <input id="acm-dmg" type="text" placeholder="Es. 8d6 Fuoco, 1d8+FOR" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-red-300 font-bold font-mono">
+          </div>
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Peso / Gittata</label>
+            <input id="acm-range" type="text" placeholder="Es. 36 metri o 2 kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-slate-300 font-bold block mb-1">Immagine della Carta</label>
+          <div class="flex gap-2 items-center">
+            <select id="acm-img-preset" onchange="window.onPresetImageChange(this.value)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl p-2 text-sky-200">
+              <option value="">Seleziona Immagine Ufficiale...</option>
+              <option value="assets/items/spada_ulfberht.jpg">Spada Ulfberht</option>
+              <option value="assets/items/artiglio_montagna.jpg">Artiglio della Montagna (Maglio)</option>
+              <option value="assets/items/scudo_ombra_fronde.jpg">Scudo Ombra delle Fronde</option>
+              <option value="assets/items/ramo_runico.jpg">Ramo Runico</option>
+              <option value="assets/items/dente_strega.jpg">Dente della Strega (Pugnale)</option>
+              <option value="assets/items/corno_fragoroso.jpg">Corno Fragoroso</option>
+              <option value="assets/items/mjolnir.jpg">Mjollnir</option>
+              <option value="assets/items/gungnir.jpg">Gungnir</option>
+              <option value="assets/items/svalinn.jpg">Svalinn</option>
+              <option value="assets/items/tyrfing.jpg">Tyrfing</option>
+              <option value="assets/items/gramr.jpg">Gramr</option>
+              <option value="assets/items/megingjord.jpg">Megingjord</option>
+              <option value="assets/items/draupnir.jpg">Draupnir</option>
+              <option value="assets/items/brisingamen.jpg">Brisingamen</option>
+              <option value="assets/items/Bear-Warriors-Claw-of-the-Mountain.png">Artiglio dell'Orso (PNG D:\JTR)</option>
+              <option value="assets/items/Gjallarhorn-Clangorous-Horn.png">Corno Gjallarhorn (PNG D:\JTR)</option>
+              <option value="assets/items/Icy_Crows-Runic-Branch.png">Ramo dei Corvi (PNG D:\JTR)</option>
+              <option value="assets/items/Jotunn-Sons-Witch's-Tooth.png">Dente Jotunn (PNG D:\JTR)</option>
+              <option value="assets/items/Odyn's-Eye-Ulfberht-Sword.png">Spada Odino (PNG D:\JTR)</option>
+              <option value="assets/items/Wolves-of-the-Shadow-Shadow-of-Leafage.png">Scudo dei Lupi (PNG D:\JTR)</option>
+            </select>
+            <img id="acm-img-preview" src="assets/items/spada_ulfberht.jpg" class="w-10 h-10 rounded-lg object-cover border border-amber-500/40">
+          </div>
+          <input id="acm-img-custom" type="text" placeholder="Oppure inserisci URL o percorso relativo..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white mt-1.5 text-[11px]">
+        </div>
+
+        <div>
+          <label class="text-slate-300 font-bold block mb-1">Descrizione Completa & Regole *</label>
+          <textarea id="acm-desc" rows="4" required placeholder="Inserisci il testo integrale delle regole e degli effetti..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white leading-relaxed"></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="window.closeCardModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Annulla</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-cinzel font-bold shadow-md">SALVA CARTA NEL DATABASE</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Inizializzazione Logica Admin
+    let dbState = { maintenance: false, users: {}, campaigns: {}, customCards: [] };
+    let activeTab = 'cards';
+
+    function initAdmin() {
+      const raw = localStorage.getItem('yggdrasill_v3_db');
+      if (raw) {
+        try { dbState = JSON.parse(raw); } catch (e) { console.error(e); }
+      }
+      if (!dbState.customCards) dbState.customCards = [];
+      if (!dbState.users) dbState.users = {};
+      if (!dbState.campaigns) dbState.campaigns = {};
+
+      const cloudUrl = localStorage.getItem('yggdrasill_fb_url') || window.FIREBASE_DATABASE_URL;
+      document.getElementById('admin-sys-cloud-url').value = cloudUrl;
+
+      // Inizializzazione Firebase
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({ databaseURL: cloudUrl });
+        }
+        const ref = firebase.database().ref('ragnarok_v3');
+        ref.on('value', snap => {
+          if (snap && snap.val()) {
+            dbState = snap.val();
+            if (!dbState.customCards) dbState.customCards = [];
+            if (!dbState.users) dbState.users = {};
+            if (!dbState.campaigns) dbState.campaigns = {};
+            updateUI();
+          }
+        });
+      } catch (e) {}
+
+      updateUI();
+    }
+
+    function saveDB() {
+      localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState));
+      try {
+        if (firebase.apps.length) {
+          firebase.database().ref('ragnarok_v3').set(dbState);
+        }
+      } catch (e) {}
+      updateUI();
+    }
+
+    function updateUI() {
+      // Toggle Manutenzione
+      const isMaint = dbState.maintenance === true;
+      const stBtn = document.getElementById('admin-status-toggle');
+      if (stBtn) {
+        stBtn.textContent = isMaint ? "🔴 SITO BLOCCATO (MANUTENZIONE)" : "🟢 SITO ATTIVO ONLINE";
+        stBtn.className = isMaint 
+          ? "px-4 py-2 rounded-xl font-cinzel font-black text-xs bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer"
+          : "px-4 py-2 rounded-xl font-cinzel font-black text-xs bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] cursor-pointer";
+      }
+
+      const lBtn = document.getElementById('btn-maint-large');
+      if (lBtn) {
+        lBtn.textContent = isMaint ? "SBLOCCA SITO PER I GIOCATORI" : "BLOCCA SITO IN MANUTENZIONE";
+        lBtn.className = isMaint ? "w-full py-3 rounded-xl font-cinzel font-black text-xs bg-emerald-600 text-white" : "w-full py-3 rounded-xl font-cinzel font-black text-xs bg-red-600 text-white";
+      }
+
+      renderAdminCardsList();
+      renderAdminCampaignsList();
+      renderAdminPlayersList();
+    }
+
+    window.adminToggleMaintenance = function() {
+      dbState.maintenance = !dbState.maintenance;
+      saveDB();
+    };
+
+    window.switchAdminTab = function(tab) {
+      activeTab = tab;
+      ['cards', 'campaigns', 'players', 'system'].forEach(t => {
+        document.getElementById('admin-view-' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('tab-btn-' + t).className = t === tab ? 'admin-tab-btn active px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2' : 'admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2';
+      });
+    };
+
+    // --- CARTE ADMIN ---
+    window.renderAdminCardsList = function() {
+      const q = (document.getElementById('card-search-input')?.value || '').toLowerCase().trim();
+      const filterType = document.getElementById('card-type-filter')?.value || 'all';
+
+      const canonical = window.GLOBAL_CARDS_DATABASE || [];
+      const custom = dbState.customCards || [];
+      const all = [...custom.map(c => ({ ...c, isCustom: true })), ...canonical.map(c => ({ ...c, isCustom: false }))];
+
+      const filtered = all.filter(c => {
+        if (filterType !== 'all' && c.type !== filterType) return false;
+        if (q && !c.name.toLowerCase().includes(q) && !(c.desc || '').toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      document.getElementById('card-count-badge').textContent = `${filtered.length} di ${all.length} Carte (${custom.length} Custom)`;
+
+      const container = document.getElementById('admin-cards-grid');
+      if (!container) return;
+
+      container.innerHTML = filtered.length === 0
+        ? `<div class="p-8 text-center text-slate-400 font-cinzel col-span-full">Nessuna carta trovata con i filtri correnti.</div>`
+        : filtered.map(c => `
+          <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')}">
+            <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
+              <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate">${c.name}</span>
+              ${c.isCustom ? `<span class="text-[8px] px-1 rounded bg-amber-500 text-black font-extrabold">CUSTOM</span>` : `<span class="text-[8px] text-slate-400 font-bold">CANONICA</span>`}
+            </div>
+
+            <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
+              <span>${c.type}</span>
+              <span class="text-amber-300">${c.rarity || 'Comune'}</span>
+            </div>
+
+            <div class="ygo-art">
+              <img src="${c.img || window.CARD_ARTWORKS[c.type] || window.CARD_ARTWORKS.arma}">
+            </div>
+
+            <div class="ygo-lore">
+              <p class="text-[10px] leading-snug line-clamp-3 overflow-hidden">${c.desc || ''}</p>
+              <div class="border-t border-amber-900/30 pt-1 flex justify-between font-mono text-[10px] font-bold">
+                <span class="text-red-900 font-extrabold truncate">EFF: ${c.damage || '—'}</span>
+                <span>${c.weight !== undefined ? c.weight + ' kg' : (c.range || '18m')}</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button type="button" onclick="window.editAdminCard('${c.id}')" class="py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px]">MODIFICA</button>
+              ${c.isCustom ? `
+                <button type="button" onclick="window.deleteAdminCard('${c.id}')" class="py-1 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px]">ELIMINA</button>
+              ` : `
+                <button type="button" onclick="window.cloneAdminCard('${c.id}')" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px]">DUPLICA</button>
+              `}
+            </div>
+          </div>
+        `).join('');
+    };
+
+    window.openCreateCardModal = function() {
+      document.getElementById('card-modal-title').textContent = "Crea Nuova Carta nel Database";
+      document.getElementById('admin-card-form').reset();
+      document.getElementById('acm-id').value = "";
+      document.getElementById('acm-img-preview').src = "assets/items/spada_ulfberht.jpg";
+      document.getElementById('admin-card-modal').classList.remove('hidden');
+      document.getElementById('admin-card-modal').classList.add('flex');
+    };
+
+    window.closeCardModal = function() {
+      document.getElementById('admin-card-modal').classList.add('hidden');
+      document.getElementById('admin-card-modal').classList.remove('flex');
+    };
+
+    window.onPresetImageChange = function(val) {
+      if (val) {
+        document.getElementById('acm-img-custom').value = val;
+        document.getElementById('acm-img-preview').src = val;
+      }
+    };
+
+    window.editAdminCard = function(id) {
+      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
+      const card = all.find(c => c.id === id);
+      if (!card) return;
+
+      document.getElementById('card-modal-title').textContent = `Modifica: ${card.name}`;
+      document.getElementById('acm-id').value = card.id;
+      document.getElementById('acm-name').value = card.name || "";
+      document.getElementById('acm-type').value = card.type || "incantesimo";
+      document.getElementById('acm-rarity').value = card.rarity || "Comune";
+      document.getElementById('acm-level').value = card.level !== undefined ? card.level : "";
+      document.getElementById('acm-dmg').value = card.damage || "";
+      document.getElementById('acm-range').value = card.range || (card.weight ? card.weight + " kg" : "");
+      document.getElementById('acm-img-custom').value = card.img || "";
+      document.getElementById('acm-img-preview').src = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
+      document.getElementById('acm-desc').value = card.desc || "";
+
+      document.getElementById('admin-card-modal').classList.remove('hidden');
+      document.getElementById('admin-card-modal').classList.add('flex');
+    };
+
+    window.cloneAdminCard = function(id) {
+      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
+      const card = all.find(c => c.id === id);
+      if (!card) return;
+      window.editAdminCard(id);
+      document.getElementById('acm-id').value = "";
+      document.getElementById('acm-name').value = card.name + " (Copia)";
+      document.getElementById('card-modal-title').textContent = "Crea Variante di: " + card.name;
+    };
+
+    window.deleteAdminCard = function(id) {
+      if (!confirm("Rimuovere questa carta dal database?")) return;
+      dbState.customCards = (dbState.customCards || []).filter(c => c.id !== id);
+      saveDB();
+    };
+
+    window.handleSaveCardSubmit = function(e) {
+      e.preventDefault();
+      const existingId = document.getElementById('acm-id').value;
+      const type = document.getElementById('acm-type').value;
+      const imgPath = document.getElementById('acm-img-custom').value.trim() || document.getElementById('acm-img-preset').value || window.CARD_ARTWORKS[type] || window.CARD_ARTWORKS.arma;
+      const lvlVal = document.getElementById('acm-level').value;
+
+      const cardObj = {
+        id: existingId || ('custom_card_' + Date.now()),
+        name: document.getElementById('acm-name').value.trim(),
+        type: type,
+        rarity: document.getElementById('acm-rarity').value,
+        level: lvlVal !== "" ? parseInt(lvlVal) : (type === 'incantesimo' ? 1 : undefined),
+        damage: document.getElementById('acm-dmg').value.trim(),
+        range: document.getElementById('acm-range').value.trim(),
+        img: imgPath,
+        desc: document.getElementById('acm-desc').value.trim()
+      };
+
+      if (!dbState.customCards) dbState.customCards = [];
+      const idx = dbState.customCards.findIndex(c => c.id === cardObj.id);
+      if (idx !== -1) {
+        dbState.customCards[idx] = cardObj;
+      } else {
+        dbState.customCards.unshift(cardObj);
+      }
+
+      saveDB();
+      window.closeCardModal();
+    };
+
+    // --- GESTIONE CAMPAGNE ---
+    window.renderAdminCampaignsList = function() {
+      const container = document.getElementById('admin-campaigns-list');
+      if (!container) return;
+      const camps = Object.values(dbState.campaigns || {});
+
+      container.innerHTML = camps.length === 0
+        ? `<div class="p-8 text-center text-slate-400 font-cinzel">Nessuna campagna creata.</div>`
+        : camps.map(c => {
+          const members = Object.entries(c.members || {});
+          const chest = c.chest || [];
+          return `
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+              <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2">
+                <div>
+                  <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Codice Stanza: ${c.code}</span>
+                  <h3 class="font-cinzel font-bold text-base text-white">${c.title}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.adminClearCampaignChest('${c.code}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-[10px]">Svuota Cassa (${chest.length})</button>
+                  <button type="button" onclick="window.adminDeleteCampaign('${c.code}')" class="px-3 py-1.5 rounded-lg bg-red-700 hover:bg-red-600 text-white font-bold text-[10px]">Elimina Campagna</button>
+                </div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 block mb-1 font-bold uppercase">Membri del Party (${members.length}):</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  ${members.length === 0 ? `<div class="text-[11px] text-slate-500">Nessun eroe iscritto.</div>` : members.map(([ukey, hero]) => `
+                    <div class="p-2 rounded bg-slate-900 border border-slate-800 flex items-center gap-2">
+                      <img src="${hero.avatar || 'assets/heroes/Brabaro.png'}" class="w-8 h-8 rounded object-cover">
+                      <div class="min-w-0">
+                        <strong class="text-xs text-white block truncate">${hero.name}</strong>
+                        <span class="text-[10px] text-slate-400">${hero.className} Liv.${hero.level||1} • ${hero.hp}/${hero.maxHp} PF</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+    };
+
+    window.adminClearCampaignChest = function(code) {
+      if (!confirm("Svuotare tutti gli oggetti nella cassa della campagna?")) return;
+      if (dbState.campaigns[code]) {
+        dbState.campaigns[code].chest = [];
+        saveDB();
+      }
+    };
+
+    window.adminDeleteCampaign = function(code) {
+      if (!confirm(`Eliminare definitivamente la campagna ${code}?`)) return;
+      delete dbState.campaigns[code];
+      saveDB();
+    };
+
+    // --- GESTIONE PLAYERS ---
+    window.renderAdminPlayersList = function() {
+      const container = document.getElementById('admin-players-list');
+      if (!container) return;
+      const users = Object.entries(dbState.users || {});
+
+      container.innerHTML = users.length === 0
+        ? `<div class="p-8 text-center text-slate-400 font-cinzel">Nessun utente registrato.</div>`
+        : users.map(([uKey, acc]) => {
+          const chars = acc.characters || [];
+          return `
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+              <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2">
+                <div>
+                  <span class="text-[10px] text-sky-400 font-bold uppercase">Account: ${uKey}</span>
+                  <h3 class="font-cinzel font-bold text-base text-white">${acc.username || uKey}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.adminResetUserPassword('${uKey}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[10px]">Cambia Password</button>
+                  ${uKey !== 'admin' ? `<button type="button" onclick="window.adminDeleteUser('${uKey}')" class="px-3 py-1.5 rounded-lg bg-red-700 hover:bg-red-600 text-white font-bold text-[10px]">Elimina Account</button>` : ''}
+                </div>
+              </div>
+              <div class="space-y-2">
+                <span class="text-[10px] text-slate-400 font-bold uppercase">Personaggi (${chars.length}):</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  ${chars.length === 0 ? `<div class="text-[11px] text-slate-500">Nessun personaggio creato.</div>` : chars.map(ch => `
+                    <div class="p-2.5 rounded bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <img src="${ch.avatar || 'assets/heroes/Brabaro.png'}" class="w-10 h-10 rounded object-cover flex-shrink-0">
+                        <div class="min-w-0">
+                          <strong class="text-xs text-white block truncate">${ch.name}</strong>
+                          <span class="text-[10px] text-slate-400 block">${ch.className} Liv.${ch.level||1}</span>
+                          <span class="text-[10px] text-emerald-400 font-bold">${ch.hp}/${ch.maxHp} PF</span>
+                        </div>
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <button type="button" onclick="window.adminAdjustPlayerHp('${uKey}', '${ch.id}')" class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-bold text-[9px]">PF/Liv</button>
+                        <button type="button" onclick="window.adminDeleteCharacter('${uKey}', '${ch.id}')" class="px-2 py-0.5 rounded bg-red-900/60 text-red-300 font-bold text-[9px]">Elimina</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+    };
+
+    window.adminAdjustPlayerHp = function(uKey, charId) {
+      const acc = dbState.users[uKey];
+      if (!acc || !acc.characters) return;
+      const ch = acc.characters.find(c => c.id === charId);
+      if (!ch) return;
+      const newLvl = prompt(`Imposta Livello per ${ch.name}:`, ch.level || 1);
+      if (newLvl !== null) ch.level = Math.max(1, parseInt(newLvl) || 1);
+      const newHp = prompt(`Imposta Punti Ferita Massimi per ${ch.name}:`, ch.maxHp || 20);
+      if (newHp !== null) {
+        ch.maxHp = Math.max(1, parseInt(newHp) || 20);
+        ch.hp = ch.maxHp;
+      }
+      saveDB();
+    };
+
+    window.adminDeleteCharacter = function(uKey, charId) {
+      if (!confirm("Eliminare definitivamente questo personaggio?")) return;
+      const acc = dbState.users[uKey];
+      if (acc && acc.characters) {
+        acc.characters = acc.characters.filter(c => c.id !== charId);
+        saveDB();
+      }
+    };
+
+    window.adminResetUserPassword = function(uKey) {
+      const acc = dbState.users[uKey];
+      if (!acc) return;
+      const newPass = prompt(`Nuova password per ${acc.username || uKey}:`);
+      if (newPass) {
+        acc.password = newPass;
+        saveDB();
+        alert("Password aggiornata con successo!");
+      }
+    };
+
+    window.adminDeleteUser = function(uKey) {
+      if (uKey === 'admin') return alert("Impossibile eliminare l'amministratore supremo.");
+      if (!confirm(`Eliminare definitivamente l'account ${uKey} e tutti i suoi personaggi?`)) return;
+      delete dbState.users[uKey];
+      saveDB();
+    };
+
+    // --- SYSTEM & CLOUD ---
+    window.adminSaveCloudUrl = function() {
+      const u = document.getElementById('admin-sys-cloud-url').value.trim();
+      if (!u.startsWith('https://')) return alert("URL non valido.");
+      localStorage.setItem('yggdrasill_fb_url', u);
+      alert("URL salvato. Ricarica la pagina.");
+      location.reload();
+    };
+
+    window.adminExportDatabaseJSON = function() {
+      const blob = new Blob([JSON.stringify(dbState, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `ragnarok_database_backup_${Date.now()}.json`;
+      a.click();
+    };
+
+    window.adminImportDatabaseJSON = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (confirm("Sovrascrivere il database attuale con questo backup?")) {
+            dbState = parsed;
+            saveDB();
+            alert("Database ripristinato con successo!");
+          }
+        } catch (err) {
+          alert("File JSON non valido.");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.adminWipeDatabase = function() {
+      if (!confirm("ATTENZIONE: Svuotare completamente il database? Questa azione è irreversibile!")) return;
+      const adminAcc = dbState.users['admin'];
+      dbState = { maintenance: false, users: {}, campaigns: {}, customCards: [] };
+      if (adminAcc) dbState.users['admin'] = adminAcc;
+      saveDB();
+      alert("Database svuotato.");
+    };
+
+    initAdmin();
+  </script>
+</body>
+</html>

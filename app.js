@@ -418,24 +418,7 @@ window.enterAfterLogin = function() {
   document.getElementById('btn-admin-console').classList.toggle('hidden', !window.isCurrentUserAdmin());
 
   if (window.isCurrentUserAdmin()) {
-    if (!acc.characters || acc.characters.length === 0) {
-      acc.characters = [{
-        id: 'admin_char', owner: window.currentUser, name: 'Odhinn (Admin)', race: 'Aesir', clanName: 'Occhio di Odhinn',
-        classId: 'maestro_rune', className: 'Maestro delle Rune', subclass: 'Ætt di Tyr',
-        level: 20, hitDie: '1d8', background: 'Gothi', alignment: 'Legale Onorevole', virtue: 'Onore (Honour)',
-        avatar: window.PRESET_AVATARS[1], hp: 100, maxHp: 100, ac: 20, atkBonus: 6, speed: '9m',
-        inspiration: true, condition: 'Normale',
-        stats: { FOR: 20, DES: 20, COS: 20, INT: 20, SAG: 20, CAR: 20 },
-        saves: { FOR: true, DES: true, COS: true, INT: true, SAG: true, CAR: true },
-        proficientSkills: ['asatru', 'percezione', 'arcano'],
-        defenses: 'Immunità Divina', traits: ['Controllo Totale dei Nove Mondi'], proficiencies: 'Tutte le Rune Futhark', notes: '', cards: []
-      }];
-      window.saveDB();
-    }
-    window.activeCharId = acc.characters[0].id;
-    document.getElementById('screen-builder').classList.add('hidden');
-    document.getElementById('screen-main').classList.remove('hidden');
-    window.switchStandardNav('dm'); window.renderAllViews();
+    window.location.href = "admin.html";
     return;
   }
 
@@ -509,11 +492,16 @@ window.renderBuilderClans = function() {
     return `
       <div onclick="window.selectedBuilderClanId='${clan.id}'; window.renderBuilderClans(); window.recalcBuilderStats();"
            class="cursor-pointer rounded-xl p-3 border transition ${active ? 'bg-sky-950/70 border-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.35)]' : 'bg-slate-950 border-slate-800 opacity-75'}">
-        <div class="flex justify-between items-center">
-          <span class="font-cinzel font-bold text-xs text-white">${clan.name}</span>
-          <span class="text-[10px] text-amber-300 font-bold">${clan.bonusText.split(',')[0]}</span>
+        <div class="flex items-center gap-3">
+          <img src="${clan.crest}" class="w-10 h-10 object-contain drop-shadow flex-shrink-0" alt="${clan.name}">
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-center">
+              <span class="font-cinzel font-bold text-xs text-white">${clan.name}</span>
+              <span class="text-[10px] text-amber-300 font-bold">${clan.bonusText.split(',')[0]}</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-0.5 leading-snug">${clan.trait}</p>
+          </div>
         </div>
-        <p class="text-[10px] text-slate-400 mt-1 leading-snug">${clan.trait}</p>
       </div>
     `;
   }).join('');
@@ -678,7 +666,23 @@ window.saveFullCharacterSheet = function(e) {
     traits: compiledTraits,
     proficiencies: `Armi e armature di ${clsObj.name.split(' (')[0]}, Lingua Norrena e Runico Futhark`,
     notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota.',
-    cards: startingGear.items || [],
+    cards: (() => {
+      const allC = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+      const initCards = [...(startingGear.items || [])];
+      if (clanObj.heirloom) {
+        initCards.unshift({ ...clanObj.heirloom, id: 'heirloom_' + Date.now() });
+      }
+      if (startingSpells) {
+        const spellNames = [...(startingSpells.spells || []), ...(startingSpells.cantrips || []), ...(startingSpells.runes || [])];
+        spellNames.forEach((sName, sIdx) => {
+          const found = allC.find(c => c.name.toLowerCase().includes(sName.toLowerCase()) || sName.toLowerCase().includes(c.name.toLowerCase()));
+          if (found) {
+            initCards.push({ ...found, id: 'spell_init_' + Date.now() + '_' + sIdx });
+          }
+        });
+      }
+      return initCards;
+    })(),
     spells: startingSpells ? startingSpells.spells : [],
     cantrips: startingSpells ? startingSpells.cantrips : [],
     runes: startingSpells ? startingSpells.runes : []
@@ -705,7 +709,6 @@ window.openLevelUpModal = function() {
   const ch = window.getMyCharacter();
   if (!ch) return;
 
-  // Se ForgeEngine è disponibile, lancia la forgiatura runica interattiva
   if (window.ForgeEngine && typeof window.ForgeEngine.openForgeModal === 'function') {
     window.ForgeEngine.openForgeModal(ch, (updatedChar) => {
       delete updatedChar.pendingLevelUp;
@@ -713,61 +716,12 @@ window.openLevelUpModal = function() {
       window.saveDB();
       window.renderDdbCharacterSheet();
     });
-    return;
   }
-
-  currentLevelUpCharId = ch.id;
-  const nextLvl = (ch.level || 1) + 1;
-
-  const clsObj = window.JTR_CLASSES.find(c => c.id === ch.classId) ||
-                 window.JTR_CLASSES.find(c => ch.className && c.name.toLowerCase().includes(ch.className.toLowerCase())) ||
-                 window.JTR_CLASSES[0];
-
-  document.getElementById('lvlup-title').textContent = `${ch.name} ➔ Livello ${nextLvl}`;
-
-  const newProf = nextLvl >= 17 ? 6 : nextLvl >= 13 ? 5 : nextLvl >= 9 ? 4 : nextLvl >= 5 ? 3 : 2;
-  const cosMod = Math.floor(((ch.stats?.COS || 10) - 10) / 2);
-  const dieNum = parseInt((ch.hitDie || clsObj.hitDie || '1d8').replace('1d','')) || 8;
-  const avgGain = Math.max(1, Math.floor(dieNum / 2) + 1 + cosMod);
-  computedHpGain = avgGain;
-
-  const newFeatures = clsObj.levelFeatures[nextLvl] || [`Privilegio di Classe di Livello ${nextLvl}`];
-
-  document.getElementById('lvlup-auto-summary').innerHTML = `
-    <div class="font-bold text-amber-300">Privilegi di Journey to Ragnarok sbloccati al Livello ${nextLvl}:</div>
-    ${newFeatures.map(f => `<div class="text-sky-300 font-semibold">• ${f}</div>`).join('')}
-    <div class="pt-1 text-[11px] text-slate-400">Bonus Competenza: <strong>+${newProf}</strong> | Mod. Costituzione: <strong>${cosMod >= 0 ? '+'+cosMod : cosMod}</strong></div>
-  `;
-
-  document.getElementById('lvlup-hp-desc').textContent = `Dado Vita (${clsObj.hitDie}): Media Fissa consigliata +${avgGain} PF max.`;
-  document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
-  document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
-  document.getElementById('lvlup-hp-result').textContent = `Incremento PF: +${avgGain}`;
-
-  // Se a questo livello si sblocca o si potenzia l'Archetipo / Ætt Runico, chiedi conferma al giocatore
-  const choiceBox = document.getElementById('lvlup-class-choice-box');
-  if (nextLvl === clsObj.archetypeLevel) {
-    choiceBox.classList.remove('hidden');
-    document.getElementById('lvlup-choice-label').textContent = `Scegli il tuo ${clsObj.archetypeTitle}:`;
-    document.getElementById('lvlup-choice-select').innerHTML = clsObj.archetypes.map(a => `<option value="${a}" ${ch.subclass === a ? 'selected' : ''}>${a}</option>`).join('');
-  } else {
-    choiceBox.classList.add('hidden');
-  }
-
-  // Mostra Aumento Caratteristiche (ASI) ai livelli previsti
-  const isAsi = (nextLvl === 4 || nextLvl === 8 || nextLvl === 12 || nextLvl === 16 || nextLvl === 19 || (clsObj.id === 'guerriero' && (nextLvl === 6 || nextLvl === 14)));
-  document.getElementById('lvlup-asi-box').classList.toggle('hidden', !isAsi);
-  document.getElementById('lvlup-stat-1').value = "";
-  document.getElementById('lvlup-stat-2').value = "";
-  document.getElementById('lvlup-new-trait').value = "";
-
-  const m = document.getElementById('levelup-modal');
-  m.classList.remove('hidden'); m.classList.add('flex');
 };
 
 window.closeLevelUpModal = function() {
-  const m = document.getElementById('levelup-modal');
-  m.classList.add('hidden'); m.classList.remove('flex');
+  const m = document.getElementById('forge-level-modal');
+  if (m) m.classList.remove('active');
 };
 
 window.chooseLevelUpHpMethod = function(method) {
@@ -951,35 +905,93 @@ window.propagateCharacterToCampaigns = function(ch) {
 window.buildYgoCardHTML = function(card, interactive = true) {
   const sec = window.classifyCardToDdbSection(card);
   const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA / RUNA' : 'INVENTARIO';
+  const rarityClass = (card.rarity || 'comune').toLowerCase().replace(/\s+/g, '-');
+  const typeClass = (card.type || 'arma').toLowerCase();
 
   return `
-    <div class="ygo-card type-${card.type} rarity-${card.rarity} snap-center">
-      <div class="bg-black/60 border border-white/20 px-2 py-1 rounded flex justify-between items-center">
-        <span class="font-cinzel font-bold text-[11px] text-amber-100 truncate">${card.name}</span>
-        <span class="text-[8px] uppercase font-bold text-sky-300">${badgeLabel}</span>
+    <div class="ygo-card type-${typeClass} rarity-${rarityClass} cursor-pointer group" onclick="window.openCardDetailModal('${card.id}')" title="Clicca per aprire e ingrandire la carta">
+      <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
+        <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate group-hover:text-amber-400 transition">${card.name}</span>
+        <span class="text-[8px] uppercase font-bold text-sky-300 px-1 rounded bg-sky-950/60 border border-sky-500/30">${badgeLabel}</span>
       </div>
-      <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-200">
-        <span>${card.type}</span>
-        <span class="text-amber-300">${card.rarity}</span>
+      <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
+        <span>${card.type} ${card.level !== undefined ? (card.level === 0 ? '• Trucchetto' : `• ${card.level}° Cerchio`) : ''}</span>
+        <span class="text-amber-300">${card.rarity || 'Comune'}</span>
       </div>
-      <div class="ygo-art">
-        <img src="${card.img || window.CARD_ARTWORKS.arma}" alt="${card.name}">
+      <div class="ygo-art relative overflow-hidden rounded border border-amber-500/40">
+        <img src="${card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma}" alt="${card.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        <div class="absolute bottom-1 right-1 bg-black/75 px-1.5 py-0.5 rounded text-[8px] text-amber-300 font-cinzel font-bold opacity-80 group-hover:opacity-100 transition">🔍 APRI</div>
       </div>
-      <div class="ygo-lore">
-        <p class="text-[10px] leading-snug overflow-y-auto">${card.desc}</p>
-        <div class="border-t border-amber-900/40 pt-1 flex justify-between font-mono text-[10px] font-bold">
-          <span>EFF: ${card.damage}</span>
-          <span>${card.weight || 1} kg</span>
+      <div class="ygo-lore flex flex-col justify-between p-2 rounded bg-gradient-to-b from-amber-100 to-amber-200 text-slate-900 border border-amber-900/40">
+        <p class="text-[10px] leading-snug line-clamp-3 overflow-hidden font-medium">${card.desc || ''}</p>
+        <div class="border-t border-amber-900/30 pt-1 flex justify-between font-mono text-[10px] font-bold">
+          <span class="text-red-900 font-extrabold truncate mr-1">EFF: ${card.damage || '—'}</span>
+          <span class="text-slate-800 whitespace-nowrap">${card.weight !== undefined ? card.weight + ' kg' : (card.range || '18m')}</span>
         </div>
       </div>
       ${interactive ? `
-        <div class="grid grid-cols-2 gap-1.5 pt-1">
-          <button type="button" onclick="window.deployCardInCombat('${card.id}')" class="py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 text-white font-cinzel font-bold text-[10px]">USA</button>
-          <button type="button" onclick="window.openTradeCardModal('${card.id}')" class="py-1.5 rounded bg-slate-800 border border-slate-600 text-amber-300 font-cinzel font-bold text-[10px]">SCAMBIA</button>
+        <div class="grid grid-cols-2 gap-1.5 pt-1" onclick="event.stopPropagation()">
+          <button type="button" onclick="event.stopPropagation(); window.deployCardInCombat('${card.id}')" class="py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-cinzel font-bold text-[10px] shadow">USA</button>
+          <button type="button" onclick="event.stopPropagation(); window.openTradeCardModal('${card.id}')" class="py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 font-cinzel font-bold text-[10px]">SCAMBIA</button>
         </div>
       ` : ''}
     </div>
   `;
+};
+
+window.openCardDetailModal = function(cardId) {
+  let card = null;
+  const ch = window.getMyCharacter();
+  if (ch && ch.cards) card = ch.cards.find(c => c.id === cardId);
+  if (!card) {
+    const all = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+    card = all.find(c => c.id === cardId || c.name === cardId);
+  }
+  if (!card) return;
+
+  const modal = document.getElementById('card-detail-modal');
+  if (!modal) return;
+
+  const sec = window.classifyCardToDdbSection(card);
+  const badgeLabel = sec === 'actions' ? 'AZIONE & ATTACCO' : sec === 'spells' ? 'MAGIA & RUNA' : 'INVENTARIO';
+
+  document.getElementById('cdm-name').textContent = card.name;
+  document.getElementById('cdm-badge').textContent = badgeLabel;
+  document.getElementById('cdm-rarity').textContent = (card.rarity || 'Comune').toUpperCase();
+  document.getElementById('cdm-type').textContent = `${(card.type || 'oggetto').toUpperCase()} ${card.level !== undefined ? (card.level === 0 ? '• TRUCCHETTO' : `• ${card.level}° CERCHIO`) : ''}`;
+  document.getElementById('cdm-img').src = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
+  document.getElementById('cdm-dmg').textContent = card.damage || '—';
+  document.getElementById('cdm-range').textContent = card.range || (card.weight ? card.weight + ' kg' : 'Mischia (1.5m)');
+  document.getElementById('cdm-cast-time').textContent = card.castingTime || (card.type === 'arma' ? '1 Attacco' : '1 Azione');
+  document.getElementById('cdm-duration').textContent = card.duration || 'Istantaneo';
+  document.getElementById('cdm-components').textContent = card.components || 'Nessuna';
+  document.getElementById('cdm-desc').textContent = card.desc || 'Nessuna descrizione disponibile.';
+
+  const rollBtn = document.getElementById('cdm-roll-btn');
+  if (rollBtn) {
+    if (card.damage && card.damage.includes('d')) {
+      rollBtn.classList.remove('hidden');
+      rollBtn.onclick = () => {
+        if (typeof window.deployCardInCombat === 'function') {
+          window.deployCardInCombat(card.id);
+          window.closeCardDetailModal();
+        }
+      };
+    } else {
+      rollBtn.classList.add('hidden');
+    }
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeCardDetailModal = function() {
+  const modal = document.getElementById('card-detail-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
 };
 
 window.deployCardInCombat = function(cardId) {
@@ -1243,7 +1255,7 @@ window.renderDdbSectionContent = function(ch) {
     const sectionCards = allCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
     body.innerHTML = sectionCards.length === 0
       ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna carta in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti, rune e incantesimi!</div>`
-      : `<div class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
+      : `<div class="cards-flow-grid py-2 px-1">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
     return;
   }
 

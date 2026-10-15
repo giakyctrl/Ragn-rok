@@ -405,6 +405,46 @@ window.RulesEngine = {
       });
     }
 
+    // 4. Apprendimento Incantesimi / Rune (A SCELTA MULTIPLA DALLA MEGA LISTA FISSA)
+    const fullCasters = ["mago", "chierico", "druido", "bardo", "stregone", "warlock", "maestro_rune"];
+    const halfCasters = ["paladino", "ranger"];
+    const isFull = fullCasters.includes(char.classId);
+    const isHalf = halfCasters.includes(char.classId);
+
+    if (isFull || (isHalf && targetLevel >= 2)) {
+      const maxCircle = isFull
+        ? (targetLevel >= 9 ? 5 : targetLevel >= 7 ? 4 : targetLevel >= 5 ? 3 : targetLevel >= 3 ? 2 : 1)
+        : (targetLevel >= 9 ? 3 : targetLevel >= 5 ? 2 : 1);
+
+      const allCards = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+      const knownNames = (char.cards || []).map(c => (c.name || "").toLowerCase());
+
+      const availableSpells = allCards.filter(c => {
+        if (c.type !== "incantesimo") return false;
+        if (c.level > maxCircle) return false;
+        if (char.classId === "maestro_rune") {
+          return (c.classes && c.classes.includes("maestro_rune")) || (c.name || "").toLowerCase().includes("runa");
+        }
+        if (c.classes && c.classes.includes(char.classId)) return true;
+        return false;
+      }).filter(c => !knownNames.includes((c.name || "").toLowerCase()));
+
+      if (availableSpells.length > 0) {
+        choices.push({
+          id: "spell_choice",
+          title: `Apprendimento Magico • Fino al ${maxCircle}° Cerchio`,
+          desc: "Seleziona dalla mega lista fissa l'incantesimo o la runa da forgiare nel tuo repertorio sacro.",
+          isCardPicker: true,
+          required: true,
+          options: availableSpells.map(s => ({
+            name: s.name,
+            card: s,
+            desc: `[${s.level === 0 ? "Trucchetto" : s.level + "° Cerchio"}] Danno/Effetto: ${s.damage || "Speciale"} • Gittata: ${s.range || "18m"} • ${s.desc ? s.desc.substring(0, 95) + "..." : ""}`
+          }))
+        });
+      }
+    }
+
     return choices;
   }
 };

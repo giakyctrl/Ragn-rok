@@ -183,11 +183,20 @@ window.ForgeEngine = {
 
             <div class="forge-choices-list">
               ${choice.options.map((opt, i) => `
-                <div class="forge-choice-card ${selectedChoices[choice.id] === opt.name ? 'selected' : ''}" onclick="window.ForgeEngine.selectOption('${choice.id}', '${opt.name.replace(/'/g, "\\'")}', ${i})">
+                <div class="forge-choice-card ${selectedChoices[choice.id] === opt.name ? 'selected' : ''} ${choice.isCardPicker ? 'spell-picker-card' : ''}" onclick="window.ForgeEngine.selectOption('${choice.id}', '${opt.name.replace(/'/g, "\\'")}', ${i})">
                   <div class="choice-card-header">
                     <span class="choice-radio"></span>
                     <strong>${opt.name}</strong>
                   </div>
+                  ${opt.card ? `
+                    <div class="choice-spell-meta flex items-center gap-2 my-1.5 p-1 rounded bg-black/40 border border-slate-700/60 text-[11px] text-amber-300">
+                      <img src="${opt.card.img || 'assets/items/ramo_runico.jpg'}" class="w-8 h-8 rounded object-cover border border-amber-500/40 flex-shrink-0">
+                      <div class="flex-1 min-w-0">
+                        <span class="font-bold text-sky-300 block text-[10px] uppercase">${opt.card.level === 0 ? 'Trucchetto' : opt.card.level + '° Cerchio'} • ${opt.card.type}</span>
+                        <span class="text-amber-200 text-[10px] block font-mono">Danno/Effetto: ${opt.card.damage || 'Speciale'}</span>
+                      </div>
+                    </div>
+                  ` : ''}
                   <div class="choice-card-desc">${opt.desc || ''}</div>
                 </div>
               `).join('')}
@@ -329,6 +338,16 @@ window.ForgeEngine = {
       if (selectedChoices.asi_or_feat) {
         if (!character.feats) character.feats = [];
         character.feats.push(selectedChoices.asi_or_feat);
+      }
+      if (selectedChoices.spell_choice) {
+        const chosenName = selectedChoices.spell_choice;
+        const allCards = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+        const cardObj = allCards.find(c => c.name === chosenName);
+        if (cardObj) {
+          if (!character.cards) character.cards = [];
+          const newCard = { ...cardObj, id: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4) };
+          character.cards.unshift(newCard);
+        }
       }
 
       // Chiudi modale

@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body class="relative">
 
@@ -32,9 +32,11 @@
         </svg>
         <h1 class="font-norse text-2xl font-black text-amber-400 tracking-wider">REAME IN MANUTENZIONE</h1>
         <p class="text-xs text-slate-300">Il server è temporaneamente chiuso per manutenzione da parte dell'Amministratore.</p>
-        <div class="pt-3 flex gap-2">
-          <button type="button" onclick="location.reload()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">RIPROVA</button>
-          <button type="button" onclick="window.openAuthModal('login')" class="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 font-cinzel font-bold text-xs text-amber-300">Accesso Admin</button>
+        <div class="pt-3 flex flex-wrap gap-2 justify-center">
+          <button type="button" onclick="location.reload()" class="ice-btn px-4 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">RIPROVA</button>
+          <a href="admin.html" class="px-4 py-2.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 font-cinzel font-black text-xs hover:bg-amber-500/30 transition flex items-center gap-1.5 shadow-md">
+            <span>👑</span> CONSOLLE ADMIN (ROOT)
+          </a>
         </div>
       </div>
     </section>
@@ -83,7 +85,10 @@
         </div>
       </div>
 
-      <footer class="text-center text-[10px] text-slate-500 font-cinzel tracking-widest">YGGDRASILL • JOURNEY TO RAGNAROK 5E</footer>
+      <footer class="text-center text-[10px] text-slate-500 font-cinzel tracking-widest flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-slate-900">
+        <span>YGGDRASILL • JOURNEY TO RAGNAROK 5E</span>
+        <a href="admin.html" class="text-amber-500/80 hover:text-amber-300 font-bold transition flex items-center gap-1">👑 CONSOLLE ADMIN (ROOT)</a>
+      </footer>
     </section>
 
     <!-- =========================================================================
@@ -579,87 +584,61 @@
     <div id="ddb-section-list" class="space-y-2.5 max-w-md mx-auto w-full pb-10"></div>
   </div>
 
-  <!-- MODALE LEVEL UP COERENTE CON JOURNEY TO RAGNAROK -->
-  <div id="levelup-modal" class="fixed inset-0 ddb-blur-overlay z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="norse-panel norse-border-gold rounded-2xl p-6 max-w-md w-full space-y-4 text-xs animate-modal-pop my-auto">
+  <!-- MODALE DETTAGLIO CARTA INGRANDITA -->
+  <div id="card-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3" onclick="if(event.target===this) window.closeCardDetailModal()">
+    <div class="card-detail-frame rounded-2xl p-5 flex flex-col space-y-4 overflow-y-auto animate-modal-pop" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div>
-          <span class="text-[10px] font-cinzel uppercase text-amber-400">Avanzamento Journey to Ragnarok</span>
-          <h3 id="lvlup-title" class="font-cinzel font-bold text-lg text-white">Passaggio al Livello Superiore</h3>
+        <div class="flex items-center gap-2">
+          <span id="cdm-badge" class="text-[9px] font-cinzel font-bold uppercase tracking-wider text-sky-300 px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40">AZIONE</span>
+          <span id="cdm-rarity" class="text-[9px] font-bold uppercase text-amber-300">RARO</span>
         </div>
-        <button type="button" onclick="window.closeLevelUpModal()" class="text-slate-400 font-bold">Chiudi</button>
+        <button type="button" onclick="window.closeCardDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
       </div>
 
-      <!-- Privilegi sbloccati automaticamente dal manuale per questo livello -->
-      <div id="lvlup-auto-summary" class="bg-slate-950 border border-sky-500/30 rounded-xl p-3.5 space-y-1.5 text-slate-300"></div>
-
-      <!-- Scelta 1: Punti Ferita -->
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
-        <label class="font-cinzel font-bold text-amber-300 block">1. Incremento Punti Ferita Massimi *</label>
-        <p id="lvlup-hp-desc" class="text-[11px] text-slate-400"></p>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="window.chooseLevelUpHpMethod('avg')" id="btn-hp-avg" class="p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center">Prendi Media Fissa</button>
-          <button type="button" onclick="window.chooseLevelUpHpMethod('roll')" id="btn-hp-roll" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center">Tira il Dado Vita</button>
+      <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+        <div class="w-36 h-48 sm:w-44 sm:h-56 rounded-xl overflow-hidden border-2 border-amber-500/50 flex-shrink-0 bg-black shadow-xl">
+          <img id="cdm-img" src="assets/items/spada_ulfberht.jpg" class="w-full h-full object-cover">
         </div>
-        <div id="lvlup-hp-result" class="text-center font-cinzel font-black text-sm text-emerald-400 pt-1"></div>
-      </div>
+        <div class="flex-1 space-y-2 text-xs w-full">
+          <h2 id="cdm-name" class="font-cinzel font-black text-xl text-white tracking-wide">Nome Carta</h2>
+          <span id="cdm-type" class="text-[11px] font-semibold text-slate-400 block pb-1 border-b border-slate-800">Tipo Sottotipo</span>
 
-      <!-- Scelta Dinamica Sottoclasse / Ætt / Scelte di Classe dal Manuale -->
-      <div id="lvlup-class-choice-box" class="hidden bg-slate-950 border border-amber-500/40 rounded-xl p-3.5 space-y-2">
-        <label id="lvlup-choice-label" class="font-cinzel font-bold text-amber-300 block"></label>
-        <select id="lvlup-choice-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold"></select>
-      </div>
-
-      <!-- Scelta Aumento Punteggi Caratteristica (ASI ai livelli previsti dal manuale) -->
-      <div id="lvlup-asi-box" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
-        <label class="font-cinzel font-bold text-sky-300 block">Aumento Punteggi di Caratteristica (+2 oppure +1 / +1)</label>
-        <div class="grid grid-cols-2 gap-2">
-          <select id="lvlup-stat-1" class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
-            <option value="">Primo +1...</option>
-            <option value="FOR">Forza (+1)</option><option value="DES">Destrezza (+1)</option><option value="COS">Costituzione (+1)</option>
-            <option value="INT">Intelligenza (+1)</option><option value="SAG">Saggezza (+1)</option><option value="CAR">Carisma (+1)</option>
-          </select>
-          <select id="lvlup-stat-2" class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
-            <option value="">Secondo +1...</option>
-            <option value="FOR">Forza (+1)</option><option value="DES">Destrezza (+1)</option><option value="COS">Costituzione (+1)</option>
-            <option value="INT">Intelligenza (+1)</option><option value="SAG">Saggezza (+1)</option><option value="CAR">Carisma (+1)</option>
-          </select>
+          <div class="grid grid-cols-2 gap-2 pt-1 font-mono">
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Danno / Effetto</span>
+              <strong id="cdm-dmg" class="text-red-400 text-sm font-black">1d8+3</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Gittata / Peso</span>
+              <strong id="cdm-range" class="text-sky-300 text-xs">Mischia (1.5m)</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Tempo di Lancio</span>
+              <strong id="cdm-cast-time" class="text-amber-200 text-xs">1 Azione</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Durata</span>
+              <strong id="cdm-duration" class="text-purple-300 text-xs">Istantaneo</strong>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-400">
+            <span>Componenti: </span><strong id="cdm-components" class="text-slate-300">V, S</strong>
+          </div>
         </div>
       </div>
 
-      <!-- Nota/Incantesimo opzionale -->
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-        <label class="font-cinzel font-bold text-sky-300 block">Nuovo Incantesimo / Runa o Talento Scelto (Opzionale)</label>
-        <input id="lvlup-new-trait" type="text" placeholder="Scrivi qui eventuali incantesimi o talenti scelti..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+      <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-200 leading-relaxed max-h-48 overflow-y-auto">
+        <p id="cdm-desc" class="whitespace-pre-line"></p>
       </div>
 
-      <button type="button" onclick="window.confirmPlayerLevelUp()" class="gold-btn w-full py-3.5 rounded-xl font-cinzel font-black text-xs text-white tracking-wider">
-        CONFERMA AVANZAMENTO DI LIVELLO
-      </button>
-    </div>
-  </div>
-
-  <!-- CONSOLE ADMIN -->
-  <div id="admin-modal" class="fixed inset-0 ddb-blur-overlay z-50 hidden items-center justify-center p-4">
-    <div class="norse-panel norse-border-gold rounded-2xl p-6 max-w-md w-full space-y-4 text-xs animate-modal-pop">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div>
-          <span class="text-[10px] font-cinzel uppercase text-amber-400">Pannello Root • Dettagli Server</span>
-          <h3 class="font-cinzel font-bold text-lg text-white">Console Amministratore</h3>
-        </div>
-        <button type="button" onclick="window.closeAdminConsole()" class="text-slate-400 font-bold">Chiudi</button>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" id="cdm-roll-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 font-cinzel font-black text-xs text-white shadow-lg">
+          🎲 ATTACCA / TIRA DANNI
+        </button>
+        <button type="button" onclick="window.closeCardDetailModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-cinzel font-bold text-xs text-slate-300">
+          Chiudi
+        </button>
       </div>
-      <div id="admin-tech-diagnostics" class="bg-slate-950 border border-sky-500/30 rounded-xl p-3 space-y-1 text-[11px] text-slate-300"></div>
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 flex justify-between items-center">
-        <div><h4 class="font-cinzel font-bold text-white">Manutenzione Sito</h4><p id="admin-maint-status" class="text-[10px] text-slate-400">Sito online.</p></div>
-        <button type="button" id="admin-maint-btn" onclick="window.adminToggleMaintenance()" class="px-3.5 py-2 rounded-xl font-cinzel font-bold text-[10px] bg-red-600 text-white">BLOCCA</button>
-      </div>
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
-        <label class="font-cinzel font-bold text-sky-300 block">URL Firebase Realtime Database</label>
-        <input id="admin-cloud-url" type="url" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
-        <button type="button" onclick="window.adminSaveCloudUrl()" class="ice-btn w-full py-2 rounded-lg font-cinzel font-bold text-white">SALVA URL SERVER</button>
-      </div>
-      <button type="button" onclick="window.adminWipeDatabase()" class="w-full py-2.5 rounded-xl bg-red-800 hover:bg-red-700 font-cinzel font-bold text-white">SVUOTA INTERO DATABASE</button>
     </div>
   </div>
 
@@ -698,10 +677,10 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=10"></script>
-  <script src="rules.js?v=10"></script>
-  <script src="forge.js?v=10"></script>
-  <script src="app.js?v=10"></script>
-  <script src="dm.js?v=10"></script>
+  <script src="data.js?v=11"></script>
+  <script src="rules.js?v=11"></script>
+  <script src="forge.js?v=11"></script>
+  <script src="app.js?v=11"></script>
+  <script src="dm.js?v=11"></script>
 </body>
 </html>
