@@ -1,5 +1,5 @@
 // ============================================================================
-// MODULO DUNGEON MASTER: CREAZIONE CARTE, SMISTAMENTO & LEVEL UP DI MASSA
+// MODULO DUNGEON MASTER: GESTIONE CAMPAGNA, CONDIZIONI LIVE, CARTE & LEVEL UP
 // ============================================================================
 window.activeDmWorkspaceCode = null;
 window.dmManageFilter = 'tutti';
@@ -9,7 +9,7 @@ window.dmTouchStartX = 0;
 
 window.dmCreateCampaign = function() {
   const input = document.getElementById('dm-new-camp-title');
-  const title = input.value.trim() || 'Saga di Midgard';
+  const title = input.value.trim() || 'Saga di Midgardr';
   const code = 'YGG-' + Math.floor(1000 + Math.random() * 9000);
 
   if (!window.dbState.campaigns) window.dbState.campaigns = {};
@@ -37,7 +37,7 @@ window.toggleSwipeDeleteState = function(e, code) {
 window.dmDeleteCampaign = function(e, code) {
   e.stopPropagation();
   const camp = window.dbState.campaigns[code];
-  if (!camp || !confirm(`Eliminare la campagna "${camp.title}"?`)) return;
+  if (!camp || !confirm(`Eliminare definitivamente la campagna "${camp.title}"?`)) return;
   delete window.dbState.campaigns[code];
   if (window.activeDmWorkspaceCode === code) window.activeDmWorkspaceCode = null;
   window.swipedCampaignCode = null;
@@ -61,9 +61,18 @@ window.exitDmCampaignWorkspace = function() {
 };
 
 window.switchDmWorkspaceTab = function(tab) {
-  document.getElementById('dm-subview-manage').classList.toggle('hidden', tab !== 'manage');
-  document.getElementById('dm-subview-party').classList.toggle('hidden', tab !== 'party');
-  document.getElementById('dm-subview-create').classList.toggle('hidden', tab !== 'create');
+  const mView = document.getElementById('dm-subview-manage');
+  const pView = document.getElementById('dm-subview-party');
+  const cView = document.getElementById('dm-subview-create');
+
+  mView.classList.toggle('hidden', tab !== 'manage');
+  pView.classList.toggle('hidden', tab !== 'party');
+  cView.classList.toggle('hidden', tab !== 'create');
+
+  const activeSub = tab === 'manage' ? mView : tab === 'party' ? pView : cView;
+  activeSub.classList.remove('animate-page-switch');
+  void activeSub.offsetWidth;
+  activeSub.classList.add('animate-page-switch');
 
   document.getElementById('dmnav-manage').className = tab === 'manage' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
   document.getElementById('dmnav-create').className = tab === 'create' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
@@ -96,11 +105,23 @@ window.dmSingleAdjustHP = function(uKey, delta) {
   window.saveDB();
 };
 
-// Funzione Level Up all'Unisono per il DM
+// Permette al DM di cambiare direttamente la condizione di un giocatore (cambiandogli lo sfondo in tempo reale)
+window.dmSetMemberCondition = function(uKey, newCondition) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.members[uKey]) return;
+  const mChar = camp.members[uKey];
+  mChar.condition = newCondition;
+  if (window.dbState.users[uKey]?.characters) {
+    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
+    if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
+  }
+  window.saveDB();
+};
+
 window.dmMassLevelUp = function() {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp) return;
-  if (!confirm("Vuoi assegnare +1 Livello a tutti i componenti della campagna?")) return;
+  if (!confirm("Vuoi promuovere di +1 Livello tutti gli eroi della campagna?")) return;
 
   Object.entries(camp.members || {}).forEach(([uKey, mChar]) => {
     mChar.pendingLevelUp = true;
@@ -110,10 +131,9 @@ window.dmMassLevelUp = function() {
     }
   });
   window.saveDB();
-  alert("Notifica di Level Up inviata a tutti i giocatori del party!");
+  alert("Promozione di livello inviata a tutti i giocatori del party!");
 };
 
-// Level Up Singolo
 window.dmSingleLevelUp = function(uKey) {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp || !camp.members[uKey]) return;
@@ -124,7 +144,7 @@ window.dmSingleLevelUp = function(uKey) {
     if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
   }
   window.saveDB();
-  alert(`Notifica di Level Up inviata a ${mChar.name}!`);
+  alert(`Promozione di livello inviata a ${mChar.name}!`);
 };
 
 window.dmTriggerTactical = function(type) {
@@ -132,7 +152,10 @@ window.dmTriggerTactical = function(type) {
   if (!camp) return;
   Object.entries(camp.members || {}).forEach(([uKey, mChar]) => {
     if (type === 'SHORT_REST') mChar.hp = Math.min(mChar.maxHp, mChar.hp + Math.max(4, Math.round(mChar.maxHp * 0.25)));
-    else if (type === 'LONG_REST') mChar.hp = mChar.maxHp;
+    else if (type === 'LONG_REST') {
+      mChar.hp = mChar.maxHp;
+      mChar.condition = 'Normale';
+    }
     if (window.dbState.users[uKey]?.characters) {
       const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
       if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
@@ -165,13 +188,13 @@ window.updateDmCardPreview = function() {
   const type = document.getElementById('dmc-type')?.value || 'arma';
   const preview = {
     id: 'prev',
-    name: document.getElementById('dmc-name')?.value.trim() || 'Nuova Carta DM',
+    name: document.getElementById('dmc-name')?.value.trim() || 'Reliquia di Asgardr',
     type: type,
     rarity: document.getElementById('dmc-rarity')?.value || 'raro',
     damage: document.getElementById('dmc-dmg')?.value.trim() || '1d8+2',
     weight: parseFloat(document.getElementById('dmc-weight')?.value) || 2,
     img: window.dmCustomCardImage || window.CARD_ARTWORKS[type],
-    desc: document.getElementById('dmc-desc')?.value.trim() || 'Smistata automaticamente nella scheda.'
+    desc: document.getElementById('dmc-desc')?.value.trim() || 'Smistata automaticamente nella sezione corretta della scheda.'
   };
   const holder = document.getElementById('dm-card-live-preview');
   if (holder) holder.innerHTML = window.buildYgoCardHTML(preview, false);
@@ -288,7 +311,7 @@ window.renderDmViews = function() {
               </div>
               <div onclick="window.openDmCampaignWorkspace('${c.code}')" ontouchstart="window.handleCampTouchStart(event)" ontouchend="window.handleCampTouchEnd(event, '${c.code}')" class="swipe-front-card ${isSwiped ? 'swiped-left' : ''} norse-panel rounded-2xl p-4 flex justify-between items-center cursor-pointer border border-amber-500/30">
                 <div>
-                  <span class="text-[10px] font-cinzel uppercase text-amber-400">Codice: ${c.code} • ${cnt} Giocatori</span>
+                  <span class="text-[10px] font-cinzel uppercase text-amber-400">Codice: ${c.code} • ${cnt} Eroi</span>
                   <h4 class="font-cinzel font-bold text-base text-white">${c.title}</h4>
                 </div>
                 <div class="flex items-center gap-2">
@@ -308,28 +331,44 @@ window.renderDmViews = function() {
   document.getElementById('dm-ws-code').textContent = camp.code;
 
   const members = Object.entries(camp.members || {});
+  const condOptions = ['Normale', 'Avvelenato', 'Stordito', 'Invisibile', 'Spaventato', 'Prono'];
+
   document.getElementById('dm-ws-players-list').innerHTML = members.length === 0
     ? `<div class="norse-panel rounded-2xl p-5 text-xs text-slate-400 col-span-2 text-center">Condividi il codice <strong>${camp.code}</strong> con i giocatori!</div>`
     : members.map(([uKey, mChar]) => {
         const pct = Math.round((mChar.hp / mChar.maxHp) * 100);
+        const curCond = (mChar.condition === 'Normal' ? 'Normale' : mChar.condition === 'Stunned' ? 'Stordito' : mChar.condition) || 'Normale';
         return `
           <div class="norse-panel rounded-2xl p-4 space-y-2.5 border border-slate-800">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-start">
               <div class="flex items-center gap-2.5">
                 <img src="${mChar.avatar}" class="w-11 h-11 rounded-xl object-cover border border-sky-400">
-                <div><h4 class="font-bold text-sm text-white">${mChar.name}</h4><p class="text-[10px] text-sky-300">${mChar.race} ${mChar.className} (Liv.${mChar.level || 1})</p></div>
+                <div>
+                  <h4 class="font-bold text-sm text-white">${mChar.name}</h4>
+                  <p class="text-[10px] text-sky-300">${mChar.clanName ? mChar.clanName.split(' (')[0] + ' • ' : ''}${mChar.className} (Liv.${mChar.level || 1})</p>
+                  <p class="text-[9px] text-slate-400">${mChar.subclass ? mChar.subclass.split(' (')[0] : ''} • CA ${mChar.ac}</p>
+                </div>
               </div>
               <div class="text-right">
-                <span class="text-xs font-extrabold text-white block">${mChar.hp}/${mChar.maxHp} HP</span>
+                <span class="text-xs font-extrabold text-white block">${mChar.hp}/${mChar.maxHp} PF</span>
                 <button type="button" onclick="window.dmSingleLevelUp('${uKey}')" class="mt-1 px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold">⬆️ +1 Liv</button>
               </div>
             </div>
+
             <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden"><div class="h-full bg-sky-400" style="width:${pct}%"></div></div>
+
             <div class="grid grid-cols-4 gap-1.5">
               <button type="button" onclick="window.dmSingleAdjustHP('${uKey}', -5)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-5</button>
               <button type="button" onclick="window.dmSingleAdjustHP('${uKey}', -1)" class="py-1 bg-red-950 text-red-300 rounded text-[10px] font-bold">-1</button>
               <button type="button" onclick="window.dmSingleAdjustHP('${uKey}', 1)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+1</button>
               <button type="button" onclick="window.dmSingleAdjustHP('${uKey}', 5)" class="py-1 bg-emerald-950 text-emerald-300 rounded text-[10px] font-bold">+5</button>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between gap-2 border-t border-slate-800/80 text-[10px]">
+              <span class="text-slate-400">Condizione Sfondo:</span>
+              <select onchange="window.dmSetMemberCondition('${uKey}', this.value)" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-amber-300 font-bold">
+                ${condOptions.map(co => `<option value="${co}" ${curCond === co ? 'selected' : ''}>${co}</option>`).join('')}
+              </select>
             </div>
           </div>
         `;
@@ -347,8 +386,9 @@ window.renderDmViews = function() {
   (camp.chest || []).forEach(c => allCards.push({ card: c, ownerKey: 'CHEST', ownerName: 'Cassa del Dungeon' }));
   members.forEach(([uKey, mChar]) => {
     (mChar.cards || []).forEach(c => {
-      const destSec = window.classifyCardToDdbSection(c).toUpperCase();
-      allCards.push({ card: c, ownerKey: uKey, ownerName: `${mChar.name} (Sezione: ${destSec})` });
+      const destSec = window.classifyCardToDdbSection(c);
+      const secName = destSec === 'actions' ? 'Azioni' : destSec === 'spells' ? 'Incantesimi' : 'Inventario';
+      allCards.push({ card: c, ownerKey: uKey, ownerName: `${mChar.name} (${secName})` });
     });
   });
 
