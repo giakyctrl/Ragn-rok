@@ -1,5 +1,5 @@
 // ============================================================================
-// 1. TEMPESTA NORRENA SU CANVAS
+// 1. CANVAS NEVE NORRENA
 // ============================================================================
 (function initSnow() {
   try {
@@ -40,7 +40,7 @@
 })();
 
 // ============================================================================
-// 2. STATO GLOBALE & CONNESSIONE SERVER (SOLO "CONNESSO / NON CONNESSO" AI PLAYER)
+// 2. STATO & SERVER (INDICATORE SEMPLICE PER PLAYER, DETTAGLIATO PER ADMIN)
 // ============================================================================
 function loadLocalDB() {
   try {
@@ -100,7 +100,6 @@ window.initCloudConnection = function() {
     if (!firebase.apps.length) firebase.initializeApp({ databaseURL: url });
     window.fbRef = firebase.database().ref('yggdrasill_v3_realm');
 
-    // Monitoraggio reale stato connessione Firebase
     firebase.database().ref('.info/connected').on('value', snap => {
       window.updateServerStatusIndicators(snap.val() === true);
     });
@@ -147,7 +146,7 @@ window.enforceMaintenanceCheck = function() {
 };
 
 // ============================================================================
-// 3. CONSOLE ADMIN (CON DIAGNOSTICA TECNICA RISERVATA SOLO ALL'ADMIN)
+// 3. CONSOLE ADMIN (INFO TECNICHE DETTAGLIATE)
 // ============================================================================
 window.openAdminConsole = function() {
   if (!window.isCurrentUserAdmin()) return;
@@ -156,22 +155,20 @@ window.openAdminConsole = function() {
   const uCount = Object.keys(window.dbState.users || {}).length;
   const cCount = Object.keys(window.dbState.campaigns || {}).length;
   document.getElementById('admin-tech-diagnostics').innerHTML = `
-    <div class="font-bold text-amber-300 mb-1">Diagnostica Tecnica Server (Solo Admin):</div>
-    <div>• Stato Socket Firebase: <strong class="${window.isServerConnected ? 'text-emerald-400' : 'text-rose-400'}">${window.isServerConnected ? 'ONLINE (Realtime Sync Attivo)' : 'OFFLINE'}</strong></div>
-    <div>• Nodo Database: <code>/yggdrasill_v3_realm</code></div>
-    <div>• Utenti Registrati: <strong>${uCount}</strong> | Campagne Attive: <strong>${cCount}</strong></div>
+    <div class="font-bold text-amber-300 mb-1">Diagnostica Tecnica Server (Admin):</div>
+    <div>• Stato Socket: <strong class="${window.isServerConnected ? 'text-emerald-400' : 'text-rose-400'}">${window.isServerConnected ? 'ONLINE (Sincronizzato)' : 'OFFLINE'}</strong></div>
+    <div>• Endpoint: <code>/yggdrasill_v3_realm</code></div>
+    <div>• Utenti Totali: <strong>${uCount}</strong> | Campagne: <strong>${cCount}</strong></div>
   `;
 
   window.updateAdminConsoleUI();
   const m = document.getElementById('admin-modal');
-  m.classList.remove('hidden');
-  m.classList.add('flex');
+  m.classList.remove('hidden'); m.classList.add('flex');
 };
 
 window.closeAdminConsole = function() {
   const m = document.getElementById('admin-modal');
-  m.classList.add('hidden');
-  m.classList.remove('flex');
+  m.classList.add('hidden'); m.classList.remove('flex');
 };
 
 window.updateAdminConsoleUI = function() {
@@ -181,13 +178,11 @@ window.updateAdminConsoleUI = function() {
   if (window.dbState.maintenance) {
     btn.textContent = "RIAPRI SITO";
     btn.className = "px-3.5 py-2 rounded-xl font-cinzel font-bold text-[10px] bg-emerald-600 text-white";
-    st.textContent = "MANUTENZIONE ATTIVA (Giocatori bloccati)";
-    st.className = "text-[10px] text-amber-400 font-bold";
+    st.textContent = "Manutenzione attiva";
   } else {
     btn.textContent = "BLOCCA SITO";
     btn.className = "px-3.5 py-2 rounded-xl font-cinzel font-bold text-[10px] bg-red-600 text-white";
-    st.textContent = "Sito online per tutti i giocatori.";
-    st.className = "text-[10px] text-slate-400";
+    st.textContent = "Sito online.";
   }
 };
 
@@ -209,7 +204,7 @@ window.adminSaveCloudUrl = function() {
 
 window.adminWipeDatabase = function() {
   if (!window.isCurrentUserAdmin()) return;
-  if (!confirm("SVUOTARE l'intero database? Verranno cancellati tutti gli utenti, i personaggi e le campagne.")) return;
+  if (!confirm("Svuotare l'intero database?")) return;
   const adminKey = window.ADMIN_CREDENTIALS.username.toLowerCase();
   const adminAcc = window.dbState.users[adminKey];
   window.dbState = { maintenance: false, users: {}, campaigns: {} };
@@ -219,23 +214,19 @@ window.adminWipeDatabase = function() {
 };
 
 // ============================================================================
-// 4. AUTENTICAZIONE (LOGIN / REGISTRAZIONE)
+// 4. AUTENTICAZIONE
 // ============================================================================
 window.openAuthModal = function(mode) {
   window.authMode = mode || 'login';
   document.getElementById('auth-title').textContent = window.authMode === 'register' ? 'Registrati' : 'Accedi';
-  document.getElementById('auth-subtitle').textContent = window.authMode === 'register'
-    ? 'Crea il tuo account per salvare i personaggi.'
-    : 'Inserisci Nome Utente e Password.';
+  document.getElementById('auth-subtitle').textContent = window.authMode === 'register' ? 'Crea il tuo account.' : 'Inserisci credenziali.';
   const m = document.getElementById('auth-modal');
-  m.classList.remove('hidden');
-  m.classList.add('flex');
+  m.classList.remove('hidden'); m.classList.add('flex');
 };
 
 window.closeAuthModal = function() {
   const m = document.getElementById('auth-modal');
-  m.classList.add('hidden');
-  m.classList.remove('flex');
+  m.classList.add('hidden'); m.classList.remove('flex');
 };
 
 window.handleAuthSubmit = async function(e) {
@@ -245,58 +236,43 @@ window.handleAuthSubmit = async function(e) {
   if (!uName || !uPass) return;
 
   const userKey = uName.toLowerCase();
-  const btn = document.getElementById('auth-submit-btn');
-  if (btn) btn.textContent = "ATTENDI...";
-
   if (window.fbRef) {
     try {
-      const snap = await Promise.race([
-        window.fbRef.once('value'),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2200))
-      ]);
+      const snap = await Promise.race([window.fbRef.once('value'), new Promise((_, r) => setTimeout(() => r(), 2000))]);
       if (snap && snap.val()) {
         window.dbState = snap.val();
         if (!window.dbState.users) window.dbState.users = {};
         if (!window.dbState.campaigns) window.dbState.campaigns = {};
       }
-    } catch (err) {}
+    } catch (e) {}
   }
-  if (btn) btn.textContent = "CONFERMA";
 
   if (userKey === window.ADMIN_CREDENTIALS.username.toLowerCase() && uPass === window.ADMIN_CREDENTIALS.password) {
-    if (!window.dbState.users[userKey]) {
-      window.dbState.users[userKey] = { username: window.ADMIN_CREDENTIALS.username, password: uPass, characters: [] };
-    }
+    if (!window.dbState.users[userKey]) window.dbState.users[userKey] = { username: "admin", password: uPass, characters: [] };
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
-    window.closeAuthModal();
-    window.saveDB();
-    window.enterAfterLogin();
+    window.closeAuthModal(); window.saveDB(); window.enterAfterLogin();
     return;
   }
 
   if (window.authMode === 'register') {
-    if (window.dbState.users[userKey]) { alert("Nome utente già esistente. Usa ACCEDI."); return; }
+    if (window.dbState.users[userKey]) { alert("Nome utente già esistente."); return; }
     window.dbState.users[userKey] = { username: uName, password: uPass, characters: [] };
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
-    window.closeAuthModal();
-    window.saveDB();
-    window.enterAfterLogin();
+    window.closeAuthModal(); window.saveDB(); window.enterAfterLogin();
   } else {
     const acc = window.dbState.users[userKey];
     if (!acc || acc.password !== uPass) { alert("Credenziali errate."); return; }
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
-    window.closeAuthModal();
-    window.enterAfterLogin();
+    window.closeAuthModal(); window.enterAfterLogin();
   }
 };
 
 window.enterAfterLogin = function() {
   window.enforceMaintenanceCheck();
   if (window.dbState.maintenance && !window.isCurrentUserAdmin()) return;
-
   const acc = window.dbState.users[window.currentUser];
   if (!acc) return;
 
@@ -311,15 +287,14 @@ window.enterAfterLogin = function() {
         hp: 100, maxHp: 100, ac: 20, atkBonus: 10, speed: '9m', inspiration: true, condition: 'Normal',
         stats: { FOR: 20, DES: 20, COS: 20, INT: 20, SAG: 20, CAR: 20 },
         saves: { FOR: true, DES: true, COS: true, INT: true, SAG: true, CAR: true },
-        defenses: 'Immunità Admin', traits: ['Accesso Root'], proficiencies: 'Tutte', notes: '', cards: []
+        defenses: 'Immunità Admin', traits: ['Controllo Totale'], proficiencies: 'Tutte', notes: '', cards: []
       }];
       window.saveDB();
     }
     window.activeCharId = acc.characters[0].id;
     document.getElementById('screen-builder').classList.add('hidden');
     document.getElementById('screen-main').classList.remove('hidden');
-    window.switchStandardNav('dm');
-    window.renderAllViews();
+    window.switchStandardNav('dm'); window.renderAllViews();
     return;
   }
 
@@ -329,8 +304,7 @@ window.enterAfterLogin = function() {
     window.activeCharId = acc.characters[0].id;
     document.getElementById('screen-builder').classList.add('hidden');
     document.getElementById('screen-main').classList.remove('hidden');
-    window.switchStandardNav('characters');
-    window.renderAllViews();
+    window.switchStandardNav('characters'); window.renderAllViews();
   }
 };
 
@@ -344,7 +318,7 @@ window.logoutUser = function() {
 };
 
 // ============================================================================
-// 5. CREAZIONE PERSONAGGIO & SCHEDA D&D BEYOND (SCREENSHOT 2 & 3)
+// 5. CREAZIONE PERSONAGGIO & LIVE UP AUTOMATICO/INTERATTIVO D&D 5E
 // ============================================================================
 window.selectedFormAvatar = window.PRESET_AVATARS[0];
 
@@ -369,10 +343,7 @@ window.renderAvatarSelector = function() {
 window.handleAvatarFileUpload = function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  window.autoFitImageFile(file, 300, 300, url => {
-    window.selectedFormAvatar = url;
-    window.renderAvatarSelector();
-  });
+  window.autoFitImageFile(file, 300, 300, url => { window.selectedFormAvatar = url; window.renderAvatarSelector(); });
 };
 
 window.cancelCharacterForm = function() {
@@ -392,18 +363,16 @@ window.saveFullCharacterSheet = function(e) {
     race: document.getElementById('cf-race').value.trim(),
     className: document.getElementById('cf-class').value.trim(),
     level: parseInt(document.getElementById('cf-level').value) || 1,
-    hitDie: document.getElementById('cf-hitdie').value.trim() || '1d8',
+    hitDie: document.getElementById('cf-hitdie').value || '1d8',
     background: document.getElementById('cf-bg').value.trim() || 'Outlander',
-    alignment: document.getElementById('cf-align').value.trim() || 'Neutral',
+    alignment: document.getElementById('cf-align').value.trim() || 'Neutrale',
     avatar: window.selectedFormAvatar,
-    hp: maxHp,
-    maxHp: maxHp,
+    hp: maxHp, maxHp: maxHp,
     ac: parseInt(document.getElementById('cf-ac').value) || 14,
     atkBonus: parseInt(document.getElementById('cf-atk').value) || 2,
     speed: document.getElementById('cf-speed').value.trim() || '9m',
-    defenses: document.getElementById('cf-defenses').value.trim() || 'Nessuna resistenza attiva',
-    inspiration: false,
-    condition: 'Normal',
+    defenses: document.getElementById('cf-defenses').value.trim() || 'Nessuna',
+    inspiration: false, condition: 'Normal',
     stats: {
       FOR: parseInt(document.getElementById('cf-stat-FOR').value) || 10,
       DES: parseInt(document.getElementById('cf-stat-DES').value) || 10,
@@ -420,10 +389,10 @@ window.saveFullCharacterSheet = function(e) {
       SAG: document.getElementById('cf-save-SAG').checked,
       CAR: document.getElementById('cf-save-CAR').checked
     },
-    traits: traitsRaw ? traitsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Privilegi di Classe base'],
-    proficiencies: document.getElementById('cf-proficiencies').value.trim() || 'Armi semplici, Armature leggere, Comune',
-    notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota registrata.',
-    cards: [] // Le carte vengono create e consegnate esclusivamente dal DM
+    traits: traitsRaw ? traitsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Privilegi base'],
+    proficiencies: document.getElementById('cf-proficiencies').value.trim() || 'Competenze standard',
+    notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota.',
+    cards: []
   };
 
   const acc = window.dbState.users[window.currentUser];
@@ -433,42 +402,141 @@ window.saveFullCharacterSheet = function(e) {
 
   document.getElementById('screen-builder').classList.add('hidden');
   document.getElementById('screen-main').classList.remove('hidden');
-  window.switchStandardNav('characters');
+  window.switchStandardNav('characters'); window.saveDB();
+};
+
+// --- LOGICA LEVEL UP AUTOMATICO + SCELTA GIOCATORE ---
+let currentLevelUpCharId = null;
+let chosenHpMethod = 'avg';
+let computedHpGain = 0;
+
+window.openLevelUpModal = function() {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  currentLevelUpCharId = ch.id;
+  const nextLvl = (ch.level || 1) + 1;
+
+  document.getElementById('lvlup-title').textContent = `Passaggio al Livello ${nextLvl}`;
+  
+  // Calcolo automatico bonus competenza D&D 5e (+2 fino a liv 4, +3 a liv 5, +4 a liv 9, +5 a liv 13, +6 a liv 17)
+  const newProf = nextLvl >= 17 ? 6 : nextLvl >= 13 ? 5 : nextLvl >= 9 ? 4 : nextLvl >= 5 ? 3 : 2;
+  const cosMod = Math.floor(((ch.stats?.COS || 10) - 10) / 2);
+  const dieNum = parseInt((ch.hitDie || '1d8').replace('1d','')) || 8;
+  const avgGain = Math.floor(dieNum / 2) + 1 + cosMod;
+
+  computedHpGain = avgGain;
+  chosenHpMethod = 'avg';
+
+  document.getElementById('lvlup-auto-summary').innerHTML = `
+    <div>• Nuovo Livello: <strong>${nextLvl}</strong></div>
+    <div>• Nuovo Bonus di Competenza: <strong class="text-sky-300">+${newProf}</strong></div>
+    <div>• Modificatore Costituzione (COS): <strong>${cosMod >= 0 ? '+'+cosMod : cosMod}</strong></div>
+  `;
+
+  document.getElementById('lvlup-hp-desc').textContent = `Dado Vita: d${dieNum}. Valore medio fisso consigliato: +${avgGain} PF max.`;
+  document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
+  document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
+  document.getElementById('lvlup-hp-result').textContent = `Aumento PF scelti: +${avgGain}`;
+
+  // Mostra/Nascondi box ASI (Aumento Caratteristiche) se il livello è divisibile per 4
+  const isAsiLevel = (nextLvl % 4 === 0 || nextLvl === 6 || nextLvl === 8 || nextLvl === 12 || nextLvl === 14 || nextLvl === 16 || nextLvl === 19);
+  document.getElementById('lvlup-asi-box').classList.toggle('hidden', !isAsiLevel);
+
+  const m = document.getElementById('levelup-modal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+};
+
+window.closeLevelUpModal = function() {
+  const m = document.getElementById('levelup-modal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+};
+
+window.chooseLevelUpHpMethod = function(method) {
+  chosenHpMethod = method;
+  const ch = window.getMyCharacter();
+  const cosMod = Math.floor(((ch?.stats?.COS || 10) - 10) / 2);
+  const dieNum = parseInt((ch?.hitDie || '1d8').replace('1d','')) || 8;
+
+  if (method === 'avg') {
+    computedHpGain = Math.floor(dieNum / 2) + 1 + cosMod;
+    document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
+    document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
+  } else {
+    const roll = Math.floor(Math.random() * dieNum) + 1;
+    computedHpGain = Math.max(1, roll + cosMod);
+    document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
+    document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
+  }
+  document.getElementById('lvlup-hp-result').textContent = `Aumento PF scelti: +${computedHpGain} ${method==='roll' ? '(Tiro dado: '+(computedHpGain-cosMod)+')' : ''}`;
+};
+
+window.confirmPlayerLevelUp = function() {
+  const ch = window.getMyCharacter();
+  if (!ch || ch.id !== currentLevelUpCharId) return;
+
+  ch.level = (ch.level || 1) + 1;
+  ch.maxHp += computedHpGain;
+  ch.hp += computedHpGain; // Cura automatica pari all'aumento di PF max
+
+  // Ricalcolo automatico Bonus Competenza
+  ch.atkBonus = ch.level >= 17 ? 6 : ch.level >= 13 ? 5 : ch.level >= 9 ? 4 : ch.level >= 5 ? 3 : 2;
+
+  // Applicazione eventuale Aumento Caratteristiche (ASI)
+  const s1 = document.getElementById('lvlup-stat-1').value;
+  const s2 = document.getElementById('lvlup-stat-2').value;
+  if (s1 && ch.stats[s1]) ch.stats[s1] = Math.min(20, ch.stats[s1] + 1);
+  if (s2 && ch.stats[s2]) ch.stats[s2] = Math.min(20, ch.stats[s2] + 1);
+
+  // Nuovo Privilegio
+  const newTrait = document.getElementById('lvlup-new-trait').value.trim();
+  if (newTrait) {
+    if (!ch.traits) ch.traits = [];
+    ch.traits.push(`[Livello ${ch.level}] ${newTrait}`);
+  }
+
+  // Rimuovi flag pending Level Up dalla campagna
+  Object.values(window.dbState.campaigns || {}).forEach(camp => {
+    if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) {
+      if (camp.members[window.currentUser].pendingLevelUp) delete camp.members[window.currentUser].pendingLevelUp;
+    }
+  });
+
+  window.propagateCharacterToCampaigns(ch);
+  window.closeLevelUpModal();
   window.saveDB();
+  alert(`Congratulazioni! Il tuo eroe è ora di Livello ${ch.level}!`);
 };
 
 // ============================================================================
-// 6. MENU SEZIONI D&D BEYOND & INTERAZIONI SCHEDA
+// 6. MENU SEZIONI D&D BEYOND (CON SFONDO BLURRATO E ANIMAZIONE A CASCATA)
 // ============================================================================
 window.openDdbSectionModal = function() {
   const list = document.getElementById('ddb-section-list');
   const ch = window.getMyCharacter();
   const cards = (ch && ch.cards) || [];
 
-  list.innerHTML = window.DDB_SECTIONS.map(sec => {
+  list.innerHTML = window.DDB_SECTIONS.map((sec, idx) => {
     let countBadge = "";
     if (sec.id === 'actions' || sec.id === 'inventory' || sec.id === 'spells') {
       const cnt = cards.filter(c => window.classifyCardToDdbSection(c) === sec.id).length;
-      if (cnt > 0) countBadge = `<span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">${cnt} carte</span>`;
+      if (cnt > 0) countBadge = `<span class="ml-auto text-xs px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">${cnt}</span>`;
     }
     return `
-      <button type="button" onclick="window.selectDdbSection('${sec.id}')" class="ddb-menu-item ${window.activeDdbSection === sec.id ? 'active' : ''}">
-        <span>${sec.icon}</span>
-        <span>${sec.label}</span>
+      <button type="button" onclick="window.selectDdbSection('${sec.id}')" class="ddb-menu-item ${window.activeDdbSection === sec.id ? 'active' : ''}" style="animation-delay: ${idx * 0.03}s">
+        <span class="text-base">${sec.icon}</span>
+        <span class="flex-1">${sec.label}</span>
         ${countBadge}
       </button>
     `;
   }).join('');
 
   const m = document.getElementById('ddb-section-modal');
-  m.classList.remove('hidden');
-  m.classList.add('flex');
+  m.classList.remove('hidden'); m.classList.add('flex');
 };
 
 window.closeDdbSectionModal = function() {
   const m = document.getElementById('ddb-section-modal');
-  m.classList.add('hidden');
-  m.classList.remove('flex');
+  m.classList.add('hidden'); m.classList.remove('flex');
 };
 
 window.selectDdbSection = function(secId) {
@@ -488,7 +556,7 @@ window.toggleHeroicInspiration = function() {
 window.cycleCharacterCondition = function() {
   const ch = window.getMyCharacter();
   if (!ch) return;
-  const conds = ['Normal', 'Poisoned', 'Frightened', 'Prone', 'Stunned', 'Invisible'];
+  const conds = ['Normal', 'Avvelenato', 'Spaventato', 'Prono', 'Stunned', 'Invisibile'];
   const idx = conds.indexOf(ch.condition || 'Normal');
   ch.condition = conds[(idx + 1) % conds.length];
   window.propagateCharacterToCampaigns(ch);
@@ -540,7 +608,7 @@ window.propagateCharacterToCampaigns = function(ch) {
 
 window.buildYgoCardHTML = function(card, interactive = true) {
   const sec = window.classifyCardToDdbSection(card);
-  const badgeLabel = sec === 'actions' ? 'ACTION' : sec === 'spells' ? 'SPELL' : 'INVENTORY';
+  const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA' : 'INVENTARIO';
 
   return `
     <div class="ygo-card type-${card.type} rarity-${card.rarity} snap-center">
@@ -563,8 +631,8 @@ window.buildYgoCardHTML = function(card, interactive = true) {
         </div>
       </div>
       ${interactive ? `
-        <div class="grid grid-cols-3 gap-1.5 pt-1">
-          <button type="button" onclick="window.deployCardInCombat('${card.id}')" class="col-span-2 py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 text-white font-cinzel font-bold text-[10px]">USA / SCHIERA</button>
+        <div class="grid grid-cols-2 gap-1.5 pt-1">
+          <button type="button" onclick="window.deployCardInCombat('${card.id}')" class="py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 text-white font-cinzel font-bold text-[10px]">USA</button>
           <button type="button" onclick="window.openTradeCardModal('${card.id}')" class="py-1.5 rounded bg-slate-800 border border-slate-600 text-amber-300 font-cinzel font-bold text-[10px]">SCAMBIA</button>
         </div>
       ` : ''}
@@ -609,9 +677,7 @@ window.deployCardInCombat = function(cardId) {
 window.joinCampaignAsPlayer = function() {
   const code = document.getElementById('join-camp-code').value.trim().toUpperCase();
   const charId = document.getElementById('join-char-select').value;
-  if (!code || !window.dbState.campaigns || !window.dbState.campaigns[code]) {
-    alert("Codice Campagna non trovato."); return;
-  }
+  if (!code || !window.dbState.campaigns || !window.dbState.campaigns[code]) { alert("Campagna non trovata."); return; }
   const acc = window.dbState.users[window.currentUser];
   const charObj = (acc.characters || []).find(c => c.id === charId);
   if (!charObj) return;
@@ -637,8 +703,6 @@ window.playerClaimChestItem = function(campCode, itemId) {
   if (!ch.cards) ch.cards = [];
   ch.cards.unshift(item);
   window.propagateCharacterToCampaigns(ch);
-
-  // Porta automaticamente il giocatore nella sezione D&D Beyond corrispondente alla carta appena presa!
   window.activeDdbSection = window.classifyCardToDdbSection(item);
   window.saveDB();
 };
@@ -660,13 +724,11 @@ window.openTradeCardModal = function(cardId) {
   window.pendingTradeCardId = cardId;
   document.getElementById('trade-item-label').textContent = `Cedi: ${card.name}`;
   document.getElementById('trade-recipient').innerHTML = fellows.map(f => `<option value="${f.uKey}|${f.campCode}">${f.mChar.name}</option>`).join('');
-  const m = document.getElementById('trade-modal');
-  m.classList.remove('hidden'); m.classList.add('flex');
+  const m = document.getElementById('trade-modal'); m.classList.remove('hidden'); m.classList.add('flex');
 };
 
 window.closeTradeModal = function() {
-  const m = document.getElementById('trade-modal');
-  m.classList.add('hidden'); m.classList.remove('flex');
+  const m = document.getElementById('trade-modal'); m.classList.add('hidden'); m.classList.remove('flex');
 };
 
 window.executeTrade = function() {
@@ -689,8 +751,7 @@ window.executeTrade = function() {
     const tIdx = window.dbState.users[targetUserKey].characters.findIndex(x => x.id === targetChar.id);
     if (tIdx !== -1) window.dbState.users[targetUserKey].characters[tIdx] = targetChar;
   }
-  window.closeTradeModal();
-  window.saveDB();
+  window.closeTradeModal(); window.saveDB();
 };
 
 window.checkIncomingLiveEvents = function() {
@@ -701,14 +762,19 @@ window.checkIncomingLiveEvents = function() {
     if (camp.members && camp.members[window.currentUser]) {
       const updated = camp.members[window.currentUser];
       const idx = (account.characters || []).findIndex(c => c.id === updated.id);
-      if (idx !== -1) account.characters[idx] = updated;
+      if (idx !== -1) {
+        // Controlla se il DM ha avviato un Level Up
+        if (updated.pendingLevelUp && !account.characters[idx].pendingLevelUp) {
+          document.getElementById('pending-levelup-banner').classList.remove('hidden');
+        }
+        account.characters[idx] = updated;
+      }
     }
 
     if (camp.globalEvent && camp.globalEvent.timestamp > window.lastSeenEventTimestamp) {
       window.lastSeenEventTimestamp = camp.globalEvent.timestamp;
       window.displayGlobalAnimation(camp.globalEvent);
 
-      // Se il DM avvia BATTAGLIA, reindirizza i giocatori sulla sezione "Actions" di D&D Beyond
       if (camp.globalEvent.type === 'BATTLE' && camp.dmUser !== window.currentUser) {
         window.switchStandardNav('characters');
         window.activeDdbSection = 'actions';
@@ -724,18 +790,18 @@ window.displayGlobalAnimation = function(evt) {
   if (!modal || !box) return;
 
   if (evt.type === 'BATTLE') {
-    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-red-400">INIZIA LA BATTAGLIA</h2><p class="text-xs text-slate-300">Sei stato reindirizzato alla sezione <strong>Actions</strong> della tua scheda!</p>`;
+    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-red-400">INIZIA LA BATTAGLIA</h2><p class="text-xs text-slate-300">Sei stato reindirizzato alla sezione <strong>Azioni e Attacchi</strong>!</p>`;
   } else if (evt.type === 'SHORT_REST') {
-    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-amber-300">RIPOSO CORTO</h2><p class="text-xs text-slate-300">+25% Hit Points recuperati.</p>`;
+    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-amber-300">RIPOSO CORTO</h2><p class="text-xs text-slate-300">+25% Punti Ferita recuperati.</p>`;
   } else if (evt.type === 'LONG_REST') {
-    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-sky-300">RIPOSO LUNGO</h2><p class="text-xs text-slate-300">Hit Points rigenerati al 100%.</p>`;
+    box.innerHTML = `<h2 class="font-norse text-3xl font-black text-sky-300">RIPOSO LUNGO</h2><p class="text-xs text-slate-300">Punti Ferita rigenerati al 100%.</p>`;
   } else if (evt.type === 'CARD_DEPLOY') {
     box.innerHTML = `
       <span class="text-xs font-cinzel uppercase text-sky-400">${evt.actor} usa</span>
       <div class="flex justify-center my-2">${window.buildYgoCardHTML(evt.card, false)}</div>
       <div class="norse-panel rounded-xl p-3 grid grid-cols-2 divide-x divide-slate-800">
         <div><span class="text-[10px] text-slate-400 block">Tiro D20</span><span class="font-cinzel font-black text-xl text-sky-300">${evt.hit}</span></div>
-        <div><span class="text-[10px] text-slate-400 block">Effetto / Danno</span><span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span></div>
+        <div><span class="text-[10px] text-slate-400 block">Danno / Effetto</span><span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span></div>
       </div>
     `;
   }
@@ -748,7 +814,7 @@ window.closeAnimModal = function() {
 };
 
 // ============================================================================
-// 7. RENDERING SCHEDA D&D BEYOND (SCREENSHOT 2 & 3) E VISTE
+// 7. RENDER SCHEDA D&D BEYOND IN ITALIANO
 // ============================================================================
 window.renderDdbSectionContent = function(ch) {
   const body = document.getElementById('ddb-section-body');
@@ -762,9 +828,9 @@ window.renderDdbSectionContent = function(ch) {
   const profBonus = ch.atkBonus || 2;
   const allCards = ch.cards || [];
 
-  // 1. ABILITIES, SAVES, SENSES (Identico allo Screenshot 2)
+  // 1. CARATTERISTICHE, SALVEZZA E SENSI
   if (window.activeDdbSection === 'abilities') {
-    const statNames = { FOR:'STRENGTH', DES:'DEXTERITY', COS:'CONSTITUTION', INT:'INTELLIGENCE', SAG:'WISDOM', CAR:'CHARISMA' };
+    const statNames = { FOR:'FORZA', DES:'DESTREZZA', COS:'COSTITUZIONE', INT:'INTELLIGENZA', SAG:'SAGGEZZA', CAR:'CARISMA' };
     const abilitiesHTML = Object.entries(statNames).map(([key, label]) => {
       const score = stats[key] || 10;
       const mod = Math.floor((score - 10) / 2);
@@ -784,7 +850,7 @@ window.renderDdbSectionContent = function(ch) {
       const mod = Math.floor((score - 10) / 2) + (isProf ? profBonus : 0);
       const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
       return `
-        <button type="button" onclick="alert('Saving Throw ${label}: ' + (Math.floor(Math.random()*20)+1 + ${mod}))" class="ddb-save-pill active:scale-95 transition">
+        <button type="button" onclick="alert('Tiro Salvezza ${label}: ' + (Math.floor(Math.random()*20)+1 + ${mod}))" class="ddb-save-pill active:scale-95 transition">
           <div class="flex items-center gap-2.5">
             <span class="ddb-prof-dot ${isProf ? 'proficient' : ''}"></span>
             <span class="text-xs font-extrabold text-white tracking-wide">${label}</span>
@@ -800,21 +866,21 @@ window.renderDdbSectionContent = function(ch) {
     body.innerHTML = `
       <div class="grid grid-cols-3 gap-2.5">${abilitiesHTML}</div>
       <div class="pt-2 space-y-2">
-        <h3 class="text-base font-extrabold text-white">Saving Throws</h3>
+        <h3 class="text-base font-extrabold text-white">Tiri Salvezza</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${savesHTML}</div>
       </div>
       <div class="pt-2 space-y-2">
-        <h3 class="text-base font-extrabold text-white">Senses</h3>
+        <h3 class="text-base font-extrabold text-white">Sensi</h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <div class="ddb-save-pill"><span>Passive Perception</span><span class="ddb-save-val">${10 + wisMod}</span></div>
-          <div class="ddb-save-pill"><span>Passive Investigation</span><span class="ddb-save-val">${10 + intMod}</span></div>
+          <div class="ddb-save-pill"><span>Percezione Passiva</span><span class="ddb-save-val">${10 + wisMod}</span></div>
+          <div class="ddb-save-pill"><span>Investigazione Passiva</span><span class="ddb-save-val">${10 + intMod}</span></div>
         </div>
       </div>
     `;
     return;
   }
 
-  // 2. SKILLS
+  // 2. ABILITÀ
   if (window.activeDdbSection === 'skills') {
     body.innerHTML = `
       <div class="space-y-2">
@@ -822,7 +888,7 @@ window.renderDdbSectionContent = function(ch) {
           const mod = Math.floor(((stats[sk.stat] || 10) - 10) / 2);
           const mStr = mod >= 0 ? `+${mod}` : `${mod}`;
           return `
-            <button type="button" onclick="alert('Skill ${sk.name}: ' + (Math.floor(Math.random()*20)+1 +${mod}))" class="ddb-save-pill w-full">
+            <button type="button" onclick="alert('Abilità ${sk.name}: ' + (Math.floor(Math.random()*20)+1 +${mod}))" class="ddb-save-pill w-full">
               <div class="flex items-center gap-2.5">
                 <span class="text-[10px] font-bold text-slate-400 w-8">${sk.stat}</span>
                 <span class="text-xs font-bold text-white">${sk.name}</span>
@@ -836,38 +902,38 @@ window.renderDdbSectionContent = function(ch) {
     return;
   }
 
-  // 3, 4, 5. ACTIONS (Armi), INVENTORY (Armature/Scudi/Oggetti), SPELLS (Magie) -> Decifrati automaticamente!
+  // 3, 4, 5. AZIONI, INVENTARIO, INCANTESIMI
   if (window.activeDdbSection === 'actions' || window.activeDdbSection === 'inventory' || window.activeDdbSection === 'spells') {
     const sectionCards = allCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
     body.innerHTML = sectionCards.length === 0
-      ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna carta in <strong>${secObj.label}</strong>. Il Dungeon Master può forgiare e consegnare carte nel tuo inventario!</div>`
+      ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessun elemento in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti e magie!</div>`
       : `<div class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
     return;
   }
 
-  // 6. SPEED & DEFENSES
+  // 6. VELOCITÀ E DIFESE
   if (window.activeDdbSection === 'defenses') {
     body.innerHTML = `
       <div class="ddb-top-card rounded-2xl p-4 space-y-2 text-xs">
-        <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Walking Speed</span><strong class="text-white">${ch.speed || '9m (30 ft.)'}</strong></div>
-        <div><span class="text-slate-400 block mb-1">Defenses, Resistances & Immunities</span><p class="text-white font-semibold">${ch.defenses || 'Nessuna'}</p></div>
+        <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Velocità di Movimento</span><strong class="text-white">${ch.speed || '9m'}</strong></div>
+        <div><span class="text-slate-400 block mb-1">Difese e Resistenze</span><p class="text-white font-semibold">${ch.defenses || 'Nessuna'}</p></div>
       </div>
     `;
     return;
   }
 
-  // 7. FEATURES & TRAITS
+  // 7. PRIVILEGI E TRATTI
   if (window.activeDdbSection === 'features') {
     body.innerHTML = `<div class="space-y-2 text-xs">${(ch.traits || []).map(t => `<div class="ddb-top-card p-3.5 rounded-xl text-slate-200">${t}</div>`).join('')}</div>`;
     return;
   }
 
-  // 8, 9, 10, 11. PROFICIENCIES, BACKGROUND, NOTES, EXTRAS
+  // 8, 9, 10, 11. COMPETENZE, ORIGINE, NOTE, CREATURE
   const infoMap = {
-    proficiencies: ch.proficiencies || 'Armi semplici, Armature leggere',
-    background: `${ch.background || 'Outlander'} • Allineamento: ${ch.alignment || 'Neutral'}`,
+    proficiencies: ch.proficiencies || 'Competenze standard',
+    background: `${ch.background || 'Outlander'} • Allineamento: ${ch.alignment || 'Neutrale'}`,
     notes: ch.notes || 'Nessuna nota.',
-    creatures: ch.notes || 'Nessuna creatura extra registrata.'
+    creatures: ch.notes || 'Nessuna creatura registrata.'
   };
   body.innerHTML = `<div class="ddb-top-card rounded-2xl p-4 text-xs text-slate-200 leading-relaxed whitespace-pre-line">${infoMap[window.activeDdbSection]}</div>`;
 };
@@ -883,20 +949,24 @@ window.renderAllViews = function() {
   if (ch) {
     document.getElementById('char-picker').innerHTML = chars.map(c => `<option value="${c.id}" ${c.id === ch.id ? 'selected' : ''}>${c.name} (${c.race} ${c.className} ${c.level || 1})</option>`).join('');
     document.getElementById('sheet-name').textContent = ch.name;
-    document.getElementById('sheet-race-class').textContent = `${ch.race} ${ch.className} ${ch.level || 1}`;
+    document.getElementById('sheet-race-class').textContent = `${ch.race} ${ch.className} • Livello ${ch.level || 1}`;
     document.getElementById('sheet-avatar').src = ch.avatar;
 
     const inspBtn = document.getElementById('sheet-insp-badge');
     if (inspBtn) inspBtn.className = ch.inspiration ? 'ddb-insp-btn active' : 'ddb-insp-btn';
 
     const condBtn = document.getElementById('sheet-condition-btn');
-    if (condBtn) condBtn.textContent = ch.condition && ch.condition !== 'Normal' ? `⚠️ ${ch.condition}` : 'CONDITIONS';
+    if (condBtn) condBtn.textContent = ch.condition && ch.condition !== 'Normal' ? `⚠️ ${ch.condition}` : 'CONDIZIONI';
 
     let activeCamp = null;
     Object.values(window.dbState.campaigns || {}).forEach(camp => {
       if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) activeCamp = camp;
     });
     document.getElementById('sheet-camp-badge').textContent = activeCamp ? `Campagna: ${activeCamp.title}` : 'Senza Campagna';
+
+    // Banner Level Up in sospeso
+    const lvlBanner = document.getElementById('pending-levelup-banner');
+    if (lvlBanner) lvlBanner.classList.toggle('hidden', !ch.pendingLevelUp);
 
     const pct = Math.round((ch.hp / ch.maxHp) * 100);
     document.getElementById('sheet-hp-label').textContent = `${ch.hp}/${ch.maxHp}`;
@@ -906,7 +976,6 @@ window.renderAllViews = function() {
     document.getElementById('sheet-ac').textContent = ch.ac;
     document.getElementById('sheet-init').textContent = desMod >= 0 ? `+${desMod}` : desMod;
 
-    // Cassa del Dungeon
     const chestBox = document.getElementById('player-chest-box');
     if (activeCamp && activeCamp.chest && activeCamp.chest.length > 0) {
       chestBox.classList.remove('hidden');
