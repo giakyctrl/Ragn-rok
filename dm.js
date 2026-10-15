@@ -1,5 +1,5 @@
 // ============================================================================
-// MODULO DUNGEON MASTER: CREAZIONE CARTE ESCLUSIVA DM & SMISTAMENTO AUTOMATICO
+// MODULO DUNGEON MASTER: CREAZIONE CARTE, SMISTAMENTO & LEVEL UP DI MASSA
 // ============================================================================
 window.activeDmWorkspaceCode = null;
 window.dmManageFilter = 'tutti';
@@ -96,6 +96,37 @@ window.dmSingleAdjustHP = function(uKey, delta) {
   window.saveDB();
 };
 
+// Funzione Level Up all'Unisono per il DM
+window.dmMassLevelUp = function() {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp) return;
+  if (!confirm("Vuoi assegnare +1 Livello a tutti i componenti della campagna?")) return;
+
+  Object.entries(camp.members || {}).forEach(([uKey, mChar]) => {
+    mChar.pendingLevelUp = true;
+    if (window.dbState.users[uKey]?.characters) {
+      const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
+      if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
+    }
+  });
+  window.saveDB();
+  alert("Notifica di Level Up inviata a tutti i giocatori del party!");
+};
+
+// Level Up Singolo
+window.dmSingleLevelUp = function(uKey) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.members[uKey]) return;
+  const mChar = camp.members[uKey];
+  mChar.pendingLevelUp = true;
+  if (window.dbState.users[uKey]?.characters) {
+    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
+    if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
+  }
+  window.saveDB();
+  alert(`Notifica di Level Up inviata a ${mChar.name}!`);
+};
+
 window.dmTriggerTactical = function(type) {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp) return;
@@ -140,7 +171,7 @@ window.updateDmCardPreview = function() {
     damage: document.getElementById('dmc-dmg')?.value.trim() || '1d8+2',
     weight: parseFloat(document.getElementById('dmc-weight')?.value) || 2,
     img: window.dmCustomCardImage || window.CARD_ARTWORKS[type],
-    desc: document.getElementById('dmc-desc')?.value.trim() || 'Smistata automaticamente nella scheda del giocatore.'
+    desc: document.getElementById('dmc-desc')?.value.trim() || 'Smistata automaticamente nella scheda.'
   };
   const holder = document.getElementById('dm-card-live-preview');
   if (holder) holder.innerHTML = window.buildYgoCardHTML(preview, false);
@@ -286,9 +317,12 @@ window.renderDmViews = function() {
             <div class="flex justify-between items-center">
               <div class="flex items-center gap-2.5">
                 <img src="${mChar.avatar}" class="w-11 h-11 rounded-xl object-cover border border-sky-400">
-                <div><h4 class="font-bold text-sm text-white">${mChar.name}</h4><p class="text-[10px] text-sky-300">${mChar.race} ${mChar.className} ${mChar.level || 1}</p></div>
+                <div><h4 class="font-bold text-sm text-white">${mChar.name}</h4><p class="text-[10px] text-sky-300">${mChar.race} ${mChar.className} (Liv.${mChar.level || 1})</p></div>
               </div>
-              <div class="text-right"><span class="text-xs font-extrabold text-white block">${mChar.hp}/${mChar.maxHp} HP</span><span class="text-[10px] text-slate-400">CA ${mChar.ac}</span></div>
+              <div class="text-right">
+                <span class="text-xs font-extrabold text-white block">${mChar.hp}/${mChar.maxHp} HP</span>
+                <button type="button" onclick="window.dmSingleLevelUp('${uKey}')" class="mt-1 px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold">⬆️ +1 Liv</button>
+              </div>
             </div>
             <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden"><div class="h-full bg-sky-400" style="width:${pct}%"></div></div>
             <div class="grid grid-cols-4 gap-1.5">
@@ -305,7 +339,7 @@ window.renderDmViews = function() {
   if (ownerSel) {
     const prev = ownerSel.value;
     ownerSel.innerHTML = `<option value="CHEST">Cassa del Dungeon (Bottino condiviso)</option>` +
-      members.map(([uKey, mChar]) => `<option value="${uKey}">Consegna nell'inventario di: ${mChar.name}</option>`).join('');
+      members.map(([uKey, mChar]) => `<option value="${uKey}">Consegna a: ${mChar.name}</option>`).join('');
     if (prev) ownerSel.value = prev;
   }
 
@@ -322,17 +356,17 @@ window.renderDmViews = function() {
   const grid = document.getElementById('dm-manage-cards-grid');
   if (grid) {
     grid.innerHTML = filtered.length === 0
-      ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400 col-span-2">Nessuna carta in questa categoria.</div>`
+      ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400 col-span-2">Nessuna carta trovata.</div>`
       : filtered.map(item => `
           <div class="norse-panel rounded-2xl p-3 flex gap-3 items-center border border-slate-800">
             <img src="${item.card.img || window.CARD_ARTWORKS.arma}" class="w-14 h-20 rounded-lg object-cover border border-amber-500/40 flex-shrink-0">
             <div class="flex-1 min-w-0 space-y-1">
               <div class="flex justify-between"><h4 class="font-bold text-xs text-white truncate">${item.card.name}</h4><button type="button" onclick="window.dmDeleteCardFromCampaign('${item.card.id}', '${item.ownerKey}')" class="text-[10px] text-red-400 font-bold">Elimina</button></div>
-              <p class="text-[10px] text-amber-300 uppercase font-bold">${item.card.type} • ${item.card.rarity} • ${item.card.damage}</p>
+              <p class="text-[10px] text-amber-300 uppercase font-bold">${item.card.type} • ${item.card.rarity}</p>
               <p class="text-[10px] text-sky-300 font-semibold">${item.ownerName}</p>
               <select onchange="window.dmReassignCard('${item.card.id}', '${item.ownerKey}', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-[10px] text-slate-300">
-                <option value="${item.ownerKey}">Trasferisci a...</option>
-                <option value="CHEST">Sposta nella Cassa del Dungeon</option>
+                <option value="${item.ownerKey}">Sposta a...</option>
+                <option value="CHEST">Sposta nella Cassa</option>
                 ${members.map(([uKey, mChar]) => `<option value="${uKey}">Dai a: ${mChar.name}</option>`).join('')}
               </select>
             </div>
