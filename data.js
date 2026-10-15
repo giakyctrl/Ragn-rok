@@ -5,7 +5,7 @@ window.FIREBASE_DATABASE_URL = "https://yggdrasill-39093-default-rtdb.europe-wes
 
 window.ADMIN_CREDENTIALS = {
   username: "admin",
-  password: "ragnarok2026"
+  password: "qwerty"
 };
 
 window.PRESET_AVATARS = [
