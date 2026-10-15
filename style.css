@@ -54,7 +54,40 @@ body {
 .gold-btn:active { transform: scale(0.96); }
 
 /* ============================================================================
-   STILE D&D BEYOND SCHEDA PERSONAGGIO (SCREENSHOT 2 & 3)
+   SFONDO BLURRATO E ANIMAZIONI FLUIDE PER CAMBIO SEZIONE E MODALI
+   ============================================================================ */
+.ddb-blur-overlay {
+  background: rgba(7, 11, 18, 0.78);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  animation: overlayFadeIn 0.22s ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalPopIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(14px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-modal-pop {
+  animation: modalPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sectionSlideUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-section-fade {
+  animation: sectionSlideUp 0.26s ease-out forwards;
+}
+
+/* ============================================================================
+   SCHEDA PERSONAGGIO STILE D&D BEYOND IN ITALIANO
    ============================================================================ */
 .ddb-top-card {
   background: #141b24;
@@ -62,8 +95,8 @@ body {
 }
 
 .ddb-ac-shield {
-  width: 60px;
-  height: 70px;
+  width: 62px;
+  height: 72px;
   background: #0e131a;
   border: 2px solid #334155;
   border-radius: 10px 10px 30px 30px;
@@ -75,7 +108,7 @@ body {
 
 .ddb-init-hex {
   width: 62px;
-  height: 66px;
+  height: 68px;
   background: #0e131a;
   border: 2px solid #334155;
   border-radius: 14px;
@@ -100,6 +133,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 .ddb-insp-btn.active {
   background: #0284c7;
@@ -113,7 +147,6 @@ body {
   border: 1px solid #263241;
 }
 
-/* I 6 Box Caratteristiche D&D Beyond (Modificatore grande al centro, Punteggio nell'ovale in basso) */
 .ddb-ability-card {
   background: #121820;
   border: 2px solid #2d3b4e;
@@ -150,7 +183,6 @@ body {
   color: #e2e8f0;
 }
 
-/* Box Tiri Salvezza (Saving Throws) */
 .ddb-save-pill {
   background: #121820;
   border: 1.5px solid #2d3b4e;
@@ -183,11 +215,11 @@ body {
   color: #ffffff;
 }
 
-/* Voci del Menu Sezioni (Screenshot 3) */
+/* Voci del Menu Sezioni con Animazione a Cascata */
 .ddb-menu-item {
-  background: #182029;
+  background: rgba(24, 32, 41, 0.9);
   border: 1.5px solid #263241;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -197,10 +229,17 @@ body {
   color: #f1f5f9;
   width: 100%;
   text-align: left;
+  opacity: 0;
+  animation: modalPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.ddb-menu-item:active {
+  transform: scale(0.97);
 }
 .ddb-menu-item.active {
-  background: #0b0f14;
+  background: rgba(11, 15, 20, 0.95);
   border-color: #ef4444;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
 }
 
 /* Barra Inferiore & Swipe Campagne */
