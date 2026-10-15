@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Yggdrasill">
+  <link rel="apple-touch-icon" href="https://wsrv.nl/?url=hips.hearstapps.com/hmg-prod/images/ragnarok-1600291665.png&w=512&h=512&fit=contain&bg=050811">
+
+  <title>YGGDRASILL - D&D Beyond Norse Companion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase Realtime Database SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <link rel="stylesheet" href="style.css?v=5">
+</head>
+<body class="relative">
+
+  <!-- CANVAS NEVE E VENTO -->
+  <canvas id="frost-canvas"></canvas>
+
+  <div class="relative z-10 min-h-screen flex flex-col main-wrapper">
+
+    <!-- SCHERMATA DI MANUTENZIONE -->
+    <section id="screen-maintenance" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
+      <div class="norse-panel norse-border-gold rounded-2xl p-8 max-w-md w-full space-y-5">
+        <svg class="w-16 h-16 text-amber-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 2v20M12 9L5 3M12 9l7-6M8 22h8" stroke-linecap="round"/>
+        </svg>
+        <h1 class="font-norse text-2xl font-black text-amber-400 tracking-wider">REAME IN MANUTENZIONE</h1>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          L'Amministratore di Yggdrasill sta aggiornando i Nove Reami. L'accesso tornerà attivo a breve.
+        </p>
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="location.reload()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">RIPROVA</button>
+          <button type="button" onclick="window.openAuthModal('login')" class="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 font-cinzel font-bold text-xs text-amber-300">Accesso Admin</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. SCHERMATA DI BENVENUTO -->
+    <section id="screen-welcome" class="flex-1 flex flex-col justify-between p-6">
+      <header class="flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+          <svg class="w-8 h-8 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2v20M12 9L5 3M12 9l7-6M8 22h8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <span class="font-norse text-sm tracking-widest text-sky-300 block">YGGDRASILL</span>
+            <span id="welcome-status-sub" class="text-[10px] text-slate-400">Cronache dei Nove Reami</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <button type="button" onclick="window.openAuthModal('login')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-sky-200 border border-sky-400/50 bg-sky-950/50 active:scale-95 transition">
+            ACCEDI
+          </button>
+          <button type="button" onclick="window.openAuthModal('register')" class="px-4 py-2 rounded-lg font-cinzel font-bold text-xs text-slate-950 bg-gradient-to-r from-sky-400 to-cyan-300 shadow-[0_0_15px_rgba(56,189,248,0.5)] active:scale-95 transition">
+            REGISTRATI
+          </button>
+        </div>
+      </header>
+
+      <div class="my-auto text-center max-w-lg mx-auto space-y-6 py-8">
+        <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full bg-sky-500/20 blur-2xl animate-pulse"></div>
+          <div class="relative w-40 h-40 rounded-full border-2 border-sky-400/50 shadow-[0_0_40px_rgba(56,189,248,0.4)] bg-slate-950 flex items-center justify-center">
+            <svg class="w-32 h-32 text-sky-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="50" cy="50" r="46" stroke="rgba(212,175,55,0.4)" stroke-dasharray="4 3"/>
+              <path d="M50 70 C42 82, 30 88, 22 90 M50 70 C58 82, 70 88, 78 90 M50 70 L50 94" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M47 70 C48 55, 48 45, 50 35 C52 45, 52 55, 53 70" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2.5"/>
+              <path d="M50 38 C35 35, 22 26, 18 16 M50 38 C65 35, 78 26, 82 16 M50 35 C40 24, 34 14, 36 8 M50 35 C60 24, 66 14, 64 8 M50 35 L50 6" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="font-cinzel text-xs uppercase tracking-[0.35em] text-sky-400">Sistema D&D 5e • Sincronizzazione Reale</p>
+          <h1 class="font-norse text-4xl sm:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-200 to-sky-500">
+            YGGDRASILL
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed pt-2">
+            Compila la tua scheda eroe, colleziona reliquie e unisciti alla campagna del tuo Dungeon Master.
+          </p>
+        </div>
+
+        <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+          <button type="button" onclick="window.openAuthModal('register')" class="ice-btn px-8 py-3.5 rounded-xl font-cinzel font-bold text-sm text-white tracking-wider">
+            CREA IL TUO ACCOUNT
+          </button>
+          <button type="button" onclick="window.openAuthModal('login')" class="norse-panel px-8 py-3.5 rounded-xl font-cinzel font-bold text-sm text-sky-300 border border-sky-500/40 active:scale-95 transition">
+            ACCEDI AL PROFILO
+          </button>
+        </div>
+      </div>
+
+      <footer class="text-center text-[11px] text-slate-500 font-cinzel tracking-widest">
+        YGGDRASILL COMPANION • D&D BEYOND EDITION
+      </footer>
+    </section>
+
+    <!-- 2. CREAZIONE PERSONAGGIO IN PAGINA UNICA -->
+    <section id="screen-builder" class="hidden flex-1 p-4 max-w-3xl mx-auto w-full space-y-5 pb-28">
+      <header class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Scheda Eroe D&D Beyond</span>
+          <h2 class="font-cinzel text-xl font-bold text-white">Compilazione Completa del Personaggio</h2>
+        </div>
+        <button type="button" onclick="window.cancelCharacterForm()" id="btn-cancel-form" class="hidden text-xs text-slate-400 border border-slate-700 px-3 py-1.5 rounded-lg">
+          Indietro
+        </button>
+      </header>
+
+      <form onsubmit="window.saveFullCharacterSheet(event)" class="space-y-5 text-xs">
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">1. Identità & Origine</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-slate-400 block mb-1">Nome del Personaggio *</label>
+              <input id="cf-name" type="text" required placeholder="Es. Bjorn, Kaelen, Freya..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Razza / Stirpe *</label>
+              <input id="cf-race" type="text" required placeholder="Es. Umano, Elfo, Goliath..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Classe & Sottoclasse *</label>
+              <input id="cf-class" type="text" required placeholder="Es. Barbaro Berserker" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-1">Livello *</label>
+                <input id="cf-level" type="number" min="1" max="20" value="1" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Dado Vita</label>
+                <input id="cf-hitdie" type="text" value="1d10" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Background</label>
+              <input id="cf-bg" type="text" placeholder="Es. Eroe Popolare, Soldato..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Allineamento</label>
+              <input id="cf-align" type="text" placeholder="Es. Caotico Buono" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-slate-400 block mb-2">Immagine Ritratto (Carica foto o scegli un volto)</label>
+            <div id="cf-avatar-selector" class="grid grid-cols-6 gap-2 mb-2"></div>
+            <input type="file" accept="image/*" onchange="window.handleAvatarFileUpload(event)" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl p-2">
+          </div>
+        </div>
+
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">2. Parametri di Combattimento</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="text-slate-400 block mb-1">PF Massimi *</label>
+              <input id="cf-maxhp" type="number" min="1" value="32" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Classe Armatura (CA) *</label>
+              <input id="cf-ac" type="number" min="1" value="16" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Bonus Attacco *</label>
+              <input id="cf-atk" type="number" value="5" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Velocità</label>
+              <input id="cf-speed" type="text" value="9m" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+            </div>
+          </div>
+        </div>
+
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">3. Punteggi di Caratteristica</h3>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">FOR</label><input id="cf-stat-FOR" type="number" value="16" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">DES</label><input id="cf-stat-DES" type="number" value="14" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">COS</label><input id="cf-stat-COS" type="number" value="15" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">INT</label><input id="cf-stat-INT" type="number" value="10" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">SAG</label><input id="cf-stat-SAG" type="number" value="12" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><label class="font-cinzel font-bold text-sky-300 block mb-1">CAR</label><input id="cf-stat-CAR" type="number" value="14" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold"></div>
+          </div>
+        </div>
+
+        <div class="norse-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase border-b border-slate-800 pb-2">4. Abilità, Competenze & Tratti</h3>
+          <textarea id="cf-traits" rows="4" placeholder="Scrivi abilità e privilegi (uno per riga)..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white"></textarea>
+        </div>
+
+        <button type="submit" class="ice-btn w-full py-4 rounded-2xl font-cinzel font-black text-sm text-white tracking-widest shadow-xl">
+          SALVA SCHEDA E INIZIA A GIOCARE
+        </button>
+      </form>
+    </section>
+
+    <!-- 3. DASHBOARD PRINCIPALE UTENTE -->
+    <section id="screen-main" class="hidden flex-1 flex flex-col pb-28">
+      
+      <header class="px-4 py-3 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M12 9L5 3M12 9l7-6M8 22h8" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <span class="font-norse text-xs text-sky-300 tracking-wider block">YGGDRASILL</span>
+            <span id="top-user-label" class="text-[10px] text-slate-400"></span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-admin-console" onclick="window.openAdminConsole()" class="hidden px-3 py-1.5 rounded-lg gold-btn font-cinzel font-bold text-[10px] text-white">
+            CONSOLE ADMIN
+          </button>
+
+          <button type="button" id="btn-exit-dm-campaign" onclick="window.exitDmCampaignWorkspace()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-[10px] text-sky-300">
+            ESCI DALLA CAMPAGNA
+          </button>
+
+          <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1 rounded-lg">
+            Esci
+          </button>
+        </div>
+      </header>
+
+      <!-- MODALITÀ A: NAVIGAZIONE STANDARD -->
+      <div id="mode-standard-views" class="flex-1 flex flex-col">
+
+        <!-- VISTA SINISTRA: DUNGEON MASTER (LISTA CAMPAGNE) -->
+        <div id="view-dm-list" class="hidden flex-1 p-4 space-y-5 max-w-3xl mx-auto w-full">
+          <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-3">
+            <span class="text-[10px] font-cinzel uppercase tracking-widest text-amber-400">Sala del Game Master</span>
+            <h2 class="font-cinzel font-bold text-lg text-white">Fonda una Nuova Campagna</h2>
+            <p class="text-xs text-slate-400">Crea una nuova campagna. Toccala nella lista qui sotto per aprire la videata di comando, oppure fai swipe da destra a sinistra per eliminarla.</p>
+            <div class="flex flex-col sm:flex-row gap-2 pt-1">
+              <input id="dm-new-camp-title" type="text" placeholder="Nome della Saga (es. L'Inverno di Fimbul)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+              <button type="button" onclick="window.dmCreateCampaign()" class="gold-btn px-5 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">
+                + CREA CAMPAGNA
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="flex justify-between items-center">
+              <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Le Campagne che hai Creato</h3>
+              <span class="text-[10px] text-slate-400">Tocca per aprire • Swipe a sinistra per eliminare</span>
+            </div>
+            <div id="dm-campaigns-swipe-list" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- VISTA CENTRALE: I TUOI PERSONAGGI -->
+        <div id="view-my-characters" class="flex-1 p-4 space-y-4 max-w-4xl mx-auto w-full">
+          <div class="flex justify-between items-center gap-2">
+            <select id="char-picker" onchange="window.switchActiveCharacter(this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-cinzel font-bold text-sky-300"></select>
+            <button type="button" onclick="window.openCharacterBuilder(true)" class="px-3.5 py-2.5 rounded-xl bg-slate-800 border border-sky-500/40 text-sky-300 text-xs font-cinzel font-bold">
+              + Nuovo Eroe
+            </button>
+          </div>
+
+          <div class="norse-panel rounded-2xl p-4 space-y-4">
+            <div class="flex items-center gap-3.5">
+              <img id="sheet-avatar" src="" class="w-16 h-16 rounded-xl object-cover border-2 border-sky-400 shadow-lg">
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <h2 id="sheet-name" class="font-cinzel font-bold text-lg text-white"></h2>
+                  <span id="sheet-camp-badge" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"></span>
+                </div>
+                <p id="sheet-race-class" class="text-xs text-sky-300"></p>
+                <p id="sheet-bg-align" class="text-[11px] text-slate-400"></p>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-red-400 font-cinzel uppercase">Punti Ferita (HP)</span>
+                <span id="sheet-hp-label" class="text-white"></span>
+              </div>
+              <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                <div id="sheet-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-400 transition-all duration-300"></div>
+              </div>
+              <div class="grid grid-cols-4 gap-2 mt-2.5">
+                <button type="button" onclick="window.adjustMyHP(-5)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-5</button>
+                <button type="button" onclick="window.adjustMyHP(-1)" class="py-1.5 bg-red-950/70 border border-red-800/70 text-red-200 rounded-lg font-bold text-xs">-1 Danno</button>
+                <button type="button" onclick="window.adjustMyHP(1)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+1 Cura</button>
+                <button type="button" onclick="window.adjustMyHP(5)" class="py-1.5 bg-emerald-950/70 border border-emerald-800/70 text-emerald-200 rounded-lg font-bold text-xs">+5</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-slate-800">
+              <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase block">CA</span><span id="sheet-ac" class="font-cinzel font-black text-base text-sky-300"></span></div>
+              <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase block">Iniziativa</span><span id="sheet-init" class="font-cinzel font-black text-base text-amber-300"></span></div>
+              <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase block">Bonus Att.</span><span id="sheet-atk" class="font-cinzel font-black text-base text-emerald-300"></span></div>
+              <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase block">Velocità</span><span id="sheet-speed" class="font-cinzel font-black text-base text-purple-300"></span></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-cinzel font-bold">
+            <button type="button" id="subtab-combat" onclick="window.setCharSubTab('combat')" class="py-2 rounded-lg bg-sky-500 text-slate-950">COMBATTIMENTO & DECK</button>
+            <button type="button" id="subtab-stats" onclick="window.setCharSubTab('stats')" class="py-2 rounded-lg text-slate-400">ATTRIBUTI & TRATTI</button>
+            <button type="button" id="subtab-forge" onclick="window.setCharSubTab('forge')" class="py-2 rounded-lg text-slate-400">+ CREA CARTA</button>
+          </div>
+
+          <!-- Sub-Tab 1: Combattimento & Carte -->
+          <div id="subcontent-combat" class="space-y-4">
+            <div id="player-chest-box" class="hidden norse-panel norse-border-gold rounded-2xl p-4 space-y-3 animate-frost">
+              <h4 class="font-cinzel font-bold text-sm text-amber-300">Cassa del Dungeon Scoperta!</h4>
+              <p class="text-xs text-slate-300">Reclama il bottino prima degli altri compagni:</p>
+              <div id="player-chest-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto no-scrollbar">
+              <button type="button" onclick="window.setCardFilter('tutti')" id="flt-tutti" class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-400 text-slate-950">Tutte</button>
+              <button type="button" onclick="window.setCardFilter('arma')" id="flt-arma" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armi</button>
+              <button type="button" onclick="window.setCardFilter('scudo')" id="flt-scudo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Scudi</button>
+              <button type="button" onclick="window.setCardFilter('armatura')" id="flt-armatura" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armature</button>
+              <button type="button" onclick="window.setCardFilter('incantesimo')" id="flt-incantesimo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Incantesimi</button>
+              <button type="button" onclick="window.setCardFilter('oggetto')" id="flt-oggetto" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Oggetti</button>
+            </div>
+
+            <div id="sheet-cards-carousel" class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory"></div>
+          </div>
+
+          <!-- Sub-Tab 2: Attributi -->
+          <div id="subcontent-stats" class="hidden space-y-4">
+            <div class="norse-panel rounded-2xl p-4">
+              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-3">Caratteristiche (Tocca per Test D20)</h4>
+              <div id="sheet-stats-grid" class="grid grid-cols-3 gap-2.5"></div>
+            </div>
+            <div class="norse-panel rounded-2xl p-4">
+              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase mb-2.5">Abilità & Tratti</h4>
+              <ul id="sheet-traits-list" class="space-y-2 text-xs text-slate-300"></ul>
+            </div>
+          </div>
+
+          <!-- Sub-Tab 3: Crea Carta Personale -->
+          <div id="subcontent-forge" class="hidden norse-panel rounded-2xl p-4">
+            <h4 class="font-cinzel font-bold text-sm text-sky-300 mb-3">Forgia una Carta per il tuo Eroe</h4>
+            <form onsubmit="window.createPersonalCard(event)" class="space-y-3 text-xs">
+              <input id="newcard-name" type="text" required placeholder="Nome Carta (es. Ascia del Gelo)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              <div class="grid grid-cols-2 gap-2">
+                <select id="newcard-type" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                  <option value="arma">Arma</option>
+                  <option value="scudo">Scudo</option>
+                  <option value="armatura">Armatura</option>
+                  <option value="incantesimo">Incantesimo</option>
+                  <option value="oggetto">Oggetto Vario</option>
+                </select>
+                <select id="newcard-rarity" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                  <option value="comune">Comune</option>
+                  <option value="non-comune">Non Comune</option>
+                  <option value="raro">Raro</option>
+                  <option value="molto-raro">Molto Raro</option>
+                  <option value="leggendario">Leggendario</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="newcard-dmg" type="text" required placeholder="Danno / CA (es. 1d10+4)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                <input id="newcard-weight" type="number" step="0.5" value="2" placeholder="Peso (kg)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Inserisci Immagine della Carta (Auto-Adattata) *</label>
+                <input type="file" accept="image/*" onchange="window.handlePlayerCardImage(event)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-300 mb-1.5">
+                <input id="newcard-img-url" type="url" placeholder="Oppure incolla qui l'URL diretto di un'immagine..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white">
+              </div>
+              <textarea id="newcard-desc" rows="2" required placeholder="Descrizione ed effetto..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
+              <button type="submit" class="ice-btn w-full py-2.5 rounded-xl font-cinzel font-bold text-white">CREA CARTA NEL DECK</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- VISTA DESTRA: LE TUE CAMPAGNE -->
+        <div id="view-my-campaigns" class="hidden flex-1 p-4 space-y-5 max-w-4xl mx-auto w-full">
+          <div class="norse-panel rounded-2xl p-5 space-y-4">
+            <span class="text-[10px] font-cinzel uppercase tracking-widest text-sky-400">Sala dei Giuramenti</span>
+            <h2 class="font-cinzel font-bold text-lg text-white">Unisciti a una Campagna</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="text-slate-400 block mb-1">Codice Campagna del DM</label>
+                <input id="join-camp-code" type="text" placeholder="Es. YGG-4821" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 font-bold uppercase text-sky-300">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Quale tuo Personaggio partecipa?</label>
+                <select id="join-char-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white font-bold"></select>
+              </div>
+            </div>
+            <button type="button" onclick="window.joinCampaignAsPlayer()" class="ice-btn w-full py-3 rounded-xl font-cinzel font-bold text-xs text-white">
+              UNISCITI ALLA CAMPAGNA
+            </button>
+          </div>
+
+          <div class="space-y-3">
+            <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase">Le Campagne di cui fai parte</h3>
+            <div id="my-joined-campaigns-list" class="space-y-4"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MODALITÀ B: VIDEATA DEDICATA CAMPAGNA DM -->
+      <div id="mode-dm-campaign-workspace" class="hidden flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full space-y-4">
+        
+        <div class="norse-panel norse-border-gold rounded-2xl p-3.5 flex justify-between items-center">
+          <div>
+            <span class="text-[9px] font-cinzel uppercase tracking-widest text-amber-400 block">Comando Campagna Dungeon Master</span>
+            <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
+          </div>
+          <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
+            <span class="text-[8px] text-slate-400 uppercase block">Codice Invito</span>
+            <span id="dm-ws-code" class="font-cinzel font-black text-sm text-amber-400 tracking-widest"></span>
+          </div>
+        </div>
+
+        <!-- SOTTO-VISTA DM 1 (SINISTRA): GESTISCI CARTE -->
+        <div id="dm-subview-manage" class="hidden space-y-4">
+          <div class="norse-panel rounded-2xl p-4 space-y-3">
+            <h3 class="font-cinzel font-bold text-sm text-sky-300">Archivio & Gestione Rapida Carte della Campagna</h3>
+            <p class="text-xs text-slate-400">Controlla rapidamente tutte le carte presenti nella campagna, filtra per categoria, verifica a chi appartengono o riassegnale.</p>
+            
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pt-1">
+              <button type="button" onclick="window.setDmManageFilter('tutti')" id="dmf-tutti" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400 text-slate-950">Tutte</button>
+              <button type="button" onclick="window.setDmManageFilter('arma')" id="dmf-arma" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armi</button>
+              <button type="button" onclick="window.setDmManageFilter('scudo')" id="dmf-scudo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Scudi</button>
+              <button type="button" onclick="window.setDmManageFilter('armatura')" id="dmf-armatura" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Armature</button>
+              <button type="button" onclick="window.setDmManageFilter('incantesimo')" id="dmf-incantesimo" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Incantesimi</button>
+              <button type="button" onclick="window.setDmManageFilter('oggetto')" id="dmf-oggetto" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300">Oggetti Vari</button>
+            </div>
+          </div>
+
+          <div id="dm-manage-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- SOTTO-VISTA DM 2 (CENTRO): PERSONAGGI DELLA CAMPAGNA -->
+        <div id="dm-subview-party" class="space-y-4">
+          <div class="norse-panel rounded-2xl p-4 space-y-3 border border-sky-500/40">
+            <div class="flex justify-between items-center">
+              <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Controllo Party all'Unisono (Tutti i Giocatori)</h3>
+              <span class="text-[10px] text-slate-400">Effetto simultaneo su tutti</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" onclick="window.dmMassAdjustHP(-10)" class="py-2 bg-red-950 border border-red-700 text-red-200 rounded-xl font-bold text-xs">-10 a Tutti</button>
+              <button type="button" onclick="window.dmMassAdjustHP(-5)" class="py-2 bg-red-950 border border-red-700 text-red-200 rounded-xl font-bold text-xs">-5 a Tutti</button>
+              <button type="button" onclick="window.dmMassAdjustHP(5)" class="py-2 bg-emerald-950 border border-emerald-700 text-emerald-200 rounded-xl font-bold text-xs">+5 a Tutti</button>
+              <button type="button" onclick="window.dmMassAdjustHP(10)" class="py-2 bg-emerald-950 border border-emerald-700 text-emerald-200 rounded-xl font-bold text-xs">+10 a Tutti</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5 pt-1">
+              <button type="button" onclick="window.dmTriggerTactical('BATTLE')" class="p-3 rounded-xl bg-gradient-to-b from-red-900/80 to-red-950 border border-red-500/60 text-center space-y-1 active:scale-95 transition">
+                <span class="font-cinzel font-bold text-xs text-white block">BATTAGLIA</span>
+                <span class="text-[9px] text-red-200 block">Redirect Combat</span>
+              </button>
+              <button type="button" onclick="window.dmTriggerTactical('SHORT_REST')" class="p-3 rounded-xl bg-gradient-to-b from-amber-900/80 to-amber-950 border border-amber-500/60 text-center space-y-1 active:scale-95 transition">
+                <span class="font-cinzel font-bold text-xs text-white block">RIPOSO CORTO</span>
+                <span class="text-[9px] text-amber-200 block">+25% PF a Tutti</span>
+              </button>
+              <button type="button" onclick="window.dmTriggerTactical('LONG_REST')" class="p-3 rounded-xl bg-gradient-to-b from-sky-900/80 to-sky-950 border border-sky-400/60 text-center space-y-1 active:scale-95 transition">
+                <span class="font-cinzel font-bold text-xs text-white block">RIPOSO LUNGO</span>
+                <span class="text-[9px] text-sky-200 block">100% PF a Tutti</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Gestione Singola Eroi della Campagna</h3>
+            <div id="dm-ws-players-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+        </div>
+
+        <!-- SOTTO-VISTA DM 3 (DESTRA): CREA CARTA -->
+        <div id="dm-subview-create" class="hidden space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+            
+            <form onsubmit="window.dmCreateAndAssignCard(event)" class="md:col-span-7 norse-panel norse-border-gold rounded-2xl p-5 space-y-3.5 text-xs">
+              <h3 class="font-cinzel font-bold text-base text-amber-300">Forgia Nuova Carta della Campagna</h3>
+              <p class="text-[11px] text-slate-400">Carica un'immagine manualmente: il sistema la ritaglierà e adatterà automaticamente alle proporzioni esatte della carta.</p>
+
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">Nome della Carta *</label>
+                <input id="dmc-name" type="text" required oninput="window.updateDmCardPreview()" placeholder="Es. Egida di Thor, Spada di Surtr..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Categoria *</label>
+                  <select id="dmc-type" onchange="window.updateDmCardPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                    <option value="arma">Arma</option>
+                    <option value="scudo">Scudo</option>
+                    <option value="armatura">Armatura</option>
+                    <option value="incantesimo">Incantesimo</option>
+                    <option value="oggetto">Oggetto Vario</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Rarità Bordo *</label>
+                  <select id="dmc-rarity" onchange="window.updateDmCardPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                    <option value="comune">Comune</option>
+                    <option value="non-comune">Non Comune</option>
+                    <option value="raro" selected>Raro</option>
+                    <option value="molto-raro">Molto Raro</option>
+                    <option value="leggendario">Leggendario</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Danno / CA / Effetto *</label>
+                  <input id="dmc-dmg" type="text" required oninput="window.updateDmCardPreview()" placeholder="Es. 2d8+4 oppure +2 CA" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                </div>
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Peso (kg)</label>
+                  <input id="dmc-weight" type="number" step="0.5" value="2.0" oninput="window.updateDmCardPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                </div>
+              </div>
+
+              <div class="bg-slate-950/90 border border-sky-500/40 rounded-xl p-3 space-y-2">
+                <label class="text-sky-300 font-bold block">Immagine Manuale della Carta (Auto-Crop & Resize) *</label>
+                <input type="file" accept="image/*" onchange="window.handleDmCardImageUpload(event)" class="w-full text-slate-300 text-[11px]">
+                <input id="dmc-img-url" type="url" oninput="window.handleDmCardUrlInput(this.value)" placeholder="Oppure incolla qui l'URL diretto di un'immagine..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+              </div>
+
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">Descrizione & Lore *</label>
+                <textarea id="dmc-desc" rows="2" required oninput="window.updateDmCardPreview()" placeholder="Descrivi i poteri della carta..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
+              </div>
+
+              <div>
+                <label class="text-amber-300 font-bold block mb-1">Destinazione della Carta *</label>
+                <select id="dmc-owner" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl p-2.5 text-white font-bold"></select>
+              </div>
+
+              <button type="submit" class="gold-btn w-full py-3.5 rounded-xl font-cinzel font-black text-xs text-white tracking-wider">
+                CREA E INVIA CARTA NELLA CAMPAGNA
+              </button>
+            </form>
+
+            <div class="md:col-span-5 flex flex-col items-center space-y-2">
+              <span class="text-[10px] font-cinzel uppercase tracking-widest text-slate-400">Anteprima Adattamento Automatico</span>
+              <div id="dm-card-live-preview"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BARRA INFERIORE 1: MODALITÀ STANDARD -->
+      <nav id="bottom-nav-standard" class="bottom-nav-bar flex justify-around items-center px-4">
+        <button type="button" onclick="window.switchStandardNav('dm')" id="snav-dm" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Dungeon Master</span>
+        </button>
+
+        <div class="relative -top-5 flex flex-col items-center">
+          <button type="button" onclick="window.switchStandardNav('characters')" class="viking-helm-circle flex items-center justify-center transition transform active:scale-95">
+            <svg class="w-9 h-9 text-slate-950" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 26 C8 24, 4 14, 10 8 C12 14, 16 18, 22 20" fill="currentColor"/>
+              <path d="M46 26 C56 24, 60 14, 54 8 C52 14, 48 18, 42 20" fill="currentColor"/>
+              <path d="M18 32 C18 18, 46 18, 46 32 Z" fill="currentColor"/>
+              <rect x="16" y="32" width="32" height="6" rx="2" fill="#0f172a"/>
+              <path d="M32 22 L32 48 M20 38 L20 48 L26 52 M44 38 L44 48 L38 52" stroke="#0f172a" stroke-width="3.5"/>
+            </svg>
+          </button>
+          <span id="snav-char-label" class="font-cinzel font-black text-[10px] text-sky-300 tracking-widest mt-1 uppercase">Personaggi</span>
+        </div>
+
+        <button type="button" onclick="window.switchStandardNav('campaigns')" id="snav-campaigns" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5L21 18v3h-3L6.5 9.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Le Tue Campagne</span>
+        </button>
+      </nav>
+
+      <!-- BARRA INFERIORE 2: MODALITÀ CAMPAGNA DM -->
+      <nav id="bottom-nav-dm-workspace" class="hidden bottom-nav-bar flex justify-around items-center px-4 border-t border-amber-500/40">
+        <button type="button" onclick="window.switchDmWorkspaceTab('manage')" id="dmnav-manage" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="4" y="3" width="16" height="18" rx="2"/>
+            <path d="M8 7h8M8 11h8M8 15h5" stroke-linecap="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Gestisci Carte</span>
+        </button>
+
+        <div class="relative -top-5 flex flex-col items-center">
+          <button type="button" onclick="window.switchDmWorkspaceTab('party')" class="viking-helm-circle-gold flex items-center justify-center transition transform active:scale-95">
+            <svg class="w-9 h-9 text-slate-950" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 26 C8 24, 4 14, 10 8 C12 14, 16 18, 22 20" fill="currentColor"/>
+              <path d="M46 26 C56 24, 60 14, 54 8 C52 14, 48 18, 42 20" fill="currentColor"/>
+              <path d="M18 32 C18 18, 46 18, 46 32 Z" fill="currentColor"/>
+              <rect x="16" y="32" width="32" height="6" rx="2" fill="#0f172a"/>
+              <path d="M32 22 L32 48 M20 38 L20 48 L26 52 M44 38 L44 48 L38 52" stroke="#0f172a" stroke-width="3.5"/>
+            </svg>
+          </button>
+          <span id="dmnav-party-label" class="font-cinzel font-black text-[10px] text-amber-300 tracking-widest mt-1 uppercase">Eroi Campagna</span>
+        </div>
+
+        <button type="button" onclick="window.switchDmWorkspaceTab('create')" id="dmnav-create" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+          </svg>
+          <span class="font-cinzel font-bold text-[10px] tracking-wider">Crea Carta</span>
+        </button>
+      </nav>
+
+    </section>
+
+  </div>
+
+  <!-- MODAL ESCLUSIVO ADMIN -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="norse-panel norse-border-gold rounded-2xl p-6 max-w-md w-full space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[10px] font-cinzel uppercase text-amber-400">Accesso Root • Padre di Tutto</span>
+          <h3 class="font-cinzel font-bold text-lg text-white">Console Amministratore</h3>
+        </div>
+        <button type="button" onclick="window.closeAdminConsole()" class="text-slate-400 text-xs font-bold">Chiudi</button>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex justify-between items-center">
+        <div>
+          <h4 class="font-cinzel font-bold text-xs text-white">Modalità Manutenzione Sito</h4>
+          <p id="admin-maint-status" class="text-[11px] text-slate-400">Il sito è attualmente aperto ai giocatori.</p>
+        </div>
+        <button type="button" id="admin-maint-btn" onclick="window.adminToggleMaintenance()" class="px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-red-600 text-white">
+          BLOCCA SITO
+        </button>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+        <label class="font-cinzel font-bold text-sky-300 block">Indirizzo Database Cloud Firebase</label>
+        <input id="admin-cloud-url" type="url" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+        <button type="button" onclick="window.adminSaveCloudUrl()" class="ice-btn w-full py-2 rounded-lg font-cinzel font-bold text-white">
+          AGGIORNA CONNESSIONE CLOUD
+        </button>
+      </div>
+
+      <div class="bg-red-950/30 border border-red-800/60 rounded-xl p-4 space-y-2">
+        <h4 class="font-cinzel font-bold text-xs text-red-400">Zona Pericolo: Svuota Database</h4>
+        <p class="text-[11px] text-slate-400">Cancella tutte le campagne, le carte e gli utenti registrati (mantiene solo l'account Admin).</p>
+        <button type="button" onclick="window.adminWipeDatabase()" class="w-full py-2.5 rounded-lg bg-red-700 hover:bg-red-600 font-cinzel font-bold text-xs text-white">
+          SVUOTA INTERO DATABASE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LOGIN / REGISTRAZIONE -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="norse-panel rounded-2xl p-6 max-w-sm w-full space-y-4 border border-sky-400/40">
+      <div class="flex justify-between items-center">
+        <h3 id="auth-title" class="font-cinzel font-bold text-lg text-sky-300">Accedi</h3>
+        <button type="button" onclick="window.closeAuthModal()" class="text-slate-400 text-xs font-bold">Chiudi</button>
+      </div>
+      <p id="auth-subtitle" class="text-xs text-slate-400"></p>
+      <form onsubmit="window.handleAuthSubmit(event)" class="space-y-3 text-xs">
+        <input id="auth-username" type="text" required placeholder="Nome Utente" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
+        <input id="auth-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
+        <button id="auth-submit-btn" type="submit" class="ice-btn w-full py-3 rounded-xl font-cinzel font-bold text-white">CONFERMA</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL SCAMBIO CARTE TRA PLAYER -->
+  <div id="trade-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="norse-panel rounded-2xl p-5 max-w-sm w-full space-y-4">
+      <h3 class="font-cinzel font-bold text-base text-sky-300">Scambia Carta con un Compagno</h3>
+      <p id="trade-item-label" class="text-xs text-amber-300 font-bold"></p>
+      <select id="trade-recipient" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></select>
+      <div class="flex gap-2">
+        <button type="button" onclick="window.executeTrade()" class="ice-btn flex-1 py-2.5 rounded-xl font-cinzel font-bold text-xs text-white">INVIA CARTA</button>
+        <button type="button" onclick="window.closeTradeModal()" class="px-4 py-2.5 bg-slate-800 rounded-xl text-xs text-slate-300">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ANIMAZIONI GLOBALI -->
+  <div id="anim-modal" class="fixed inset-0 bg-black/92 backdrop-blur-xl z-50 hidden flex-col items-center justify-center p-6 text-center">
+    <div id="anim-box" class="max-w-md w-full space-y-5 animate-frost"></div>
+    <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">
+      CONTINUA
+    </button>
+  </div>
+
+  <!-- 3 Script Modulari con parametro ?v=5 per forzare l'aggiornamento su Safari -->
+  <script src="data.js?v=5"></script>
+  <script src="app.js?v=5"></script>
+  <script src="dm.js?v=5"></script>
+</body>
+</html>
