@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body class="relative">
 
@@ -261,90 +261,124 @@
         </div>
 
         <!-- VISTA CENTRALE: SCHEDA PERSONAGGIO -->
-        <div id="view-my-characters" class="flex-1 p-3 sm:p-4 space-y-3 max-w-2xl mx-auto w-full animate-page-switch">
+        <div id="view-my-characters" class="flex-1 main-container-responsive w-full animate-page-switch">
           
-          <div class="flex justify-between items-center gap-2">
+          <div class="flex justify-between items-center gap-2 mb-3">
             <select id="char-picker" onchange="window.switchActiveCharacter(this.value)" class="flex-1 bg-[#121820] border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-200"></select>
             <button type="button" onclick="window.openCharacterBuilder(true)" class="px-3 py-2 rounded-xl bg-[#1a222d] border border-slate-700 text-sky-400 text-xs font-bold">+ Nuovo Eroe</button>
           </div>
 
           <!-- BANNER AVANZAMENTO DI LIVELLO -->
-          <div id="pending-levelup-banner" class="hidden norse-panel norse-border-gold rounded-2xl p-3.5 flex justify-between items-center animate-section-fade">
+          <div id="pending-levelup-banner" class="hidden norse-panel norse-border-gold rounded-2xl p-3.5 mb-3 flex justify-between items-center animate-section-fade">
             <div>
               <span class="text-[10px] font-cinzel uppercase text-amber-400 font-bold block">Gloria nei Nove Mondi!</span>
-              <p class="text-xs text-white font-semibold">Il DM ti ha promosso di livello! Sblocca i nuovi privilegi di Journey to Ragnarok.</p>
+              <p class="text-xs text-white font-semibold">Il DM ti ha promosso di livello! Sblocca i nuovi poteri runici.</p>
             </div>
-            <button type="button" onclick="window.openLevelUpModal()" class="gold-btn px-4 py-2 rounded-xl font-cinzel font-black text-xs text-white shadow-lg">
-              AVANZA LIVELLO
+            <button type="button" onclick="window.openLevelUpModal()" class="gold-btn px-4 py-2 rounded-xl font-cinzel font-black text-xs text-white shadow-lg pulse-glow">
+              🔥 FORGIA LIVELLO
             </button>
           </div>
 
-          <!-- HEADER D&D BEYOND -->
-          <div class="ddb-top-card rounded-2xl p-3.5 space-y-3">
-            <div class="text-center">
-              <h2 id="sheet-name" class="text-xl font-extrabold text-white tracking-tight"></h2>
-              <p id="sheet-race-class" class="text-xs text-slate-400 font-semibold"></p>
-              <span id="sheet-camp-badge" class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300"></span>
+          <div class="desktop-sheet-grid">
+            <!-- COLONNA 1 (Sinistra): Vitals, Ritratto Eroe, CA, Iniziativa, HP -->
+            <div class="desktop-col-left">
+              <div class="ddb-top-card rounded-2xl p-3.5 space-y-3">
+                <div class="text-center">
+                  <h2 id="sheet-name" class="text-xl font-extrabold text-white tracking-tight"></h2>
+                  <p id="sheet-race-class" class="text-xs text-slate-400 font-semibold"></p>
+                  <span id="sheet-camp-badge" class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300"></span>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center">
+                  <div class="col-span-4 flex justify-around items-center">
+                    <div class="ddb-ac-shield">
+                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">CLASSE</span>
+                      <span id="sheet-ac" class="text-lg font-extrabold text-white leading-none my-0.5">14</span>
+                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">ARMATURA</span>
+                    </div>
+                    <div class="ddb-init-hex">
+                      <span id="sheet-init" class="text-base font-extrabold text-white leading-none">+1</span>
+                      <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider mt-1">INIZIATIVA</span>
+                    </div>
+                  </div>
+
+                  <div class="col-span-4 flex flex-col items-center">
+                    <div class="relative">
+                      <img id="sheet-avatar" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-slate-600 shadow-lg">
+                      <button type="button" onclick="window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica">☀</button>
+                    </div>
+                    <span class="text-[8px] font-bold text-slate-300 uppercase tracking-wider mt-2 text-center leading-tight">ISPIRAZIONE<br>EROICA</span>
+                  </div>
+
+                  <div class="col-span-4 space-y-1.5">
+                    <div class="ddb-hp-box p-2 rounded-xl text-center space-y-1">
+                      <span class="text-[8px] font-bold text-slate-300 uppercase block">PUNTI FERITA</span>
+                      <span id="sheet-hp-label" class="text-base font-extrabold text-white block leading-none">19/19</span>
+                      <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div id="sheet-hp-bar" class="h-full bg-sky-400 transition-all duration-300"></div>
+                      </div>
+                      <div class="grid grid-cols-2 gap-1 pt-0.5">
+                        <button type="button" onclick="window.adjustMyHP(-1)" class="py-1 bg-rose-950/80 border border-rose-700/60 text-rose-200 rounded text-[10px] font-bold">-1</button>
+                        <button type="button" onclick="window.adjustMyHP(1)" class="py-1 bg-emerald-950/80 border border-emerald-700/60 text-emerald-200 rounded text-[10px] font-bold">+1</button>
+                      </div>
+                    </div>
+                    <button type="button" onclick="window.cycleCharacterCondition()" id="sheet-condition-btn" class="w-full py-1.5 rounded-xl bg-[#0e131a] border border-slate-800 text-[9px] font-extrabold text-slate-200 uppercase tracking-wider transition">
+                      CONDIZIONI
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BANNER CASSA DEL DUNGEON -->
+              <div id="player-chest-box" class="hidden norse-panel norse-border-gold rounded-2xl p-3.5 space-y-2 animate-section-fade">
+                <h4 class="font-cinzel font-bold text-xs text-amber-300 uppercase">Forziere del Dungeon Aperto dal DM!</h4>
+                <div id="player-chest-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
             </div>
 
-            <div class="grid grid-cols-12 gap-2 items-center">
-              <div class="col-span-4 flex justify-around items-center">
-                <div class="ddb-ac-shield">
-                  <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">CLASSE</span>
-                  <span id="sheet-ac" class="text-lg font-extrabold text-white leading-none my-0.5">14</span>
-                  <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider">ARMATURA</span>
+            <!-- COLONNA 2 (Centro): Sezioni D&D Beyond e Azioni -->
+            <div class="desktop-col-center">
+              <button type="button" onclick="window.openDdbSectionModal()" class="w-full bg-[#1c2632] hover:bg-[#233040] border border-slate-700/80 rounded-xl px-4 py-3 flex justify-between items-center transition shadow-md active:scale-[0.99]">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-sky-400 text-sm">🐉</span>
+                  <span id="ddb-active-section-label" class="font-bold text-sm text-white">Caratteristiche, Salvezza e Sensi</span>
                 </div>
-                <div class="ddb-init-hex">
-                  <span id="sheet-init" class="text-base font-extrabold text-white leading-none">+1</span>
-                  <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wider mt-1">INIZIATIVA</span>
+                <div class="flex items-center gap-2 text-slate-400">
+                  <span class="text-xs font-semibold text-sky-400">Sezioni ☰</span>
                 </div>
-              </div>
+              </button>
 
-              <div class="col-span-4 flex flex-col items-center">
-                <div class="relative">
-                  <img id="sheet-avatar" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-slate-600 shadow-lg">
-                  <button type="button" onclick="window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica">☀</button>
-                </div>
-                <span class="text-[8px] font-bold text-slate-300 uppercase tracking-wider mt-2 text-center leading-tight">ISPIRAZIONE<br>EROICA</span>
-              </div>
+              <div id="ddb-section-body" class="space-y-4 pt-1 animate-section-fade"></div>
+            </div>
 
-              <div class="col-span-4 space-y-1.5">
-                <div class="ddb-hp-box p-2 rounded-xl text-center space-y-1">
-                  <span class="text-[8px] font-bold text-slate-300 uppercase block">PUNTI FERITA</span>
-                  <span id="sheet-hp-label" class="text-base font-extrabold text-white block leading-none">19/19</span>
-                  <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                    <div id="sheet-hp-bar" class="h-full bg-sky-400 transition-all duration-300"></div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-1 pt-0.5">
-                    <button type="button" onclick="window.adjustMyHP(-1)" class="py-1 bg-rose-950/80 border border-rose-700/60 text-rose-200 rounded text-[10px] font-bold">-1</button>
-                    <button type="button" onclick="window.adjustMyHP(1)" class="py-1 bg-emerald-950/80 border border-emerald-700/60 text-emerald-200 rounded text-[10px] font-bold">+1</button>
+            <!-- COLONNA 3 (Destra - Desktop): Clan Norreno & Lanciatore di Dadi -->
+            <div class="desktop-col-right mobile-hide">
+              <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
+                <div class="flex items-center gap-3">
+                  <img id="sheet-clan-crest" src="assets/clans/crest_bear_warriors.jpg" class="w-12 h-12 rounded-full object-cover border-2 border-amber-400 shadow-md">
+                  <div>
+                    <span class="text-[9px] font-cinzel uppercase text-amber-400 font-bold block">Clan di Midgardr</span>
+                    <h4 id="sheet-clan-name" class="font-cinzel font-bold text-sm text-white">Guerrieri dell'Orso</h4>
                   </div>
                 </div>
-                <button type="button" onclick="window.cycleCharacterCondition()" id="sheet-condition-btn" class="w-full py-1.5 rounded-xl bg-[#0e131a] border border-slate-800 text-[9px] font-extrabold text-slate-200 uppercase tracking-wider transition">
-                  CONDIZIONI
-                </button>
+                <p id="sheet-clan-trait" class="text-[11px] text-slate-300 leading-snug"></p>
+              </div>
+
+              <!-- Tiro Dadi Rapido -->
+              <div class="norse-panel rounded-2xl p-4 space-y-3">
+                <span class="text-[9px] font-cinzel uppercase text-sky-400 font-bold block">Tiro Rapido dei Dadi</span>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                  <button type="button" onclick="window.rollQuickDice(20)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 text-sky-300 font-bold">d20</button>
+                  <button type="button" onclick="window.rollQuickDice(12)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-300 font-bold">d12</button>
+                  <button type="button" onclick="window.rollQuickDice(10)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-400 text-emerald-300 font-bold">d10</button>
+                  <button type="button" onclick="window.rollQuickDice(8)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-purple-400 text-purple-300 font-bold">d8</button>
+                  <button type="button" onclick="window.rollQuickDice(6)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-rose-400 text-rose-300 font-bold">d6</button>
+                  <button type="button" onclick="window.rollQuickDice(4)" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold">d4</button>
+                </div>
+                <div id="quick-dice-log" class="text-[11px] text-slate-400 text-center pt-1 font-mono">Tocca un dado per tirare</div>
               </div>
             </div>
           </div>
-
-          <!-- BANNER CASSA DEL DUNGEON -->
-          <div id="player-chest-box" class="hidden norse-panel norse-border-gold rounded-2xl p-3.5 space-y-2 animate-section-fade">
-            <h4 class="font-cinzel font-bold text-xs text-amber-300 uppercase">Forziere del Dungeon Aperto dal DM!</h4>
-            <div id="player-chest-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-          </div>
-
-          <!-- BARRA SELETTORE SEZIONE -->
-          <button type="button" onclick="window.openDdbSectionModal()" class="w-full bg-[#1c2632] hover:bg-[#233040] border border-slate-700/80 rounded-xl px-4 py-3 flex justify-between items-center transition shadow-md active:scale-[0.99]">
-            <div class="flex items-center gap-2.5">
-              <span class="text-sky-400 text-sm">🐉</span>
-              <span id="ddb-active-section-label" class="font-bold text-sm text-white">Caratteristiche, Salvezza e Sensi</span>
-            </div>
-            <div class="flex items-center gap-2 text-slate-400">
-              <span class="text-xs font-semibold text-sky-400">Sezioni ☰</span>
-            </div>
-          </button>
-
-          <div id="ddb-section-body" class="space-y-4 pt-1 animate-section-fade"></div>
 
         </div>
 
@@ -664,8 +698,10 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=9"></script>
-  <script src="app.js?v=9"></script>
-  <script src="dm.js?v=9"></script>
+  <script src="data.js?v=10"></script>
+  <script src="rules.js?v=10"></script>
+  <script src="forge.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+  <script src="dm.js?v=10"></script>
 </body>
 </html>

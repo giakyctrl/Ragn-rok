@@ -741,25 +741,79 @@ function loadMasterDatabase() {
 
 let masterDB = loadMasterDatabase();
 
-function ensureCampaignExists(matricola) {
-    // Tentativo di lettura personaggi dal localStorage condiviso con https://giakyctrl.github.io/Ragn-rok/
-    let externalChars = null;
+function syncCharactersFromYggdrasill() {
+    let imported = [];
     try {
-        const extRaw = localStorage.getItem("ragnarok_characters") || localStorage.getItem("characters");
-        if (extRaw) externalChars = JSON.parse(extRaw);
-    } catch (e) {}
+        const raw = localStorage.getItem("yggdrasill_v3_db");
+        if (raw) {
+            const db = JSON.parse(raw);
+            if (db.users) {
+                Object.values(db.users).forEach(u => {
+                    if (u.characters && Array.isArray(u.characters)) {
+                        u.characters.forEach(ch => {
+                            imported.push({
+                                id: "sp_" + ch.id,
+                                name: ch.name + " (" + (ch.className || "Eroe") + ")",
+                                category: "pg",
+                                owner: ch.owner || "PG",
+                                img: ch.avatar || "assets/heroes/face_guerriero.jpg",
+                                hp: ch.hp || ch.maxHp || 20,
+                                maxHp: ch.maxHp || 20,
+                                clanCrest: ch.clanCrest || "assets/clans/crest_bear_warriors.jpg",
+                                equippedName: ch.cards && ch.cards[0] ? ch.cards[0].name : null,
+                                equippedImg: ch.cards && ch.cards[0] && ch.cards[0].image ? ch.cards[0].image : null
+                            });
+                        });
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.warn("Sync notice:", e);
+    }
+    return imported;
+}
+
+function ensureCampaignExists(matricola) {
+    const yggChars = syncCharactersFromYggdrasill();
 
     if (!masterDB.campaigns[matricola]) {
         const defaultSprites = [
-            { id: "sp_bjorn", name: "Björn", category: "pg", owner: "PG_BJORN", img: createDefaultSvgDataUrl("Björn", "#1e3a8a", "#93c5fd", "🛡️") },
-            { id: "sp_astrid", name: "Astrid", category: "pg", owner: "PG_ASTRID", img: createDefaultSvgDataUrl("Astrid", "#065f46", "#6ee7b7", "🗡️") },
-            { id: "sp_erik", name: "Erik", category: "pg", owner: "PG_ERIK", img: createDefaultSvgDataUrl("Erik", "#7f1d1d", "#fca5a5", "🪓") },
-            { id: "sp_draugr", name: "Draugr", category: "creatura", owner: "DM", img: createDefaultSvgDataUrl("Draugr", "#312e81", "#c084fc", "💀") },
-            { id: "sp_axe", name: "Ascia di Skadi", category: "arma_unica", owner: "PG_BJORN", img: createDefaultSvgDataUrl("Ascia", "#78350f", "#fde047", "🪓") },
-            { id: "sp_bow", name: "Arco di Ydalir", category: "arma_unica", owner: "PG_ASTRID", img: createDefaultSvgDataUrl("Arco", "#14532d", "#86efac", "🏹") },
-            { id: "sp_rune_ansuz", name: "Runa Ansuz", category: "runa", owner: "DM", img: createDefaultSvgDataUrl("Ansuz", "#4c1d95", "#ddd6fe", "ᚨ") },
-            { id: "sp_potion", name: "Idromele Sacro", category: "inventario", owner: "DM", img: createDefaultSvgDataUrl("Idromele", "#713f12", "#fef08a", "🍺") }
+            { id: "sp_bjorn", name: "Guerriero dell'Orso", category: "pg", owner: "PG", img: "assets/heroes/face_barbaro.jpg", hp: 32, maxHp: 32, clanCrest: "assets/clans/crest_bear_warriors.jpg" },
+            { id: "sp_astrid", name: "Skjaldmö Guardiana", category: "pg", owner: "PG", img: "assets/heroes/face_guerriero.jpg", hp: 28, maxHp: 28, clanCrest: "assets/clans/crest_gjallarhorn.jpg" },
+            { id: "sp_maestro", name: "Maestro delle Rune", category: "pg", owner: "PG", img: "assets/heroes/face_maestro_rune.jpg", hp: 22, maxHp: 22, clanCrest: "assets/clans/crest_odhinns_eye.jpg" },
+            { id: "sp_draugr", name: "Draugr dei Ghiacci", category: "creatura", owner: "DM", img: createDefaultSvgDataUrl("Draugr", "#312e81", "#c084fc", "💀"), hp: 26, maxHp: 26 },
+            { id: "sp_axe", name: "Scure d'Assalto", category: "arma_unica", owner: "PG", img: "assets/items/artiglio_montagna.jpg" },
+            { id: "sp_sword", name: "Spada Ulfberht", category: "arma_unica", owner: "PG", img: "assets/items/spada_ulfberht.jpg" },
+            { id: "sp_rune_ansuz", name: "Runa Ansuz", category: "runa", owner: "DM", img: createDefaultSvgDataUrl("Ansuz", "#4c1d95", "#ddd6fe", "ᚨ") }
         ];
+
+        const allSprites = yggChars.length > 0 ? [...yggChars, ...defaultSprites.filter(s => s.category !== "pg")] : defaultSprites;
+
+        const initialTokens = [];
+        if (yggChars.length > 0) {
+            yggChars.forEach((c, idx) => {
+                initialTokens.push({
+                    id: "tok_" + c.id,
+                    name: c.name,
+                    owner: c.owner,
+                    x: 480 + (idx % 3) * 60,
+                    y: 400 + Math.floor(idx / 3) * 60,
+                    img: c.img,
+                    hp: c.hp,
+                    maxHp: c.maxHp,
+                    clanCrest: c.clanCrest,
+                    equippedImg: c.equippedImg,
+                    equippedName: c.equippedName
+                });
+            });
+        } else {
+            initialTokens.push(
+                { id: "tok_1", name: defaultSprites[0].name, owner: "PG", x: 520, y: 420, img: defaultSprites[0].img, hp: 32, maxHp: 32, equippedImg: "assets/items/artiglio_montagna.jpg", equippedName: "Scure d'Assalto" },
+                { id: "tok_2", name: defaultSprites[1].name, owner: "PG", x: 590, y: 420, img: defaultSprites[1].img, hp: 28, maxHp: 28, equippedImg: null, equippedName: null },
+                { id: "tok_3", name: "Draugr Guardiano", owner: "DM", x: 520, y: 490, img: defaultSprites[3].img, hp: 26, maxHp: 26, equippedImg: null, equippedName: null }
+            );
+        }
 
         masterDB.campaigns[matricola] = {
             matricola: matricola,
@@ -768,14 +822,18 @@ function ensureCampaignExists(matricola) {
             turnIndex: 0,
             pendingAction: null,
             plotTwistBanner: "",
-            sprites: externalChars || defaultSprites,
-            tokensOnMap: [
-                { id: "tok_1", name: "Björn", owner: "PG_BJORN", x: 520, y: 420, img: defaultSprites[0].img, equippedImg: defaultSprites[4].img, equippedName: "Ascia di Skadi" },
-                { id: "tok_2", name: "Astrid", owner: "PG_ASTRID", x: 590, y: 420, img: defaultSprites[1].img, equippedImg: null, equippedName: null },
-                { id: "tok_3", name: "Draugr Guardiano", owner: "DM", x: 520, y: 490, img: defaultSprites[3].img, equippedImg: null, equippedName: null }
-            ]
+            sprites: allSprites,
+            tokensOnMap: initialTokens
         };
         saveMasterDatabase();
+    } else if (yggChars.length > 0) {
+        // Aggiorna la lista sprites della campagna esistente con i personaggi più recenti
+        const existingIds = new Set(masterDB.campaigns[matricola].sprites.map(s => s.id));
+        yggChars.forEach(yc => {
+            if (!existingIds.has(yc.id)) {
+                masterDB.campaigns[matricola].sprites.unshift(yc);
+            }
+        });
     }
     return masterDB.campaigns[matricola];
 }
@@ -1179,15 +1237,54 @@ function renderLoop() {
             ctx.fill();
         }
 
-        // Disegno PNG Personaggio
+        // Disegno PNG Personaggio con ritaglio circolare e bordo dorato runico
         const img = getCachedImage(tok.img);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(tok.x, tok.y, baseRadius, 0, Math.PI * 2);
+        ctx.clip();
         if (img && img.complete) {
             ctx.drawImage(img, tok.x - baseRadius, tok.y - baseRadius, baseRadius * 2, baseRadius * 2);
         } else {
             ctx.fillStyle = "#334155";
-            ctx.beginPath();
-            ctx.arc(tok.x, tok.y, baseRadius, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillRect(tok.x - baseRadius, tok.y - baseRadius, baseRadius * 2, baseRadius * 2);
+        }
+        ctx.restore();
+
+        // Bordo circolare runico
+        ctx.beginPath();
+        ctx.arc(tok.x, tok.y, baseRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = isTurn ? "#facc15" : "#c9a050";
+        ctx.lineWidth = isTurn ? 3.5 : 2;
+        ctx.stroke();
+
+        // Barra Punti Ferita (se presenti hp/maxHp)
+        if (tok.maxHp) {
+            const barW = baseRadius * 2;
+            const barH = 5;
+            const barX = tok.x - baseRadius;
+            const barY = tok.y - baseRadius - 10;
+            const hpPct = Math.max(0, Math.min(1, (tok.hp !== undefined ? tok.hp : tok.maxHp) / tok.maxHp));
+            ctx.fillStyle = "rgba(0,0,0,0.75)";
+            ctx.fillRect(barX, barY, barW, barH);
+            ctx.fillStyle = hpPct > 0.5 ? "#22c55e" : hpPct > 0.25 ? "#f59e0b" : "#ef4444";
+            ctx.fillRect(barX, barY, barW * hpPct, barH);
+            ctx.strokeStyle = "#0f172a";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(barX, barY, barW, barH);
+        }
+
+        // Nome sotto al token
+        if (tok.name) {
+            ctx.save();
+            ctx.font = "bold 11px Lato, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "#000000";
+            ctx.shadowBlur = 5;
+            const shortName = tok.name.split(' (')[0];
+            ctx.fillText(shortName, tok.x, tok.y + baseRadius + 14);
+            ctx.restore();
         }
 
         // SE IL PERSONAGGIO USA UN'ARMA/OGGETTO: compare sovrapposta a fianco con un divertente offset

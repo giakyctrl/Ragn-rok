@@ -9,20 +9,62 @@ window.ADMIN_CREDENTIALS = {
 };
 
 window.PRESET_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80"
+  "assets/heroes/face_barbaro.jpg",
+  "assets/heroes/face_guerriero.jpg",
+  "assets/heroes/face_maestro_rune.jpg",
+  "assets/heroes/face_chierico.jpg",
+  "assets/heroes/face_bardo.jpg",
+  "assets/heroes/face_monaco.jpg",
+  "assets/heroes/face_paladino.jpg",
+  "assets/heroes/face_ranger.jpg",
+  "assets/heroes/face_ladro.jpg",
+  "assets/heroes/face_stregone.jpg",
+  "assets/heroes/face_warlock.jpg",
+  "assets/heroes/face_mago.jpg"
 ];
 
+window.CLASS_FACE_AVATARS = {
+  barbaro: "assets/heroes/face_barbaro.jpg",
+  guerriero: "assets/heroes/face_guerriero.jpg",
+  maestro_rune: "assets/heroes/face_maestro_rune.jpg",
+  chierico: "assets/heroes/face_chierico.jpg",
+  bardo: "assets/heroes/face_bardo.jpg",
+  monaco: "assets/heroes/face_monaco.jpg",
+  paladino: "assets/heroes/face_paladino.jpg",
+  ranger: "assets/heroes/face_ranger.jpg",
+  ladro: "assets/heroes/face_ladro.jpg",
+  stregone: "assets/heroes/face_stregone.jpg",
+  warlock: "assets/heroes/face_warlock.jpg",
+  mago: "assets/heroes/face_mago.jpg"
+};
+
+window.CLASS_FULL_ARTWORKS = {
+  barbaro: "assets/heroes/full_barbaro.jpg",
+  guerriero: "assets/heroes/full_guerriero.jpg",
+  maestro_rune: "assets/heroes/full_maestro_rune.jpg",
+  chierico: "assets/heroes/full_chierico.jpg",
+  bardo: "assets/heroes/full_bardo.jpg",
+  monaco: "assets/heroes/full_monaco.jpg",
+  paladino: "assets/heroes/full_paladino.jpg",
+  ranger: "assets/heroes/full_ranger.jpg",
+  ladro: "assets/heroes/full_ladro.jpg",
+  stregone: "assets/heroes/full_stregone.jpg",
+  warlock: "assets/heroes/full_warlock.jpg",
+  mago: "assets/heroes/full_mago.jpg"
+};
+
 window.CARD_ARTWORKS = {
-  arma: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=500&q=80",
-  scudo: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80",
-  armatura: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80",
-  incantesimo: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
-  oggetto: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80"
+  arma: "assets/items/spada_ulfberht.jpg",
+  scudo: "assets/items/scudo_ombra_fronde.jpg",
+  armatura: "assets/items/megingjord.jpg",
+  incantesimo: "assets/items/ramo_runico.jpg",
+  oggetto: "assets/items/dente_strega.jpg",
+  maglio: "assets/items/artiglio_montagna.jpg",
+  corno: "assets/items/corno_fragoroso.jpg",
+  lancia: "assets/items/gungnir.jpg",
+  martello: "assets/items/mjolnir.jpg",
+  anello: "assets/items/draupnir.jpg",
+  collana: "assets/items/brisingamen.jpg"
 };
 
 window.DDB_SECTIONS = [
@@ -78,6 +120,8 @@ window.JTR_CLANS = [
     name: "Guerrieri dell'Orso (Bear Warriors)",
     bonusText: "+1 Forza, Competenza in Atletica o Intimidire",
     bonus: { FOR: 1 },
+    crest: "assets/clans/crest_bear_warriors.jpg",
+    banner: "assets/clans/banner_bear_warriors.jpg",
     trait: "[Clan Guerrieri dell'Orso] Furia di Bjorn: Vantaggio alle prove di Forza per sfondare o lottare; spirito indomito in mischia."
   },
   {
@@ -85,6 +129,8 @@ window.JTR_CLANS = [
     name: "Clan Gjallarhorn",
     bonusText: "+1 Carisma, Guardiani di Heimdallr",
     bonus: { CAR: 1 },
+    crest: "assets/clans/crest_gjallarhorn.jpg",
+    banner: "assets/clans/banner_gjallarhorn.jpg",
     trait: "[Clan Gjallarhorn] Sentinella dell'Alba: Non puoi essere sorpreso mentre sei cosciente e +2 alla Percezione Passiva."
   },
   {
@@ -92,6 +138,8 @@ window.JTR_CLANS = [
     name: "Corvo di Ghiaccio (Icy Crow)",
     bonusText: "+1 Destrezza, Esploratori dei Fiordi",
     bonus: { DES: 1 },
+    crest: "assets/clans/crest_icy_crows.jpg",
+    banner: "assets/clans/banner_icy_crows.jpg",
     trait: "[Clan Corvo di Ghiaccio] Ali del Nord: Ignori il terreno difficile causato da neve e ghiaccio; maestro delle imboscate."
   },
   {
@@ -99,6 +147,8 @@ window.JTR_CLANS = [
     name: "Figli degli Jötunn (Jötunn Sons)",
     bonusText: "+1 Costituzione, Sangue Primordiale",
     bonus: { COS: 1 },
+    crest: "assets/clans/crest_jotunn_sons.jpg",
+    banner: "assets/clans/banner_jotunn_sons.jpg",
     trait: "[Clan Figli degli Jötunn] Gelo nelle Vene: Resistenza ai climi estremi glaciali e +1 Punto Ferita massimo per livello."
   },
   {
@@ -106,6 +156,8 @@ window.JTR_CLANS = [
     name: "Occhio di Odhinn (Odhinn's Eye)",
     bonusText: "+1 Saggezza, Custodi dei Misteri Runici",
     bonus: { SAG: 1 },
+    crest: "assets/clans/crest_odhinns_eye.jpg",
+    banner: "assets/clans/banner_odhinns_eye.jpg",
     trait: "[Clan Occhio di Odhinn] Sapienza del Padre di Tutto: Competenza automatica nell'abilità Asatru e visione dei presagi."
   },
   {
@@ -113,6 +165,8 @@ window.JTR_CLANS = [
     name: "Lupi dell'Ombra (Wolves of the Shadow)",
     bonusText: "+1 Destrezza, Cacciatori Silenziosi",
     bonus: { DES: 1 },
+    crest: "assets/clans/crest_wolves_shadow.jpg",
+    banner: "assets/clans/banner_wolves_shadow.jpg",
     trait: "[Clan Lupi dell'Ombra] Istinto del Branco: Vantaggio alle prove di Furtività nella penombra o nella nebbia."
   }
 ];
@@ -379,14 +433,14 @@ window.JTR_CLASSES = [
 ];
 
 window.JTR_BACKGROUNDS = [
-  { id: "vikingr", name: "Vikingr (Razziatore dei Mari)", skills: ["atletica", "intimidire"], desc: "Navigatore di Drakkar e razziatore esperto delle coste." },
-  { id: "huscarl", name: "Huscarl (Guardia Reale dello Jarl)", skills: ["atletica", "intuizione"], desc: "Guerriero d'élite giurato alla protezione del proprio signore." },
-  { id: "gothi", name: "Gothi (Sacerdote delle Rune e degli Dei)", skills: ["asatru", "religione"], desc: "Guida spirituale della comunità, esperto nei riti Asatru e nei sacrifici." },
-  { id: "jarlr", name: "Jarlr (Nobile Capo Clan)", skills: ["persuasione", "storia"], desc: "Nato per comandare uomini liberi e sedere nella sala dell'idromele." },
-  { id: "bondhi", name: "Bondhi (Uomo Libero di Midgardr)", skills: ["addestrare", "sopravvivenza"], desc: "Spina dorsale dei clan: artigiano, cacciatore e difensore della propria terra." },
-  { id: "skogarmadhr", name: "Skògarmadhr (Fuorilegge dei Boschi)", skills: ["furtivita", "sopravvivenza"], desc: "Bandito esiliato nella grande foresta, abituato a sopravvivere da solo." },
-  { id: "vaeringhi", name: "Vaeringhi (Mercenario Viaggiatore)", skills: ["atletica", "percezione"], desc: "Veterano che ha viaggiato in terre lontane in cerca di oro e gloria." },
-  { id: "thallr", name: "Thallr (Ex-Schiavo Liberato)", skills: ["furtivita", "rapidita"], desc: "Hai spezzato le tue catene e ora forgi il tuo destino con le tue mani." }
+  { id: "vikingr", name: "Vikingr (Razziatore dei Mari)", gold: 20, skills: ["atletica", "intimidire"], privilege: "Fratellanza di Sangue: Legame sacro con i tuoi compagni di drakkar e accoglienza nei porti norreni.", desc: "Navigatore di Drakkar e razziatore esperto delle coste. 20 monete d'oro iniziali." },
+  { id: "huscarl", name: "Huscarl (Guardia Reale dello Jarl)", gold: 20, skills: ["atletica", "intuizione"], privilege: "Abilità dell'Huscarl: Autorità marziale, vitto, alloggio e rispetto in ogni sala dello jarl.", desc: "Guerriero d'élite giurato alla protezione del proprio signore. 20 monete d'oro iniziali." },
+  { id: "gothi", name: "Gothi (Sacerdote delle Rune e degli Dei)", gold: 15, skills: ["asatru", "religione"], privilege: "Auspici e Ospitalità: Benvenuto in qualsiasi comunità che venera gli Æsir e i Vanir; puoi officiare i riti del Blót.", desc: "Guida spirituale della comunità, esperto nei riti Asatru e nei sacrifici. 15 monete d'oro iniziali." },
+  { id: "jarlr", name: "Jarlr (Nobile Capo Clan)", gold: 25, skills: ["persuasione", "storia"], privilege: "Sangue di Eroi: La tua casata è leggendaria; gli abitanti di Midgardr ti mostrano deferenza e ascoltano i tuoi consigli.", desc: "Nato per comandare uomini liberi e sedere nella sala dell'idromele. 25 monete d'oro iniziali." },
+  { id: "bondhi", name: "Bondhi (Uomo Libero di Midgardr)", gold: 15, skills: ["addestrare", "sopravvivenza"], privilege: "Un Focolare a cui Tornare: Possiedi una fattoria o bottega e puoi sempre trovare rifugio e supporto tra i contadini liberi.", desc: "Spina dorsale dei clan: artigiano, cacciatore e difensore della propria terra. 15 monete d'oro iniziali." },
+  { id: "skogarmadhr", name: "Skògarmadhr (Fuorilegge dei Boschi)", gold: 5, skills: ["furtivita", "sopravvivenza"], privilege: "Falsa Identità: Sei sopravvissuto all'inverno nei boschi ostili e sai celare il tuo nome a cacciatori di taglie e autorità.", desc: "Bandito esiliato nella grande foresta, abituato a sopravvivere da solo. 5 monete d'oro iniziali." },
+  { id: "vaeringhi", name: "Vaeringhi (Mercenario Viaggiatore)", gold: 15, skills: ["atletica", "percezione"], privilege: "Giuramento Sacro: Il tuo giuramento sulla spada ti garantisce contatti commerciali e rispetto tra le compagnie mercenarie.", desc: "Veterano che ha viaggiato in terre lontane in cerca di oro e gloria. 15 monete d'oro iniziali." },
+  { id: "thallr", name: "Thallr (Ex-Schiavo Liberato)", gold: 5, skills: ["furtivita", "rapidita"], privilege: "Protetto dal Maestro: Conosci i passaggi segreti delle tenute, la psicologia degli oppressori e la tenacia della sopravvivenza.", desc: "Hai spezzato le tue catene e ora forgi il tuo destino con le tue mani. 5 monete d'oro iniziali." }
 ];
 
 window.JTR_ALIGNMENTS = [

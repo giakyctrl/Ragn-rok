@@ -638,21 +638,32 @@ window.saveFullCharacterSheet = function(e) {
     }
   }
 
+  const startingGear = (window.RulesEngine && typeof window.RulesEngine.calculateStartingEquipment === 'function')
+    ? window.RulesEngine.calculateStartingEquipment(clsObj.id, bgObj.id, clanObj.id)
+    : { gold: 15, items: [] };
+  const startingSpells = (window.RulesEngine && typeof window.RulesEngine.getStartingSpells === 'function')
+    ? window.RulesEngine.getStartingSpells(clsObj.id)
+    : null;
+
   const newChar = {
     id: 'char_' + Date.now(),
     owner: window.currentUser,
     name: document.getElementById('cf-name').value.trim(),
     race: raceObj.name,
     clanName: clanObj.name,
+    clanCrest: clanObj.crest || "assets/clans/crest_bear_warriors.jpg",
+    clanBanner: clanObj.banner || "assets/clans/banner_bear_warriors.jpg",
     classId: clsObj.id,
     className: clsObj.name.split(' (')[0],
     subclass: subclass,
     level: lvl,
     hitDie: clsObj.hitDie,
     background: bgObj.name,
+    gold: startingGear.gold || 15,
     alignment: document.getElementById('cf-align').value,
     virtue: document.getElementById('cf-virtue').value,
-    avatar: window.selectedFormAvatar,
+    avatar: window.selectedFormAvatar || (window.CLASS_FACE_AVATARS && window.CLASS_FACE_AVATARS[clsObj.id]) || "assets/heroes/face_guerriero.jpg",
+    fullArt: (window.CLASS_FULL_ARTWORKS && window.CLASS_FULL_ARTWORKS[clsObj.id]) || "assets/heroes/full_guerriero.jpg",
     hp: maxHp,
     maxHp: maxHp,
     ac: parseInt(document.getElementById('cf-ac').value) || 14,
@@ -667,7 +678,10 @@ window.saveFullCharacterSheet = function(e) {
     traits: compiledTraits,
     proficiencies: `Armi e armature di ${clsObj.name.split(' (')[0]}, Lingua Norrena e Runico Futhark`,
     notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota.',
-    cards: []
+    cards: startingGear.items || [],
+    spells: startingSpells ? startingSpells.spells : [],
+    cantrips: startingSpells ? startingSpells.cantrips : [],
+    runes: startingSpells ? startingSpells.runes : []
   };
 
   const acc = window.dbState.users[window.currentUser];
@@ -682,7 +696,7 @@ window.saveFullCharacterSheet = function(e) {
 };
 
 // ============================================================================
-// 6. LEVEL UP COERENTE CON IL MANUALE "JOURNEY TO RAGNAROK"
+// 6. LEVEL UP COERENTE CON IL MANUALE "JOURNEY TO RAGNAROK" & FORGING ENGINE
 // ============================================================================
 let currentLevelUpCharId = null;
 let computedHpGain = 0;
@@ -690,6 +704,18 @@ let computedHpGain = 0;
 window.openLevelUpModal = function() {
   const ch = window.getMyCharacter();
   if (!ch) return;
+
+  // Se ForgeEngine è disponibile, lancia la forgiatura runica interattiva
+  if (window.ForgeEngine && typeof window.ForgeEngine.openForgeModal === 'function') {
+    window.ForgeEngine.openForgeModal(ch, (updatedChar) => {
+      delete updatedChar.pendingLevelUp;
+      window.propagateCharacterToCampaigns(updatedChar);
+      window.saveDB();
+      window.renderDdbCharacterSheet();
+    });
+    return;
+  }
+
   currentLevelUpCharId = ch.id;
   const nextLvl = (ch.level || 1) + 1;
 
@@ -741,7 +767,7 @@ window.openLevelUpModal = function() {
 
 window.closeLevelUpModal = function() {
   const m = document.getElementById('levelup-modal');
-  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+  m.classList.add('hidden'); m.classList.remove('flex');
 };
 
 window.chooseLevelUpHpMethod = function(method) {
@@ -1303,8 +1329,27 @@ window.renderAllViews = function() {
       chestBox.classList.add('hidden');
     }
 
+    // Aggiorna colonna destra desktop (Crest Clan, Nome e Tratto)
+    const clanCrestEl = document.getElementById('sheet-clan-crest');
+    const clanNameEl = document.getElementById('sheet-clan-name');
+    const clanTraitEl = document.getElementById('sheet-clan-trait');
+    if (clanCrestEl) clanCrestEl.src = ch.clanCrest || 'assets/clans/crest_bear_warriors.jpg';
+    if (clanNameEl) clanNameEl.textContent = ch.clanName || 'Midgardr';
+    if (clanTraitEl) clanTraitEl.textContent = ch.clanTrait || 'Stirpe degli Uomini dei Nove Mondi.';
+
     window.renderDdbSectionContent(ch);
   }
+
+  window.rollQuickDice = function(sides) {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    const logEl = document.getElementById('quick-dice-log');
+    if (logEl) {
+      const isCrit = (sides === 20 && roll === 20);
+      const isFail = (sides === 20 && roll === 1);
+      const color = isCrit ? 'text-amber-400 font-black' : isFail ? 'text-red-400 font-bold' : 'text-sky-300 font-bold';
+      logEl.innerHTML = `Lancio d${sides}: <span class="${color} text-sm">${roll}</span>`;
+    }
+  };
 
   document.getElementById('join-char-select').innerHTML = chars.map(c => `<option value="${c.id}">${c.name} (${c.className} Liv.${c.level || 1})</option>`).join('');
 
