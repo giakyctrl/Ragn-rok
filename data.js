@@ -79,17 +79,17 @@ window.CARD_ARTWORKS = {
 };
 
 window.DDB_SECTIONS = [
-  { id: "abilities", label: "Caratteristiche, Salvezza e Sensi", iconSvg: '<svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>' },
-  { id: "skills", label: "Abilità (Inclusa Asatru)", iconSvg: '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
-  { id: "actions", label: "Azioni e Attacchi", iconSvg: '<svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>' },
-  { id: "inventory", label: "Inventario", iconSvg: '<svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>' },
-  { id: "spells", label: "Incantesimi e Rune", iconSvg: '<svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>' },
-  { id: "defenses", label: "Velocità, Difese e Condizioni", iconSvg: '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
-  { id: "features", label: "Privilegi di Classe e Clan", iconSvg: '<svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
-  { id: "proficiencies", label: "Competenze e Addestramento", iconSvg: '<svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' },
-  { id: "background", label: "Clan, Background e Virtù", iconSvg: '<svg class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>' },
-  { id: "notes", label: "Note di Viaggio", iconSvg: '<svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
-  { id: "creatures", label: "Creature e Compagni", iconSvg: '<svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>' }
+  { id: "abilities", label: "Caratteristiche, Salvezza e Sensi", icon: '<svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>', iconSvg: '<svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>' },
+  { id: "skills", label: "Abilità (Inclusa Asatru)", icon: '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', iconSvg: '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+  { id: "actions", label: "Azioni e Attacchi", icon: '<svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>', iconSvg: '<svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>' },
+  { id: "inventory", label: "Inventario", icon: '<svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>', iconSvg: '<svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>' },
+  { id: "spells", label: "Incantesimi e Rune", icon: '<svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>', iconSvg: '<svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>' },
+  { id: "defenses", label: "Velocità, Difese e Condizioni", icon: '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', iconSvg: '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+  { id: "features", label: "Privilegi di Classe e Clan", icon: '<svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', iconSvg: '<svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
+  { id: "proficiencies", label: "Competenze e Addestramento", icon: '<svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>', iconSvg: '<svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' },
+  { id: "background", label: "Clan, Background e Virtù", icon: '<svg class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>', iconSvg: '<svg class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>' },
+  { id: "notes", label: "Note di Viaggio", icon: '<svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', iconSvg: '<svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+  { id: "creatures", label: "Creature e Compagni", icon: '<svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>', iconSvg: '<svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>' }
 ];
 
 // Abilità ufficiali D&D 5e + ASATRU (Saggezza) da Journey to Ragnarok
@@ -1322,6 +1322,74 @@ window.GLOBAL_CARDS_DATABASE = [
     range: "Personale",
     img: "assets/items/jarngreipr.jpg",
     desc: "Guanti di ferro massiccio indispensabili per impugnare Mjöllnir senza farsi incenerire dal calore primordiale sprigionato dal maglio del tuono."
+  },
+
+  // --- ARMI E CIMELI DEI CLAN DI MIDGARDR (LIVELLO 1) ---
+  {
+    id: "heirloom_bear_warriors",
+    name: "Artiglio della Montagna",
+    type: "arma",
+    rarity: "Raro",
+    damage: "2d6+FOR Frantumante",
+    weight: 3.5,
+    range: "Mischia (1.5m)",
+    img: "assets/items/Bear-Warriors-Claw-of-the-Mountain.png",
+    desc: "Pesante maglio cerimoniale dei Guerrieri dell'Orso forgiato nelle vette di Jotunheimr. All'impatto critico frantuma armature e atterra i nemici (TS Destrezza CD 14 o prono)."
+  },
+  {
+    id: "heirloom_gjallarhorn",
+    name: "Corno Fragoroso",
+    type: "oggetto",
+    rarity: "Raro",
+    damage: "3d8 Tuono",
+    weight: 1.5,
+    range: "Cono 9m",
+    img: "assets/items/Gjallarhorn-Clangorous-Horn.png",
+    desc: "Corno consacrato a Heimdallr. Come azione, emette un rimbombo assordante che infligge 3d8 danni da tuono in un cono di 9m e spaventa i nemici (TS Costituzione CD 14 dimezza e nega spaventato)."
+  },
+  {
+    id: "heirloom_icy_crows",
+    name: "Ramo Runico",
+    type: "oggetto",
+    rarity: "Raro",
+    damage: "Focus +1 CD Magie",
+    weight: 1.0,
+    range: "Personale",
+    img: "assets/items/Icy_Crows-Runic-Branch.png",
+    desc: "Verga di legno sacro intagliata con le rune del ghiaccio dei Corvi. Aggiunge +1 ai Tiri per Colpire degli incantesimi e alla CD dei tiri salvezza magici del portatore."
+  },
+  {
+    id: "heirloom_jotunn_sons",
+    name: "Dente della Strega",
+    type: "arma",
+    rarity: "Raro",
+    damage: "1d4+DES Perforante + 2d6 Veleno",
+    weight: 0.5,
+    range: "Mischia / Lancio (6m)",
+    img: "assets/items/Jotunn-Sons-Witch's-Tooth.png",
+    desc: "Pugnale sacrificale intagliato da una zanna di gigante dei ghiacci primordiale. Ferisce e inietta tossine letali nel sangue nemico (TS Costituzione CD 13 o avvelenato per 1 minuto)."
+  },
+  {
+    id: "heirloom_odhinns_eye",
+    name: "Spada Ulfberht",
+    type: "arma",
+    rarity: "Raro",
+    damage: "1d8+1+FOR Tagliente",
+    weight: 1.5,
+    range: "Mischia (1.5m)",
+    img: "assets/items/Odyn's-Eye-Ulfberht-Sword.png",
+    desc: "Lama di puro acciaio crogiolo forgiata con il marchio segreto dell'Occhio di Odhinn. +1 ai tiri per colpire e per i danni; supera la resistenza ai danni non magici."
+  },
+  {
+    id: "heirloom_wolves_shadow",
+    name: "Scudo Ombra delle Fronde",
+    type: "scudo",
+    rarity: "Raro",
+    damage: "+2 CA (+Vantaggio Furtività)",
+    weight: 2.5,
+    range: "Personale",
+    img: "assets/items/Wolves-of-the-Shadow-Shadow-of-Leafage.png",
+    desc: "Scudo runico in legno di frassino e cuoio di lupo. Conferisce +2 alla Classe Armatura e conferisce Vantaggio costante alle prove di Destrezza (Furtività) nelle foreste e nella penombra."
   }
 ];
 

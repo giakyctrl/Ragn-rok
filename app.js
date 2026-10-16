@@ -421,6 +421,7 @@ window.handleAuthSubmit = async function(e) {
     if (!window.dbState.users[userKey]) window.dbState.users[userKey] = { username: "admin", password: uPass, characters: [] };
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
+    localStorage.setItem('yggdrasill_current_user', userKey);
     window.closeAuthModal(); window.saveDB(); window.enterAfterLogin();
     return;
   }
@@ -430,12 +431,14 @@ window.handleAuthSubmit = async function(e) {
     window.dbState.users[userKey] = { username: uName, password: uPass, characters: [] };
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
+    localStorage.setItem('yggdrasill_current_user', userKey);
     window.closeAuthModal(); window.saveDB(); window.enterAfterLogin();
   } else {
     const acc = window.dbState.users[userKey];
     if (!acc || acc.password !== uPass) { alert("Credenziali errate."); return; }
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
+    localStorage.setItem('yggdrasill_current_user', userKey);
     window.closeAuthModal(); window.enterAfterLogin();
   }
 };
@@ -873,8 +876,8 @@ window.openDdbSectionModal = function() {
     }
     return `
       <button type="button" onclick="window.selectDdbSection('${sec.id}')" class="ddb-menu-item ${window.activeDdbSection === sec.id ? 'active' : ''}" style="animation-delay: ${idx * 0.03}s">
-        <span class="text-base">${sec.icon}</span>
-        <span class="flex-1">${sec.label}</span>
+        <span class="w-5 h-5 flex items-center justify-center shrink-0">${sec.iconSvg || sec.icon || ''}</span>
+        <span class="flex-1 font-semibold">${sec.label}</span>
         ${countBadge}
       </button>
     `;
@@ -1010,6 +1013,25 @@ window.openCardDetailModal = function(cardId) {
   let card = null;
   const ch = window.getMyCharacter();
   if (ch && ch.cards) card = ch.cards.find(c => c.id === cardId);
+  if (!card && window.dbState && window.dbState.campaigns) {
+    for (const code in window.dbState.campaigns) {
+      const camp = window.dbState.campaigns[code];
+      if (camp.chest) {
+        card = camp.chest.find(c => c.id === cardId);
+        if (card) break;
+      }
+      if (camp.members) {
+        for (const uKey in camp.members) {
+          const mChar = camp.members[uKey];
+          if (mChar && mChar.cards) {
+            card = mChar.cards.find(c => c.id === cardId);
+            if (card) break;
+          }
+        }
+      }
+      if (card) break;
+    }
+  }
   if (!card) {
     const all = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
     card = all.find(c => c.id === cardId || c.name === cardId);

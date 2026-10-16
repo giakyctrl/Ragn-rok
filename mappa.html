@@ -1660,7 +1660,7 @@
     let currentCampaignCode = (urlParams.get("camp") || urlParams.get("matricola") || urlParams.get("code") || "RAG-001").toUpperCase();
 
     // Utente attivo e permessi DM
-    const currentUser = localStorage.getItem("yggdrasill_current_user") || "Guest";
+    const currentUser = (localStorage.getItem("yggdrasill_v3_user") || localStorage.getItem("yggdrasill_current_user") || "Guest").toLowerCase();
     const isAdmin = (sessionStorage.getItem("admin_authenticated") === "true") || (currentUser === "admin");
     let isUserDm = isAdmin;
 
@@ -1670,7 +1670,7 @@
         const db = JSON.parse(dbRaw);
         if (db.campaigns && db.campaigns[currentCampaignCode]) {
           const camp = db.campaigns[currentCampaignCode];
-          if (camp.dmUser === currentUser || isAdmin) {
+          if ((camp.dmUser && camp.dmUser.toLowerCase() === currentUser) || isAdmin) {
             isUserDm = true;
           }
         }
@@ -1681,7 +1681,7 @@
 
     // Se l'utente NON è il DM o root admin, forza assolutamente il ruolo GIOCATORE
     let requestedRole = (urlParams.get("role") || (isUserDm ? "DM" : "PLAYER")).toUpperCase();
-    let currentRole = isUserDm ? requestedRole : "PLAYER";
+    let currentRole = (isUserDm && requestedRole === "DM") ? "DM" : "PLAYER";
 
     const VTT_STATE = {
       campaignCode: currentCampaignCode,
@@ -3428,7 +3428,10 @@
         currentRole = "PLAYER";
         if (switcher) switcher.style.display = "none";
       } else {
-        if (switcher) switcher.style.display = "";
+        if (switcher) {
+          switcher.style.display = "";
+          switcher.value = currentRole;
+        }
       }
 
       badge.textContent = isDm ? "MASTER (DM)" : "GIOCATORE";
@@ -3446,11 +3449,32 @@
       requestCanvasRepaint();
     }
 
-    document.getElementById("role-switcher-select").value = currentRole;
-    document.getElementById("role-switcher-select").addEventListener("change", (e) => {
-      currentRole = e.target.value;
-      updateRoleView();
-    });
+    const roleSwitcherEl = document.getElementById("role-switcher-select");
+    if (roleSwitcherEl) {
+      roleSwitcherEl.value = currentRole;
+      roleSwitcherEl.addEventListener("change", (e) => {
+        if (!isUserDm) {
+          currentRole = "PLAYER";
+          updateRoleView();
+          return;
+        }
+        currentRole = e.target.value;
+        updateRoleView();
+      });
+    }
+
+    const campCodeInputEl = document.getElementById("campaign-code-input");
+    if (campCodeInputEl) {
+      campCodeInputEl.value = currentCampaignCode;
+      campCodeInputEl.addEventListener("change", (e) => {
+        const val = e.target.value.trim().toUpperCase();
+        if (val && val !== currentCampaignCode) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("camp", val);
+          window.location.href = url.toString();
+        }
+      });
+    }
 
     function setActiveTool(tool) {
       VTT_STATE.activeTool = tool;

@@ -315,6 +315,10 @@ window.renderDmViews = function() {
                   <h4 class="font-cinzel font-bold text-base text-white">${c.title}</h4>
                 </div>
                 <div class="flex items-center gap-2">
+                  <a href="mappa.html?camp=${encodeURIComponent(c.code)}&role=DM" target="_blank" onclick="event.stopPropagation()" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-cinzel font-bold text-[10px] flex items-center gap-1 shadow transition">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                    MAPPA DM
+                  </a>
                   <button type="button" onclick="window.toggleSwipeDeleteState(event, '${c.code}')" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] text-slate-400">Elimina</button>
                   <span class="font-cinzel font-bold text-xs text-sky-300">APRI &rarr;</span>
                 </div>
@@ -401,9 +405,9 @@ window.renderDmViews = function() {
       ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400 col-span-2">Nessuna carta trovata.</div>`
       : filtered.map(item => `
           <div class="norse-panel rounded-2xl p-3 flex gap-3 items-center border border-slate-800">
-            <img src="${item.card.img || window.CARD_ARTWORKS.arma}" class="w-14 h-20 rounded-lg object-cover border border-amber-500/40 flex-shrink-0">
+            <img src="${item.card.img || window.CARD_ARTWORKS.arma}" onclick="window.openCardDetailModal('${item.card.id}')" class="w-14 h-20 rounded-lg object-cover border border-amber-500/40 flex-shrink-0 cursor-pointer hover:scale-105 transition shadow" title="Tocca per ingrandire la carta">
             <div class="flex-1 min-w-0 space-y-1">
-              <div class="flex justify-between"><h4 class="font-bold text-xs text-white truncate">${item.card.name}</h4><button type="button" onclick="window.dmDeleteCardFromCampaign('${item.card.id}', '${item.ownerKey}')" class="text-[10px] text-red-400 font-bold">Elimina</button></div>
+              <div class="flex justify-between items-center"><h4 class="font-bold text-xs text-white truncate cursor-pointer hover:text-amber-300" onclick="window.openCardDetailModal('${item.card.id}')" title="Tocca per ingrandire la carta">${item.card.name}</h4><button type="button" onclick="window.dmDeleteCardFromCampaign('${item.card.id}', '${item.ownerKey}')" class="text-[10px] text-red-400 font-bold ml-1 hover:underline">Elimina</button></div>
               <p class="text-[10px] text-amber-300 uppercase font-bold">${item.card.type} • ${item.card.rarity}</p>
               <p class="text-[10px] text-sky-300 font-semibold">${item.ownerName}</p>
               <select onchange="window.dmReassignCard('${item.card.id}', '${item.ownerKey}', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-[10px] text-slate-300">

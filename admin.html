@@ -287,7 +287,15 @@
               <option value="assets/items/Odyn's-Eye-Ulfberht-Sword.png">Spada Odino (PNG D:\JTR)</option>
               <option value="assets/items/Wolves-of-the-Shadow-Shadow-of-Leafage.png">Scudo dei Lupi (PNG D:\JTR)</option>
             </select>
-            <img id="acm-img-preview" src="assets/items/spada_ulfberht.jpg" class="w-10 h-10 rounded-lg object-cover border border-amber-500/40">
+            <img id="acm-img-preview" src="assets/items/spada_ulfberht.jpg" class="w-12 h-12 rounded-lg object-cover border border-amber-500/40 shadow">
+          </div>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs flex items-center gap-2 shadow-lg transition">
+              <svg class="w-4 h-4 text-slate-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Carica File dal tuo PC</span>
+              <input type="file" id="acm-file-upload" accept="image/*" class="hidden" onchange="window.handleAdminCardFileUpload(event)">
+            </label>
+            <span id="acm-file-name" class="text-[11px] text-slate-400 truncate max-w-[220px]">Nessun file selezionato</span>
           </div>
           <input id="acm-img-custom" type="text" placeholder="Oppure inserisci URL o percorso relativo..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white mt-1.5 text-[11px]">
         </div>
@@ -302,6 +310,71 @@
           <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-cinzel font-bold shadow-md">SALVA CARTA NEL DATABASE</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODALE DETTAGLIO CARTA ESTESA (ADMIN) -->
+  <div id="card-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/80 backdrop-blur-md" onclick="if(event.target===this) window.closeCardDetailModal()">
+    <div class="admin-card rounded-2xl p-5 flex flex-col space-y-4 max-w-xl w-full border-2 border-amber-500/50 shadow-2xl overflow-y-auto max-h-[92vh] animate-modal-pop" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span id="cdm-badge" class="text-[9px] font-cinzel font-bold uppercase tracking-wider text-sky-300 px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40">AZIONE</span>
+          <span id="cdm-rarity" class="text-[9px] font-bold uppercase text-amber-300">RARO</span>
+        </div>
+        <button type="button" onclick="window.closeCardDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm">✕</button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+        <div class="flex flex-col items-center gap-2 flex-shrink-0">
+          <div class="w-36 h-48 sm:w-44 sm:h-56 rounded-xl overflow-hidden border-2 border-amber-500/50 bg-black shadow-xl">
+            <img id="cdm-img" src="assets/items/spada_ulfberht.jpg" class="w-full h-full object-cover">
+          </div>
+          <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] tracking-wider transition flex items-center gap-1.5 shadow">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Carica dal PC</span>
+            <input type="file" id="cdm-img-upload-input" accept="image/*" class="hidden" onchange="window.handleAdminCdmFileUpload(event)">
+          </label>
+        </div>
+        <div class="flex-1 space-y-2 text-xs w-full">
+          <h2 id="cdm-name" class="font-cinzel font-black text-xl text-white tracking-wide">Nome Carta</h2>
+          <span id="cdm-type" class="text-[11px] font-semibold text-slate-400 block pb-1 border-b border-slate-800">Tipo Sottotipo</span>
+
+          <div class="grid grid-cols-2 gap-2 pt-1 font-mono">
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Danno / Effetto</span>
+              <strong id="cdm-dmg" class="text-red-400 text-sm font-black">1d8+3</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Gittata / Peso</span>
+              <strong id="cdm-range" class="text-sky-300 text-xs">Mischia (1.5m)</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Tempo di Lancio</span>
+              <strong id="cdm-cast-time" class="text-amber-200 text-xs">1 Azione</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Durata</span>
+              <strong id="cdm-duration" class="text-purple-300 text-xs">Istantaneo</strong>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-400">
+            <span>Componenti: </span><strong id="cdm-components" class="text-slate-300">V, S</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-200 leading-relaxed max-h-48 overflow-y-auto">
+        <p id="cdm-desc" class="whitespace-pre-line"></p>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <button type="button" id="cdm-edit-btn" onclick="window.closeCardDetailModal(); window.editAdminCard(window.currentActiveCardModalId);" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 font-cinzel font-bold text-xs text-white shadow transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Modifica Carta
+        </button>
+        <button type="button" onclick="window.closeCardDetailModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-cinzel font-bold text-xs text-slate-300">
+          Chiudi
+        </button>
+      </div>
     </div>
   </div>
 
@@ -420,10 +493,9 @@
       container.innerHTML = filtered.length === 0
         ? `<div class="p-8 text-center text-slate-400 font-cinzel col-span-full">Nessuna carta trovata con i filtri correnti.</div>`
         : filtered.map(c => `
-          <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')}">
+          <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')} cursor-pointer hover:scale-[1.02] transition duration-200" onclick="window.openCardDetailModal('${c.id}')" title="Clicca per visualizzare la carta estesa">
             <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
               <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate">${c.name}</span>
-              
             </div>
 
             <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
@@ -444,15 +516,95 @@
             </div>
 
             <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button type="button" onclick="window.editAdminCard('${c.id}')" class="py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px]">MODIFICA</button>
+              <button type="button" onclick="event.stopPropagation(); window.editAdminCard('${c.id}')" class="py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px] shadow">MODIFICA</button>
               ${c.isCustom ? `
-                <button type="button" onclick="window.deleteAdminCard('${c.id}')" class="py-1 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px]">ELIMINA</button>
+                <button type="button" onclick="event.stopPropagation(); window.deleteAdminCard('${c.id}')" class="py-1 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px] shadow">ELIMINA</button>
               ` : `
-                <button type="button" onclick="window.cloneAdminCard('${c.id}')" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px]">DUPLICA</button>
+                <button type="button" onclick="event.stopPropagation(); window.cloneAdminCard('${c.id}')" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px] shadow">DUPLICA</button>
               `}
             </div>
           </div>
         `).join('');
+    };
+
+    window.currentActiveCardModalId = null;
+
+    window.openCardDetailModal = function(cardId) {
+      window.currentActiveCardModalId = cardId;
+      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
+      const card = all.find(c => c.id === cardId);
+      if (!card) return;
+
+      const modal = document.getElementById('card-detail-modal');
+      if (!modal) return;
+
+      const sec = typeof window.classifyCardToDdbSection === 'function' ? window.classifyCardToDdbSection(card) : 'inventory';
+      const badgeLabel = sec === 'actions' ? 'AZIONE & ATTACCO' : sec === 'spells' ? 'MAGIA & RUNA' : 'INVENTARIO';
+
+      document.getElementById('cdm-name').textContent = card.name;
+      document.getElementById('cdm-badge').textContent = badgeLabel;
+      document.getElementById('cdm-rarity').textContent = (card.rarity || 'Comune').toUpperCase();
+      document.getElementById('cdm-type').textContent = `${(card.type || 'oggetto').toUpperCase()} ${card.level !== undefined ? (card.level === 0 ? '• TRUCCHETTO' : `• ${card.level}° CERCHIO`) : ''}`;
+      document.getElementById('cdm-img').src = card.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[card.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg';
+      document.getElementById('cdm-dmg').textContent = card.damage || '—';
+      document.getElementById('cdm-range').textContent = card.range || (card.weight ? card.weight + ' kg' : 'Mischia (1.5m)');
+      document.getElementById('cdm-cast-time').textContent = card.castingTime || (card.type === 'arma' ? '1 Attacco' : '1 Azione');
+      document.getElementById('cdm-duration').textContent = card.duration || 'Istantaneo';
+      document.getElementById('cdm-components').textContent = card.components || 'Nessuna';
+      document.getElementById('cdm-desc').textContent = card.desc || 'Nessuna descrizione disponibile.';
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.closeCardDetailModal = function() {
+      const modal = document.getElementById('card-detail-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.handleAdminCardFileUpload = function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const fileNameEl = document.getElementById('acm-file-name');
+      if (fileNameEl) fileNameEl.textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        document.getElementById('acm-img-custom').value = dataUrl;
+        document.getElementById('acm-img-preview').src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleAdminCdmFileUpload = function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file || !window.currentActiveCardModalId) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        document.getElementById('cdm-img').src = dataUrl;
+
+        let card = (dbState.customCards || []).find(c => c.id === window.currentActiveCardModalId);
+        if (card) {
+          card.img = dataUrl;
+        } else {
+          const globalCard = (window.GLOBAL_CARDS_DATABASE || []).find(c => c.id === window.currentActiveCardModalId);
+          if (globalCard) {
+            const newCustom = Object.assign({}, globalCard, { id: 'custom_' + Date.now(), img: dataUrl, isCustom: true });
+            if (!dbState.customCards) dbState.customCards = [];
+            dbState.customCards.unshift(newCustom);
+            window.currentActiveCardModalId = newCustom.id;
+          }
+        }
+        saveDB();
+        renderCards();
+      };
+      reader.readAsDataURL(file);
     };
 
     window.openCreateCardModal = function() {
@@ -460,6 +612,10 @@
       document.getElementById('admin-card-form').reset();
       document.getElementById('acm-id').value = "";
       document.getElementById('acm-img-preview').src = "assets/items/spada_ulfberht.jpg";
+      const fileNameEl = document.getElementById('acm-file-name');
+      if (fileNameEl) fileNameEl.textContent = "Nessun file selezionato";
+      const fileInput = document.getElementById('acm-file-upload');
+      if (fileInput) fileInput.value = "";
       document.getElementById('admin-card-modal').classList.remove('hidden');
       document.getElementById('admin-card-modal').classList.add('flex');
     };
@@ -492,6 +648,10 @@
       document.getElementById('acm-img-custom').value = card.img || "";
       document.getElementById('acm-img-preview').src = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
       document.getElementById('acm-desc').value = card.desc || "";
+      const fileNameEl = document.getElementById('acm-file-name');
+      if (fileNameEl) {
+        fileNameEl.textContent = (card.img && card.img.startsWith('data:')) ? 'Immagine file caricata' : (card.img ? card.img.split('/').pop() : 'Nessun file selezionato');
+      }
 
       document.getElementById('admin-card-modal').classList.remove('hidden');
       document.getElementById('admin-card-modal').classList.add('flex');
