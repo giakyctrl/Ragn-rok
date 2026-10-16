@@ -49,6 +49,7 @@ window.dmCreateActiveMode = 'compendium';
 window.openDmCampaignWorkspace = function(code) {
   if (window.swipedCampaignCode === code) { window.swipedCampaignCode = null; window.renderDmViews(); return; }
   window.activeDmWorkspaceCode = code;
+  try { sessionStorage.setItem('yggdrasill_active_dm_camp', code); } catch(e){}
   document.getElementById('mode-standard-views').classList.add('hidden');
   document.getElementById('bottom-nav-standard').classList.add('hidden');
   document.getElementById('mode-dm-campaign-workspace').classList.remove('hidden');
@@ -59,7 +60,8 @@ window.openDmCampaignWorkspace = function(code) {
 
 window.exitDmCampaignWorkspace = function() {
   window.activeDmWorkspaceCode = null;
-window.dmCreateActiveMode = 'compendium';
+  try { sessionStorage.removeItem('yggdrasill_active_dm_camp'); } catch(e){}
+  window.dmCreateActiveMode = 'compendium';
   window.switchStandardNav('dm');
 };
 
@@ -116,10 +118,7 @@ window.dmSingleAdjustHP = function(uKey, delta) {
   if (!camp || !camp.members[uKey]) return;
   const mChar = camp.members[uKey];
   mChar.hp = Math.max(0, Math.min(mChar.maxHp, mChar.hp + delta));
-  if (window.dbState.users[uKey]?.characters) {
-    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
-  }
+  if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   window.saveDB();
 };
 
@@ -129,10 +128,7 @@ window.dmSetMemberCondition = function(uKey, newCondition) {
   if (!camp || !camp.members[uKey]) return;
   const mChar = camp.members[uKey];
   mChar.condition = newCondition;
-  if (window.dbState.users[uKey]?.characters) {
-    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
-  }
+  if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   window.saveDB();
 };
 
@@ -143,10 +139,7 @@ window.dmMassLevelUp = function() {
 
   Object.entries(camp.members || {}).forEach(([uKey, mChar]) => {
     mChar.pendingLevelUp = true;
-    if (window.dbState.users[uKey]?.characters) {
-      const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-      if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
-    }
+    if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   });
   window.saveDB();
   alert("Promozione di livello inviata a tutti i giocatori del party!");
@@ -157,10 +150,7 @@ window.dmSingleLevelUp = function(uKey) {
   if (!camp || !camp.members[uKey]) return;
   const mChar = camp.members[uKey];
   mChar.pendingLevelUp = true;
-  if (window.dbState.users[uKey]?.characters) {
-    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) window.dbState.users[uKey].characters[idx] = mChar;
-  }
+  if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   window.saveDB();
   alert(`Promozione di livello inviata a ${mChar.name}!`);
 };
@@ -347,10 +337,7 @@ window.dmAssignCardFromCompendium = function(cardId) {
     mChar.cards.unshift(assignedCard);
     targetName = mChar.name;
 
-    if (window.dbState.users[targetKey]?.characters) {
-      const idx = window.dbState.users[targetKey].characters.findIndex(c => c.id === mChar.id);
-      if (idx !== -1) window.dbState.users[targetKey].characters[idx] = mChar;
-    }
+    if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(targetKey, mChar);
   }
 
   window.saveDB();
@@ -407,10 +394,7 @@ window.dmCreateAndAssignCard = function(e) {
     if (!mChar.cards) mChar.cards = [];
     mChar.cards.unshift(newCard);
     targetName = mChar.name;
-    if (window.dbState.users[ownerTarget]?.characters) {
-      const idx = window.dbState.users[ownerTarget].characters.findIndex(c => c.id === mChar.id);
-      if (idx !== -1) window.dbState.users[ownerTarget].characters[idx] = mChar;
-    }
+    if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(ownerTarget, mChar);
   }
 
   // 2. SINCRONIZZAZIONE FONDAMENTALE: Salva la nuova carta nel Database Admin (dbState.customCards)
@@ -454,8 +438,7 @@ window.dmReassignCard = function(cardId, fromKey, toKey) {
     const idx = (mChar.cards || []).findIndex(c => c.id === cardId);
     if (idx !== -1) {
       moved = mChar.cards.splice(idx, 1)[0];
-      const uIdx = (window.dbState.users[fromKey]?.characters || []).findIndex(c => c.id === mChar.id);
-      if (uIdx !== -1) window.dbState.users[fromKey].characters[uIdx] = mChar;
+      if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(fromKey, mChar);
     }
   }
   if (!moved) return;
@@ -467,8 +450,7 @@ window.dmReassignCard = function(cardId, fromKey, toKey) {
     const tChar = camp.members[toKey];
     if (!tChar.cards) tChar.cards = [];
     tChar.cards.unshift(moved);
-    const uIdx = (window.dbState.users[toKey]?.characters || []).findIndex(c => c.id === tChar.id);
-    if (uIdx !== -1) window.dbState.users[toKey].characters[uIdx] = tChar;
+    if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(toKey, tChar);
   }
   window.saveDB();
 };
@@ -481,8 +463,7 @@ window.dmDeleteCardFromCampaign = function(cardId, ownerKey) {
   } else if (camp.members?.[ownerKey]) {
     const mChar = camp.members[ownerKey];
     mChar.cards = (mChar.cards || []).filter(c => c.id !== cardId);
-    const uIdx = (window.dbState.users[ownerKey]?.characters || []).findIndex(c => c.id === mChar.id);
-    if (uIdx !== -1) window.dbState.users[ownerKey].characters[uIdx] = mChar;
+    if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(ownerKey, mChar);
   }
   window.saveDB();
 };
@@ -653,13 +634,10 @@ window.dmAdjustPlayerGold = function(uKey, delta) {
   if (mChar.gold === undefined) mChar.gold = 50;
   mChar.gold = Math.max(0, mChar.gold + delta);
 
-  if (window.dbState.users[uKey]?.characters) {
-    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) {
-      window.dbState.users[uKey].characters[idx].gold = mChar.gold;
-    }
+  if (typeof window.syncMemberCharToUser === 'function') {
+    window.syncMemberCharToUser(uKey, mChar);
   }
-  if (window.activeCharacter && window.activeCharacter.id === mChar.id) {
+  if (window.activeCharacter && (window.activeCharacter.id === mChar.id || window.activeCharacter.name === mChar.name)) {
     window.activeCharacter.gold = mChar.gold;
     if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
   }
@@ -681,13 +659,10 @@ window.dmPromptSetPlayerGold = function(uKey) {
   }
   mChar.gold = val;
 
-  if (window.dbState.users[uKey]?.characters) {
-    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
-    if (idx !== -1) {
-      window.dbState.users[uKey].characters[idx].gold = mChar.gold;
-    }
+  if (typeof window.syncMemberCharToUser === 'function') {
+    window.syncMemberCharToUser(uKey, mChar);
   }
-  if (window.activeCharacter && window.activeCharacter.id === mChar.id) {
+  if (window.activeCharacter && (window.activeCharacter.id === mChar.id || window.activeCharacter.name === mChar.name)) {
     window.activeCharacter.gold = mChar.gold;
     if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
   }
@@ -696,7 +671,7 @@ window.dmPromptSetPlayerGold = function(uKey) {
 };
 
 // ============================================================================
-// SEZIONE COMMERCIO / BAZAR CAMPAGNA (DM)
+// SEZIONE COMMERCIO / KAUPANG CAMPAGNA (DM)
 // ============================================================================
 window.renderDmTradeViews = function() {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
@@ -711,7 +686,7 @@ window.renderDmTradeViews = function() {
     if (camp.market.length === 0) {
       mGrid.innerHTML = `
         <div class="col-span-full norse-panel rounded-xl p-6 text-center text-xs text-slate-400 border border-slate-800">
-          Nessuna mercanzia presente nel Bazar. Seleziona le carte dal catalogo sottostante e clicca <strong>"Manda al Bazar"</strong> per renderle acquistabili dai giocatori!
+          Nessuna mercanzia presente nel Kaupang. Seleziona le carte dal catalogo sottostante e clicca <strong>"Manda al Kaupang"</strong> per renderle acquistabili dai giocatori!
         </div>
       `;
     } else {
@@ -724,7 +699,7 @@ window.renderDmTradeViews = function() {
             <div class="flex-1 min-w-0 space-y-1">
               <div class="flex justify-between items-start gap-1">
                 <h4 class="font-cinzel font-bold text-xs text-amber-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')">${item.name}</h4>
-                <button type="button" onclick="window.dmRemoveCardFromMarket('${item.marketId}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-950/60 border border-red-500/30" title="Ritira mercanzia dal Bazar">✕</button>
+                <button type="button" onclick="window.dmRemoveCardFromMarket('${item.marketId}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-950/60 border border-red-500/30" title="Ritira mercanzia dal Kaupang">✕</button>
               </div>
               <div class="flex items-center gap-2 text-[10px]">
                 <span class="text-amber-300 uppercase font-bold">${item.type}</span>
@@ -832,7 +807,7 @@ window.dmAddCardToMarket = function(cardId) {
   camp.market.push(marketItem);
   window.saveDB();
   window.renderDmTradeViews();
-  alert(`⚖️ "${card.name}" è ora disponibile nel Bazar per ${priceGold} mo!`);
+  alert(`⚖️ "${card.name}" è ora disponibile nel Kaupang per ${priceGold} mo!`);
 };
 
 window.dmRemoveCardFromMarket = function(marketId) {
@@ -862,7 +837,7 @@ window.dmEditMarketItemPrice = function(marketId) {
 window.dmClearMarket = function() {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp || !camp.market || camp.market.length === 0) return;
-  if (!confirm("Sei sicuro di voler svuotare tutte le merci dal Bazar?")) return;
+  if (!confirm("Sei sicuro di voler svuotare tutte le merci dal Kaupang?")) return;
   camp.market = [];
   window.saveDB();
   window.renderDmTradeViews();
@@ -874,9 +849,8 @@ window.dmBroadcastMarketUpdate = function() {
   const count = (camp.market || []).length;
   camp.globalEvent = {
     type: 'TRADE_UPDATE',
-    message: `Il Dungeon Master ha aggiornato le merci nel Bazar (${count} oggetti disponibili)!`,
+    message: `Il Dungeon Master ha aggiornato le merci nel Kaupang (${count} oggetti disponibili)!`,
     timestamp: Date.now()
   };
   window.saveDB();
-  alert(`📢 Notifica inviata al party! I giocatori vedranno le nuove merci del Bazar.`);
 };

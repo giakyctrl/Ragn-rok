@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body class="relative">
 
@@ -304,7 +304,7 @@
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                       <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
                       <button type="button" onclick="window.openClanDetailModal(window.getMyCharacter() ? (window.getMyCharacter().clanId || window.getMyCharacter().clan || window.getMyCharacter().clanName) : null)" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Clan di Midgardr</button>
-                      <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Bazar del DM">💰 <span id="sheet-gold-val">50</span> mo</button>
+                      <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Kaupang di Midgard (Mercato)">💰 <span id="sheet-gold-val">50</span> mo</button>
                     </div>
                   </div>
                 </div>
@@ -613,16 +613,13 @@
               <div class="flex items-center gap-3">
                 <span class="text-2xl">⚖️</span>
                 <div>
-                  <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Commercio &amp; Bazar di Midgardr</h3>
+                  <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Commercio &amp; Kaupang di Midgard</h3>
                   <p class="text-[11px] text-slate-400">Invia carte ed equipaggiamenti al mercato. I giocatori vedranno queste merci e potranno acquistarle con le loro monete d'oro.</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" onclick="window.dmClearMarket()" class="px-3 py-1.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-bold font-cinzel hover:bg-red-900 transition">
-                  🗑️ Svuota Bazar
-                </button>
-                <button type="button" onclick="window.dmBroadcastMarketUpdate()" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-bold font-cinzel hover:bg-amber-500/30 transition flex items-center gap-1.5 shadow">
-                  📢 Notifica Giocatori
+                  🗑️ Svuota Kaupang
                 </button>
               </div>
             </div>
@@ -647,7 +644,7 @@
               <div class="flex items-center gap-2">
                 <span class="text-xl">📦</span>
                 <h4 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">
-                  Attingi dal Database Generale &amp; Manda al Bazar
+                  Attingi dal Database Generale &amp; Manda al Kaupang
                 </h4>
               </div>
               <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -838,11 +835,11 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=24"></script>
-  <script src="rules.js?v=24"></script>
-  <script src="forge.js?v=24"></script>
-  <script src="app.js?v=24"></script>
-  <script src="dm.js?v=24"></script>
+  <script src="data.js?v=25"></script>
+  <script src="rules.js?v=25"></script>
+  <script src="forge.js?v=25"></script>
+  <script src="app.js?v=25"></script>
+  <script src="dm.js?v=25"></script>
 
   <!-- MODALE DETTAGLIO CLAN DI MIDGARDR -->
   <div id="clan-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeClanDetailModal()">
@@ -928,15 +925,15 @@
     </div>
   </div>
 
-  <!-- MODALE BAZAR & COMMERCIO GIOCATORI -->
+  <!-- MODALE KAUPANG & COMMERCIO GIOCATORI -->
   <div id="player-market-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closePlayerMarketModal()">
     <div class="norse-panel rounded-2xl p-5 sm:p-6 max-w-4xl w-full border-2 border-amber-500/60 shadow-[0_0_50px_rgba(201,160,80,0.35)] max-h-[92vh] overflow-y-auto space-y-5 animate-modal-pop" onclick="event.stopPropagation()">
       <div class="flex flex-wrap justify-between items-center border-b border-amber-500/30 pb-3 gap-3">
         <div class="flex items-center gap-3">
           <span class="text-3xl">🛒</span>
           <div>
-            <span class="text-[9px] font-cinzel uppercase text-amber-400 font-bold tracking-widest block">Emporio dei Nove Mondi</span>
-            <h2 class="font-cinzel font-black text-xl text-white tracking-wide">Bazar di Midgardr</h2>
+            <span class="text-[9px] font-cinzel uppercase text-amber-400 font-bold tracking-widest block">Emporio e Fiera di Scambio dei Nove Mondi</span>
+            <h2 class="font-cinzel font-black text-xl text-white tracking-wide">Kaupang di Midgard</h2>
           </div>
         </div>
         <div class="flex items-center gap-3">
@@ -962,7 +959,7 @@
       <div class="flex justify-between items-center pt-2 border-t border-slate-800">
         <span class="text-[11px] text-slate-400">Le merci inviate dal DM vengono sincronizzate in tempo reale con la campagna.</span>
         <button type="button" onclick="window.closePlayerMarketModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cinzel font-bold text-xs">
-          Chiudi Bazar
+          Chiudi Kaupang
         </button>
       </div>
     </div>

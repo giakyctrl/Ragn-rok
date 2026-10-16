@@ -6,10 +6,10 @@
   <title>Journey to Ragnarok - Consolle di Amministrazione Suprema</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&family=Metamorphous&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=24">
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="data.js?v=24"></script>
+  <link rel="stylesheet" href="style.css?v=25">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="data.js?v=25"></script>
   <style>
     body { background-color: #06090e; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
     .font-norse { font-family: 'MedievalSharp', cursive; }
@@ -413,10 +413,20 @@
         const ref = firebase.database().ref('yggdrasill_v3_realm');
         ref.on('value', snap => {
           if (snap && snap.val()) {
-            dbState = snap.val();
-            if (!dbState.customCards) dbState.customCards = [];
-            if (!dbState.users) dbState.users = {};
-            if (!dbState.campaigns) dbState.campaigns = {};
+            const remote = snap.val();
+            if (Array.isArray(remote.customCards) && remote.customCards.length > 0) {
+              dbState.customCards = remote.customCards;
+            } else if (!dbState.customCards) {
+              dbState.customCards = [];
+            }
+            if (remote.users && typeof remote.users === 'object') {
+              dbState.users = remote.users;
+            }
+            if (remote.campaigns && typeof remote.campaigns === 'object') {
+              dbState.campaigns = remote.campaigns;
+            }
+            dbState.maintenance = remote.maintenance === true;
+            try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState)); } catch (e) {}
             updateUI();
           }
         });
@@ -426,12 +436,20 @@
     }
 
     function saveDB() {
-      localStorage.setItem('yggdrasill_v3_db', JSON.stringify(dbState));
+      if (!dbState.customCards) dbState.customCards = [];
+      if (!dbState.users) dbState.users = {};
+      if (!dbState.campaigns) dbState.campaigns = {};
+      const serialized = JSON.stringify(dbState);
+      localStorage.setItem('yggdrasill_v3_db', serialized);
       try {
         if (firebase.apps.length) {
-          firebase.database().ref('yggdrasill_v3_realm').set(dbState);
+          firebase.database().ref('yggdrasill_v3_realm').set(JSON.parse(serialized)).catch(err => {
+            console.error("Firebase admin save error:", err);
+          });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Firebase admin exception:", e);
+      }
       try {
         const bc = new BroadcastChannel('ragnarok_sync_channel');
         bc.postMessage({ type: 'DB_UPDATE', dbState: dbState });

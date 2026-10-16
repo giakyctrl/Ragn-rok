@@ -218,10 +218,11 @@ function loadLocalDB() {
     if (p && typeof p === 'object') {
       if (!p.users) p.users = {};
       if (!p.campaigns) p.campaigns = {};
+      if (!p.customCards) p.customCards = [];
       return p;
     }
   } catch (e) {}
-  return { maintenance: false, users: {}, campaigns: {} };
+  return { maintenance: false, users: {}, campaigns: {}, customCards: [] };
 }
 
 window.dbState = loadLocalDB();
@@ -234,12 +235,40 @@ window.isServerConnected = false;
 window.lastSeenEventTimestamp = Date.now();
 window.pendingTradeCardId = null;
 
+// Sincronizzatore universale tra personaggio del membro della campagna e archivio utente
+window.syncMemberCharToUser = function(uKey, mChar) {
+  if (!uKey || !mChar) return;
+  if (!window.dbState.users) window.dbState.users = {};
+  if (!window.dbState.users[uKey]) {
+    window.dbState.users[uKey] = { username: uKey, characters: [] };
+  }
+  const uAcc = window.dbState.users[uKey];
+  if (!uAcc.characters) uAcc.characters = [];
+  let idx = uAcc.characters.findIndex(c => c.id === mChar.id);
+  if (idx === -1) idx = uAcc.characters.findIndex(c => c.name === mChar.name);
+  if (idx === -1 && uAcc.characters.length > 0) idx = 0;
+  if (idx !== -1) {
+    uAcc.characters[idx] = { ...uAcc.characters[idx], ...mChar, id: uAcc.characters[idx].id || mChar.id };
+    mChar.id = uAcc.characters[idx].id;
+  } else {
+    uAcc.characters.push({ ...mChar });
+  }
+};
+
 window.addEventListener('storage', (e) => {
   if (e.key === 'yggdrasill_v3_db') {
     window.dbState = loadLocalDB();
     window.enforceMaintenanceCheck();
     window.renderAllViews();
     window.checkIncomingLiveEvents();
+
+    const pmmModal = document.getElementById('player-market-modal');
+    if (pmmModal && !pmmModal.classList.contains('hidden')) {
+      window.renderPlayerMarket();
+    }
+    if (window.activeDmWorkspaceCode && typeof window.renderDmViews === 'function') {
+      window.renderDmViews();
+    }
   }
 });
 
@@ -251,10 +280,19 @@ try {
       window.dbState = event.data.dbState;
       if (!window.dbState.users) window.dbState.users = {};
       if (!window.dbState.campaigns) window.dbState.campaigns = {};
+      if (!window.dbState.customCards) window.dbState.customCards = [];
       localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState));
       window.enforceMaintenanceCheck();
       window.renderAllViews();
       window.checkIncomingLiveEvents();
+
+      const pmmModal = document.getElementById('player-market-modal');
+      if (pmmModal && !pmmModal.classList.contains('hidden')) {
+        window.renderPlayerMarket();
+      }
+      if (window.activeDmWorkspaceCode && typeof window.renderDmViews === 'function') {
+        window.renderDmViews();
+      }
     }
   };
 } catch (e) {}
@@ -308,15 +346,39 @@ window.initCloudConnection = function() {
     window.fbRef.on('value', snap => {
       const remote = snap.val();
       if (remote && typeof remote === 'object') {
-        window.dbState = remote;
-        if (!window.dbState.users) window.dbState.users = {};
-        if (!window.dbState.campaigns) window.dbState.campaigns = {};
-        localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState));
+        if (!window.dbState) window.dbState = {};
+        if (Array.isArray(remote.customCards) && remote.customCards.length > 0) {
+          window.dbState.customCards = remote.customCards;
+        } else if (!window.dbState.customCards) {
+          window.dbState.customCards = [];
+        }
+        if (remote.users && typeof remote.users === 'object') {
+          window.dbState.users = remote.users;
+        } else if (!window.dbState.users) {
+          window.dbState.users = {};
+        }
+        if (remote.campaigns && typeof remote.campaigns === 'object') {
+          window.dbState.campaigns = remote.campaigns;
+        } else if (!window.dbState.campaigns) {
+          window.dbState.campaigns = {};
+        }
+        window.dbState.maintenance = remote.maintenance === true;
+
+        try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch (e) {}
         window.enforceMaintenanceCheck();
         window.renderAllViews();
         window.checkIncomingLiveEvents();
+
+        const pmmModal = document.getElementById('player-market-modal');
+        if (pmmModal && !pmmModal.classList.contains('hidden')) {
+          window.renderPlayerMarket();
+        }
+        if (window.activeDmWorkspaceCode && typeof window.renderDmViews === 'function') {
+          window.renderDmViews();
+        }
       } else {
-        window.fbRef.set(window.dbState);
+        const cleanPayload = JSON.parse(JSON.stringify(window.dbState));
+        window.fbRef.set(cleanPayload);
       }
     });
   } catch (e) {
@@ -325,9 +387,22 @@ window.initCloudConnection = function() {
 };
 
 window.saveDB = function() {
-  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch (e) {}
+  if (!window.dbState) window.dbState = { maintenance: false, users: {}, campaigns: {}, customCards: [] };
+  if (!window.dbState.users) window.dbState.users = {};
+  if (!window.dbState.campaigns) window.dbState.campaigns = {};
+  if (!window.dbState.customCards) window.dbState.customCards = [];
+
+  const serialized = JSON.stringify(window.dbState);
+  try { localStorage.setItem('yggdrasill_v3_db', serialized); } catch (e) { console.error("LocalStorage save error:", e); }
+
   if (window.fbRef) {
-    try { window.fbRef.set(window.dbState); } catch (e) {}
+    try {
+      window.fbRef.set(JSON.parse(serialized)).catch(err => {
+        console.error("Firebase sync error:", err);
+      });
+    } catch (e) {
+      console.error("Firebase save exception:", e);
+    }
   }
   try {
     const bc = new BroadcastChannel('ragnarok_sync_channel');
@@ -504,7 +579,18 @@ window.enterAfterLogin = function() {
     window.activeCharId = acc.characters[0].id;
     document.getElementById('screen-builder').classList.add('hidden');
     document.getElementById('screen-main').classList.remove('hidden');
-    window.switchStandardNav('characters'); window.renderAllViews();
+
+    const savedDmCamp = sessionStorage.getItem('yggdrasill_active_dm_camp');
+    if (savedDmCamp && window.dbState.campaigns && window.dbState.campaigns[savedDmCamp]) {
+      window.switchStandardNav('dm');
+      if (typeof window.openDmCampaignWorkspace === 'function') {
+        window.openDmCampaignWorkspace(savedDmCamp);
+      }
+    } else {
+      const savedNav = sessionStorage.getItem('yggdrasill_active_nav') || 'characters';
+      window.switchStandardNav(savedNav);
+    }
+    window.renderAllViews();
   }
 };
 
@@ -1023,6 +1109,7 @@ window.switchStandardNav = function(tab) {
   void activeEl.offsetWidth;
   activeEl.classList.add('animate-page-switch');
 
+  try { sessionStorage.setItem('yggdrasill_active_nav', tab); } catch (e) {}
   document.getElementById('snav-dm').className = tab === 'dm' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
   document.getElementById('snav-campaigns').className = tab === 'campaigns' ? 'flex flex-col items-center gap-1 text-sky-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
   window.renderAllViews();
@@ -1034,9 +1121,28 @@ window.switchActiveCharacter = function(id) {
 };
 
 window.getMyCharacter = function() {
-  if (!window.currentUser || !window.dbState.users[window.currentUser]) return null;
+  if (!window.currentUser || !window.dbState.users || !window.dbState.users[window.currentUser]) return null;
   const list = window.dbState.users[window.currentUser].characters || [];
-  return list.find(c => c.id === window.activeCharId) || list[0] || null;
+  let ch = list.find(c => c.id === window.activeCharId) || list[0] || null;
+  if (!ch) return null;
+
+  // Sincronizzazione dinamica istantanea bidirezionale con le campagne in cui il DM apporta modifiche
+  Object.values(window.dbState.campaigns || {}).forEach(camp => {
+    if (camp.members && camp.members[window.currentUser]) {
+      const mChar = camp.members[window.currentUser];
+      if (mChar.id === ch.id || mChar.name === ch.name) {
+        if (mChar.gold !== undefined && ch.gold !== mChar.gold) ch.gold = mChar.gold;
+        if (mChar.hp !== undefined && ch.hp !== mChar.hp) ch.hp = mChar.hp;
+        if (mChar.maxHp !== undefined && ch.maxHp !== mChar.maxHp) ch.maxHp = mChar.maxHp;
+        if (mChar.condition !== undefined && ch.condition !== mChar.condition) ch.condition = mChar.condition;
+        if (mChar.pendingLevelUp !== undefined && ch.pendingLevelUp !== mChar.pendingLevelUp) ch.pendingLevelUp = mChar.pendingLevelUp;
+        if (Array.isArray(mChar.cards) && JSON.stringify(mChar.cards.map(c => c.id)) !== JSON.stringify((ch.cards || []).map(c => c.id))) {
+          ch.cards = mChar.cards;
+        }
+      }
+    }
+  });
+  return ch;
 };
 
 window.adjustMyHP = function(delta) {
@@ -1048,9 +1154,13 @@ window.adjustMyHP = function(delta) {
 };
 
 window.propagateCharacterToCampaigns = function(ch) {
+  if (!ch) return;
   Object.values(window.dbState.campaigns || {}).forEach(camp => {
-    if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) {
-      camp.members[window.currentUser] = ch;
+    if (camp.members && camp.members[window.currentUser]) {
+      const mChar = camp.members[window.currentUser];
+      if (mChar.id === ch.id || mChar.name === ch.name) {
+        camp.members[window.currentUser] = { ...mChar, ...ch };
+      }
     }
   });
 };
@@ -1632,7 +1742,7 @@ window.renderDdbSectionContent = function(ch) {
             </div>
           </div>
 
-          <!-- BANNER VALUTA & BAZAR COMMERCIO -->
+          <!-- BANNER VALUTA & KAUPANG COMMERCIO -->
           <div class="norse-panel rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 border border-amber-500/40 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-950 shadow-lg">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-xl shrink-0">💰</div>
@@ -1642,7 +1752,7 @@ window.renderDdbSectionContent = function(ch) {
               </div>
             </div>
             <button type="button" onclick="window.openPlayerMarketModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-xs transition flex items-center gap-1.5 shadow-md">
-              🛒 Visita Bazar del DM (${marketCount} merci)
+              🛒 Visita Kaupang di Midgard (${marketCount} merci)
             </button>
           </div>
 
@@ -1653,7 +1763,7 @@ window.renderDdbSectionContent = function(ch) {
               <span class="text-[10px] text-slate-400">Clicca su una carta per ispezionarla</span>
             </div>
             ${invCards.length === 0
-              ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400">Nessun oggetto nell'inventario. Visita il Bazar del DM o apri le casse del dungeon!</div>`
+              ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400">Nessun oggetto nell'inventario. Visita il Kaupang di Midgard o apri le casse del dungeon!</div>`
               : `<div class="cards-flow-grid py-2 px-1">
                   ${invCards.map(c => {
                     let equippedBadge = '';
@@ -2219,7 +2329,7 @@ window.renderDdbSectionContent = function(ch) {
             <strong class="font-mono text-sm text-amber-300 block">${ch.gold !== undefined ? ch.gold : 50} Monete d'Oro (mo)</strong>
             <p class="text-[10px] text-slate-400 leading-snug">Bracciali d'argento spezzato e monete coniate dai re del Nord.</p>
             <button type="button" onclick="window.openPlayerMarketModal()" class="mt-2 w-full py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] transition flex items-center justify-center gap-1 shadow">
-              ⚖️ Apri Bazar del Party
+              ⚖️ Apri Kaupang di Midgard
             </button>
           </div>
         </div>
@@ -2920,7 +3030,7 @@ window.openArmorSlotPickerModal = function(slotKey) {
         ${unequipBtn}
         <div class="norse-panel rounded-xl p-6 text-center text-xs text-slate-400">
           Nessun equipaggiamento idoneo per lo slot <strong>${cfg.title}</strong> trovato nel tuo inventario.<br>
-          <span class="text-amber-300 font-bold block mt-1">Puoi acquistare nuove armature e protezioni dal Bazar del Dungeon Master!</span>
+          <span class="text-amber-300 font-bold block mt-1">Puoi acquistare nuove armature e protezioni nel Kaupang di Midgard!</span>
         </div>
       `;
     } else {
@@ -3090,7 +3200,7 @@ window.renderPlayerMarket = function() {
     grid.innerHTML = `
       <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-xs text-slate-400 space-y-2">
         <p>Non sei ancora unito ad alcuna campagna attiva.</p>
-        <p class="text-sky-300">Unisciti a una campagna dalla scheda "Le Tue Campagne" con il codice fornito dal DM per accedere al Bazar!</p>
+        <p class="text-sky-300">Unisciti a una campagna dalla scheda "Le Tue Campagne" con il codice fornito dal DM per accedere al Kaupang!</p>
       </div>
     `;
     return;
@@ -3100,8 +3210,8 @@ window.renderPlayerMarket = function() {
   if (marketItems.length === 0) {
     grid.innerHTML = `
       <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-xs text-slate-400 space-y-2">
-        <p class="text-amber-300 font-bold text-sm">Il Bazar del Dungeon Master è attualmente vuoto.</p>
-        <p>Il DM non ha ancora inviato merci in vendita per la campagna "${activeCamp.title}". Chiedigli di inserire nuove armi, pozioni e armature dalla sua sezione Commercio!</p>
+        <p class="text-amber-300 font-bold text-sm">Il Kaupang di Midgard è attualmente vuoto.</p>
+        <p>Il Dungeon Master non ha ancora esposto merci in vendita per la campagna "${activeCamp.title}". Chiedigli di inserire nuove armi, pozioni e armature dalla sua sezione Commercio!</p>
       </div>
     `;
     return;
@@ -3156,7 +3266,7 @@ window.buyMarketItem = function(marketId) {
   if (!activeCamp || !activeCamp.market) return;
 
   const itemIdx = activeCamp.market.findIndex(i => i.marketId === marketId);
-  if (itemIdx === -1) return alert("Questo oggetto non è più disponibile nel Bazar.");
+  if (itemIdx === -1) return alert("Questo oggetto non è più disponibile nel Kaupang.");
 
   const item = activeCamp.market[itemIdx];
   const costGold = item.priceGold !== undefined ? item.priceGold : (window.parseCostToGold ? window.parseCostToGold(item.cost) : 10);
@@ -3183,12 +3293,15 @@ window.buyMarketItem = function(marketId) {
   // 3. Rimuovi dal mercato della campagna
   activeCamp.market.splice(itemIdx, 1);
 
-  // 4. Sincronizza nel database e nella campagna
+  // 4. Sincronizza nel database e nella campagna sia sul membro che sull'account
   if (activeCamp.members && activeCamp.members[window.currentUser]) {
     activeCamp.members[window.currentUser].gold = ch.gold;
     activeCamp.members[window.currentUser].cards = ch.cards;
   }
   window.propagateCharacterToCampaigns(ch);
+  if (typeof window.syncMemberCharToUser === 'function') {
+    window.syncMemberCharToUser(window.currentUser, ch);
+  }
   window.saveDB();
 
   // 5. Aggiorna UI
@@ -3196,7 +3309,7 @@ window.buyMarketItem = function(marketId) {
   window.renderDdbSectionContent(ch);
   if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
 
-  alert(`⚔️ Acquisto completato con successo!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
+  alert(`⚔️ Acquisto completato con successo nel Kaupang di Midgard!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
 };
 
 window.initCloudConnection();
