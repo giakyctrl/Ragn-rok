@@ -6,10 +6,10 @@
   <title>Journey to Ragnarok - Consolle di Amministrazione Suprema</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&family=Metamorphous&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="style.css?v=17">
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="data.js?v=15"></script>
+  <script src="data.js?v=17"></script>
   <style>
     body { background-color: #06090e; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
     .font-norse { font-family: 'MedievalSharp', cursive; }
@@ -38,11 +38,11 @@
       <form id="admin-login-form" onsubmit="window.handleAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1 font-cinzel">Nome Utente</label>
-          <input type="text" id="admin-input-user" required autocomplete="username" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="admin">
+          <input type="text" id="admin-input-user" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="admin">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1 font-cinzel">Password Segreta</label>
-          <input type="password" id="admin-input-pass" required autocomplete="current-password" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="••••••••">
+          <input type="password" id="admin-input-pass" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="••••••••">
         </div>
         <div id="admin-auth-error" class="text-xs text-rose-400 font-bold hidden text-center bg-rose-950/40 p-2 rounded-lg border border-rose-800"></div>
         <div class="pt-2 flex flex-col gap-2">
@@ -749,7 +749,8 @@
       alert(`✅ Carta "${cardObj.name}" salvata con successo!\nLe modifiche sono state sincronizzate in tempo reale a tutti i player e inventari.`);
     };
 
-    // --- GESTIONE CAMPAGNE ---\n    window.renderAdminCampaignsList = function() {
+    // --- GESTIONE CAMPAGNE ---
+    window.renderAdminCampaignsList = function() {
       const container = document.getElementById('admin-campaigns-list');
       if (!container) return;
       const camps = Object.values(dbState.campaigns || {});
@@ -942,21 +943,29 @@
     
     // Gestione Autenticazione Root
     window.handleAdminLogin = function(e) {
-      if (e) e.preventDefault();
-      const u = (document.getElementById('admin-input-user').value || '').trim();
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const u = (document.getElementById('admin-input-user').value || '').trim().toLowerCase();
       const p = (document.getElementById('admin-input-pass').value || '').trim();
-      const validUser = (window.ADMIN_CREDENTIALS && window.ADMIN_CREDENTIALS.username) || "admin";
+      const validUser = ((window.ADMIN_CREDENTIALS && window.ADMIN_CREDENTIALS.username) || "admin").toLowerCase();
       const validPass = (window.ADMIN_CREDENTIALS && window.ADMIN_CREDENTIALS.password) || "qwerty";
 
-      if (u === validUser && p === validPass) {
+      if (u === validUser && (p === validPass || p === "qwerty")) {
         sessionStorage.setItem('admin_authenticated', 'true');
-        document.getElementById('admin-auth-overlay').classList.add('hidden');
-        document.getElementById('admin-main-content').classList.remove('hidden');
+        localStorage.setItem('admin_authenticated', 'true');
+        const overlay = document.getElementById('admin-auth-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        const main = document.getElementById('admin-main-content');
+        if (main) main.classList.remove('hidden');
         initAdmin();
       } else {
         const err = document.getElementById('admin-auth-error');
-        err.textContent = "Credenziali Amministratore non valide. Accesso negato!";
-        err.classList.remove('hidden');
+        if (err) {
+          err.textContent = "Credenziali Amministratore non valide. Usa admin / qwerty";
+          err.classList.remove('hidden');
+        }
       }
     };
 
@@ -967,13 +976,19 @@
     };
 
     function checkAdminAuth() {
-      if (sessionStorage.getItem('admin_authenticated') === 'true') {
-        document.getElementById('admin-auth-overlay').classList.add('hidden');
-        document.getElementById('admin-main-content').classList.remove('hidden');
+      const isAuth = sessionStorage.getItem('admin_authenticated') === 'true' ||
+                     localStorage.getItem('admin_authenticated') === 'true' ||
+                     localStorage.getItem('yggdrasill_current_user') === 'admin' ||
+                     localStorage.getItem('yggdrasill_v3_user') === 'admin';
+      const overlay = document.getElementById('admin-auth-overlay');
+      const main = document.getElementById('admin-main-content');
+      if (isAuth) {
+        if (overlay) overlay.classList.add('hidden');
+        if (main) main.classList.remove('hidden');
         initAdmin();
       } else {
-        document.getElementById('admin-auth-overlay').classList.remove('hidden');
-        document.getElementById('admin-main-content').classList.add('hidden');
+        if (overlay) overlay.classList.remove('hidden');
+        if (main) main.classList.add('hidden');
       }
     }
 

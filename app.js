@@ -452,7 +452,7 @@ window.enterAfterLogin = function() {
   document.getElementById('screen-welcome').classList.add('hidden');
   const adminBtn = document.getElementById('btn-admin-console');
   if (adminBtn) {
-    adminBtn.classList.toggle('hidden', !window.isCurrentUserAdmin());
+    adminBtn.classList.remove('hidden');
     adminBtn.onclick = function() { window.location.href = "admin.html"; };
   }
 
@@ -714,9 +714,13 @@ window.saveFullCharacterSheet = function(e) {
     owner: window.currentUser,
     name: document.getElementById('cf-name').value.trim(),
     race: raceObj.name,
+    clan: clanObj.id,
+    clanId: clanObj.id,
     clanName: clanObj.name,
-    clanCrest: clanObj.crest || "assets/clans/crest_bear_warriors.jpg",
-    clanBanner: clanObj.banner || "assets/clans/banner_bear_warriors.jpg",
+    clanCrest: clanObj.crest || "assets/clans/Logo-Bear_Warriors.png",
+    clanBanner: clanObj.banner || "assets/clans/OrsiGuerrireri.png",
+    clanTrait: clanObj.trait || "",
+    clanMotto: clanObj.motto || "",
     classId: clsObj.id,
     className: clsObj.name.split(' (')[0],
     subclass: subclass,
@@ -1105,14 +1109,22 @@ window.handleCardCustomImageUpload = function(e) {
 
 window.openClanDetailModal = function(clanId) {
   let clan = null;
-  if (clanId) {
-    clan = (window.JTR_CLANS || []).find(c => c.id === clanId || c.name === clanId);
+  const ch = window.getMyCharacter();
+  const searchKey = clanId || (ch ? (ch.clanId || ch.clan || ch.clanName) : null);
+
+  if (searchKey) {
+    const norm = String(searchKey).toLowerCase().trim();
+    clan = (window.JTR_CLANS || []).find(c => 
+      c.id.toLowerCase() === norm || 
+      c.name.toLowerCase() === norm ||
+      c.name.toLowerCase().includes(norm) ||
+      norm.includes(c.id.toLowerCase()) ||
+      norm.includes(c.name.toLowerCase())
+    );
   }
-  if (!clan) {
-    const ch = window.getMyCharacter();
-    if (ch && ch.clan) {
-      clan = (window.JTR_CLANS || []).find(c => c.id === ch.clan || c.name === ch.clan);
-    }
+  if (!clan && ch) {
+    const allText = `${ch.clanName || ''} ${ch.background || ''} ${ch.name || ''}`.toLowerCase();
+    clan = (window.JTR_CLANS || []).find(c => allText.includes(c.id.toLowerCase()) || allText.includes(c.name.toLowerCase()));
   }
   if (!clan && window.JTR_CLANS && window.JTR_CLANS.length > 0) {
     clan = window.JTR_CLANS[0];
@@ -1544,9 +1556,16 @@ window.renderAllViews = function() {
     const clanCrestEl = document.getElementById('sheet-clan-crest');
     const clanNameEl = document.getElementById('sheet-clan-name');
     const clanTraitEl = document.getElementById('sheet-clan-trait');
-    if (clanCrestEl) clanCrestEl.src = ch.clanCrest || 'assets/clans/crest_bear_warriors.jpg';
-    if (clanNameEl) clanNameEl.textContent = ch.clanName || 'Midgardr';
-    if (clanTraitEl) clanTraitEl.textContent = ch.clanTrait || 'Stirpe degli Uomini dei Nove Mondi.';
+
+    const matchedClan = (window.JTR_CLANS || []).find(c =>
+      (ch.clanId && c.id === ch.clanId) ||
+      (ch.clan && c.id === ch.clan) ||
+      (ch.clanName && (c.name.toLowerCase() === ch.clanName.toLowerCase() || c.name.toLowerCase().includes(ch.clanName.toLowerCase()) || ch.clanName.toLowerCase().includes(c.id)))
+    ) || window.JTR_CLANS[0];
+
+    if (clanCrestEl) clanCrestEl.src = (matchedClan && matchedClan.crest) || ch.clanCrest || 'assets/clans/Logo-Bear_Warriors.png';
+    if (clanNameEl) clanNameEl.textContent = (matchedClan && matchedClan.name) || ch.clanName || 'Midgardr';
+    if (clanTraitEl) clanTraitEl.textContent = (matchedClan && matchedClan.trait) || ch.clanTrait || 'Stirpe degli Uomini dei Nove Mondi.';
 
     window.renderDdbSectionContent(ch);
   }
