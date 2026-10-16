@@ -2,6 +2,7 @@
 // MODULO DUNGEON MASTER: GESTIONE CAMPAGNA, CONDIZIONI LIVE, CARTE & LEVEL UP
 // ============================================================================
 window.activeDmWorkspaceCode = null;
+window.dmCreateActiveMode = 'compendium';
 window.dmManageFilter = 'tutti';
 window.dmCustomCardImage = (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || "";
 window.swipedCampaignCode = null;
@@ -40,6 +41,7 @@ window.dmDeleteCampaign = function(e, code) {
   if (!camp || !confirm(`Eliminare definitivamente la campagna "${camp.title}"?`)) return;
   delete window.dbState.campaigns[code];
   if (window.activeDmWorkspaceCode === code) window.activeDmWorkspaceCode = null;
+window.dmCreateActiveMode = 'compendium';
   window.swipedCampaignCode = null;
   window.saveDB();
 };
@@ -57,6 +59,7 @@ window.openDmCampaignWorkspace = function(code) {
 
 window.exitDmCampaignWorkspace = function() {
   window.activeDmWorkspaceCode = null;
+window.dmCreateActiveMode = 'compendium';
   window.switchStandardNav('dm');
 };
 
@@ -184,6 +187,162 @@ window.handleDmCardUrlInput = function(url) {
   }
 };
 
+window.switchDmCreateMode = function(mode) {
+  window.dmCreateActiveMode = mode;
+  const compSec = document.getElementById('dm-create-mode-compendium');
+  const forgeSec = document.getElementById('dm-create-mode-forge');
+  const compBtn = document.getElementById('dmc-tab-comp');
+  const forgeBtn = document.getElementById('dmc-tab-forge');
+
+  if (compSec) compSec.classList.toggle('hidden', mode !== 'compendium');
+  if (forgeSec) forgeSec.classList.toggle('hidden', mode !== 'forge');
+
+  if (compBtn) {
+    compBtn.className = mode === 'compendium'
+      ? 'px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 transition'
+      : 'px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+  }
+  if (forgeBtn) {
+    forgeBtn.className = mode === 'forge'
+      ? 'px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 transition'
+      : 'px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+  }
+
+  if (mode === 'compendium') {
+    window.renderDmCompendiumCards();
+  } else {
+    window.updateDmCardPreview();
+  }
+};
+
+window.renderDmCompendiumCards = function() {
+  const container = document.getElementById('dm-compendium-cards-grid');
+  if (!container) return;
+
+  const q = (document.getElementById('dm-comp-search')?.value || '').toLowerCase().trim();
+  const filterType = document.getElementById('dm-comp-filter-type')?.value || 'all';
+
+  const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+
+  const filtered = all.filter(c => {
+    if (filterType !== 'all') {
+      const cType = (c.type || '').toLowerCase();
+      if (filterType === 'pozione') {
+        if (!cType.includes('pozione') && !c.name.toLowerCase().includes('pozione') && !c.name.toLowerCase().includes('idromele')) return false;
+      } else if (cType !== filterType) {
+        return false;
+      }
+    }
+    if (q) {
+      const matchName = c.name.toLowerCase().includes(q);
+      const matchDesc = (c.desc || '').toLowerCase().includes(q);
+      const matchDmg = (c.damage || '').toLowerCase().includes(q);
+      const matchType = (c.type || '').toLowerCase().includes(q);
+      if (!matchName && !matchDesc && !matchDmg && !matchType) return false;
+    }
+    return true;
+  });
+
+  const countBadge = document.getElementById('dm-comp-count-badge');
+  if (countBadge) {
+    countBadge.textContent = `${filtered.length} di ${all.length} Carte`;
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="norse-panel rounded-2xl p-8 text-center text-xs text-slate-400 col-span-full">Nessuna carta trovata nel Compendio con i filtri correnti.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(c => {
+    const rarityClass = (c.rarity || 'comune').toLowerCase().replace(/\s+/g, '-');
+    const typeClass = (c.type || 'arma').toLowerCase();
+    const artUrl = c.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[c.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg';
+    const costText = c.cost ? `💰 ${c.cost}` : '—';
+    const statText = c.damage ? `EFF: ${c.damage}` : (c.weight ? `${c.weight} kg` : (c.range || '18m'));
+
+    return `
+      <div class="ygo-card type-${typeClass} rarity-${rarityClass} group flex flex-col justify-between hover:scale-[1.02] transition duration-200">
+        <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
+          <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate cursor-pointer hover:text-amber-100" onclick="window.openCardDetailModal('${c.id}')" title="Clicca per espandere">${c.name}</span>
+          <span class="text-[9px] font-mono text-amber-300 font-bold">${costText}</span>
+        </div>
+
+        <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
+          <span>${c.type}</span>
+          <span class="text-amber-300">${c.rarity || 'Comune'}</span>
+        </div>
+
+        <div class="ygo-art cursor-pointer" onclick="window.openCardDetailModal('${c.id}')" title="Clicca per ispezionare la carta in grande">
+          <img src="${artUrl}" alt="${c.name}" loading="lazy" class="w-full h-full object-cover">
+        </div>
+
+        <div class="ygo-lore">
+          <p class="text-[10px] leading-snug line-clamp-3 overflow-hidden text-slate-300 cursor-pointer" onclick="window.openCardDetailModal('${c.id}')">${c.desc || ''}</p>
+          <div class="border-t border-amber-900/30 pt-1 flex justify-between font-mono text-[10px] font-bold">
+            <span class="text-red-900 font-extrabold truncate">${statText}</span>
+            <span class="text-slate-400">${c.range ? c.range : (c.weight ? c.weight + ' kg' : '')}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 pt-1">
+          <button type="button" onclick="window.openCardDetailModal('${c.id}')" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-[10px] transition border border-sky-400/30 flex items-center justify-center gap-1 shadow">
+            🔍 DETTAGLI
+          </button>
+          <button type="button" onclick="window.dmAssignCardFromCompendium('${c.id}')" class="py-1.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] transition flex items-center justify-center gap-1 shadow">
+            ➕ ASSEGNA
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.dmAssignCardFromCompendium = function(cardId) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp) {
+    alert("Nessuna campagna attiva selezionata.");
+    return;
+  }
+
+  const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+  const original = all.find(c => c.id === cardId);
+  if (!original) {
+    alert("Carta non trovata nel database.");
+    return;
+  }
+
+  const targetSelect = document.getElementById('dm-comp-target');
+  const targetKey = targetSelect ? targetSelect.value : 'CHEST';
+
+  // Istanziazione univoca per il giocatore/forziere
+  const assignedCard = {
+    ...original,
+    id: 'inst_' + original.id + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000)
+  };
+
+  let targetName = 'Cassa del Dungeon';
+
+  if (targetKey === 'CHEST') {
+    if (!camp.chest) camp.chest = [];
+    camp.chest.push(assignedCard);
+    targetName = 'Cassa del Dungeon (Bottino Condiviso)';
+  } else if (camp.members && camp.members[targetKey]) {
+    const mChar = camp.members[targetKey];
+    if (!mChar.cards) mChar.cards = [];
+    mChar.cards.unshift(assignedCard);
+    targetName = mChar.name;
+
+    if (window.dbState.users[targetKey]?.characters) {
+      const idx = window.dbState.users[targetKey].characters.findIndex(c => c.id === mChar.id);
+      if (idx !== -1) window.dbState.users[targetKey].characters[idx] = mChar;
+    }
+  }
+
+  window.saveDB();
+  alert(`⚔️ Carta "${original.name}" assegnata con successo a: ${targetName}!`);
+  window.renderDmViews();
+};
+
 window.updateDmCardPreview = function() {
   const type = document.getElementById('dmc-type')?.value || 'arma';
   const preview = {
@@ -192,8 +351,9 @@ window.updateDmCardPreview = function() {
     type: type,
     rarity: document.getElementById('dmc-rarity')?.value || 'raro',
     damage: document.getElementById('dmc-dmg')?.value.trim() || '1d8+2',
-    weight: parseFloat(document.getElementById('dmc-weight')?.value) || 2,
-    img: window.dmCustomCardImage || window.CARD_ARTWORKS[type],
+    weight: document.getElementById('dmc-weight')?.value || '2.0 kg',
+    cost: document.getElementById('dmc-cost')?.value.trim() || '',
+    img: window.dmCustomCardImage || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma),
     desc: document.getElementById('dmc-desc')?.value.trim() || 'Smistata automaticamente nella sezione corretta della scheda.'
   };
   const holder = document.getElementById('dm-card-live-preview');
@@ -207,35 +367,54 @@ window.dmCreateAndAssignCard = function(e) {
 
   const type = document.getElementById('dmc-type').value;
   const ownerTarget = document.getElementById('dmc-owner').value;
+  const costVal = (document.getElementById('dmc-cost')?.value || '').trim();
+
   const newCard = {
-    id: 'dmcard_' + Date.now(),
+    id: 'custom_card_' + Date.now(),
     name: document.getElementById('dmc-name').value.trim(),
     type: type,
     rarity: document.getElementById('dmc-rarity').value,
     damage: document.getElementById('dmc-dmg').value.trim(),
-    weight: parseFloat(document.getElementById('dmc-weight').value) || 1.5,
-    img: window.dmCustomCardImage || window.CARD_ARTWORKS[type],
+    cost: costVal || undefined,
+    weight: document.getElementById('dmc-weight')?.value || '2.0 kg',
+    img: window.dmCustomCardImage || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma),
     desc: document.getElementById('dmc-desc').value.trim()
   };
 
+  // 1. Assegna al destinatario (Cassa o Membro)
+  let targetName = 'Cassa del Dungeon';
   if (ownerTarget === 'CHEST') {
     if (!camp.chest) camp.chest = [];
     camp.chest.push(newCard);
+    targetName = 'Cassa del Dungeon (Bottino Condiviso)';
   } else if (camp.members && camp.members[ownerTarget]) {
     const mChar = camp.members[ownerTarget];
     if (!mChar.cards) mChar.cards = [];
     mChar.cards.unshift(newCard);
+    targetName = mChar.name;
     if (window.dbState.users[ownerTarget]?.characters) {
       const idx = window.dbState.users[ownerTarget].characters.findIndex(c => c.id === mChar.id);
       if (idx !== -1) window.dbState.users[ownerTarget].characters[idx] = mChar;
     }
   }
 
+  // 2. SINCRONIZZAZIONE FONDAMENTALE: Salva la nuova carta nel Database Admin (dbState.customCards)
+  if (!window.dbState.customCards) window.dbState.customCards = [];
+  const existingIdx = window.dbState.customCards.findIndex(c => c.name.toLowerCase() === newCard.name.toLowerCase());
+  if (existingIdx !== -1) {
+    window.dbState.customCards[existingIdx] = newCard;
+  } else {
+    window.dbState.customCards.unshift(newCard);
+  }
+
   e.target.reset();
-  window.dmCustomCardImage = window.CARD_ARTWORKS.arma;
+  window.dmCustomCardImage = (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || "";
   window.updateDmCardPreview();
   window.saveDB();
-  window.switchDmWorkspaceTab('manage');
+
+  alert(`⚒️ Carta "${newCard.name}" creata, assegnata a ${targetName} e registrata nel Database Admin globale!`);
+  window.switchDmCreateMode('compendium');
+  window.renderDmViews();
 };
 
 window.setDmManageFilter = function(f) {
@@ -386,6 +565,18 @@ window.renderDmViews = function() {
     ownerSel.innerHTML = `<option value="CHEST">Cassa del Dungeon (Bottino condiviso)</option>` +
       members.map(([uKey, mChar]) => `<option value="${uKey}">Consegna a: ${mChar.name}</option>`).join('');
     if (prev) ownerSel.value = prev;
+  }
+
+  const compTargetSel = document.getElementById('dm-comp-target');
+  if (compTargetSel) {
+    const prevComp = compTargetSel.value;
+    compTargetSel.innerHTML = `<option value="CHEST">Cassa del Dungeon (Bottino condiviso)</option>` +
+      members.map(([uKey, mChar]) => `<option value="${uKey}">Consegna a: ${mChar.name} (${mChar.className})</option>`).join('');
+    if (prevComp) compTargetSel.value = prevComp;
+  }
+
+  if (window.dmCreateActiveMode === 'compendium') {
+    window.renderDmCompendiumCards();
   }
 
   let allCards = [];

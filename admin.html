@@ -246,14 +246,18 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
-            <label class="text-slate-300 font-bold block mb-1">Livello Incantesimo (0..9)</label>
-            <input id="acm-level" type="number" min="0" max="9" placeholder="Es. 1 (o 0 per trucchetto)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            <label class="text-slate-300 font-bold block mb-1">Livello Magia (0..9)</label>
+            <input id="acm-level" type="number" min="0" max="9" placeholder="Es. 1 (o 0 trucco)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
           <div>
             <label class="text-slate-300 font-bold block mb-1">Danno / Effetto</label>
             <input id="acm-dmg" type="text" placeholder="Es. 8d6 Fuoco, 1d8+FOR" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-red-300 font-bold font-mono">
+          </div>
+          <div>
+            <label class="text-slate-300 font-bold block mb-1">Costo in Monete</label>
+            <input id="acm-cost" type="text" placeholder="Es. 50 mo, 15 mo, 1.500 mo" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-amber-300 font-bold font-mono">
           </div>
           <div>
             <label class="text-slate-300 font-bold block mb-1">Peso / Gittata</label>
@@ -339,10 +343,14 @@
           <h2 id="cdm-name" class="font-cinzel font-black text-xl text-white tracking-wide">Nome Carta</h2>
           <span id="cdm-type" class="text-[11px] font-semibold text-slate-400 block pb-1 border-b border-slate-800">Tipo Sottotipo</span>
 
-          <div class="grid grid-cols-2 gap-2 pt-1 font-mono">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1 font-mono">
             <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
               <span class="text-[10px] text-slate-400 block font-sans">Danno / Effetto</span>
               <strong id="cdm-dmg" class="text-red-400 text-sm font-black">1d8+3</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Costo in Monete</span>
+              <strong id="cdm-cost" class="text-amber-300 text-xs font-bold">—</strong>
             </div>
             <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
               <span class="text-[10px] text-slate-400 block font-sans">Gittata / Peso</span>
@@ -356,9 +364,10 @@
               <span class="text-[10px] text-slate-400 block font-sans">Durata</span>
               <strong id="cdm-duration" class="text-purple-300 text-xs">Istantaneo</strong>
             </div>
-          </div>
-          <div class="text-[10px] text-slate-400">
-            <span>Componenti: </span><strong id="cdm-components" class="text-slate-300">V, S</strong>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Componenti</span>
+              <strong id="cdm-components" class="text-slate-300 text-xs">V, S</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -496,6 +505,7 @@
           <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')} cursor-pointer hover:scale-[1.02] transition duration-200" onclick="window.openCardDetailModal('${c.id}')" title="Clicca per visualizzare la carta estesa">
             <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
               <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate">${c.name}</span>
+              <span class="text-[9px] font-mono text-amber-300 font-bold">${c.cost ? '💰 ' + c.cost : '—'}</span>
             </div>
 
             <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
@@ -547,6 +557,8 @@
       document.getElementById('cdm-type').textContent = `${(card.type || 'oggetto').toUpperCase()} ${card.level !== undefined ? (card.level === 0 ? '• TRUCCHETTO' : `• ${card.level}° CERCHIO`) : ''}`;
       document.getElementById('cdm-img').src = card.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[card.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg';
       document.getElementById('cdm-dmg').textContent = card.damage || '—';
+      const cdmCost = document.getElementById('cdm-cost');
+      if (cdmCost) cdmCost.textContent = card.cost || '—';
       document.getElementById('cdm-range').textContent = card.range || (card.weight ? card.weight + ' kg' : 'Mischia (1.5m)');
       document.getElementById('cdm-cast-time').textContent = card.castingTime || (card.type === 'arma' ? '1 Attacco' : '1 Azione');
       document.getElementById('cdm-duration').textContent = card.duration || 'Istantaneo';
@@ -611,6 +623,8 @@
       document.getElementById('card-modal-title').textContent = "Crea Nuova Carta nel Database";
       document.getElementById('admin-card-form').reset();
       document.getElementById('acm-id').value = "";
+      const costEl = document.getElementById('acm-cost');
+      if (costEl) costEl.value = "";
       document.getElementById('acm-img-preview').src = "assets/items/spada_ulfberht.jpg";
       const fileNameEl = document.getElementById('acm-file-name');
       if (fileNameEl) fileNameEl.textContent = "Nessun file selezionato";
@@ -644,6 +658,8 @@
       document.getElementById('acm-rarity').value = card.rarity || "Comune";
       document.getElementById('acm-level').value = card.level !== undefined ? card.level : "";
       document.getElementById('acm-dmg').value = card.damage || "";
+      const costInput = document.getElementById('acm-cost');
+      if (costInput) costInput.value = card.cost || "";
       document.getElementById('acm-range').value = card.range || (card.weight ? card.weight + " kg" : "");
       document.getElementById('acm-img-custom').value = card.img || "";
       document.getElementById('acm-img-preview').src = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
@@ -663,6 +679,8 @@
       if (!card) return;
       window.editAdminCard(id);
       document.getElementById('acm-id').value = "";
+      const costEl = document.getElementById('acm-cost');
+      if (costEl) costEl.value = "";
       document.getElementById('acm-name').value = card.name + " (Copia)";
       document.getElementById('card-modal-title').textContent = "Crea Variante di: " + card.name;
     };
@@ -687,6 +705,7 @@
         rarity: document.getElementById('acm-rarity').value,
         level: lvlVal !== "" ? parseInt(lvlVal) : (type === 'incantesimo' ? 1 : undefined),
         damage: document.getElementById('acm-dmg').value.trim(),
+        cost: (document.getElementById('acm-cost')?.value || '').trim() || undefined,
         range: document.getElementById('acm-range').value.trim(),
         img: imgPath,
         desc: document.getElementById('acm-desc').value.trim()

@@ -474,54 +474,130 @@
 
         <!-- DM 3: CREA CARTA -->
         <div id="dm-subview-create" class="hidden space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-            <form onsubmit="window.dmCreateAndAssignCard(event)" class="md:col-span-7 norse-panel norse-border-gold rounded-2xl p-5 space-y-3.5 text-xs">
-              <h3 class="font-cinzel font-bold text-base text-amber-300">Forgia Carta (Esclusiva DM)</h3>
-              <p class="text-[11px] text-slate-400">Il sistema collocherà automaticamente la carta in <strong>Azioni e Attacchi</strong>, <strong>Inventario</strong> o <strong>Incantesimi</strong>.</p>
+          <!-- Switcher Modalita: Compendio Database Admin vs Forgia Custom -->
+          <div class="norse-panel norse-border-gold rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+            <div class="flex items-center gap-2">
+              <button type="button" id="dmc-tab-comp" onclick="window.switchDmCreateMode('compendium')" class="px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 transition">
+                <span>📦</span> DATABASE ADMIN / COMPENDIO
+              </button>
+              <button type="button" id="dmc-tab-forge" onclick="window.switchDmCreateMode('forge')" class="px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                <span>⚒️</span> FORGIA NUOVA CARTA CUSTOM
+              </button>
+            </div>
+            <div class="text-[11px] text-slate-400 font-cinzel flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+              Sincronizzato col Database Admin Globale
+            </div>
+          </div>
 
-              <input id="dmc-name" type="text" required oninput="window.updateDmCardPreview()" placeholder="Nome Carta (es. Mjolnir, Gungnir, Runa Othala)..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-
-              <div class="grid grid-cols-2 gap-2.5">
-                <select id="dmc-type" onchange="window.updateDmCardPreview()" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                  <option value="arma">Arma (Finisce in Azioni)</option>
-                  <option value="incantesimo">Magia / Runa (Finisce in Incantesimi)</option>
-                  <option value="armatura">Armatura (Finisce in Inventario)</option>
-                  <option value="scudo">Scudo (Finisce in Inventario)</option>
-                  <option value="oggetto">Oggetto (Finisce in Inventario)</option>
+          <!-- SEZIONE 1: COMPENDIO / DATABASE ADMIN (Assegna Carte Esistenti) -->
+          <div id="dm-create-mode-compendium" class="space-y-4">
+            <div class="norse-panel norse-border-gold rounded-2xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+              <div class="flex items-center gap-2 flex-1 max-w-sm">
+                <span class="text-amber-300 font-cinzel font-bold text-xs whitespace-nowrap">🎯 Assegna a:</span>
+                <select id="dm-comp-target" class="w-full bg-slate-950 border border-amber-500/60 rounded-xl px-3 py-2 text-xs font-bold text-amber-200 shadow-inner">
+                  <!-- Popolato dinamicamente da renderDmViews -->
                 </select>
-                <select id="dmc-rarity" onchange="window.updateDmCardPreview()" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                  <option value="comune">Comune</option>
-                  <option value="non-comune">Non Comune</option>
-                  <option value="raro" selected>Raro</option>
-                  <option value="molto-raro">Molto Raro</option>
-                  <option value="leggendario">Leggendario</option>
+              </div>
+
+              <div class="flex items-center gap-2 flex-1">
+                <div class="relative flex-1">
+                  <input id="dm-comp-search" type="text" oninput="window.renderDmCompendiumCards()" placeholder="Cerca tra le 108+ carte per nome, effetto, regole..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white">
+                  <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <select id="dm-comp-filter-type" onchange="window.renderDmCompendiumCards()" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-sky-300">
+                  <option value="all">Tutti i Tipi</option>
+                  <option value="arma">Armi</option>
+                  <option value="scudo">Scudi</option>
+                  <option value="armatura">Armature</option>
+                  <option value="pozione">Pozioni & Alchimia</option>
+                  <option value="incantesimo">Incantesimi & Rune</option>
+                  <option value="oggetto">Oggetti & Reliquie</option>
                 </select>
+                <span id="dm-comp-count-badge" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-amber-300 font-bold whitespace-nowrap">108 Carte</span>
               </div>
+            </div>
 
-              <div class="grid grid-cols-2 gap-2.5">
-                <input id="dmc-dmg" type="text" required oninput="window.updateDmCardPreview()" placeholder="Danno / CA / Effetto (es. 2d8+4)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
-                <input id="dmc-weight" type="number" step="0.5" value="2.0" oninput="window.updateDmCardPreview()" placeholder="Peso (kg)" class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+            <!-- Griglia Carte del Compendio -->
+            <div id="dm-compendium-cards-grid" class="cards-flow-grid pt-2"></div>
+          </div>
+
+          <!-- SEZIONE 2: FORGIA NUOVA CARTA CUSTOM -->
+          <div id="dm-create-mode-forge" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+              <form onsubmit="window.dmCreateAndAssignCard(event)" class="md:col-span-7 norse-panel norse-border-gold rounded-2xl p-5 space-y-3.5 text-xs">
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-amber-300">Forgia Carta Custom nel Database</h3>
+                  <p class="text-[11px] text-slate-400">La carta verrà creata, assegnata al destinatario scelto e <strong>salvata automaticamente nel Database Admin globale</strong>.</p>
+                </div>
+
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Nome Carta *</label>
+                  <input id="dmc-name" type="text" required oninput="window.updateDmCardPreview()" placeholder="Nome Carta (es. Mjolnir, Gungnir, Runa Othala)..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="text-slate-300 font-bold block mb-1">Tipo Carta *</label>
+                    <select id="dmc-type" onchange="window.updateDmCardPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                      <option value="arma">Arma (Finisce in Azioni)</option>
+                      <option value="incantesimo">Magia / Runa (Finisce in Incantesimi)</option>
+                      <option value="armatura">Armatura (Finisce in Inventario)</option>
+                      <option value="scudo">Scudo (Finisce in Inventario)</option>
+                      <option value="pozione">Pozione (Finisce in Inventario)</option>
+                      <option value="oggetto">Oggetto / Reliquia (Finisce in Inventario)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-slate-300 font-bold block mb-1">Rarità *</label>
+                    <select id="dmc-rarity" onchange="window.updateDmCardPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-amber-300 font-bold">
+                      <option value="comune">Comune</option>
+                      <option value="non-comune">Non Comune</option>
+                      <option value="raro" selected>Raro</option>
+                      <option value="molto-raro">Molto Raro</option>
+                      <option value="leggendario">Leggendario</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                  <div>
+                    <label class="text-slate-300 font-bold block mb-1">Danno / Effetto *</label>
+                    <input id="dmc-dmg" type="text" required oninput="window.updateDmCardPreview()" placeholder="es. 2d8+4 o +2 CA" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-red-300 font-bold font-mono">
+                  </div>
+                  <div>
+                    <label class="text-slate-300 font-bold block mb-1">Costo in Monete</label>
+                    <input id="dmc-cost" type="text" oninput="window.updateDmCardPreview()" placeholder="es. 50 mo, 15 mo..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-amber-300 font-bold font-mono">
+                  </div>
+                  <div>
+                    <label class="text-slate-300 font-bold block mb-1">Peso / Gittata</label>
+                    <input id="dmc-weight" type="text" value="2.0 kg" oninput="window.updateDmCardPreview()" placeholder="es. 2.0 kg o 18m" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white">
+                  </div>
+                </div>
+
+                <div class="bg-slate-950 border border-sky-500/40 rounded-xl p-3 space-y-2">
+                  <label class="text-sky-300 font-bold block">Immagine Carta (Carica dal PC o URL) *</label>
+                  <input type="file" accept="image/*" onchange="window.handleDmCardImageUpload(event)" class="w-full text-slate-300 text-[11px]">
+                  <input id="dmc-img-url" type="url" oninput="window.handleDmCardUrlInput(this.value)" placeholder="Oppure incolla URL o percorso relativo..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-[11px]">
+                </div>
+
+                <div>
+                  <label class="text-slate-300 font-bold block mb-1">Descrizione Completa & Regole *</label>
+                  <textarea id="dmc-desc" rows="3" required oninput="window.updateDmCardPreview()" placeholder="Descrizione delle proprietà, maestria d'arme 5.5e o poteri norreni..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white leading-relaxed"></textarea>
+                </div>
+
+                <div>
+                  <label class="text-amber-300 font-bold block mb-1">A chi vuoi consegnare questa carta? *</label>
+                  <select id="dmc-owner" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl p-2.5 text-white font-bold"></select>
+                </div>
+
+                <button type="submit" class="gold-btn w-full py-3.5 rounded-xl font-cinzel font-black text-xs text-white shadow-lg">FORGIA E SALVA NEL DATABASE ADMIN</button>
+              </form>
+
+              <div class="md:col-span-5 flex flex-col items-center space-y-2">
+                <span class="text-[10px] font-cinzel uppercase text-slate-400">Anteprima Carta</span>
+                <div id="dm-card-live-preview"></div>
               </div>
-
-              <div class="bg-slate-950 border border-sky-500/40 rounded-xl p-3 space-y-2">
-                <label class="text-sky-300 font-bold block">Immagine Carta (Auto-Adattata alle dimensioni) *</label>
-                <input type="file" accept="image/*" onchange="window.handleDmCardImageUpload(event)" class="w-full text-slate-300 text-[11px]">
-                <input id="dmc-img-url" type="url" oninput="window.handleDmCardUrlInput(this.value)" placeholder="Oppure incolla URL immagine..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
-              </div>
-
-              <textarea id="dmc-desc" rows="2" required oninput="window.updateDmCardPreview()" placeholder="Descrizione ed effetto..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
-
-              <div>
-                <label class="text-amber-300 font-bold block mb-1">A chi vuoi consegnare questa carta? *</label>
-                <select id="dmc-owner" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl p-2.5 text-white font-bold"></select>
-              </div>
-
-              <button type="submit" class="gold-btn w-full py-3.5 rounded-xl font-cinzel font-black text-xs text-white">CREA E CONSEGNA CARTA</button>
-            </form>
-
-            <div class="md:col-span-5 flex flex-col items-center space-y-2">
-              <span class="text-[10px] font-cinzel uppercase text-slate-400">Anteprima Carta</span>
-              <div id="dm-card-live-preview"></div>
             </div>
           </div>
         </div>
@@ -610,10 +686,14 @@
           <h2 id="cdm-name" class="font-cinzel font-black text-xl text-white tracking-wide">Nome Carta</h2>
           <span id="cdm-type" class="text-[11px] font-semibold text-slate-400 block pb-1 border-b border-slate-800">Tipo Sottotipo</span>
 
-          <div class="grid grid-cols-2 gap-2 pt-1 font-mono">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1 font-mono">
             <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
               <span class="text-[10px] text-slate-400 block font-sans">Danno / Effetto</span>
               <strong id="cdm-dmg" class="text-red-400 text-sm font-black">1d8+3</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Costo in Monete</span>
+              <strong id="cdm-cost" class="text-amber-300 text-xs font-bold">—</strong>
             </div>
             <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
               <span class="text-[10px] text-slate-400 block font-sans">Gittata / Peso</span>
@@ -627,9 +707,10 @@
               <span class="text-[10px] text-slate-400 block font-sans">Durata</span>
               <strong id="cdm-duration" class="text-purple-300 text-xs">Istantaneo</strong>
             </div>
-          </div>
-          <div class="text-[10px] text-slate-400">
-            <span>Componenti: </span><strong id="cdm-components" class="text-slate-300">V, S</strong>
+            <div class="p-2 rounded-lg bg-black/50 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Componenti</span>
+              <strong id="cdm-components" class="text-slate-300 text-xs">V, S</strong>
+            </div>
           </div>
         </div>
       </div>

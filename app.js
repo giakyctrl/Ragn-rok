@@ -1001,7 +1001,7 @@ window.buildYgoCardHTML = function(card, interactive = true) {
           <div class="min-w-0 flex-1">
             <span class="text-[8px] font-mono text-slate-300 truncate block">${card.type} • ${card.damage || '—'}</span>
           </div>
-          <span class="text-[9px] text-amber-400 font-bold opacity-80 group-hover:opacity-100 transition ml-1"></span>
+          <span class="text-[9px] text-amber-300 font-mono font-bold opacity-90 group-hover:opacity-100 transition ml-1">${card.cost ? '💰 ' + card.cost : ''}</span>
         </div>
       </div>
     </div>
@@ -1050,6 +1050,8 @@ window.openCardDetailModal = function(cardId) {
   document.getElementById('cdm-type').textContent = `${(card.type || 'oggetto').toUpperCase()} ${card.level !== undefined ? (card.level === 0 ? '• TRUCCHETTO' : `• ${card.level}° CERCHIO`) : ''}`;
   document.getElementById('cdm-img').src = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
   document.getElementById('cdm-dmg').textContent = card.damage || '—';
+  const cdmCost = document.getElementById('cdm-cost');
+  if (cdmCost) cdmCost.textContent = card.cost || '—';
   document.getElementById('cdm-range').textContent = card.range || (card.weight ? card.weight + ' kg' : 'Mischia (1.5m)');
   document.getElementById('cdm-cast-time').textContent = card.castingTime || (card.type === 'arma' ? '1 Attacco' : '1 Azione');
   document.getElementById('cdm-duration').textContent = card.duration || 'Istantaneo';
