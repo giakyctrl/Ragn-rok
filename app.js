@@ -233,11 +233,11 @@ window.updateServerStatusIndicators = function(connected) {
   const sub = document.getElementById('welcome-status-sub');
   const pill = document.getElementById('main-server-pill');
 
-  const text = connected ? "Server connesso" : "Server non connesso";
-  const cls = connected ? "text-[10px] text-emerald-400 font-semibold" : "text-[10px] text-rose-400 font-semibold";
+  const text = connected ? "Server connesso" : "Modalità Locale (Offline)";
+  const cls = connected ? "text-[10px] text-emerald-400 font-semibold" : "text-[10px] text-amber-400 font-semibold";
   const pillCls = connected
     ? "text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-semibold"
-    : "text-[9px] px-1.5 py-0.5 rounded bg-rose-950/80 border border-rose-500/30 text-rose-400 font-semibold";
+    : "text-[9px] px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-400 font-semibold";
 
   if (sub) { sub.textContent = text; sub.className = cls; }
   if (pill) { pill.textContent = text; pill.className = pillCls; }

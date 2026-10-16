@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body class="relative">
 
@@ -50,7 +50,7 @@
           </svg>
           <div>
             <span class="font-norse text-sm tracking-widest text-sky-300 block">YGGDRASILL</span>
-            <span id="welcome-status-sub" class="text-[10px] text-rose-400 font-semibold">Server non connesso</span>
+            <span id="welcome-status-sub" class="text-[10px] text-rose-400 font-semibold">Connessione Realm...</span>
           </div>
         </div>
 
@@ -229,7 +229,7 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="font-norse text-xs text-sky-300 tracking-wider">YGGDRASILL</span>
-              <span id="main-server-pill" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-rose-400 font-semibold">Server non connesso</span>
+              <span id="main-server-pill" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-rose-400 font-semibold">Connessione Realm...</span>
             </div>
             <span id="top-user-label" class="text-[10px] text-slate-400 block"></span>
           </div>
@@ -765,11 +765,11 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=11"></script>
-  <script src="rules.js?v=11"></script>
-  <script src="forge.js?v=11"></script>
-  <script src="app.js?v=11"></script>
-  <script src="dm.js?v=11"></script>
+  <script src="data.js?v=15"></script>
+  <script src="rules.js?v=15"></script>
+  <script src="forge.js?v=15"></script>
+  <script src="app.js?v=15"></script>
+  <script src="dm.js?v=15"></script>
 
   <!-- MODALE DETTAGLIO CLAN DI MIDGARDR -->
   <div id="clan-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeClanDetailModal()">

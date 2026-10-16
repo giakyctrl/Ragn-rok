@@ -6,10 +6,10 @@
   <title>Journey to Ragnarok - Consolle di Amministrazione Suprema</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&family=Metamorphous&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=15">
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="data.js?v=11"></script>
+  <script src="data.js?v=15"></script>
   <style>
     body { background-color: #06090e; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
     .font-norse { font-family: 'MedievalSharp', cursive; }
@@ -480,16 +480,24 @@
     };
 
     // --- CARTE ADMIN ---
+    window.currentOriginalCardName = null;
+
     window.renderAdminCardsList = function() {
       const q = (document.getElementById('card-search-input')?.value || '').toLowerCase().trim();
       const filterType = document.getElementById('card-type-filter')?.value || 'all';
 
-      const canonical = window.GLOBAL_CARDS_DATABASE || [];
-      const custom = dbState.customCards || [];
-      const all = [...custom.map(c => ({ ...c, isCustom: true })), ...canonical.map(c => ({ ...c, isCustom: false }))];
+      // Ottiene l'elenco unificato senza cloni (sovrascrive in place le canoniche modificate)
+      const all = typeof window.getAllCards === 'function' ? window.getAllCards(dbState) : [];
 
       const filtered = all.filter(c => {
-        if (filterType !== 'all' && c.type !== filterType) return false;
+        if (filterType !== 'all') {
+          const cType = (c.type || '').toLowerCase();
+          if (filterType === 'pozione') {
+            if (!cType.includes('pozione') && !c.name.toLowerCase().includes('pozione') && !c.name.toLowerCase().includes('idromele')) return false;
+          } else if (cType !== filterType) {
+            return false;
+          }
+        }
         if (q && !c.name.toLowerCase().includes(q) && !(c.desc || '').toLowerCase().includes(q)) return false;
         return true;
       });
@@ -526,11 +534,21 @@
             </div>
 
             <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button type="button" onclick="event.stopPropagation(); window.editAdminCard('${c.id}')" class="py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px] shadow">MODIFICA</button>
-              ${c.isCustom ? `
-                <button type="button" onclick="event.stopPropagation(); window.deleteAdminCard('${c.id}')" class="py-1 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px] shadow">ELIMINA</button>
+              <button type="button" onclick="event.stopPropagation(); window.editAdminCard('${c.id}')" class="py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1">
+                <span>✏️</span> MODIFICA
+              </button>
+              ${c.isModifiedCanonical ? `
+                <button type="button" onclick="event.stopPropagation(); window.resetAdminCardToCanonical('${c.id}')" class="py-1.5 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1" title="Ripristina ai valori del manuale">
+                  <span>↩️</span> RIPRISTINA
+                </button>
+              ` : c.isCustom ? `
+                <button type="button" onclick="event.stopPropagation(); window.deleteAdminCard('${c.id}')" class="py-1.5 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1">
+                  <span>🗑️</span> ELIMINA
+                </button>
               ` : `
-                <button type="button" onclick="event.stopPropagation(); window.cloneAdminCard('${c.id}')" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px] shadow">DUPLICA</button>
+                <button type="button" onclick="event.stopPropagation(); window.openCardDetailModal('${c.id}')" class="py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-cinzel font-semibold text-[10px] shadow">
+                  DETTAGLI
+                </button>
               `}
             </div>
           </div>
@@ -647,14 +665,16 @@
     };
 
     window.editAdminCard = function(id) {
-      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
+      const all = typeof window.getAllCards === 'function' ? window.getAllCards(dbState) : [];
       const card = all.find(c => c.id === id);
       if (!card) return;
 
-      document.getElementById('card-modal-title').textContent = `Modifica: ${card.name}`;
+      window.currentOriginalCardName = card.name;
+
+      document.getElementById('card-modal-title').textContent = `Modifica Carta: ${card.name}`;
       document.getElementById('acm-id').value = card.id;
       document.getElementById('acm-name').value = card.name || "";
-      document.getElementById('acm-type').value = card.type || "incantesimo";
+      document.getElementById('acm-type').value = card.type || "arma";
       document.getElementById('acm-rarity').value = card.rarity || "Comune";
       document.getElementById('acm-level').value = card.level !== undefined ? card.level : "";
       document.getElementById('acm-dmg').value = card.damage || "";
@@ -673,16 +693,16 @@
       document.getElementById('admin-card-modal').classList.add('flex');
     };
 
-    window.cloneAdminCard = function(id) {
-      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
-      const card = all.find(c => c.id === id);
-      if (!card) return;
-      window.editAdminCard(id);
-      document.getElementById('acm-id').value = "";
-      const costEl = document.getElementById('acm-cost');
-      if (costEl) costEl.value = "";
-      document.getElementById('acm-name').value = card.name + " (Copia)";
-      document.getElementById('card-modal-title').textContent = "Crea Variante di: " + card.name;
+    window.resetAdminCardToCanonical = function(id) {
+      if (!confirm("Ripristinare questa carta ai valori originali del manuale?")) return;
+      if (dbState.customCards) {
+        dbState.customCards = dbState.customCards.filter(c => c.id !== id);
+      }
+      const canonical = (window.GLOBAL_CARDS_DATABASE || []).find(c => c.id === id);
+      if (canonical && typeof window.syncCardUpdateToAllPlayers === 'function') {
+        window.syncCardUpdateToAllPlayers(canonical, null, dbState);
+      }
+      saveDB();
     };
 
     window.deleteAdminCard = function(id) {
@@ -719,12 +739,17 @@
         dbState.customCards.unshift(cardObj);
       }
 
+      // Sincronizza la modifica a tutti i player e forzieri!
+      if (typeof window.syncCardUpdateToAllPlayers === 'function') {
+        window.syncCardUpdateToAllPlayers(cardObj, window.currentOriginalCardName, dbState);
+      }
+
       saveDB();
       window.closeCardModal();
+      alert(`✅ Carta "${cardObj.name}" salvata con successo!\nLe modifiche sono state sincronizzate in tempo reale a tutti i player e inventari.`);
     };
 
-    // --- GESTIONE CAMPAGNE ---
-    window.renderAdminCampaignsList = function() {
+    // --- GESTIONE CAMPAGNE ---\n    window.renderAdminCampaignsList = function() {
       const container = document.getElementById('admin-campaigns-list');
       if (!container) return;
       const camps = Object.values(dbState.campaigns || {});

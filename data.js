@@ -662,8 +662,7 @@ window.GLOBAL_CARDS_DATABASE = [
     "weight": 0.5,
     "range": "Mischia (1.5m) / Lancio (6m/18m)",
     "img": "assets/items/dente_strega.jpg",
-    "desc": "Arma Semplice (Accurata, Leggera, Lancio).
-Proprietà di Maestria 5.5e [Nick]: Quando effettui l'attacco extra della proprietà Leggera, puoi effettuarlo come parte dell'azione di Attacco invece di spendere la tua Azione Bonus."
+    "desc": "Arma Semplice (Accurata, Leggera, Lancio).\nProprietà di Maestria 5.5e [Nick]: Quando effettui l'attacco extra della proprietà Leggera, puoi effettuarlo come parte dell'azione di Attacco invece di spendere la tua Azione Bonus."
   },
   {
     "id": "card_weapon_shortsword",
@@ -675,8 +674,7 @@ Proprietà di Maestria 5.5e [Nick]: Quando effettui l'attacco extra della propri
     "weight": 1.0,
     "range": "Mischia (1.5m)",
     "img": "assets/items/spada_corta.jpg",
-    "desc": "Arma da Guerra (Accurata, Leggera).
-Proprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, ottieni Vantaggio al tuo prossimo tiro per colpire contro di essa prima della fine del tuo prossimo turno."
+    "desc": "Arma da Guerra (Accurata, Leggera).\nProprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, ottieni Vantaggio al tuo prossimo tiro per colpire contro di essa prima della fine del tuo prossimo turno."
   },
   {
     "id": "card_weapon_longsword",
@@ -688,8 +686,7 @@ Proprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, otti
     "weight": 1.5,
     "range": "Mischia (1.5m)",
     "img": "assets/items/spada_ulfberht.jpg",
-    "desc": "Arma da Guerra (Versatile a due mani 1d10).
-Proprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
+    "desc": "Arma da Guerra (Versatile a due mani 1d10).\nProprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
   },
   {
     "id": "card_weapon_greatsword",
@@ -701,8 +698,7 @@ Proprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svanta
     "weight": 3.0,
     "range": "Mischia (1.5m)",
     "img": "assets/items/spadone_due_mani.jpg",
-    "desc": "Arma da Guerra (Pesante, Due Mani).
-Proprietà di Maestria 5.5e [Graze]: Se manchi un tiro per colpire con quest'arma, infliggi comunque al bersaglio danni pari al tuo modificatore di Forza (minimo 1)."
+    "desc": "Arma da Guerra (Pesante, Due Mani).\nProprietà di Maestria 5.5e [Graze]: Se manchi un tiro per colpire con quest'arma, infliggi comunque al bersaglio danni pari al tuo modificatore di Forza (minimo 1)."
   },
   {
     "id": "card_weapon_handaxe",
@@ -714,8 +710,7 @@ Proprietà di Maestria 5.5e [Graze]: Se manchi un tiro per colpire con quest'arm
     "weight": 1.0,
     "range": "Mischia (1.5m) / Lancio (6m/18m)",
     "img": "assets/items/artiglio_montagna.jpg",
-    "desc": "Arma Semplice (Leggera, Lancio).
-Proprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, ottieni Vantaggio al tuo prossimo tiro per colpire contro di essa prima della fine del tuo prossimo turno."
+    "desc": "Arma Semplice (Leggera, Lancio).\nProprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, ottieni Vantaggio al tuo prossimo tiro per colpire contro di essa prima della fine del tuo prossimo turno."
   },
   {
     "id": "card_weapon_battleaxe",
@@ -727,8 +722,7 @@ Proprietà di Maestria 5.5e [Vex]: Se colpisci una creatura con quest'arma, otti
     "weight": 2.0,
     "range": "Mischia (1.5m)",
     "img": "assets/items/artiglio_montagna.jpg",
-    "desc": "Arma da Guerra (Versatile a due mani 1d10).
-Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerla a un Tiro Salvezza su Costituzione (CD 8 + bonus comp. + mod. caratteristica) o cadere prona."
+    "desc": "Arma da Guerra (Versatile a due mani 1d10).\nProprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerla a un Tiro Salvezza su Costituzione (CD 8 + bonus comp. + mod. caratteristica) o cadere prona."
   },
   {
     "id": "card_weapon_greataxe",
@@ -740,8 +734,7 @@ Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerl
     "weight": 3.5,
     "range": "Mischia (1.5m)",
     "img": "assets/items/ascia_bipenne.jpg",
-    "desc": "Arma da Guerra (Pesante, Due Mani).
-Proprietà di Maestria 5.5e [Cleave]: Se colpisci una creatura, puoi effettuare un secondo attacco in mischia contro un'altra creatura adiacente entro la tua portata, infliggendo i danni base dell'arma."
+    "desc": "Arma da Guerra (Pesante, Due Mani).\nProprietà di Maestria 5.5e [Cleave]: Se colpisci una creatura, puoi effettuare un secondo attacco in mischia contro un'altra creatura adiacente entro la tua portata, infliggendo i danni base dell'arma."
   },
   {
     "id": "card_weapon_spear",
@@ -753,8 +746,7 @@ Proprietà di Maestria 5.5e [Cleave]: Se colpisci una creatura, puoi effettuare 
     "weight": 1.5,
     "range": "Mischia (1.5m) / Lancio (6m/18m)",
     "img": "assets/items/gungnir.jpg",
-    "desc": "Arma Semplice (Lancio, Versatile a due mani 1d8).
-Proprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
+    "desc": "Arma Semplice (Lancio, Versatile a due mani 1d8).\nProprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
   },
   {
     "id": "card_weapon_javelin",
@@ -766,8 +758,7 @@ Proprietà di Maestria 5.5e [Sap]: Se colpisci una creatura, essa subisce Svanta
     "weight": 1.0,
     "range": "Lancio (9m/36m)",
     "img": "assets/items/giavellotto.jpg",
-    "desc": "Arma Semplice (Lancio).
-Proprietà di Maestria 5.5e [Slow]: Se colpisci una creatura e le infliggi danni, riduci la sua velocità di movimento di 3 metri fino all'inizio del tuo prossimo turno."
+    "desc": "Arma Semplice (Lancio).\nProprietà di Maestria 5.5e [Slow]: Se colpisci una creatura e le infliggi danni, riduci la sua velocità di movimento di 3 metri fino all'inizio del tuo prossimo turno."
   },
   {
     "id": "card_weapon_quarterstaff",
@@ -779,8 +770,7 @@ Proprietà di Maestria 5.5e [Slow]: Se colpisci una creatura e le infliggi danni
     "weight": 2.0,
     "range": "Mischia (1.5m)",
     "img": "assets/items/ramo_runico.jpg",
-    "desc": "Arma Semplice (Versatile a due mani 1d8).
-Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerla a un Tiro Salvezza su Costituzione o cadere prona."
+    "desc": "Arma Semplice (Versatile a due mani 1d8).\nProprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerla a un Tiro Salvezza su Costituzione o cadere prona."
   },
   {
     "id": "card_weapon_mace",
@@ -792,8 +782,7 @@ Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, puoi costringerl
     "weight": 2.0,
     "range": "Mischia (1.5m)",
     "img": "assets/items/martello_guerra.jpg",
-    "desc": "Arma Semplice.
-Proprietà di Maestria 5.5e [Sap]: Colpendo una creatura, la fiacchi imponendo Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
+    "desc": "Arma Semplice.\nProprietà di Maestria 5.5e [Sap]: Colpendo una creatura, la fiacchi imponendo Svantaggio al suo prossimo tiro per colpire prima dell'inizio del tuo prossimo turno."
   },
   {
     "id": "card_weapon_warhammer",
@@ -805,8 +794,7 @@ Proprietà di Maestria 5.5e [Sap]: Colpendo una creatura, la fiacchi imponendo S
     "weight": 2.5,
     "range": "Mischia (1.5m)",
     "img": "assets/items/martello_guerra.jpg",
-    "desc": "Arma da Guerra (Versatile a due mani 1d10).
-Proprietà di Maestria 5.5e [Push]: Se colpisci una creatura fino a una taglia più grande di te, puoi spingerla dritta all'indietro di 3 metri."
+    "desc": "Arma da Guerra (Versatile a due mani 1d10).\nProprietà di Maestria 5.5e [Push]: Se colpisci una creatura fino a una taglia più grande di te, puoi spingerla dritta all'indietro di 3 metri."
   },
   {
     "id": "card_weapon_maul",
@@ -818,8 +806,7 @@ Proprietà di Maestria 5.5e [Push]: Se colpisci una creatura fino a una taglia p
     "weight": 4.5,
     "range": "Mischia (1.5m)",
     "img": "assets/items/Bear-Warriors-Claw-of-the-Mountain.png",
-    "desc": "Arma da Guerra (Pesante, Due Mani).
-Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, deve superare un TS su Costituzione o cadere prona per l'impatto tellurico."
+    "desc": "Arma da Guerra (Pesante, Due Mani).\nProprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, deve superare un TS su Costituzione o cadere prona per l'impatto tellurico."
   },
   {
     "id": "card_weapon_halberd",
@@ -831,8 +818,7 @@ Proprietà di Maestria 5.5e [Topple]: Se colpisci una creatura, deve superare un
     "weight": 3.0,
     "range": "Portata (3m)",
     "img": "assets/items/alabarda.jpg",
-    "desc": "Arma da Guerra (Pesante, Portata 3m, Due Mani).
-Proprietà di Maestria 5.5e [Cleave]: Quando colpisci un bersaglio, puoi scagliare un attacco di spazzata contro un secondo nemico adiacente a portata."
+    "desc": "Arma da Guerra (Pesante, Portata 3m, Due Mani).\nProprietà di Maestria 5.5e [Cleave]: Quando colpisci un bersaglio, puoi scagliare un attacco di spazzata contro un secondo nemico adiacente a portata."
   },
   {
     "id": "card_weapon_glaive",
@@ -844,8 +830,7 @@ Proprietà di Maestria 5.5e [Cleave]: Quando colpisci un bersaglio, puoi scaglia
     "weight": 3.0,
     "range": "Portata (3m)",
     "img": "assets/items/falcione.jpg",
-    "desc": "Arma da Guerra (Pesante, Portata 3m, Due Mani).
-Proprietà di Maestria 5.5e [Graze]: Se manchi un colpo, la lama ricurva graffia comunque infliggendo danni pari al tuo modificatore di Forza."
+    "desc": "Arma da Guerra (Pesante, Portata 3m, Due Mani).\nProprietà di Maestria 5.5e [Graze]: Se manchi un colpo, la lama ricurva graffia comunque infliggendo danni pari al tuo modificatore di Forza."
   },
   {
     "id": "card_weapon_trident",
@@ -857,8 +842,7 @@ Proprietà di Maestria 5.5e [Graze]: Se manchi un colpo, la lama ricurva graffia
     "weight": 2.0,
     "range": "Mischia (1.5m) / Lancio (6m/18m)",
     "img": "assets/items/tridente.jpg",
-    "desc": "Arma da Guerra (Versatile a due mani 1d10, Lancio).
-Proprietà di Maestria 5.5e [Topple]: Infilzando le gambe o lo scudo, costringi il bersaglio a un TS Costituzione o cade prono."
+    "desc": "Arma da Guerra (Versatile a due mani 1d10, Lancio).\nProprietà di Maestria 5.5e [Topple]: Infilzando le gambe o lo scudo, costringi il bersaglio a un TS Costituzione o cade prono."
   },
   {
     "id": "card_weapon_shortbow",
@@ -870,8 +854,7 @@ Proprietà di Maestria 5.5e [Topple]: Infilzando le gambe o lo scudo, costringi 
     "weight": 1.0,
     "range": "Munizioni (24m/96m)",
     "img": "assets/items/arco_corto.jpg",
-    "desc": "Arma Semplice a Distanza (Due Mani).
-Proprietà di Maestria 5.5e [Vex]: Colpendo il bersaglio ne studi la postura, garantendoti Vantaggio al tuo prossimo tiro per colpire contro di esso."
+    "desc": "Arma Semplice a Distanza (Due Mani).\nProprietà di Maestria 5.5e [Vex]: Colpendo il bersaglio ne studi la postura, garantendoti Vantaggio al tuo prossimo tiro per colpire contro di esso."
   },
   {
     "id": "card_weapon_longbow",
@@ -883,8 +866,7 @@ Proprietà di Maestria 5.5e [Vex]: Colpendo il bersaglio ne studi la postura, ga
     "weight": 1.5,
     "range": "Munizioni (45m/180m)",
     "img": "assets/items/arco_lungo.jpg",
-    "desc": "Arma da Guerra a Distanza (Pesante, Due Mani).
-Proprietà di Maestria 5.5e [Slow]: La potenza delle frecce pesanti conficcate rallenta il bersaglio riducendone la velocità di 3 metri."
+    "desc": "Arma da Guerra a Distanza (Pesante, Due Mani).\nProprietà di Maestria 5.5e [Slow]: La potenza delle frecce pesanti conficcate rallenta il bersaglio riducendone la velocità di 3 metri."
   },
   {
     "id": "card_weapon_light_crossbow",
@@ -896,8 +878,7 @@ Proprietà di Maestria 5.5e [Slow]: La potenza delle frecce pesanti conficcate r
     "weight": 2.5,
     "range": "Munizioni (24m/96m)",
     "img": "assets/items/balestra_leggera.jpg",
-    "desc": "Arma Semplice a Distanza (Ricarica, Due Mani).
-Proprietà di Maestria 5.5e [Slow]: Se colpisci una creatura, riduci la sua velocità di movimento di 3 metri fino al tuo prossimo turno."
+    "desc": "Arma Semplice a Distanza (Ricarica, Due Mani).\nProprietà di Maestria 5.5e [Slow]: Se colpisci una creatura, riduci la sua velocità di movimento di 3 metri fino al tuo prossimo turno."
   },
   {
     "id": "card_weapon_heavy_crossbow",
@@ -909,8 +890,7 @@ Proprietà di Maestria 5.5e [Slow]: Se colpisci una creatura, riduci la sua velo
     "weight": 4.0,
     "range": "Munizioni (30m/120m)",
     "img": "assets/items/balestra_pesante.jpg",
-    "desc": "Arma da Guerra a Distanza (Pesante, Ricarica, Due Mani).
-Proprietà di Maestria 5.5e [Push]: Il quadrello scagliato con verricello spinge il bersaglio all'indietro di 3 metri se colpito."
+    "desc": "Arma da Guerra a Distanza (Pesante, Ricarica, Due Mani).\nProprietà di Maestria 5.5e [Push]: Il quadrello scagliato con verricello spinge il bersaglio all'indietro di 3 metri se colpito."
   },
   {
     "id": "heirloom_bear_warriors",
@@ -2206,9 +2186,84 @@ Proprietà di Maestria 5.5e [Push]: Il quadrello scagliato con verricello spinge
 ];
 
 // Funzione helper per ottenere tutte le carte disponibili (Canoniche + Custom Admin)
-window.getAllCards = function() {
-  const custom = (window.dbState && window.dbState.customCards) || [];
-  return [...window.GLOBAL_CARDS_DATABASE, ...custom];
+window.getAllCards = function(state) {
+  const canonical = window.GLOBAL_CARDS_DATABASE || [];
+  const currentDb = state || window.dbState || {};
+  const custom = currentDb.customCards || [];
+
+  const cardMap = new Map();
+  // Inserisce prima le carte canoniche
+  canonical.forEach(c => cardMap.set(c.id, { ...c, isCustom: false }));
+  // Sovrascrive o aggiunge con le carte modificate/create (nessun clone!)
+  custom.forEach(c => {
+    const isOverride = canonical.some(orig => orig.id === c.id);
+    cardMap.set(c.id, { ...c, isCustom: true, isModifiedCanonical: isOverride });
+  });
+
+  return Array.from(cardMap.values());
+};
+
+// Sincronizza istantaneamente la modifica di una carta a tutti i giocatori, membri e forzieri
+window.syncCardUpdateToAllPlayers = function(cardObj, originalName, targetDb) {
+  const db = targetDb || window.dbState;
+  if (!db || !cardObj) return;
+
+  const targetId = cardObj.id;
+  const matchFn = (c) => {
+    if (!c) return false;
+    if (c.id === targetId) return true;
+    if (typeof c.id === 'string' && c.id.startsWith('inst_' + targetId)) return true;
+    if (c.canonicalId && c.canonicalId === targetId) return true;
+    if (originalName && c.name && c.name.toLowerCase() === originalName.toLowerCase()) return true;
+    return false;
+  };
+
+  const applyUpdate = (c) => {
+    c.name = cardObj.name;
+    c.type = cardObj.type;
+    c.rarity = cardObj.rarity;
+    c.damage = cardObj.damage;
+    c.cost = cardObj.cost;
+    c.range = cardObj.range;
+    c.weight = cardObj.weight !== undefined ? cardObj.weight : c.weight;
+    c.img = cardObj.img;
+    c.desc = cardObj.desc;
+    if (cardObj.level !== undefined) c.level = cardObj.level;
+    if (cardObj.castingTime !== undefined) c.castingTime = cardObj.castingTime;
+    if (cardObj.duration !== undefined) c.duration = cardObj.duration;
+    if (cardObj.components !== undefined) c.components = cardObj.components;
+  };
+
+  // 1. Aggiorna in tutte le campagne (camp.chest e camp.members)
+  Object.values(db.campaigns || {}).forEach(camp => {
+    if (camp.chest && Array.isArray(camp.chest)) {
+      camp.chest.forEach(c => {
+        if (matchFn(c)) applyUpdate(c);
+      });
+    }
+    if (camp.members && typeof camp.members === 'object') {
+      Object.values(camp.members).forEach(mChar => {
+        if (mChar && mChar.cards && Array.isArray(mChar.cards)) {
+          mChar.cards.forEach(c => {
+            if (matchFn(c)) applyUpdate(c);
+          });
+        }
+      });
+    }
+  });
+
+  // 2. Aggiorna in tutti i personaggi registrati di tutti gli utenti
+  Object.values(db.users || {}).forEach(u => {
+    if (u && u.characters && Array.isArray(u.characters)) {
+      u.characters.forEach(char => {
+        if (char && char.cards && Array.isArray(char.cards)) {
+          char.cards.forEach(c => {
+            if (matchFn(c)) applyUpdate(c);
+          });
+        }
+      });
+    }
+  });
 };
 
 window.classifyCardToDdbSection = function(card) {
