@@ -815,6 +815,7 @@ window.saveFullCharacterSheet = function(e) {
       // 2. Equipaggiamento e Armi Iniziali di Classe e Background collegati al Database
       if (startingGear && startingGear.items) {
         startingGear.items.forEach((it, idx) => {
+          if ((it.name || '').toLowerCase().includes('[cimelio')) return; // Evita doppioni del cimelio di clan
           const resolved = (typeof window.resolveDatabaseCardForItem === 'function')
             ? window.resolveDatabaseCardForItem(it, allC)
             : { ...it, id: 'item_' + Date.now() + '_' + idx };
@@ -1565,6 +1566,45 @@ window.renderAllViews = function() {
   const ch = window.getMyCharacter();
 
   if (ch) {
+    // 1. Rimuove qualsiasi residuo del pulsante admin all'interno della dashboard se presente in cache DOM
+    const strayAdmin = document.getElementById('btn-admin-console');
+    if (strayAdmin) strayAdmin.remove();
+
+    // 2. Pulizia e deduplicazione automatica carte [CIMELIO ...]:
+    // Rimuove qualsiasi carta che ha nel nome "[Cimelio" lasciando la versione pulita per tutte le classi
+    if (ch.cards && ch.cards.length > 0) {
+      const beforeCount = ch.cards.length;
+      const cleanCards = [];
+      const seenCleanNames = new Set();
+
+      ch.cards.forEach(c => {
+        const cName = (c.name || '').trim();
+        if (!cName.toLowerCase().includes('[cimelio')) {
+          cleanCards.push(c);
+          seenCleanNames.add(cName.toLowerCase());
+        }
+      });
+
+      ch.cards.forEach(c => {
+        const cName = (c.name || '').trim();
+        if (cName.toLowerCase().includes('[cimelio')) {
+          const stripped = cName.replace(/\[cimelio[^\]]*\]\s*/i, '').trim();
+          if (!seenCleanNames.has(stripped.toLowerCase())) {
+            c.name = stripped;
+            cleanCards.push(c);
+            seenCleanNames.add(stripped.toLowerCase());
+          }
+        }
+      });
+
+      if (cleanCards.length !== beforeCount || ch.cards.some(c => (c.name || '').toLowerCase().includes('[cimelio'))) {
+        ch.cards = cleanCards;
+        window.propagateCharacterToCampaigns(ch);
+        try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+        if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+      }
+    }
+
     // Sincronizza la condizione del personaggio con lo sfondo Canvas
     const normCond = (ch.condition === 'Normal' ? 'Normale' : ch.condition === 'Stunned' ? 'Stordito' : ch.condition) || 'Normale';
     ch.condition = normCond;

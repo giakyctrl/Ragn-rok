@@ -294,20 +294,6 @@ window.RulesEngine = {
     const cGear = classGear[classId] || classGear.guerriero;
     cGear.forEach(it => items.push(it));
 
-    // 3. CIMELIO DEL CLAN ASSEGNATO AUTOMATICAMENTE (JTR p. 81)
-    if (clanId && this.CLAN_HEIRLOOMS[clanId]) {
-      const heirloom = this.CLAN_HEIRLOOMS[clanId];
-      items.push({
-        name: `[Cimelio del Clan] ${heirloom.name}`,
-        qty: 1,
-        type: heirloom.type,
-        category: heirloom.category,
-        desc: heirloom.desc,
-        image: heirloom.image,
-        isHeirloom: true
-      });
-    }
-
     return {
       gold: gold,
       items: items
