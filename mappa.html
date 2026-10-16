@@ -789,6 +789,323 @@
       to { box-shadow: 0 0 40px rgba(245, 208, 118, 0.8); }
     }
   
+    
+    /* ==========================================================================
+       VTT EVOLUTO: INITIATIVE BAR, TOKEN HUD & EFFETTI ATMOSFERICI
+       ========================================================================== */
+    /* Barra Iniziativa Superiore (Stile D&D Beyond) */
+    .vtt-initiative-bar {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 90;
+      background: rgba(10, 15, 25, 0.92);
+      border: 1px solid rgba(201, 160, 80, 0.45);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(201, 160, 80, 0.2);
+      backdrop-filter: blur(10px);
+      max-width: 90vw;
+      overflow-x: auto;
+    }
+    .init-bar-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+      padding-right: 10px;
+    }
+    .init-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .init-round {
+      font-family: monospace;
+      font-size: 0.6rem;
+      color: #94a3b8;
+    }
+    .init-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .init-token-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(19, 25, 38, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      padding: 3px 8px 3px 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .init-token-pill:hover {
+      border-color: var(--gold-bright);
+      transform: translateY(-2px);
+    }
+    .init-token-pill.active-turn {
+      border-color: #f3c663;
+      background: rgba(201, 160, 80, 0.25);
+      box-shadow: 0 0 15px rgba(243, 198, 99, 0.6);
+    }
+    .init-pill-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .init-pill-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .init-pill-name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #f8fafc;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .init-pill-hp-track {
+      width: 50px;
+      height: 3px;
+      background: #0f172a;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .init-pill-hp-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+    .init-active-badge {
+      font-size: 0.55rem;
+      font-weight: 900;
+      color: #0b0e14;
+      background: #f3c663;
+      padding: 1px 5px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Floating Interactive Token HUD */
+    .vtt-token-hud {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      z-index: 95;
+      background: rgba(11, 16, 26, 0.95);
+      border: 1.5px solid rgba(201, 160, 80, 0.5);
+      border-radius: 1.25rem;
+      padding: 1rem;
+      width: 320px;
+      max-width: calc(100vw - 32px);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(201, 160, 80, 0.2);
+      backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (max-width: 640px) {
+      .vtt-token-hud {
+        bottom: 12px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 92vw;
+      }
+    }
+    .hud-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+    .hud-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 0.75rem;
+      object-fit: cover;
+      border: 1.5px solid var(--gold-bright);
+      box-shadow: 0 0 10px rgba(201, 160, 80, 0.3);
+    }
+    .hud-meta {
+      min-width: 0;
+      flex: 1;
+    }
+    .hud-name {
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #ffffff;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .hud-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .hud-close {
+      position: absolute;
+      top: -2px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94a3b8;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .hud-close:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* HUD HP Section */
+    .hud-hp-section {
+      background: rgba(5, 8, 14, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      padding: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .hud-hp-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+    .hud-label {
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+    .hud-hp-val {
+      font-family: monospace;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #10b981;
+    }
+    .hud-hp-track {
+      width: 100%;
+      height: 6px;
+      background: #0f172a;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .hud-hp-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 9999px;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+    .hud-hp-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .hp-btn {
+      padding: 3px 0;
+      border-radius: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      font-family: monospace;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.1s ease;
+    }
+    .hp-btn:active { transform: scale(0.95); }
+    .hp-btn.neg {
+      background: rgba(225, 29, 72, 0.25);
+      border-color: rgba(225, 29, 72, 0.5);
+      color: #fda4af;
+    }
+    .hp-btn.pos {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    /* HUD Stats Grid */
+    .hud-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    .hud-stat-box {
+      background: rgba(5, 8, 14, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.6rem;
+      padding: 0.4rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .hud-stat-box .hud-label {
+      font-size: 0.55rem;
+    }
+    .hud-stat-val {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      font-family: monospace;
+    }
+
+    /* HUD Footer */
+    .hud-footer {
+      display: flex;
+      gap: 6px;
+    }
+    .hud-cond-select {
+      flex: 1;
+      background: #0b0f19;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 0.7rem;
+      border-radius: 0.5rem;
+      padding: 4px 6px;
+      outline: none;
+    }
+    .hud-action-btn {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      border: 1px solid #f59e0b;
+      color: #0b0e14;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 5px 10px;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(217, 119, 6, 0.4);
+      transition: transform 0.15s ease;
+      white-space: nowrap;
+    }
+    .hud-action-btn:active { transform: scale(0.96); }
+
     /* Orientation Gate for Mobile/Tablet */
     #orientation-gate {
       display: none;
@@ -886,6 +1203,24 @@
     
     <div class="toolbar-divider"></div>
     
+        <!-- STRUMENTO PUNTATORE RUNICO (PING CONDIVISO) -->
+    <button class="tool-btn" data-tool="ping" id="tool-ping" title="Puntatore Runico (Tieni premuto sulla mappa o clicca)">
+      <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+      <span class="tooltip">Puntatore Runico / Ping Condiviso</span>
+    </button>
+
+    <!-- STRUMENTO ATMOSFERA & METEO (EFFETTO SIGIL) -->
+    <button class="tool-btn dm-only-tool" data-tool="weather" id="tool-weather" title="Meteo & Atmosfera (Neve, Bruma, Fiamme)">
+      <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+      </svg>
+      <span class="tooltip">Atmosfera & Meteo (Neve / Bruma / Fuoco)</span>
+    </button>
+
     <!-- STRUMENTO NEBBIA (SOLO DM) -->
     <button class="tool-btn dm-only-tool" data-tool="fog" id="tool-fog">
       🌫️
@@ -919,6 +1254,15 @@
   <!-- SUB-BARRA STRUMENTI CONTESTUALE -->
   <div id="subtool-bar" style="display:none;">
     <!-- Sottomenu Nebbia di Guerra -->
+        <!-- Sottomenu Meteo & Atmosfera Norrena -->
+    <div id="subtool-weather-group" class="subtool-group" style="display:none;">
+      <span style="font-size:0.75rem; color:var(--gold-bright); font-weight:bold;">Atmosfera:</span>
+      <button class="subtool-pill active" data-weather-opt="none" onclick="setVttWeather('none')">☀️ Sereno</button>
+      <button class="subtool-pill" data-weather-opt="snow" onclick="setVttWeather('snow')">❄️ Bufera Fimbulvetr</button>
+      <button class="subtool-pill" data-weather-opt="mist" onclick="setVttWeather('mist')">🌫️ Bruma dei Fiordi</button>
+      <button class="subtool-pill" data-weather-opt="embers" onclick="setVttWeather('embers')">🔥 Braci di Muspellsheimr</button>
+    </div>
+
     <div id="subtool-fog-group" class="subtool-group" style="display:none;">
       <span style="font-size:0.75rem; color:var(--gold-bright); font-weight:bold;">Nebbia:</span>
       <button class="subtool-pill active" data-fog-action="reveal_brush">🖌️ Svela (Pennello)</button>
@@ -1118,8 +1462,83 @@
   </aside>
 
   <!-- VIEWPORT DELLA MAPPA CON CANVAS -->
+    <!-- VIEWPORT DELLA MAPPA CON CANVAS -->
   <main id="map-viewport">
     <canvas id="map-canvas"></canvas>
+
+    <!-- TOP INITIATIVE TRACKER BAR (STILE D&D BEYOND) -->
+    <div id="vtt-initiative-bar" class="vtt-initiative-bar" style="display:none;">
+      <div class="init-bar-header">
+        <span class="init-title">COMBATTIMENTO TATTICO</span>
+        <span id="init-round-counter" class="init-round">ROUND 1</span>
+      </div>
+      <div id="init-token-track" class="init-track"></div>
+      <div class="init-actions dm-only-tool">
+        <button class="btn-action-sm" onclick="advanceInitiativeTurn()" title="Passa al prossimo eroe in turno">
+          Prossimo ⏭️
+        </button>
+      </div>
+    </div>
+
+    <!-- FLOATING INTERACTIVE TOKEN HUD (STILE D&D BEYOND) -->
+    <div id="vtt-token-hud" class="vtt-token-hud" style="display:none;">
+      <div class="hud-top">
+        <img id="hud-avatar" src="" class="hud-avatar" alt="">
+        <div class="hud-meta">
+          <h4 id="hud-name" class="hud-name"></h4>
+          <span id="hud-sub" class="hud-sub"></span>
+        </div>
+        <button type="button" class="hud-close" onclick="closeTokenHud()">✕</button>
+      </div>
+
+      <!-- HP Bar con Colore Dinamico & Bottoni Rapidi -->
+      <div class="hud-hp-section">
+        <div class="hud-hp-labels">
+          <span class="hud-label">PUNTI FERITA</span>
+          <strong id="hud-hp-val" class="hud-hp-val">19 / 19</strong>
+        </div>
+        <div class="hud-hp-track">
+          <div id="hud-hp-bar" class="hud-hp-fill"></div>
+        </div>
+        <div class="hud-hp-btns">
+          <button class="hp-btn neg" onclick="adjustTokenHp(-5)">-5</button>
+          <button class="hp-btn neg" onclick="adjustTokenHp(-1)">-1</button>
+          <button class="hp-btn pos" onclick="adjustTokenHp(1)">+1</button>
+          <button class="hp-btn pos" onclick="adjustTokenHp(5)">+5</button>
+        </div>
+      </div>
+
+      <!-- Statistiche & Movimento nel Turno -->
+      <div class="hud-stats-grid">
+        <div class="hud-stat-box">
+          <span class="hud-label">CLASSE ARMATURA</span>
+          <strong id="hud-ac-val" class="hud-stat-val">14</strong>
+        </div>
+        <div class="hud-stat-box">
+          <span class="hud-label">VELOCITÀ MAX</span>
+          <strong id="hud-speed-val" class="hud-stat-val">9m</strong>
+        </div>
+        <div class="hud-stat-box">
+          <span class="hud-label">MOSSO NEL TURNO</span>
+          <strong id="hud-move-val" class="hud-stat-val" style="color:#38bdf8;">0m</strong>
+        </div>
+      </div>
+
+      <!-- Condizione & Azione Rapida -->
+      <div class="hud-footer">
+        <select id="hud-condition-select" class="hud-cond-select" onchange="setTokenCondition(this.value)">
+          <option value="Normale">Condizione: Normale</option>
+          <option value="Avvelenato">Avvelenato</option>
+          <option value="Stordito">Stordito</option>
+          <option value="Prono">Prono</option>
+          <option value="Invisibile">Invisibile</option>
+          <option value="Spaventato">Spaventato</option>
+        </select>
+        <button type="button" class="hud-action-btn" onclick="rollTokenQuickAttack()">
+          🎲 ATTACCA
+        </button>
+      </div>
+    </div>
   </main>
 
   <!-- MODAL CREAZIONE / MODIFICA POI -->
@@ -1316,7 +1735,8 @@
           turnIndex: VTT_STATE.turnIndex,
           grid: VTT_STATE.grid,
           fogOpacityDm: VTT_STATE.fogOpacityDm,
-          diceLog: VTT_STATE.diceLog
+          diceLog: VTT_STATE.diceLog,
+          weather: VTT_STATE.weather
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(master));
         
@@ -1355,6 +1775,16 @@
           }
         });
 
+                // Ascolto Ping Runico in tempo reale
+        window.firebaseVttRef.child(currentCampaignCode + "/ping").on("value", snap => {
+          const p = snap.val();
+          if (p && (!activePing || p.time > activePing.time)) {
+            activePing = { ...p, start: performance.now() };
+            playRunicPingSound();
+            requestCanvasRepaint();
+          }
+        });
+
         // Ascolto modifiche dalla stanza
         window.firebaseVttRef.child(currentCampaignCode).on("value", snap => {
           const data = snap.val();
@@ -1370,7 +1800,7 @@
               VTT_STATE.diceLog = data.diceLog;
               renderDiceLog();
             }
-            renderTokensList();
+            renderTokensList(); renderInitiativeBar();
             renderPoisList();
             requestCanvasRepaint();
           }
@@ -1582,6 +2012,359 @@
      * 5. CICLO DI RENDERING PRINCIPALE
      * ========================================================================
      */
+    
+    // ========================================================================
+    // MOTORE PARTICELLE METEO & ATMOSFERA NORRENA ("EFFETTO SIGIL")
+    // ========================================================================
+    let weatherParticles = [];
+    let isWeatherLoopRunning = false;
+
+    function initWeatherParticles(type) {
+      weatherParticles = [];
+      const count = type === 'snow' ? 120 : type === 'embers' ? 65 : type === 'mist' ? 22 : 0;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      for (let i = 0; i < count; i++) {
+        weatherParticles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: type === 'snow' ? (Math.random() * 1.5 - 0.4) : type === 'embers' ? (Math.random() * 0.8 - 0.4) : (Math.random() * 0.5 + 0.2),
+          vy: type === 'snow' ? (Math.random() * 2.2 + 1.2) : type === 'embers' ? -(Math.random() * 2.2 + 1.2) : (Math.random() * 0.1 - 0.05),
+          size: type === 'snow' ? (Math.random() * 3 + 1.5) : type === 'embers' ? (Math.random() * 3.5 + 1.2) : (Math.random() * 90 + 50),
+          opacity: type === 'snow' ? (Math.random() * 0.6 + 0.3) : type === 'embers' ? (Math.random() * 0.8 + 0.25) : (Math.random() * 0.12 + 0.04),
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+
+      if (type !== 'none' && !isWeatherLoopRunning) {
+        isWeatherLoopRunning = true;
+        startWeatherAnimationLoop();
+      }
+    }
+
+    function startWeatherAnimationLoop() {
+      if (!isWeatherLoopRunning) return;
+      if (VTT_STATE.weather && VTT_STATE.weather !== 'none') {
+        renderCanvas();
+        requestAnimationFrame(startWeatherAnimationLoop);
+      } else {
+        isWeatherLoopRunning = false;
+        requestCanvasRepaint();
+      }
+    }
+
+    function drawWeatherAtmosphere(ctx) {
+      if (!VTT_STATE.weather || VTT_STATE.weather === 'none' || weatherParticles.length === 0) return;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.save();
+      // Disegna in coordinate schermo assolute indipendenti da pan e zoom
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      weatherParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.pulse += 0.04;
+
+        if (VTT_STATE.weather === 'snow') {
+          if (p.y > h) { p.y = -10; p.x = Math.random() * w; }
+          if (p.x > w) p.x = 0;
+          if (p.x < 0) p.x = w;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(240, 248, 255, ${p.opacity})`;
+          ctx.fill();
+        } else if (VTT_STATE.weather === 'embers') {
+          if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+          if (p.x > w) p.x = 0;
+          if (p.x < 0) p.x = w;
+          const glow = Math.sin(p.pulse) * 0.3 + 0.7;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(251, 146, 60, ${p.opacity * glow})`;
+          ctx.shadowColor = '#ea580c';
+          ctx.shadowBlur = 8;
+          ctx.fill();
+        } else if (VTT_STATE.weather === 'mist') {
+          if (p.x > w + 120) { p.x = -120; p.y = Math.random() * h; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(203, 213, 225, ${p.opacity})`;
+          ctx.fill();
+        }
+      });
+
+      ctx.restore();
+    }
+
+    window.setVttWeather = function(type) {
+      VTT_STATE.weather = type;
+      document.querySelectorAll("[data-weather-opt]").forEach(b => {
+        b.classList.toggle("active", b.getAttribute("data-weather-opt") === type);
+      });
+      initWeatherParticles(type);
+      saveSessionData();
+      requestCanvasRepaint();
+    };
+
+    // ========================================================================
+    // PUNTATORE LASER RUNICO ("PING CONDIVISO") & SINTETIZZATORE AUDIO
+    // ========================================================================
+    let activePing = null;
+
+    function emitRunicPing(mapX, mapY) {
+      const pingData = {
+        x: Math.round(mapX),
+        y: Math.round(mapY),
+        user: currentUser || "Giocatore",
+        color: currentRole === "DM" ? "#f3c663" : "#38bdf8",
+        time: Date.now()
+      };
+
+      activePing = { ...pingData, start: performance.now() };
+      playRunicPingSound();
+      requestCanvasRepaint();
+
+      if (window.firebaseVttRef) {
+        window.firebaseVttRef.child(currentCampaignCode + "/ping").set(pingData);
+      }
+    }
+
+    function playRunicPingSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const actx = new AudioContext();
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, actx.currentTime); // Nota D5 (armonico campana runica)
+        osc.frequency.exponentialRampToValueAtTime(880, actx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.18, actx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.55);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start();
+        osc.stop(actx.currentTime + 0.55);
+      } catch (e) {}
+    }
+
+    function drawRunicPing(ctx) {
+      if (!activePing) return;
+      const elapsed = (performance.now() - activePing.start) / 1000;
+      if (elapsed > 3.5) {
+        activePing = null;
+        return;
+      }
+
+      const alpha = Math.max(0, 1 - (elapsed / 3.5));
+      const radius = 18 + elapsed * 24;
+
+      ctx.save();
+      ctx.strokeStyle = activePing.color;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = alpha;
+
+      // Anello concentrico esterno
+      ctx.beginPath();
+      ctx.arc(activePing.x, activePing.y, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Anello concentrico interno
+      ctx.beginPath();
+      ctx.arc(activePing.x, activePing.y, Math.max(5, radius - 14), 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Punto focale centrale
+      ctx.beginPath();
+      ctx.arc(activePing.x, activePing.y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = activePing.color;
+      ctx.fill();
+
+      // Etichetta del Giocatore
+      ctx.font = "bold 11px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "#000000";
+      ctx.shadowBlur = 5;
+      ctx.fillText(`${activePing.user}`, activePing.x, activePing.y - radius - 8);
+
+      ctx.restore();
+      requestCanvasRepaint();
+    }
+
+    // ========================================================================
+    // BARRA INIZIATIVA CONDIVISA & SELEZIONE RAPIDA TOKEN
+    // ========================================================================
+    function renderInitiativeBar() {
+      const bar = document.getElementById("vtt-initiative-bar");
+      if (!bar) return;
+      if (!VTT_STATE.tokens || VTT_STATE.tokens.length === 0) {
+        bar.style.display = "none";
+        return;
+      }
+      bar.style.display = "flex";
+      const track = document.getElementById("init-token-track");
+      track.innerHTML = VTT_STATE.tokens.map((tok, idx) => {
+        const isActive = idx === VTT_STATE.turnIndex;
+        const hpPct = Math.round(((tok.hp || 1) / (tok.maxHp || 1)) * 100);
+        const hpColor = computeHpColor(tok.hp || 1, tok.maxHp || 1);
+        return `
+          <div class="init-token-pill ${isActive ? 'active-turn' : ''}" onclick="selectAndPanToToken('${tok.id}')" title="Clicca per selezionare ed entrare in camera">
+            <img src="${tok.img}" class="init-pill-avatar" alt="${tok.name}">
+            <div class="init-pill-info">
+              <span class="init-pill-name">${tok.name}</span>
+              <div class="init-pill-hp-track">
+                <div class="init-pill-hp-fill" style="width:${hpPct}%; background:${hpColor};"></div>
+              </div>
+            </div>
+            ${isActive ? '<span class="init-active-badge">TURNO</span>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.advanceInitiativeTurn = function() {
+      if (!VTT_STATE.tokens || VTT_STATE.tokens.length === 0) return;
+      VTT_STATE.turnIndex = (VTT_STATE.turnIndex + 1) % VTT_STATE.tokens.length;
+      
+      // Resetta il conteggio movimento per il nuovo turno
+      const activeTok = VTT_STATE.tokens[VTT_STATE.turnIndex];
+      if (activeTok) {
+        activeTok.movedThisTurn = 0;
+        selectAndPanToToken(activeTok.id);
+      }
+      
+      saveSessionData();
+      renderInitiativeBar();
+      requestCanvasRepaint();
+    };
+
+    window.selectAndPanToToken = function(tokenId) {
+      const tok = VTT_STATE.tokens.find(t => t.id === tokenId);
+      if (!tok) return;
+
+      // Centra visuale sul token con animazione fluida
+      camera.x = (canvas.width / 2) - (tok.x * camera.zoom);
+      camera.y = (canvas.height / 2) - (tok.y * camera.zoom);
+
+      openTokenHud(tok);
+      requestCanvasRepaint();
+    };
+
+    // ========================================================================
+    // HUD FLUTTUANTE INTERATTIVO TOKEN (STILE D&D BEYOND)
+    // ========================================================================
+    let selectedHudToken = null;
+
+    function openTokenHud(tok) {
+      selectedHudToken = tok;
+      const hud = document.getElementById("vtt-token-hud");
+      if (!hud) return;
+
+      document.getElementById("hud-avatar").src = tok.img || "assets/heroes/Guerriero.png";
+      document.getElementById("hud-name").textContent = tok.name;
+      document.getElementById("hud-sub").textContent = `${tok.className || 'Eroe'} • ${tok.owner || 'Player'}`;
+      document.getElementById("hud-ac-val").textContent = tok.ac || 14;
+      document.getElementById("hud-speed-val").textContent = `${Math.round((tok.speed || 30) * 0.3)}m`;
+
+      updateTokenHudHp(tok);
+
+      const condSelect = document.getElementById("hud-condition-select");
+      if (condSelect) condSelect.value = tok.condition || "Normale";
+
+      const movedMeters = Math.round((tok.movedThisTurn || 0) * 0.3 * 10) / 10;
+      const maxMeters = Math.round((tok.speed || 30) * 0.3);
+      document.getElementById("hud-move-val").textContent = `${movedMeters}m / ${maxMeters}m`;
+
+      hud.style.display = "flex";
+    }
+
+    function updateTokenHudHp(tok) {
+      const hpLabel = document.getElementById("hud-hp-val");
+      const hpBar = document.getElementById("hud-hp-bar");
+      if (!hpLabel || !hpBar) return;
+      hpLabel.textContent = `${tok.hp} / ${tok.maxHp}`;
+      const pct = Math.max(0, Math.min(100, Math.round((tok.hp / tok.maxHp) * 100)));
+      hpBar.style.width = `${pct}%`;
+      const color = computeHpColor(tok.hp, tok.maxHp);
+      hpBar.style.background = color;
+      hpLabel.style.color = color;
+    }
+
+    window.closeTokenHud = function() {
+      selectedHudToken = null;
+      const hud = document.getElementById("vtt-token-hud");
+      if (hud) hud.style.display = "none";
+    };
+
+    window.adjustTokenHp = function(delta) {
+      if (!selectedHudToken) return;
+      selectedHudToken.hp = Math.max(0, Math.min(selectedHudToken.maxHp, selectedHudToken.hp + delta));
+      updateTokenHudHp(selectedHudToken);
+      saveSessionData();
+      renderTokensList(); renderInitiativeBar();
+      renderInitiativeBar();
+      requestCanvasRepaint();
+    };
+
+    window.setTokenCondition = function(cond) {
+      if (!selectedHudToken) return;
+      selectedHudToken.condition = cond;
+      saveSessionData();
+      requestCanvasRepaint();
+    };
+
+    window.rollTokenQuickAttack = function() {
+      if (!selectedHudToken) return;
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const atkBonus = 5;
+      const totalAtk = d20 + atkBonus;
+      const dmg = Math.floor(Math.random() * 8) + 1 + 3; // 1d8+3
+
+      const logItem = {
+        id: "roll_" + Date.now(),
+        type: "Tiro d'Attacco Rapido",
+        formula: "1d20+5 / Danno 1d8+3",
+        result: `${totalAtk} per Colpire (Dado: ${d20}) • ${dmg} Danni`,
+        isCrit: d20 === 20,
+        isFail: d20 === 1,
+        roller: selectedHudToken.name
+      };
+
+      VTT_STATE.diceLog.unshift(logItem);
+      renderDiceLog();
+      saveSessionData();
+      playRunicPingSound();
+
+      if (window.firebaseVttRef) {
+        window.firebaseVttRef.child(currentCampaignCode + "/announcement").set({
+          text: `⚔️ ${selectedHudToken.name} attacca: ${totalAtk} per Colpire • ${dmg} Danni inflitti!`,
+          time: Date.now()
+        });
+      }
+    };
+
+    function computeHpColor(hp, maxHp) {
+      if (hp <= 0) return '#3f0c0c';
+      const ratio = Math.max(0, Math.min(1, hp / maxHp));
+      let r, g, b;
+      if (ratio >= 0.5) {
+        const factor = (ratio - 0.5) / 0.5;
+        r = Math.round(234 + factor * (16 - 234));
+        g = Math.round(179 + factor * (185 - 179));
+        b = Math.round(8 + factor * (129 - 8));
+      } else {
+        const factor = ratio / 0.5;
+        r = Math.round(110 + factor * (234 - 110));
+        g = Math.round(15 + factor * (179 - 15));
+        b = Math.round(15 + factor * (8 - 15));
+      }
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
     function renderCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1641,6 +2424,9 @@
       VTT_STATE.tokens.forEach((tok, idx) => {
         drawToken(ctx, tok, idx === VTT_STATE.turnIndex);
       });
+
+      // PING RUNICO CONDIVISO (LASER POINTER)
+      drawRunicPing(ctx);
 
       // LINEA ELASTICA MOVIMENTO TOKEN
       if (draggedToken) {
@@ -1828,6 +2614,12 @@
       const mapPos = screenToMapCoords(sx, sy);
       currentMouseMapPos = mapPos;
 
+            // SE LO STRUMENTO ATTIVO È PING O SI PREME ALT
+      if (VTT_STATE.activeTool === "ping" || e.altKey) {
+        emitRunicPing(mapPos.x, mapPos.y);
+        return;
+      }
+
       // 1. STRUMENTO PAN (O TASTO CENTRALE / SPAZIO)
       if (VTT_STATE.activeTool === "pan" || e.button === 1 || e.spaceKey) {
         isPanning = true;
@@ -1845,6 +2637,7 @@
           if (dist <= 26) {
             draggedToken = tok;
             tokenDragOrigin = { x: tok.x, y: tok.y };
+            openTokenHud(tok);
             document.getElementById("distance-hud").style.display = "block";
             return;
           }
@@ -2293,7 +3086,7 @@
         }
       }
       saveSessionData();
-      renderTokensList();
+      renderTokensList(); renderInitiativeBar();
       requestCanvasRepaint();
     }
 
@@ -2313,7 +3106,7 @@
       });
 
       saveSessionData();
-      renderTokensList();
+      renderTokensList(); renderInitiativeBar();
       requestCanvasRepaint();
     };
 
@@ -2669,7 +3462,8 @@
       document.getElementById("subtool-fog-group").style.display = tool === "fog" ? "flex" : "none";
       document.getElementById("subtool-poi-group").style.display = tool === "poi" ? "flex" : "none";
       document.getElementById("subtool-grid-group").style.display = tool === "grid" ? "flex" : "none";
-      subBar.style.display = (tool === "fog" || tool === "poi" || tool === "grid") ? "flex" : "none";
+      document.getElementById("subtool-weather-group").style.display = tool === "weather" ? "flex" : "none";
+      subBar.style.display = (tool === "fog" || tool === "poi" || tool === "grid" || tool === "weather") ? "flex" : "none";
 
       requestCanvasRepaint();
     }
@@ -2772,7 +3566,7 @@
       resizeCanvas();
       renderMapsGallery();
       setSessionMap(VTT_STATE.currentMapId, false);
-      renderTokensList();
+      renderTokensList(); renderInitiativeBar();
       renderPoisList();
       renderDiceLog();
       updateRoleView();
