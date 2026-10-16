@@ -497,11 +497,6 @@ window.enterAfterLogin = function() {
   if (!acc) return;
 
   document.getElementById('screen-welcome').classList.add('hidden');
-  const adminBtn = document.getElementById('btn-admin-console');
-  if (adminBtn) {
-    adminBtn.classList.remove('hidden');
-    adminBtn.onclick = function() { window.location.href = "admin.html"; };
-  }
 
   if (!acc.characters || acc.characters.length === 0) {
     window.openCharacterBuilder(false);
