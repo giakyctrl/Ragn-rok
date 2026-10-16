@@ -719,7 +719,8 @@ window.saveFullCharacterSheet = function(e) {
   e.preventDefault();
   const raceObj = window.JTR_RACES.find(r => r.id === document.getElementById('cf-race').value) || window.JTR_RACES[0];
   const clsObj = window.JTR_CLASSES.find(c => c.id === document.getElementById('cf-class').value) || window.JTR_CLASSES[0];
-  const clanObj = window.JTR_CLANS.find(c => c.id === window.selectedBuilderClanId) || window.JTR_CLANS[0];
+  const chosenClanKey = document.getElementById('cf-clan')?.value || window.selectedBuilderClanId;
+  const clanObj = (typeof window.resolveClan === 'function' ? window.resolveClan(chosenClanKey) : null) || window.JTR_CLANS.find(c => c.id === chosenClanKey) || window.JTR_CLANS[0];
   const bgObj = window.JTR_BACKGROUNDS.find(b => b.id === document.getElementById('cf-bg').value) || window.JTR_BACKGROUNDS[0];
 
   const lvl = parseInt(document.getElementById('cf-level').value) || 1;
@@ -1181,7 +1182,7 @@ window.handleCardCustomImageUpload = function(e) {
 
 window.openClanDetailModal = function(clanId) {
   const ch = window.getMyCharacter();
-  const target = clanId || ch;
+  const target = clanId || (ch ? (ch.clanId || ch.clan || ch.clanName) : null) || ch;
   const clan = (typeof window.resolveClan === 'function' ? window.resolveClan(target) : null) || (window.JTR_CLANS && window.JTR_CLANS[0]);
   if (!clan) return;
 
@@ -1530,28 +1531,578 @@ window.renderDdbSectionContent = function(ch) {
   }
 
   if (window.activeDdbSection === 'defenses') {
+    const spdVal = parseInt(ch.speed) || 9;
+    const feetVal = Math.round(spdVal * 3.28);
+    const dashVal = spdVal * 2;
+    const swimVal = Math.round(spdVal / 2 * 10) / 10;
+    const isColdRes = (ch.clan === 'jotunn_sons' || (ch.clanId && ch.clanId.includes('jotun')));
+    const isBarbarian = (ch.className || '').toLowerCase().includes('barbar');
+    const succ = (ch.deathSaves && ch.deathSaves.successes) || 0;
+    const fail = (ch.deathSaves && ch.deathSaves.failures) || 0;
+
     body.innerHTML = `
-      <div class="ddb-top-card rounded-2xl p-4 space-y-2 text-xs">
-        <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Velocità di Movimento</span><strong class="text-white">${ch.speed || '9m'}</strong></div>
-        <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Condizione Attiva</span><strong class="text-amber-300">${ch.condition || 'Normale'}</strong></div>
-        <div><span class="text-slate-400 block mb-1">Difese e Resistenze</span><p class="text-white font-semibold">${ch.defenses || 'Nessuna'}</p></div>
+      <div class="space-y-4 animate-section-fade text-xs">
+        <!-- 1. VELOCITÀ & MOBILITÀ TATTICA -->
+        <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-amber-400">⚡</span>
+              <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Velocità & Mobilità Tattica</h3>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300">${spdVal}m / ${feetVal} ft</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block uppercase font-cinzel">Passo Base</span>
+              <strong class="text-white text-sm font-mono">${spdVal}m</strong>
+              <span class="text-[9px] text-slate-500 block">(${feetVal} ft • ${Math.round(spdVal / 1.5)} quad)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block uppercase font-cinzel">Scatto (Dash)</span>
+              <strong class="text-sky-300 text-sm font-mono">${dashVal}m</strong>
+              <span class="text-[9px] text-slate-500 block">(${feetVal * 2} ft)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block uppercase font-cinzel">Nuoto nei Fiordi</span>
+              <strong class="text-slate-300 text-sm font-mono">${swimVal}m</strong>
+              <span class="text-[9px] text-slate-500 block">(${Math.round(feetVal / 2)} ft)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block uppercase font-cinzel">Scalata Ghiacci</span>
+              <strong class="text-slate-300 text-sm font-mono">${swimVal}m</strong>
+              <span class="text-[9px] text-slate-500 block">(${Math.round(feetVal / 2)} ft)</span>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-300 flex items-center gap-2">
+            <span class="text-sky-400 text-base">🏔️</span>
+            <span>${ch.clan === 'icy_crow' ? '<strong>Tratto Ali del Nord:</strong> Ignori i terreni difficili provocati da neve, lastroni di ghiaccio e burrasca polare.' : '<strong>Terreno Difficile:</strong> Ogni 1.5m (1 quad) di movimento costa 3m (2 quad) di passo a meno di privilegi speciali.'}</span>
+          </div>
+        </div>
+
+        <!-- 2. CONDIZIONE ATTIVA & STATO PSICO-FISICO -->
+        <div class="norse-panel rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-sky-400">🛡️</span>
+              <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Condizione Psico-Fisica Attiva</h3>
+            </div>
+            <span class="text-xs px-2.5 py-0.5 rounded font-bold uppercase ${ch.condition === 'Normale' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'}">${ch.condition || 'Normale'}</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Clicca su una condizione per applicarla all'Eroe o ripristinare la piena operatività:</p>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-xs">
+            ${['Normale', 'Ispirato', 'Ferito', 'Stordito', 'Accecato', 'Avvelenato', 'Invisibile', 'Paralizzato', 'Prono', 'Spaventato', 'Trattenuto', 'Incosciente'].map(c => `
+              <button type="button" onclick="window.setMyCharacterCondition('${c}')" class="py-1.5 px-2 rounded-lg font-cinzel text-[10px] font-bold border transition ${ch.condition === c ? 'bg-amber-500/30 border-amber-400 text-amber-200 shadow-md' : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'}">${c}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 3. DIFESE, RESISTENZE & IMMUNITÀ -->
+        <div class="norse-panel rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+            <span class="text-base text-amber-400">⚔️</span>
+            <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Difese, Resistenze & Immunità</h3>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+              <span class="text-[10px] font-cinzel uppercase text-amber-400 block font-bold">Resistenze ai Danni</span>
+              <p class="text-slate-200 font-medium">${isColdRes ? '❄️ Gelo Primordiale & Freddo Glaciale (Figli di Jötunn)' : (isBarbarian ? '⚔️ Contundente, Perforante e Tagliente durante l\'Ira Furiosa' : (ch.defenses || 'Nessuna resistenza ai danni innata'))}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+              <span class="text-[10px] font-cinzel uppercase text-sky-400 block font-bold">Immunità & Vantaggi Difensivi</span>
+              <p class="text-slate-200 font-medium">${ch.clan === 'gjallarhorn' ? '👁️ Non può essere Sorpreso mentre cosciente (+2 Percezione Passiva)' : 'Soggetto alle leggi fisiche e mistiche dei Nove Mondi.'}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. TIRI SALVEZZA CONTRO LA MORTE (0 PF) -->
+        <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-red-400">💀</span>
+              <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Tiri Salvezza Contro la Morte (0 PF)</h3>
+            </div>
+            <button type="button" onclick="window.resetDeathSaves()" class="text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Azzera</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/90 border border-emerald-900/40">
+              <div>
+                <span class="text-emerald-400 text-xs font-bold block">SUCCESSI</span>
+                <span class="text-[9px] text-slate-400">3 per stabilizzarti nel gelo</span>
+              </div>
+              <div class="flex items-center gap-2">
+                ${[1, 2, 3].map(i => `
+                  <button type="button" onclick="window.toggleDeathSave('success', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${succ >= i ? 'bg-emerald-500 border-emerald-300 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}">✓</button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/90 border border-red-900/40">
+              <div>
+                <span class="text-red-400 text-xs font-bold block">FALLIMENTI</span>
+                <span class="text-[9px] text-slate-400">3 per raggiungere il Valhalla o Hel</span>
+              </div>
+              <div class="flex items-center gap-2">
+                ${[1, 2, 3].map(i => `
+                  <button type="button" onclick="window.toggleDeathSave('failure', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${fail >= i ? 'bg-red-600 border-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}">✕</button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
     return;
   }
 
   if (window.activeDdbSection === 'features') {
-    body.innerHTML = `<div class="space-y-2 text-xs">${(ch.traits || []).map(t => `<div class="ddb-top-card p-3.5 rounded-xl text-slate-200">${t}</div>`).join('')}</div>`;
+    const clanMatch = (typeof window.resolveClan === 'function' ? window.resolveClan(ch.clanId || ch.clan || ch.clanName) : null) || (window.JTR_CLANS && window.JTR_CLANS[0]);
+    const traitsList = ch.traits || [];
+    const clanTraits = traitsList.filter(t => t.toLowerCase().includes('[clan') || t.toLowerCase().includes('clan') || t.toLowerCase().includes('bjorn') || t.toLowerCase().includes('furia') || t.toLowerCase().includes('sapienza') || t.toLowerCase().includes('ali del') || t.toLowerCase().includes('sentinella') || t.toLowerCase().includes('istinto') || t.toLowerCase().includes('gelo'));
+    const raceTraits = traitsList.filter(t => t.toLowerCase().includes('[stirpe') || t.toLowerCase().includes('stirpe'));
+    const classTraits = traitsList.filter(t => !clanTraits.includes(t) && !raceTraits.includes(t));
+
+    body.innerHTML = `
+      <div class="space-y-4 animate-section-fade text-xs">
+        <!-- TRATTI DEL CLAN DI MIDGARDR -->
+        <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
+            <div class="flex items-center gap-3">
+              <img src="${(clanMatch && clanMatch.crest) || ch.clanCrest || 'assets/clans/Logo-Bear_Warriors.png'}" class="w-8 h-8 rounded-full border border-amber-400 object-cover shadow-sm">
+              <div>
+                <span class="text-[10px] text-amber-400 uppercase font-cinzel font-bold block">Tratto Inviolabile del Clan</span>
+                <h3 class="font-cinzel font-black text-sm text-white">${(clanMatch && clanMatch.name) || ch.clanName || 'Clan di Midgardr'}</h3>
+              </div>
+            </div>
+            <button type="button" onclick="window.openClanDetailModal('${(clanMatch && clanMatch.id) || ch.clanId || ch.clan}')" class="text-[10px] px-2.5 py-1 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Dettagli Clan</button>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 leading-relaxed">
+            ${(clanMatch && clanMatch.vantaggi) || ch.clanTrait || 'Furia ed eredità degli avi guidano ogni colpo.'}
+          </div>
+        </div>
+
+        <!-- PRIVILEGI DI CLASSE & LIVELLO -->
+        <div class="norse-panel rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-sky-400">⚔️</span>
+              <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Privilegi di Classe (5.5e & JTR)</h3>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950 border border-sky-500/30 text-sky-300">${ch.className} Liv. ${ch.level || 1}</span>
+          </div>
+          ${classTraits.length === 0 ? `
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-400">Nessun privilegio registrato. Sbloccherai nuovi poteri salendo di livello!</div>
+          ` : `
+            <div class="space-y-2">
+              ${classTraits.map(t => {
+                const parts = t.split(']');
+                const tag = parts.length > 1 ? parts[0].replace('[', '') : 'Privilegio';
+                const text = parts.length > 1 ? parts.slice(1).join(']').trim() : t;
+                return `
+                  <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase font-mono ${tag.toLowerCase().includes('archetipo') ? 'bg-purple-950 text-purple-300 border border-purple-500/30' : 'bg-sky-950 text-sky-300 border border-sky-500/30'}">${tag}</span>
+                    </div>
+                    <p class="text-slate-200 leading-relaxed pt-0.5">${text}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+
+        <!-- TRATTI DI STIRPE & RAZZA -->
+        ${raceTraits.length > 0 ? `
+          <div class="norse-panel rounded-2xl p-4 space-y-3">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <span class="text-base text-amber-400">🧬</span>
+              <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Tratti di Stirpe (${ch.race || 'Umano dei Fiordi'})</h3>
+            </div>
+            <div class="space-y-2">
+              ${raceTraits.map(rt => `
+                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 leading-relaxed">${rt.replace(/\[Stirpe\]\s*/i, '')}</div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
     return;
   }
 
-  const infoMap = {
-    proficiencies: ch.proficiencies || 'Competenze standard',
-    background: `Clan di Midgardr: ${ch.clanName || 'Guerrieri dell\'Orso'}\nBackground: ${ch.background || 'Vikingr'}\nAllineamento: ${ch.alignment || 'Legale Onorevole'}\nVirtù Guida: ${ch.virtue || 'Onore'}`,
-    notes: ch.notes || 'Nessuna nota.',
-    creatures: ch.notes || 'Nessuna creatura registrata.'
-  };
-  body.innerHTML = `<div class="ddb-top-card rounded-2xl p-4 text-xs text-slate-200 leading-relaxed whitespace-pre-line">${infoMap[window.activeDdbSection]}</div>`;
+  if (window.activeDdbSection === 'proficiencies') {
+    const clsLower = (ch.className || '').toLowerCase();
+    const isHeavy = clsLower.includes('paladin') || clsLower.includes('guerrier');
+    const isMedium = isHeavy || clsLower.includes('barbar') || clsLower.includes('chieric') || clsLower.includes('druid') || clsLower.includes('ranger');
+    const isShield = !clsLower.includes('mag') && !clsLower.includes('streg') && !clsLower.includes('monac');
+
+    body.innerHTML = `
+      <div class="space-y-4 animate-section-fade text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 1. ARMATURE E SCUDI -->
+          <div class="norse-panel rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <span class="text-base text-amber-400">🛡️</span>
+              <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Armature & Scudi</h3>
+            </div>
+            <div class="space-y-1.5 pt-1">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-300">Armature Leggere (Cuoio, Pelli)</span>
+                <span class="text-emerald-400 font-bold">✓ Competente</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-300">Armature Medie (Giaco, Scaglie)</span>
+                <span class="${isMedium ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isMedium ? '✓ Competente' : '—'}</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-300">Armature Pesanti (Piastre Nordiche)</span>
+                <span class="${isHeavy ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isHeavy ? '✓ Competente' : '—'}</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-300">Scudi Rotondi Vichinghi</span>
+                <span class="${isShield ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isShield ? '✓ Competente' : '—'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. ARMI & MAESTRIE 5.5E -->
+          <div class="norse-panel rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <span class="text-base text-sky-400">⚔️</span>
+              <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Armi & Maestrie (5.5e)</h3>
+            </div>
+            <div class="space-y-1.5 pt-1">
+              <div class="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Armi Semplici</span>
+                <strong class="text-white">Pugnali, Lance, Clave, Archi Corti, Asce da Lancio</strong>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Armi da Guerra Nordiche</span>
+                <strong class="text-white">Spade Ulfberht, Asce Danesi Bipenni, Magli Pesanti, Archi Compositi</strong>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-950/60 border border-amber-500/20 text-amber-200/90 text-[11px]">
+                ⚡ <strong>Maestrie 5.5e:</strong> Graze, Nick, Push, Sap, Slow, Topple, Vex, Cleave.
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. STRUMENTI & MESTIERI -->
+          <div class="norse-panel rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <span class="text-base text-amber-400">🛠️</span>
+              <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Strumenti & Mestieri</h3>
+            </div>
+            <div class="space-y-1.5 pt-1">
+              <div class="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Kit di Sopravvivenza</span>
+                <p class="text-slate-200">Kit del Marinaio da Drakkar, Attrezzi da Scalata tra i Ghiacci, Acciarino e Pietra Focaia</p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Artigianato & Strumenti Speciali</span>
+                <p class="text-slate-200">${ch.className.toLowerCase().includes('bardo') || ch.className.toLowerCase().includes('skald') ? 'Corno da Battaglia, Cetra a Tagliacorde, Tamburo Sciamanico' : 'Strumenti da Fabbro delle Lame, Incisore di Rune del Futhark, Kit di Concia delle Pelli'}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. LINGUAGGI CONOSCIUTI -->
+          <div class="norse-panel rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <span class="text-base text-sky-400">🗣️</span>
+              <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Linguaggi dei Nove Mondi</h3>
+            </div>
+            <div class="space-y-1.5 pt-1">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-200 font-bold">Norreno Antico (Fornnörræna)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/30">Nativo</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-200 font-bold">Lingua Comune di Midgardr</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">Fluente</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-200 font-bold">Antico Runico Futhark</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/30">Mistico</span>
+              </div>
+              ${ch.clan === 'jotunn_sons' ? `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
+                  <span class="text-slate-200 font-bold">Lingua dei Giganti (Jötnar)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/30">Ancestrale</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (window.activeDdbSection === 'background') {
+    const clanMatch = (typeof window.resolveClan === 'function' ? window.resolveClan(ch.clanId || ch.clan || ch.clanName) : null) || (window.JTR_CLANS && window.JTR_CLANS[0]);
+    const bgName = ch.background || 'Vikingr';
+    const virtName = ch.virtue || 'Onore';
+    const alignName = ch.alignment || 'Legale Onorevole';
+
+    body.innerHTML = `
+      <div class="space-y-4 animate-section-fade text-xs">
+        <!-- 1. HERO MONUMENTALE DEL CLAN DI MIDGARDR -->
+        <div class="norse-panel norse-border-gold rounded-2xl overflow-hidden relative shadow-2xl">
+          <div class="absolute inset-0 opacity-20 bg-cover bg-center pointer-events-none" style="background-image: url('${(clanMatch && clanMatch.banner) || ch.clanBanner || 'assets/clans/OrsiGuerrireri.png'}');"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent pointer-events-none"></div>
+
+          <div class="relative p-5 space-y-4 z-10">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+              <img src="${(clanMatch && clanMatch.crest) || ch.clanCrest || 'assets/clans/Logo-Bear_Warriors.png'}" class="w-20 h-20 rounded-full object-cover border-2 border-amber-400 shadow-[0_0_20px_rgba(245,208,118,0.35)] shrink-0">
+              <div class="space-y-1">
+                <span class="text-[10px] font-cinzel uppercase tracking-widest text-amber-400 font-bold block">Sacro Clan di Midgardr</span>
+                <h2 class="font-cinzel font-black text-xl text-white tracking-wider">${(clanMatch && clanMatch.name) || ch.clanName || 'Guerrieri dell\'Orso'}</h2>
+                <p class="font-cinzel italic text-xs text-amber-200/90 leading-snug">"${(clanMatch && clanMatch.motto) || ch.clanMotto || 'La forza dei padri scorre nelle nostre vene.'}"</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 leading-relaxed text-xs pt-1">${(clanMatch && clanMatch.desc) || 'Dominatori fieri e custodi dei segreti delle montagne, fedeli alla parola data e alle leggi del Thing.'}</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+                <span class="text-[10px] font-cinzel uppercase text-amber-400 font-bold block">Vantaggi & Privilegi</span>
+                <p class="text-slate-200 leading-snug">${(clanMatch && clanMatch.vantaggi) || ch.clanTrait || 'Vantaggio alle prove d\'onore e rifugio sicuro.'}</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-red-500/30 space-y-1">
+                <span class="text-[10px] font-cinzel uppercase text-red-400 font-bold block">Tabù & Codice d'Onore</span>
+                <p class="text-slate-200 leading-snug">${(clanMatch && clanMatch.svantaggi) || 'Violare una promessa giurata porta il disonore eterno.'}</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+                <span class="text-[10px] font-cinzel uppercase text-sky-400 font-bold block">Alleanze e Rispetto</span>
+                <p class="text-slate-300 leading-snug">${(clanMatch && clanMatch.amicizie) || 'Trattati commerciali e patti d\'armi con i clan vicini.'}</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+                <span class="text-[10px] font-cinzel uppercase text-amber-500 font-bold block">Inimicizie Giurate</span>
+                <p class="text-slate-300 leading-snug">${(clanMatch && clanMatch.odii) || 'Faide aperte con i predatori delle coste e i profanatori.'}</p>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="button" onclick="window.openClanDetailModal('${(clanMatch && clanMatch.id) || ch.clanId || ch.clan}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs hover:bg-amber-500/30 transition flex items-center gap-2 shadow-md">
+                ⚔️ Visualizza Statuto Completo & Cimelio del Clan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. ORIGINE, BACKGROUND & MESTIERE -->
+        <div class="norse-panel rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-amber-400">📜</span>
+              <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Origine & Background Nordico</h3>
+            </div>
+            <span class="px-2.5 py-0.5 rounded text-xs font-cinzel font-bold bg-sky-950 text-sky-300 border border-sky-500/30">${bgName}</span>
+          </div>
+          <p class="text-slate-200 leading-relaxed text-xs">
+            Cresciuto come <strong>${bgName}</strong> tra i fiordi selvaggi e le sale dell'idromele di Midgardr, hai temprato lo spirito affrontando le intemperie del Nord e le faide di clan prima che i presagi del Fimbulvetr annunciassero l'imminente scontro finale.
+          </p>
+        </div>
+
+        <!-- 3. LE TRE GUIDE MORALI DELL'ANIMA (VIRTÙ, ALLINEAMENTO, ORO) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="norse-panel rounded-2xl p-3.5 space-y-1 text-center">
+            <span class="text-[10px] font-cinzel uppercase text-amber-400 font-bold block">Virtù Guida</span>
+            <strong class="font-cinzel text-sm text-white block">${virtName}</strong>
+            <p class="text-[10px] text-slate-400 leading-snug">Il faro etico che guida le tue scelte morali nel cammino verso il Valhalla.</p>
+          </div>
+          <div class="norse-panel rounded-2xl p-3.5 space-y-1 text-center">
+            <span class="text-[10px] font-cinzel uppercase text-sky-400 font-bold block">Allineamento</span>
+            <strong class="font-cinzel text-sm text-white block">${alignName}</strong>
+            <p class="text-[10px] text-slate-400 leading-snug">La tua posizione rispetto alla legge del Thing e al caos primordiale.</p>
+          </div>
+          <div class="norse-panel rounded-2xl p-3.5 space-y-1 text-center">
+            <span class="text-[10px] font-cinzel uppercase text-emerald-400 font-bold block">Oro & Argento (Hacksilver)</span>
+            <strong class="font-mono text-sm text-amber-300 block">${ch.gold || 15} Monete d'Oro</strong>
+            <p class="text-[10px] text-slate-400 leading-snug">Bracciali d'argento spezzato e monete coniate dai re del Nord.</p>
+          </div>
+        </div>
+
+        <!-- 4. I QUATTRO PILASTRI DEL RUOLO -->
+        <div class="norse-panel rounded-2xl p-4 space-y-3">
+          <h3 class="font-cinzel font-bold text-xs text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-1.5">I Quattro Pilastri del Ruolo</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-[10px] font-cinzel uppercase text-amber-400 font-bold block">Tratto della Personalità</span>
+              <p class="text-slate-200">Non arretro mai di fronte a una sfida; guardo negli occhi chiunque parli con me.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-[10px] font-cinzel uppercase text-sky-400 font-bold block">Ideale Supremo</span>
+              <p class="text-slate-200">Onore e rispetto per la parola data valgono più di un forziere colmo d'oro.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-[10px] font-cinzel uppercase text-emerald-400 font-bold block">Legame Sacro</span>
+              <p class="text-slate-200">Difenderò la mia gente e il drakkar della spedizione fino all'ultimo respiro.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-[10px] font-cinzel uppercase text-red-400 font-bold block">Difetto & Ombra</span>
+              <p class="text-slate-200">La sete di gloria e il furore in battaglia a volte mi fanno dimenticare la prudenza.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (window.activeDdbSection === 'notes') {
+    const existingNotes = (ch.notes && ch.notes !== 'Nessuna nota.') ? ch.notes : '';
+
+    body.innerHTML = `
+      <div class="space-y-4 animate-section-fade text-xs">
+        <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg text-amber-400">✒️</span>
+              <div>
+                <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Diario di Viaggio & Cronache dello Skald</h3>
+                <span class="text-[10px] text-slate-400">Note di sessione, indizi profetici e cronache di Ragnarok</span>
+              </div>
+            </div>
+            <button type="button" id="btn-save-notes-feedback" onclick="window.saveMyCharacterNotes(document.getElementById('ddb-live-notes-area').value)" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs hover:bg-amber-500/30 transition shadow-md">
+              Salva Cronaca
+            </button>
+          </div>
+
+          <textarea id="ddb-live-notes-area" rows="10" placeholder="Incidi qui le tue note di viaggio, i giuramenti prestati, gli jarl incontrati, le profezie delle Norne o le rune scoperte nei Nove Mondi..." class="w-full bg-slate-950/90 border border-slate-800 focus:border-amber-400 rounded-xl p-3.5 text-xs text-slate-200 placeholder-slate-600 leading-relaxed outline-none transition font-sans">${existingNotes}</textarea>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-[11px]">
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-amber-400 font-cinzel font-bold uppercase block">📜 Trama & Missioni</span>
+              <p class="text-slate-400">Segna gli obiettivi ricevuti dagli dei o dai capi villaggio.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-sky-400 font-cinzel font-bold uppercase block">🗺️ Luoghi & Terre Esplorate</span>
+              <p class="text-slate-400">Ricorda fiordi, porti, torri di guardia e rovine misteriose.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
+              <span class="text-emerald-400 font-cinzel font-bold uppercase block">💎 Bottino & Doni</span>
+              <p class="text-slate-400">Traccia manufatti, pelli preziose e ricompense d'onore.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (window.activeDdbSection === 'creatures') {
+    const comp = ch.companion || window.COMPANION_PRESETS.raven;
+    const hpPct = Math.round(((comp.hp || 1) / (comp.maxHp || 1)) * 100);
+
+    body.innerHTML = `
+      <div class="space-y-4 animate-section-fade text-xs">
+        <!-- SELETTORE COMPAGNO ANIMALE / FAMIGLIO -->
+        <div class="norse-panel rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base text-amber-400">🐾</span>
+              <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Evoca / Seleziona Compagno di Viaggio</h3>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" onclick="window.setMyCharacterCompanion('raven')" class="p-2 rounded-xl border text-center transition ${comp.id === 'raven' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
+              🦅 Corvo di Odhinn
+            </button>
+            <button type="button" onclick="window.setMyCharacterCompanion('wolf')" class="p-2 rounded-xl border text-center transition ${comp.id === 'wolf' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
+              🐺 Lupo delle Nevi
+            </button>
+            <button type="button" onclick="window.setMyCharacterCompanion('horse')" class="p-2 rounded-xl border text-center transition ${comp.id === 'horse' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
+              🐎 Cavallo da Guerra
+            </button>
+            <button type="button" onclick="window.setMyCharacterCompanion('bear')" class="p-2 rounded-xl border text-center transition ${comp.id === 'bear' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
+              🐻 Orso delle Vette
+            </button>
+          </div>
+        </div>
+
+        <!-- STATBLOCK STILE D&D BEYOND DELLA CREATURA -->
+        <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
+            <div class="flex items-center gap-3">
+              <img src="${comp.avatar || 'assets/clans/Logo-Icy-Crows.png'}" class="w-12 h-12 rounded-full border-2 border-amber-400 object-cover shadow-md">
+              <div>
+                <h2 class="font-cinzel font-black text-base text-white tracking-wider">${comp.name}</h2>
+                <span class="text-[10px] text-slate-400 block">${comp.type} • Taglia ${comp.size}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] uppercase font-cinzel text-slate-400 block font-bold">Punti Ferita</span>
+              <strong class="font-mono text-base text-emerald-400">${comp.hp} / ${comp.maxHp} PF</strong>
+            </div>
+          </div>
+
+          <!-- Barra della Vita e Modificatori Rapidi -->
+          <div class="space-y-1.5">
+            <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
+              <div class="bg-gradient-to-r from-emerald-500 to-green-400 h-full transition-all" style="width: ${hpPct}%;"></div>
+            </div>
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">Salute Compagno</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="window.adjustCompanionHp(-1)" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:text-red-400">-1 PF</button>
+                <button type="button" onclick="window.adjustCompanionHp(-5)" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:text-red-400">-5 PF</button>
+                <button type="button" onclick="window.adjustCompanionHp(1)" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:text-emerald-400">+1 PF</button>
+                <button type="button" onclick="window.adjustCompanionHp(5)" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:text-emerald-400">+5 PF</button>
+                <button type="button" onclick="window.adjustCompanionHp(999)" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">Cura Totale</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistiche Chiave -->
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Classe Armatura</span>
+              <strong class="font-mono text-base text-amber-300">${comp.ac}</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Velocità</span>
+              <strong class="font-mono text-xs text-sky-300 block pt-1">${comp.speed}</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] font-cinzel uppercase text-slate-400 block">Sensi</span>
+              <span class="text-[10px] text-slate-300 block pt-1">${comp.senses}</span>
+            </div>
+          </div>
+
+          <!-- Tratti Speciali della Creatura -->
+          <div class="space-y-2">
+            <h4 class="font-cinzel font-bold text-xs text-amber-400 uppercase tracking-wider">Tratti & Istinti</h4>
+            <div class="space-y-1.5">
+              ${(comp.traits || []).map(tr => `
+                <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong class="text-white text-xs block font-cinzel">${tr.name}:</strong>
+                  <p class="text-slate-300 text-[11px] leading-relaxed">${tr.desc}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Azioni d'Attacco Rapido -->
+          <div class="space-y-2">
+            <h4 class="font-cinzel font-bold text-xs text-sky-400 uppercase tracking-wider">Azioni & Attacchi</h4>
+            <div class="space-y-2">
+              ${(comp.actions || []).map(atk => `
+                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div class="space-y-0.5">
+                    <strong class="text-white text-xs block font-cinzel">${atk.name}</strong>
+                    <span class="text-[11px] text-slate-300 block font-mono">Tiro per Colpire: +${atk.bonus} • Danno: ${atk.damage}</span>
+                    <p class="text-[10px] text-slate-400">${atk.desc}</p>
+                  </div>
+                  <button type="button" onclick="window.rollCompanionAttack('${comp.name}', '${atk.name}', ${atk.bonus}, '${atk.damage}')" class="px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 font-cinzel font-bold text-xs hover:bg-red-900/90 transition shadow-sm self-start sm:self-center shrink-0">
+                    ⚔️ Attacca
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
 };
 
 window.renderAllViews = function() {
@@ -1751,6 +2302,171 @@ window.renderAllViews = function() {
   } finally {
     window._isRenderingViews = false;
   }
+};
+
+// ==============================================================================
+// 10. PRESET COMPAGNI & GESTORI INTERATTIVI DELLA SCHEDA D&D BEYOND
+// ==============================================================================
+window.COMPANION_PRESETS = {
+  raven: {
+    id: "raven",
+    name: "Corvo Messaggero di Odhinn (Munin)",
+    avatar: "assets/clans/Logo-Icy-Crows.png",
+    type: "Bestia Celeste / Famiglio",
+    size: "Minuscola",
+    ac: 12,
+    hp: 4,
+    maxHp: 4,
+    speed: "3m (Volo 18m)",
+    senses: "Percezione Passiva 13, Scurovisione 18m",
+    traits: [
+      { name: "Occhio della Profezia", desc: "Vantaggio a tutte le prove di Saggezza (Percezione) basate sulla vista dall'alto." },
+      { name: "Messaggero Cosmico", desc: "Può volare e comunicare telepaticamente con il padrone entro 1,5 km." }
+    ],
+    actions: [
+      { name: "Beccata Sacra", bonus: 4, damage: "1d4 Tagliente", desc: "Attacco rapido con il becco indurito con le rune del gelo." }
+    ]
+  },
+  wolf: {
+    id: "wolf",
+    name: "Lupo delle Nevi di Midgardr",
+    avatar: "assets/clans/Logo-Wolves-of-the-Shadow.png",
+    type: "Bestia dei Boschi / Segugio",
+    size: "Media",
+    ac: 13,
+    hp: 11,
+    maxHp: 11,
+    speed: "12m (40 ft)",
+    senses: "Percezione Passiva 13, Fiuto Acuto",
+    traits: [
+      { name: "Tattica di Branco", desc: "Vantaggio al tiro per colpire contro una creatura se almeno un alleato è adiacente." },
+      { name: "Olfatto & Udito Affinati", desc: "Vantaggio a tutte le prove di Saggezza (Percezione) per fiutare tracce o prede nel gelo." }
+    ],
+    actions: [
+      { name: "Morso Letale", bonus: 4, damage: "2d4+2 Perforante", desc: "Il bersaglio colpito deve superare un Tiro Salvezza su Forza CD 11 o cadere Prono a terra." }
+    ]
+  },
+  horse: {
+    id: "horse",
+    name: "Cavallo da Guerra Nordico (Lignaggio di Sleipnir)",
+    avatar: "assets/heroes/face_paladino.jpg",
+    type: "Bestia / Cavalcatura Corazzata",
+    size: "Grande",
+    ac: 11,
+    hp: 19,
+    maxHp: 19,
+    speed: "18m (60 ft)",
+    senses: "Percezione Passiva 11",
+    traits: [
+      { name: "Zoccolo Incessante", desc: "Ignora terreni innevati o lastroni di ghiaccio mentre trasporta un cavaliere." },
+      { name: "Carica Tempestosa", desc: "Se si muove di almeno 6m in linea retta prima dell'attacco, aggiunge +1d6 danni all'impatto." }
+    ],
+    actions: [
+      { name: "Zoccoli Ferrati", bonus: 6, damage: "2d6+4 Contundente", desc: "Violenta zampata con zoccoli di ferro e bronzo forgiato." }
+    ]
+  },
+  bear: {
+    id: "bear",
+    name: "Orso delle Vette di Jotunheimr",
+    avatar: "assets/clans/Logo-Bear_Warriors.png",
+    type: "Bestia Primordiale / Compagno Guerriero",
+    size: "Grande",
+    ac: 12,
+    hp: 34,
+    maxHp: 34,
+    speed: "12m (Scalata 9m)",
+    senses: "Percezione Passiva 12, Fiuto Eccezionale",
+    traits: [
+      { name: "Furia dei Ghiacci", desc: "Resistenza naturale al freddo polare e stazza titanica." },
+      { name: "Presa d'Orso", desc: "Vantaggio a lottare o afferrare nemici di taglia Media o inferiore." }
+    ],
+    actions: [
+      { name: "Zampata con Artigli", bonus: 5, damage: "2d6+4 Tagliente", desc: "Violento fendente d'artiglio capace di lacerare armature." },
+      { name: "Morso Frantuma-Ossa", bonus: 5, damage: "1d8+4 Perforante", desc: "Morso feroce alla gola del nemico." }
+    ]
+  }
+};
+
+window.setMyCharacterCondition = function(cond) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  ch.condition = cond;
+  window.currentCanvasCondition = cond;
+  window.propagateCharacterToCampaigns(ch);
+  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+  if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+  window.renderDdbSectionContent(ch);
+};
+
+window.toggleDeathSave = function(type, num) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  if (!ch.deathSaves) ch.deathSaves = { successes: 0, failures: 0 };
+  const current = type === 'success' ? (ch.deathSaves.successes || 0) : (ch.deathSaves.failures || 0);
+  const updated = current === num ? num - 1 : num;
+  if (type === 'success') ch.deathSaves.successes = updated;
+  else ch.deathSaves.failures = updated;
+  window.propagateCharacterToCampaigns(ch);
+  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+  if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+  window.renderDdbSectionContent(ch);
+};
+
+window.resetDeathSaves = function() {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  ch.deathSaves = { successes: 0, failures: 0 };
+  window.propagateCharacterToCampaigns(ch);
+  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+  if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+  window.renderDdbSectionContent(ch);
+};
+
+window.saveMyCharacterNotes = function(notesText) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  ch.notes = notesText;
+  window.propagateCharacterToCampaigns(ch);
+  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+  if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+  const btn = document.getElementById('btn-save-notes-feedback');
+  if (btn) {
+    btn.textContent = '✓ Cronaca Salvata!';
+    btn.classList.add('text-emerald-400');
+    setTimeout(() => {
+      btn.textContent = 'Salva Cronaca';
+      btn.classList.remove('text-emerald-400');
+    }, 2000);
+  }
+};
+
+window.setMyCharacterCompanion = function(compKey) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  const presets = window.COMPANION_PRESETS || {};
+  if (presets[compKey]) {
+    ch.companion = JSON.parse(JSON.stringify(presets[compKey]));
+    window.propagateCharacterToCampaigns(ch);
+    try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+    if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+    window.renderDdbSectionContent(ch);
+  }
+};
+
+window.adjustCompanionHp = function(delta) {
+  const ch = window.getMyCharacter();
+  if (!ch || !ch.companion) return;
+  ch.companion.hp = Math.max(0, Math.min(ch.companion.maxHp, (ch.companion.hp || ch.companion.maxHp) + delta));
+  window.propagateCharacterToCampaigns(ch);
+  try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch(e){}
+  if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
+  window.renderDdbSectionContent(ch);
+};
+
+window.rollCompanionAttack = function(compName, atkName, bonus, dmgFormula) {
+  const d20 = Math.floor(Math.random() * 20) + 1;
+  const total = d20 + bonus;
+  alert(`⚔️ ${compName} esegue ${atkName}!\nTiro per Colpire: 1d20+${bonus} = ${total} (Dado: ${d20})\nDanno inflitto: ${dmgFormula}`);
 };
 
 window.initCloudConnection();

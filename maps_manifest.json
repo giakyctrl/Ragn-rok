@@ -8,7 +8,11 @@
     "grid": "none",
     "file": "assets/maps/yggdrasill_9worlds.jpg",
     "width": 902,
-    "height": 1165
+    "height": 1165,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "midgardr_full",
@@ -19,7 +23,11 @@
     "grid": "hex",
     "file": "assets/maps/midgardr_full.jpg",
     "width": 902,
-    "height": 1167
+    "height": 1167,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "norvegr_regional",
@@ -30,7 +38,11 @@
     "grid": "square",
     "file": "assets/maps/norvegr_regional.jpg",
     "width": 902,
-    "height": 578
+    "height": 578,
+    "gridSize": 45.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 50
   },
   {
     "id": "battle_shipyard",
@@ -41,7 +53,11 @@
     "grid": "square",
     "file": "assets/maps/battle_shipyard.jpg",
     "width": 902,
-    "height": 1163
+    "height": 1163,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "snowy_mountains_regional",
@@ -52,7 +68,11 @@
     "grid": "square",
     "file": "assets/maps/snowy_mountains_regional.jpg",
     "width": 902,
-    "height": 579
+    "height": 579,
+    "gridSize": 45.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 50
   },
   {
     "id": "battle_bandit_camp",
@@ -63,7 +83,11 @@
     "grid": "square",
     "file": "assets/maps/battle_bandit_camp.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "battle_mountain_pass",
@@ -74,7 +98,11 @@
     "grid": "square",
     "file": "assets/maps/battle_mountain_pass.jpg",
     "width": 902,
-    "height": 1163
+    "height": 1163,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "svitjod_regional",
@@ -85,7 +113,11 @@
     "grid": "square",
     "file": "assets/maps/svitjod_regional.jpg",
     "width": 902,
-    "height": 579
+    "height": 579,
+    "gridSize": 45.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 50
   },
   {
     "id": "battle_svitjod_camp",
@@ -96,7 +128,11 @@
     "grid": "square",
     "file": "assets/maps/battle_svitjod_camp.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "battle_uppsala_temple",
@@ -107,7 +143,11 @@
     "grid": "square",
     "file": "assets/maps/battle_uppsala_temple.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "fenmark_swamp_regional",
@@ -118,7 +158,11 @@
     "grid": "square",
     "file": "assets/maps/fenmark_swamp_regional.jpg",
     "width": 902,
-    "height": 580
+    "height": 580,
+    "gridSize": 45.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 50
   },
   {
     "id": "battle_fenmark_ruins",
@@ -129,7 +173,11 @@
     "grid": "square",
     "file": "assets/maps/battle_fenmark_ruins.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "jutland_regional",
@@ -140,7 +188,11 @@
     "grid": "square",
     "file": "assets/maps/jutland_regional.jpg",
     "width": 902,
-    "height": 579
+    "height": 579,
+    "gridSize": 45.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 50
   },
   {
     "id": "battle_danevirke_wall",
@@ -151,7 +203,11 @@
     "grid": "square",
     "file": "assets/maps/battle_danevirke_wall.jpg",
     "width": 902,
-    "height": 1163
+    "height": 1163,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "battle_jutland_keep",
@@ -162,7 +218,11 @@
     "grid": "square",
     "file": "assets/maps/battle_jutland_keep.jpg",
     "width": 902,
-    "height": 1163
+    "height": 1163,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "niflheimr_realm",
@@ -173,7 +233,11 @@
     "grid": "hex",
     "file": "assets/maps/niflheimr_realm.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "helheimr_realm",
@@ -184,7 +248,11 @@
     "grid": "hex",
     "file": "assets/maps/helheimr_realm.jpg",
     "width": 902,
-    "height": 1164
+    "height": 1164,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "asgardr_realm",
@@ -195,7 +263,11 @@
     "grid": "hex",
     "file": "assets/maps/asgardr_realm.jpg",
     "width": 902,
-    "height": 1164
+    "height": 1164,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "svartalfheimr_realm",
@@ -206,7 +278,11 @@
     "grid": "hex",
     "file": "assets/maps/svartalfheimr_realm.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "battle_svartalfheimr_city",
@@ -217,7 +293,11 @@
     "grid": "square",
     "file": "assets/maps/battle_svartalfheimr_city.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 5
   },
   {
     "id": "battle_pillars_of_gods",
@@ -228,7 +308,11 @@
     "grid": "square",
     "file": "assets/maps/battle_pillars_of_gods.jpg",
     "width": 902,
-    "height": 1165
+    "height": 1165,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 10
   },
   {
     "id": "ljosalfheimr_realm",
@@ -239,7 +323,11 @@
     "grid": "hex",
     "file": "assets/maps/ljosalfheimr_realm.jpg",
     "width": 902,
-    "height": 1167
+    "height": 1167,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "vanaheimr_realm",
@@ -250,7 +338,11 @@
     "grid": "hex",
     "file": "assets/maps/vanaheimr_realm.jpg",
     "width": 902,
-    "height": 1167
+    "height": 1167,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "jotunheimr_realm",
@@ -261,7 +353,11 @@
     "grid": "hex",
     "file": "assets/maps/jotunheimr_realm.jpg",
     "width": 902,
-    "height": 1167
+    "height": 1167,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "muspellsheimr_realm",
@@ -272,7 +368,11 @@
     "grid": "hex",
     "file": "assets/maps/muspellsheimr_realm.jpg",
     "width": 902,
-    "height": 1164
+    "height": 1164,
+    "gridSize": 50.0,
+    "gridOffsetX": 0.0,
+    "gridOffsetY": 0.0,
+    "scaleFeet": 100
   },
   {
     "id": "battle_muspellsheimr_lava",
@@ -283,6 +383,10 @@
     "grid": "square",
     "file": "assets/maps/battle_muspellsheimr_lava.jpg",
     "width": 902,
-    "height": 1166
+    "height": 1166,
+    "gridSize": 24.35,
+    "gridOffsetX": 10.5,
+    "gridOffsetY": 3.5,
+    "scaleFeet": 10
   }
 ]

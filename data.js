@@ -2556,7 +2556,10 @@ window.resolveClan = function(query) {
 
   let qStr = "";
   if (typeof query === 'object') {
-    qStr = String(query.clanId || query.clan || query.clanName || query.background || query.name || '');
+    qStr = String(query.clanId || query.clan || query.clanName || '');
+    if (!qStr && Array.isArray(query.traits)) {
+      qStr = query.traits.find(t => typeof t === 'string' && t.toLowerCase().includes('clan')) || '';
+    }
   } else {
     qStr = String(query);
   }
@@ -2570,11 +2573,11 @@ window.resolveClan = function(query) {
 
   const aliasMap = [
     { id: 'odhinns_eye', keywords: ['odin', 'occhio'] },
-    { id: 'jotunn_sons', keywords: ['jotun'] },
+    { id: 'jotunn_sons', keywords: ['jotun', 'gigant'] },
     { id: 'icy_crow', keywords: ['corv', 'crow', 'ghiaccio'] },
     { id: 'wolves_shadow', keywords: ['lup', 'wolf', 'ombra', 'notte'] },
-    { id: 'gjallarhorn', keywords: ['gjallarhorn', 'corno'] },
-    { id: 'bear_warriors', keywords: ['orso', 'bear'] }
+    { id: 'gjallarhorn', keywords: ['gjallarhorn', 'corno', 'heimdall'] },
+    { id: 'bear_warriors', keywords: ['orso', 'bear', 'bjorn'] }
   ];
 
   for (const item of aliasMap) {

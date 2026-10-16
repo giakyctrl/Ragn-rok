@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   
   <!-- Dati canonici di Journey to Ragnarok -->
-  <script src="data.js?v=22"></script>
+  <script src="data.js?v=23"></script>
 
   <style>
     :root {
@@ -1290,17 +1290,19 @@
     <!-- Sottomenu Griglia -->
     <div id="subtool-grid-group" class="subtool-group" style="display:none;">
       <span style="font-size:0.75rem; color:var(--gold-bright); font-weight:bold;">📐 Griglia:</span>
-      <button class="subtool-pill active" id="btn-grid-toggle">Attiva / Disattiva</button>
-      <button class="subtool-pill" id="btn-grid-type-square">Celle Quadrate</button>
-      <button class="subtool-pill" id="btn-grid-type-hex">Celle Esagonali</button>
+      <button class="subtool-pill active" id="btn-grid-toggle">Mostra / Nascondi</button>
+      <button class="subtool-pill" id="btn-grid-type-square">Quadri</button>
+      <button class="subtool-pill" id="btn-grid-type-hex">Esagoni</button>
       <button class="subtool-pill" id="btn-grid-snap">Snap: ON</button>
+      <button class="subtool-pill dm-only-tool" id="btn-open-grid-calibration" onclick="openGridCalibrationModal()" style="color:var(--gold-bright); border-color:var(--gold-primary); font-weight:bold;">⚙️ Allinea Griglia</button>
       <label style="font-size:0.7rem; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
         Dimensione:
-        <input type="range" id="grid-cell-size" min="20" max="120" value="50" style="width:70px; accent-color:var(--gold-primary);">
+        <input type="range" id="grid-cell-size" min="15" max="80" step="0.05" value="24.35" style="width:70px; accent-color:var(--gold-primary);">
+        <span id="grid-size-num" style="color:var(--gold-bright); font-family:monospace; min-width:35px;">24.35</span>
       </label>
       <label style="font-size:0.7rem; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
         Opacità:
-        <input type="range" id="grid-cell-opacity" min="0.05" max="0.6" step="0.05" value="0.25" style="width:60px; accent-color:var(--gold-primary);">
+        <input type="range" id="grid-cell-opacity" min="0.05" max="1" step="0.05" value="0.25" style="width:60px; accent-color:var(--gold-primary);">
       </label>
     </div>
   </div>
@@ -1609,6 +1611,99 @@
     </div>
   </div>
 
+  <!-- MODAL ALLINEA GRIGLIA & CALIBRAZIONE (STILE D&D BEYOND) -->
+  <div class="modal-overlay" id="modal-grid-calibration" style="display:none;">
+    <div class="modal-card" style="max-width:520px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(245,208,118,0.3); padding-bottom:10px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.25rem;">📐</span>
+          <h2 style="font-size:1rem; margin:0; color:var(--gold-bright);">Allinea Griglia Tattica (D&D Beyond VTT)</h2>
+        </div>
+        <button class="btn-top" onclick="closeGridCalibrationModal()" style="padding:2px 8px; font-size:0.75rem;">✕</button>
+      </div>
+      
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
+        Regola la dimensione delle caselle e l'offset per far combaciare perfettamente la griglia con i quadratini originali stampati sulla mappa.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright); display:flex; justify-content:space-between;">
+            <span>Dimensione Cella (px):</span>
+            <span id="calib-size-val" style="font-family:monospace; font-weight:bold;">24.35</span>
+          </label>
+          <input type="range" id="calib-grid-size" min="15" max="80" step="0.05" value="24.35" class="form-control" style="accent-color:var(--gold-primary);" oninput="onGridCalibrationChange()">
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright); display:flex; justify-content:space-between;">
+            <span>Scala per Quad:</span>
+          </label>
+          <select id="calib-grid-scale" class="form-control" onchange="onGridCalibrationChange()">
+            <option value="5">1 Quad = 5 ft (1.5 m)</option>
+            <option value="10">1 Quad = 10 ft (3.0 m)</option>
+            <option value="15" selected>1 Quad = 15 ft (4.5 m)</option>
+            <option value="50">1 Quad = 50 ft / Miglia</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright); display:flex; justify-content:space-between;">
+            <span>Offset Orizzontale X (px):</span>
+            <span id="calib-ox-val" style="font-family:monospace; font-weight:bold;">10.5</span>
+          </label>
+          <input type="range" id="calib-grid-ox" min="-40" max="40" step="0.5" value="10.5" class="form-control" style="accent-color:var(--gold-primary);" oninput="onGridCalibrationChange()">
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright); display:flex; justify-content:space-between;">
+            <span>Offset Verticale Y (px):</span>
+            <span id="calib-oy-val" style="font-family:monospace; font-weight:bold;">3.5</span>
+          </label>
+          <input type="range" id="calib-grid-oy" min="-40" max="40" step="0.5" value="3.5" class="form-control" style="accent-color:var(--gold-primary);" oninput="onGridCalibrationChange()">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright); display:flex; justify-content:space-between;">
+            <span>Opacità Linee Griglia:</span>
+            <span id="calib-opacity-val" style="font-family:monospace; font-weight:bold;">0.25</span>
+          </label>
+          <input type="range" id="calib-grid-opacity" min="0.05" max="1" step="0.05" value="0.25" class="form-control" style="accent-color:var(--gold-primary);" oninput="onGridCalibrationChange()">
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.75rem; color:var(--gold-bright);">Colore Linee Griglia:</label>
+          <select id="calib-grid-color" class="form-control" onchange="onGridCalibrationChange()">
+            <option value="#f5d076" selected>✨ Oro Runico (#f5d076)</option>
+            <option value="#38bdf8">❄️ Ciano Ghiaccio (#38bdf8)</option>
+            <option value="#ffffff">⚪ Bianco Candido (#ffffff)</option>
+            <option value="#ef4444">🩸 Rosso Fuoco (#ef4444)</option>
+            <option value="#1e293b">🌑 Ombra Nera (#1e293b)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); margin-bottom:16px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem; color:#fff;">
+          <input type="checkbox" id="calib-grid-snap" checked style="accent-color:var(--gold-primary); width:16px; height:16px;" onchange="onGridCalibrationChange()">
+          <span>Attiva Aggancio Automatico Pedine (Snap to Grid)</span>
+        </label>
+      </div>
+
+      <div class="modal-actions" style="display:flex; justify-content:space-between; gap:8px;">
+        <button type="button" class="btn-top" onclick="resetGridToMapDefaults()" style="color:#fca5a5; border-color:rgba(239,68,68,0.4);">Ripristina Preset Originale</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-top" onclick="closeGridCalibrationModal()">Chiudi</button>
+          <button type="button" class="btn-top" onclick="saveGridCalibration()" style="background:var(--gold-primary); color:#080b11; font-weight:bold;">Salva per la Campagna</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPT LOGICO VTT & MAPPA COMPLETO -->
   <script>
     /**
@@ -1617,37 +1712,37 @@
      * ========================================================================
      */
     const RAGNAROK_MAPS = [
-      { id: "yggdrasill_9worlds", act: "Atto 0", title: "Atto 0 - I Nove Mondi (Yggdrasill)", type: "cosmic", scale: "Cosmica", file: "assets/maps/yggdrasill_9worlds.jpg", grid: "none" },
-      { id: "midgardr_full", act: "Atto I", title: "Atto I - Midgardr: Terre del Nord", type: "world", scale: "1 Hex = 500 Miglia", file: "assets/maps/midgardr_full.jpg", grid: "hex" },
-      { id: "norvegr_regional", act: "Atto I", title: "Atto I - Norvegr: Costa dei Fiordi", type: "regional", scale: "Regionale", file: "assets/maps/norvegr_regional.jpg", grid: "square" },
-      { id: "battle_shipyard", act: "Atto I", title: "Atto I - Cantiere Navale & Porto", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_shipyard.jpg", grid: "square" },
-      { id: "snowy_mountains_regional", act: "Atto I", title: "Atto I - Le Montagne Innevate", type: "regional", scale: "Regionale", file: "assets/maps/snowy_mountains_regional.jpg", grid: "square" },
-      { id: "battle_bandit_camp", act: "Atto I", title: "Atto I - Accampamento di Guthrum", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_bandit_camp.jpg", grid: "square" },
-      { id: "battle_mountain_pass", act: "Atto I", title: "Atto I - Il Sentiero tra i Ghiacci", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_mountain_pass.jpg", grid: "square" },
+      { id: "yggdrasill_9worlds", act: "Atto 0", title: "Atto 0 - I Nove Mondi (Yggdrasill)", type: "cosmic", scale: "Cosmica", file: "assets/maps/yggdrasill_9worlds.jpg", grid: "none", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 100 },
+      { id: "midgardr_full", act: "Atto I", title: "Atto I - Midgardr: Terre del Nord", type: "world", scale: "1 Hex = 500 Miglia", file: "assets/maps/midgardr_full.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
+      { id: "norvegr_regional", act: "Atto I", title: "Atto I - Norvegr: Costa dei Fiordi", type: "regional", scale: "Regionale", file: "assets/maps/norvegr_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_shipyard", act: "Atto I", title: "Atto I - Cantiere Navale & Porto", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_shipyard.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "snowy_mountains_regional", act: "Atto I", title: "Atto I - Le Montagne Innevate", type: "regional", scale: "Regionale", file: "assets/maps/snowy_mountains_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_bandit_camp", act: "Atto I", title: "Atto I - Accampamento di Guthrum", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_bandit_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_mountain_pass", act: "Atto I", title: "Atto I - Il Sentiero tra i Ghiacci", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_mountain_pass.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
       
-      { id: "svitjod_regional", act: "Atto II", title: "Atto II - Svitjod: Pianure e Foreste", type: "regional", scale: "Regionale", file: "assets/maps/svitjod_regional.jpg", grid: "square" },
-      { id: "battle_svitjod_camp", act: "Atto II", title: "Atto II - Radura dei Clan di Svitjod", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svitjod_camp.jpg", grid: "square" },
-      { id: "battle_uppsala_temple", act: "Atto II", title: "Atto II - Tempio Sacro di Uppsala", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_uppsala_temple.jpg", grid: "square" },
-      { id: "fenmark_swamp_regional", act: "Atto II", title: "Atto II - Fenmark: La Grande Palude", type: "regional", scale: "Regionale", file: "assets/maps/fenmark_swamp_regional.jpg", grid: "square" },
-      { id: "battle_fenmark_ruins", act: "Atto II", title: "Atto II - Rovine nella Palude di Fenmark", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_fenmark_ruins.jpg", grid: "square" },
-      { id: "jutland_regional", act: "Atto II", title: "Atto II - Jutland: Penisola dei Re", type: "regional", scale: "Regionale", file: "assets/maps/jutland_regional.jpg", grid: "square" },
-      { id: "battle_danevirke_wall", act: "Atto II", title: "Atto II - Il Vallo di Danevirke", type: "battle", scale: "1 Quad = 5 ft", file: "assets/maps/battle_danevirke_wall.jpg", grid: "square" },
-      { id: "battle_jutland_keep", act: "Atto II", title: "Atto II - Insediamento Fortificato dello Jarl", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_jutland_keep.jpg", grid: "square" },
+      { id: "svitjod_regional", act: "Atto II", title: "Atto II - Svitjod: Pianure e Foreste", type: "regional", scale: "Regionale", file: "assets/maps/svitjod_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_svitjod_camp", act: "Atto II", title: "Atto II - Radura dei Clan di Svitjod", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svitjod_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_uppsala_temple", act: "Atto II", title: "Atto II - Tempio Sacro di Uppsala", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_uppsala_temple.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "fenmark_swamp_regional", act: "Atto II", title: "Atto II - Fenmark: La Grande Palude", type: "regional", scale: "Regionale", file: "assets/maps/fenmark_swamp_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_fenmark_ruins", act: "Atto II", title: "Atto II - Rovine nella Palude di Fenmark", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_fenmark_ruins.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "jutland_regional", act: "Atto II", title: "Atto II - Jutland: Penisola dei Re", type: "regional", scale: "Regionale", file: "assets/maps/jutland_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_danevirke_wall", act: "Atto II", title: "Atto II - Il Vallo di Danevirke", type: "battle", scale: "1 Quad = 5 ft", file: "assets/maps/battle_danevirke_wall.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
+      { id: "battle_jutland_keep", act: "Atto II", title: "Atto II - Insediamento Fortificato dello Jarl", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_jutland_keep.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
 
-      { id: "niflheimr_realm", act: "Atto III", title: "Atto III - Niflheimr: Fiumi Gjoll e Gelo Primordiale", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/niflheimr_realm.jpg", grid: "hex" },
-      { id: "helheimr_realm", act: "Atto III", title: "Atto III - Helheimr: Regno dei Morti", type: "realm", scale: "1 Hex = 100 Miglia", file: "assets/maps/helheimr_realm.jpg", grid: "hex" },
+      { id: "niflheimr_realm", act: "Atto III", title: "Atto III - Niflheimr: Fiumi Gjoll e Gelo Primordiale", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/niflheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "helheimr_realm", act: "Atto III", title: "Atto III - Helheimr: Regno dei Morti", type: "realm", scale: "1 Hex = 100 Miglia", file: "assets/maps/helheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 100 },
 
-      { id: "asgardr_realm", act: "Atto IV", title: "Atto IV - Asgardr: Dimora degli Dei", type: "realm", scale: "1 Hex = 200 Miglia", file: "assets/maps/asgardr_realm.jpg", grid: "hex" },
-      { id: "svartalfheimr_realm", act: "Atto IV", title: "Atto IV - Svartalfheimr: Miniere e Caverne dei Nani", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/svartalfheimr_realm.jpg", grid: "hex" },
-      { id: "battle_svartalfheimr_city", act: "Atto IV", title: "Atto IV - Svartalfheimr: La Città Sotterranea", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svartalfheimr_city.jpg", grid: "square" },
-      { id: "battle_pillars_of_gods", act: "Atto IV", title: "Atto IV - Sala delle Colonne Runiche", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_pillars_of_gods.jpg", grid: "square" },
+      { id: "asgardr_realm", act: "Atto IV", title: "Atto IV - Asgardr: Dimora degli Dei", type: "realm", scale: "1 Hex = 200 Miglia", file: "assets/maps/asgardr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 200 },
+      { id: "svartalfheimr_realm", act: "Atto IV", title: "Atto IV - Svartalfheimr: Miniere e Caverne dei Nani", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/svartalfheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "battle_svartalfheimr_city", act: "Atto IV", title: "Atto IV - Svartalfheimr: La Città Sotterranea", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svartalfheimr_city.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_pillars_of_gods", act: "Atto IV", title: "Atto IV - Sala delle Colonne Runiche", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_pillars_of_gods.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 10 },
 
-      { id: "ljosalfheimr_realm", act: "Atto V", title: "Atto V - Ljosalfheimr: Regno degli Elfi di Luce", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/ljosalfheimr_realm.jpg", grid: "hex" },
-      { id: "vanaheimr_realm", act: "Atto V", title: "Atto V - Vanaheimr: Terre dei Saggi Vani", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/vanaheimr_realm.jpg", grid: "hex" },
-      { id: "jotunheimr_realm", act: "Atto V", title: "Atto V - Jotunheimr: Terra dei Giganti del Gelo", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/jotunheimr_realm.jpg", grid: "hex" },
+      { id: "ljosalfheimr_realm", act: "Atto V", title: "Atto V - Ljosalfheimr: Regno degli Elfi di Luce", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/ljosalfheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
+      { id: "vanaheimr_realm", act: "Atto V", title: "Atto V - Vanaheimr: Terre dei Saggi Vani", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/vanaheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
+      { id: "jotunheimr_realm", act: "Atto V", title: "Atto V - Jotunheimr: Terra dei Giganti del Gelo", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/jotunheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
 
-      { id: "muspellsheimr_realm", act: "Atto Finale", title: "Atto Finale - Muspellsheimr: Mare di Fiamme e Lava", type: "realm", scale: "1 Hex = 250 Miglia", file: "assets/maps/muspellsheimr_realm.jpg", grid: "hex" },
-      { id: "battle_muspellsheimr_lava", act: "Atto Finale", title: "Atto Finale - Fiume di Lava e Sigilli", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_muspellsheimr_lava.jpg", grid: "square" }
+      { id: "muspellsheimr_realm", act: "Atto Finale", title: "Atto Finale - Muspellsheimr: Mare di Fiamme e Lava", type: "realm", scale: "1 Hex = 250 Miglia", file: "assets/maps/muspellsheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 250 },
+      { id: "battle_muspellsheimr_lava", act: "Atto Finale", title: "Atto Finale - Fiume di Lava e Sigilli", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_muspellsheimr_lava.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 10 }
     ];
 
     /**
@@ -1684,18 +1779,23 @@
 
     const VTT_STATE = {
       campaignCode: currentCampaignCode,
-      currentMapId: "battle_uppsala_temple",
+      currentMapId: "battle_shipyard",
       customMapDataUrl: null,
       tokens: [],
       pois: [],
       turnIndex: 0,
       grid: {
         enabled: true,
-        type: "square", // 'square' | 'hex'
-        size: 50,
+        type: "square",
+        size: 24.35,
+        offsetX: 10.5,
+        offsetY: 3.5,
+        scaleFeet: 15,
+        color: "#f5d076",
         opacity: 0.25,
         snap: true
       },
+      mapConfigs: {},
       fogOpacityDm: 0.45,
       activeTool: "pan",
       activeFogAction: "reveal_brush",
@@ -1703,6 +1803,8 @@
       activePoiType: "lore",
       diceLog: []
     };
+    window.RAGNAROK_MAPS = RAGNAROK_MAPS;
+    window.VTT_STATE = VTT_STATE;
 
     // Database locale di persistenza
     const STORAGE_KEY = "RAGNAROK_VTT_SESSION_DATA_V2";
@@ -1733,6 +1835,7 @@
           pois: VTT_STATE.pois,
           turnIndex: VTT_STATE.turnIndex,
           grid: VTT_STATE.grid,
+          mapConfigs: VTT_STATE.mapConfigs,
           fogOpacityDm: VTT_STATE.fogOpacityDm,
           diceLog: VTT_STATE.diceLog,
           weather: VTT_STATE.weather
@@ -1889,6 +1992,7 @@
     let draggedToken = null;
     let tokenDragOrigin = { x: 0, y: 0 };
     let currentDragDistFeet = 0;
+    let activeRuler = null;
 
     // Strato Nebbia di Guerra (Offscreen Canvas ad alta efficienza)
     let fogCanvas = document.createElement("canvas");
@@ -1985,15 +2089,18 @@
       };
     }
 
-    // SNAP TO GRID
+    // SNAP TO GRID (CALIBRATO CON OFFSET X/Y D&D BEYOND)
     function snapToGrid(x, y) {
       if (!VTT_STATE.grid.enabled || !VTT_STATE.grid.snap) return { x, y };
-      const size = VTT_STATE.grid.size;
+      const size = VTT_STATE.grid.size || 24.35;
+      const ox = ((VTT_STATE.grid.offsetX || 0) % size + size) % size;
+      const oy = ((VTT_STATE.grid.offsetY || 0) % size + size) % size;
       return {
-        x: Math.round(x / size) * size + size / 2,
-        y: Math.round(y / size) * size + size / 2
+        x: Math.floor((x - ox) / size) * size + ox + size / 2,
+        y: Math.floor((y - oy) / size) * size + oy + size / 2
       };
     }
+    window.snapToGrid = snapToGrid;
 
     let repaintPending = false;
     function requestCanvasRepaint() {
@@ -2385,26 +2492,29 @@
         ctx.strokeRect(10, 10, mw - 20, mh - 20);
       }
 
-      // 2. LAYER GRIGLIA TATTICA
+      // 2. LAYER GRIGLIA TATTICA (CALIBRATO CON OFFSET X/Y D&D BEYOND)
       if (VTT_STATE.grid.enabled) {
         ctx.save();
-        ctx.strokeStyle = `rgba(245, 208, 118, ${VTT_STATE.grid.opacity})`;
+        ctx.strokeStyle = VTT_STATE.grid.color || "#f5d076";
+        ctx.globalAlpha = VTT_STATE.grid.opacity !== undefined ? VTT_STATE.grid.opacity : 0.25;
         ctx.lineWidth = 1;
-        const gSize = VTT_STATE.grid.size;
+        const gSize = VTT_STATE.grid.size || 24.35;
+        const ox = ((VTT_STATE.grid.offsetX || 0) % gSize + gSize) % gSize;
+        const oy = ((VTT_STATE.grid.offsetY || 0) % gSize + gSize) % gSize;
 
         if (VTT_STATE.grid.type === "square") {
-          for (let gx = 0; gx <= mw; gx += gSize) {
+          for (let gx = ox; gx <= mw; gx += gSize) {
             ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, mh); ctx.stroke();
           }
-          for (let gy = 0; gy <= mh; gy += gSize) {
+          for (let gy = oy; gy <= mh; gy += gSize) {
             ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(mw, gy); ctx.stroke();
           }
         } else {
           // Griglia esagonale
           const r = gSize / 2;
           const h = r * Math.sqrt(3);
-          for (let y = 0; y < mh + h; y += h) {
-            for (let x = 0; x < mw + r * 3; x += r * 3) {
+          for (let y = oy; y < mh + h; y += h) {
+            for (let x = ox; x < mw + r * 3; x += r * 3) {
               drawHexCell(ctx, x, y, r);
               drawHexCell(ctx, x + r * 1.5, y + h / 2, r);
             }
@@ -2426,6 +2536,11 @@
 
       // PING RUNICO CONDIVISO (LASER POINTER)
       drawRunicPing(ctx);
+
+      // RIGHELLO DI MISURAZIONE (STILE D&D BEYOND MAPS VTT)
+      if (activeRuler && (activeRuler.active || activeRuler.pinned)) {
+        drawDdbRuler(ctx, activeRuler);
+      }
 
       // LINEA ELASTICA MOVIMENTO TOKEN
       if (draggedToken) {
@@ -2485,9 +2600,109 @@
       ctx.stroke();
     }
 
-    // DISEGNO TOKEN CON BORDO E BARRA DELLA VITA
+    // DISEGNO RIGHELLO TATTICO D&D BEYOND MAPS VTT
+    function drawDdbRuler(ctx, ruler) {
+      if (!ruler || !ruler.start || !ruler.current) return;
+      const x1 = ruler.start.x;
+      const y1 = ruler.start.y;
+      const x2 = ruler.current.x;
+      const y2 = ruler.current.y;
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const distPx = Math.hypot(dx, dy);
+      if (distPx < 2 && !ruler.pinned) return;
+
+      const gSize = VTT_STATE.grid.size || 24.35;
+      const scaleFeet = VTT_STATE.grid.scaleFeet || 15;
+      const squares = Math.round((distPx / gSize) * 10) / 10;
+      const feet = Math.round(squares * scaleFeet);
+      const meters = Math.round(feet * 0.3 * 10) / 10;
+
+      ctx.save();
+
+      // Linea di misura con bagliore oro runico (Stile D&D Beyond)
+      ctx.shadowColor = "rgba(245, 208, 118, 0.75)";
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = ruler.pinned ? "#38bdf8" : "#f5d076";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 4]);
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset dash
+
+      // Cerchi di incremento a ogni casella lungo la linea
+      const steps = Math.floor(distPx / gSize);
+      if (steps > 0 && steps < 60) {
+        for (let s = 1; s <= steps; s++) {
+          const t = (s * gSize) / distPx;
+          const ix = x1 + dx * t;
+          const iy = y1 + dy * t;
+          ctx.beginPath();
+          ctx.arc(ix, iy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = ruler.pinned ? "#38bdf8" : "#f5d076";
+          ctx.fill();
+        }
+      }
+
+      // Nodi iniziale e finale (Runic Target Reticle)
+      [ { x: x1, y: y1, isStart: true }, { x: x2, y: y2, isStart: false } ].forEach(pt => {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = pt.isStart ? "#22c55e" : (ruler.pinned ? "#38bdf8" : "#f59e0b");
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+
+      // Badge Fluttuante D&D Beyond con misura metri / piedi / caselle
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      const labelText = `${meters}m • ${feet}ft (${squares} quad)`;
+
+      ctx.font = "bold 11px Cinzel, serif";
+      const metrics = ctx.measureText(labelText);
+      const paddingX = 10;
+      const paddingY = 5;
+      const bw = metrics.width + paddingX * 2;
+      const bh = 22;
+      const bx = midX - bw / 2;
+      const by = midY - bh - 8;
+
+      // Sfondo pillola badge
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#000000";
+      ctx.fillStyle = "rgba(13, 17, 27, 0.92)";
+      ctx.strokeStyle = ruler.pinned ? "#38bdf8" : "#f5d076";
+      ctx.lineWidth = 1.5;
+
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(bx, by, bw, bh, 6);
+      } else {
+        ctx.rect(bx, by, bw, bh);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      // Testo
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(labelText, midX, by + bh / 2);
+
+      ctx.restore();
+    }
+    window.drawDdbRuler = drawDdbRuler;
+
+    // DISEGNO TOKEN CON BORDO E BARRA DELLA VITA (SCALATO ALLA GRIGLIA)
     function drawToken(ctx, tok, isTurnActive) {
-      const radius = 24;
+      const gSize = VTT_STATE.grid.size || 24.35;
+      const squares = tok.gridSquares || (tok.size === 'large' ? 2 : (tok.size === 'huge' ? 3 : 1));
+      const radius = Math.max(10, gSize * squares * 0.44);
       const x = tok.x;
       const y = tok.y;
 
@@ -2496,11 +2711,11 @@
       // Aura turno attivo
       if (isTurnActive) {
         ctx.beginPath();
-        ctx.arc(x, y, radius + 7, 0, Math.PI * 2);
+        ctx.arc(x, y, radius + Math.max(3, radius * 0.28), 0, Math.PI * 2);
         ctx.fillStyle = "rgba(245, 208, 118, 0.35)";
         ctx.fill();
         ctx.strokeStyle = "#f5d076";
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = Math.max(1.5, radius * 0.1);
         ctx.stroke();
       }
 
@@ -2517,7 +2732,7 @@
         ctx.fillStyle = tok.type === "monster" ? "#7f1d1d" : "#1e293b";
         ctx.fill();
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 16px Cinzel, serif";
+        ctx.font = `bold ${Math.max(10, Math.round(radius * 0.9))}px Cinzel, serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(tok.name ? tok.name.charAt(0) : "?", x, y);
@@ -2528,26 +2743,27 @@
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(1.5, radius * 0.12);
       ctx.strokeStyle = tok.type === "monster" ? "#ef4444" : (tok.type === "npc" ? "#f59e0b" : "#c9a050");
       ctx.stroke();
       ctx.restore();
 
       // Nome del token
       ctx.save();
-      ctx.font = "bold 10px Lato, sans-serif";
+      const fontSize = Math.max(8, Math.round(radius * 0.46));
+      ctx.font = `bold ${fontSize}px Lato, sans-serif`;
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
       ctx.shadowColor = "#000000";
       ctx.shadowBlur = 4;
-      ctx.fillText(tok.name || "Token", x, y + radius + 12);
+      ctx.fillText(tok.name || "Token", x, y + radius + fontSize + 2);
 
       // Barra della Vita
       if (tok.maxHp) {
-        const barW = 38;
-        const barH = 5;
+        const barW = Math.max(20, radius * 1.6);
+        const barH = Math.max(3, radius * 0.22);
         const barX = x - barW / 2;
-        const barY = y - radius - 8;
+        const barY = y - radius - Math.max(4, radius * 0.3);
         const hpPct = Math.max(0, Math.min(1, (tok.hp || 0) / tok.maxHp));
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
@@ -2619,21 +2835,29 @@
         return;
       }
 
-      // 1. STRUMENTO PAN (O TASTO CENTRALE / SPAZIO)
-      if (VTT_STATE.activeTool === "pan" || e.button === 1 || e.spaceKey) {
-        isPanning = true;
-        panStart = { x: e.clientX - camera.x, y: e.clientY - camera.y };
-        viewport.classList.add("grabbing");
+      // STRUMENTO RIGHELLO DI MISURAZIONE (STILE D&D BEYOND)
+      if (VTT_STATE.activeTool === "ruler") {
+        if (activeRuler && activeRuler.pinned) {
+          activeRuler = null;
+        }
+        const startPoint = snapToGrid(mapPos.x, mapPos.y);
+        activeRuler = {
+          active: true,
+          pinned: false,
+          start: startPoint,
+          current: startPoint
+        };
+        requestCanvasRepaint();
         return;
       }
 
-      // 2. STRUMENTO TOKEN
-      if (VTT_STATE.activeTool === "token") {
-        // Cerca token cliccato (dall'ultimo disegnato al primo)
+      // 1. SELEZIONE / TRASCINAMENTO TOKEN (SIA IN TOKEN CHE IN PAN SE CLICCATO SUL TOKEN)
+      if (VTT_STATE.activeTool === "token" || VTT_STATE.activeTool === "pan") {
         for (let i = VTT_STATE.tokens.length - 1; i >= 0; i--) {
           const tok = VTT_STATE.tokens[i];
+          const tokRadius = Math.max(12, (VTT_STATE.grid.size || 24.35) * (tok.gridSquares || 1) * 0.44);
           const dist = Math.hypot(mapPos.x - tok.x, mapPos.y - tok.y);
-          if (dist <= 26) {
+          if (dist <= tokRadius + 6) {
             draggedToken = tok;
             tokenDragOrigin = { x: tok.x, y: tok.y };
             openTokenHud(tok);
@@ -2641,6 +2865,14 @@
             return;
           }
         }
+      }
+
+      // 2. STRUMENTO PAN (O TASTO CENTRALE / SPAZIO)
+      if (VTT_STATE.activeTool === "pan" || e.button === 1 || e.spaceKey) {
+        isPanning = true;
+        panStart = { x: e.clientX - camera.x, y: e.clientY - camera.y };
+        viewport.classList.add("grabbing");
+        return;
       }
 
       // 3. STRUMENTO POI
@@ -2703,16 +2935,34 @@
         return;
       }
 
+      // Gestione Righello in Trascinamento (D&D Beyond Style)
+      if (activeRuler && activeRuler.active) {
+        activeRuler.current = snapToGrid(mapPos.x, mapPos.y);
+        const distPx = Math.hypot(activeRuler.current.x - activeRuler.start.x, activeRuler.current.y - activeRuler.start.y);
+        const gSize = VTT_STATE.grid.size || 24.35;
+        const squares = Math.round((distPx / gSize) * 10) / 10;
+        const scaleFeet = VTT_STATE.grid.scaleFeet || 15;
+        const currentDistFeet = Math.round(squares * scaleFeet);
+        const currentDistMeters = Math.round(currentDistFeet * 0.3 * 10) / 10;
+
+        document.getElementById("distance-hud").style.display = "block";
+        document.getElementById("distance-val").textContent = `${currentDistMeters}m (${currentDistFeet} ft) • ${squares} quad`;
+        requestCanvasRepaint();
+        return;
+      }
+
       if (draggedToken) {
         draggedToken.x = mapPos.x;
         draggedToken.y = mapPos.y;
 
         const distPx = Math.hypot(draggedToken.x - tokenDragOrigin.x, draggedToken.y - tokenDragOrigin.y);
-        const gSize = VTT_STATE.grid.size || 50;
+        const gSize = VTT_STATE.grid.size || 24.35;
         const squares = Math.round((distPx / gSize) * 10) / 10;
-        currentDragDistFeet = Math.round(squares * 5);
+        const scaleFeet = VTT_STATE.grid.scaleFeet || 15;
+        currentDragDistFeet = Math.round(squares * scaleFeet);
+        const currentDragDistMeters = Math.round(currentDragDistFeet * 0.3 * 10) / 10;
 
-        document.getElementById("distance-val").textContent = `${currentDragDistFeet} ft (${Math.round(squares)} caselle)`;
+        document.getElementById("distance-val").textContent = `${currentDragDistMeters}m (${currentDragDistFeet} ft) • ${squares} quad`;
         requestCanvasRepaint();
         return;
       }
@@ -2728,6 +2978,12 @@
       if (isPanning) {
         isPanning = false;
         viewport.classList.remove("grabbing");
+      }
+
+      if (activeRuler && activeRuler.active) {
+        activeRuler.active = false;
+        activeRuler.pinned = true;
+        requestCanvasRepaint();
       }
 
       if (draggedToken) {
@@ -3008,6 +3264,25 @@
       const typeIcons = { cosmic: "🌌", world: "🌍", regional: "🏔️", battle: "⚔️", realm: "⚡" };
       document.getElementById("active-map-type-icon").textContent = typeIcons[mapMeta.type] || "🗺️";
 
+      // Carica calibrazione specifica salvata per questa mappa o preset da catalogo
+      const savedMapGrid = localStorage.getItem(`grid_${currentCampaignCode}_${mapId}`);
+      if (savedMapGrid) {
+        try {
+          const parsed = JSON.parse(savedMapGrid);
+          Object.assign(VTT_STATE.grid, parsed);
+        } catch(e) {}
+      } else if (mapMeta) {
+        if (mapMeta.gridSize) VTT_STATE.grid.size = mapMeta.gridSize;
+        if (mapMeta.gridOffsetX !== undefined) VTT_STATE.grid.offsetX = mapMeta.gridOffsetX;
+        if (mapMeta.gridOffsetY !== undefined) VTT_STATE.grid.offsetY = mapMeta.gridOffsetY;
+        if (mapMeta.scaleFeet) VTT_STATE.grid.scaleFeet = mapMeta.scaleFeet;
+        if (mapMeta.grid === "none") {
+          VTT_STATE.grid.enabled = false;
+        } else {
+          VTT_STATE.grid.enabled = true;
+        }
+      }
+
       loadActiveMapTexture();
       renderMapsGallery();
       
@@ -3015,6 +3290,7 @@
         saveSessionData();
       }
     }
+    window.setSessionMap = setSessionMap;
 
     // Caricamento mappa personalizzata da file locale
     document.getElementById("custom-map-upload").addEventListener("change", (e) => {
@@ -3476,6 +3752,11 @@
     }
 
     function setActiveTool(tool) {
+      if (tool !== "ruler" && activeRuler) {
+        activeRuler = null;
+        const distHud = document.getElementById("distance-hud");
+        if (distHud) distHud.style.display = "none";
+      }
       VTT_STATE.activeTool = tool;
       document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
       const btn = document.getElementById("tool-" + tool);
@@ -3553,6 +3834,104 @@
       VTT_STATE.grid.opacity = parseFloat(e.target.value);
       requestCanvasRepaint();
     });
+
+    // ========================================================================
+    // CALIBRAZIONE E ALLINEAMENTO GRIGLIA D&D BEYOND MAPS VTT
+    // ========================================================================
+    window.openGridCalibrationModal = function() {
+      const g = VTT_STATE.grid;
+      const sizeInput = document.getElementById("calib-grid-size");
+      const oxInput = document.getElementById("calib-grid-ox");
+      const oyInput = document.getElementById("calib-grid-oy");
+      const scaleInput = document.getElementById("calib-grid-scale");
+      const opInput = document.getElementById("calib-grid-opacity");
+      const colInput = document.getElementById("calib-grid-color");
+      const snapInput = document.getElementById("calib-grid-snap");
+
+      if (sizeInput) sizeInput.value = g.size || 24.35;
+      if (document.getElementById("calib-size-val")) document.getElementById("calib-size-val").textContent = g.size || 24.35;
+
+      if (oxInput) oxInput.value = g.offsetX !== undefined ? g.offsetX : 0;
+      if (document.getElementById("calib-ox-val")) document.getElementById("calib-ox-val").textContent = g.offsetX !== undefined ? g.offsetX : 0;
+
+      if (oyInput) oyInput.value = g.offsetY !== undefined ? g.offsetY : 0;
+      if (document.getElementById("calib-oy-val")) document.getElementById("calib-oy-val").textContent = g.offsetY !== undefined ? g.offsetY : 0;
+
+      if (scaleInput) scaleInput.value = g.scaleFeet || 15;
+      if (opInput) opInput.value = g.opacity !== undefined ? g.opacity : 0.25;
+      if (document.getElementById("calib-opacity-val")) document.getElementById("calib-opacity-val").textContent = g.opacity !== undefined ? g.opacity : 0.25;
+
+      if (colInput) colInput.value = g.color || "#f5d076";
+      if (snapInput) snapInput.checked = g.snap !== false;
+
+      document.getElementById("modal-grid-calibration").style.display = "flex";
+    };
+
+    window.closeGridCalibrationModal = function() {
+      document.getElementById("modal-grid-calibration").style.display = "none";
+    };
+
+    window.onGridCalibrationChange = function() {
+      const sizeInput = document.getElementById("calib-grid-size");
+      const oxInput = document.getElementById("calib-grid-ox");
+      const oyInput = document.getElementById("calib-grid-oy");
+      const scaleInput = document.getElementById("calib-grid-scale");
+      const opInput = document.getElementById("calib-grid-opacity");
+      const colInput = document.getElementById("calib-grid-color");
+      const snapInput = document.getElementById("calib-grid-snap");
+
+      if (sizeInput) {
+        VTT_STATE.grid.size = parseFloat(sizeInput.value);
+        document.getElementById("calib-size-val").textContent = VTT_STATE.grid.size;
+      }
+      if (oxInput) {
+        VTT_STATE.grid.offsetX = parseFloat(oxInput.value);
+        document.getElementById("calib-ox-val").textContent = VTT_STATE.grid.offsetX;
+      }
+      if (oyInput) {
+        VTT_STATE.grid.offsetY = parseFloat(oyInput.value);
+        document.getElementById("calib-oy-val").textContent = VTT_STATE.grid.offsetY;
+      }
+      if (scaleInput) {
+        VTT_STATE.grid.scaleFeet = parseInt(scaleInput.value);
+      }
+      if (opInput) {
+        VTT_STATE.grid.opacity = parseFloat(opInput.value);
+        document.getElementById("calib-opacity-val").textContent = VTT_STATE.grid.opacity;
+      }
+      if (colInput) {
+        VTT_STATE.grid.color = colInput.value;
+      }
+      if (snapInput) {
+        VTT_STATE.grid.snap = snapInput.checked;
+      }
+
+      requestCanvasRepaint();
+    };
+
+    window.resetGridToMapDefaults = function() {
+      const mapMeta = RAGNAROK_MAPS.find(m => m.id === VTT_STATE.currentMapId) || RAGNAROK_MAPS[0];
+      VTT_STATE.grid.size = mapMeta.gridSize || 24.35;
+      VTT_STATE.grid.offsetX = mapMeta.gridOffsetX !== undefined ? mapMeta.gridOffsetX : 0;
+      VTT_STATE.grid.offsetY = mapMeta.gridOffsetY !== undefined ? mapMeta.gridOffsetY : 0;
+      VTT_STATE.grid.scaleFeet = mapMeta.scaleFeet || 15;
+      VTT_STATE.grid.opacity = 0.25;
+      VTT_STATE.grid.color = "#f5d076";
+      VTT_STATE.grid.snap = true;
+
+      window.openGridCalibrationModal();
+      requestCanvasRepaint();
+    };
+
+    window.saveGridCalibration = function() {
+      try {
+        localStorage.setItem(`grid_${currentCampaignCode}_${VTT_STATE.currentMapId}`, JSON.stringify(VTT_STATE.grid));
+      } catch (e) {
+        console.warn("Grid save warning:", e);
+      }
+      saveSessionData();
+      window.closeGridCalibrationModal();
+    };
 
     // Zoom buttons
     document.getElementById("btn-zoom-in").onclick = () => {
