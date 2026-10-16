@@ -977,42 +977,36 @@ window.propagateCharacterToCampaigns = function(ch) {
 
 window.buildYgoCardHTML = function(card, interactive = true) {
   const sec = window.classifyCardToDdbSection(card);
-  const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA / RUNA' : 'INVENTARIO';
+  const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA' : 'INVENTARIO';
   const rarityClass = (card.rarity || 'comune').toLowerCase().replace(/\s+/g, '-');
   const typeClass = (card.type || 'arma').toLowerCase();
+  const artUrl = card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma;
 
   return `
-    <div class="ygo-card type-${typeClass} rarity-${rarityClass} cursor-pointer group" onclick="window.openCardDetailModal('${card.id}')" title="Clicca per aprire e ingrandire la carta">
-      <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
-        <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate group-hover:text-amber-400 transition">${card.name}</span>
-        <span class="text-[8px] uppercase font-bold text-sky-300 px-1 rounded bg-sky-950/60 border border-sky-500/30">${badgeLabel}</span>
-      </div>
-      <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
-        <span>${card.type} ${card.level !== undefined ? (card.level === 0 ? '• Trucchetto' : `• ${card.level}° Cerchio`) : ''}</span>
-        <span class="text-amber-300">${card.rarity || 'Comune'}</span>
-      </div>
-      <div class="ygo-art relative overflow-hidden rounded border border-amber-500/40">
-        <img src="${card.img || window.CARD_ARTWORKS[card.type] || window.CARD_ARTWORKS.arma}" alt="${card.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-        <div class="absolute bottom-1 right-1 bg-black/75 px-1.5 py-0.5 rounded text-[8px] text-amber-300 font-cinzel font-bold opacity-80 group-hover:opacity-100 transition">🔍 APRI</div>
-      </div>
-      <div class="ygo-lore flex flex-col justify-between p-2 rounded bg-gradient-to-b from-amber-100 to-amber-200 text-slate-900 border border-amber-900/40">
-        <p class="text-[10px] leading-snug line-clamp-3 overflow-hidden font-medium">${card.desc || ''}</p>
-        <div class="border-t border-amber-900/30 pt-1 flex justify-between font-mono text-[10px] font-bold">
-          <span class="text-red-900 font-extrabold truncate mr-1">EFF: ${card.damage || '—'}</span>
-          <span class="text-slate-800 whitespace-nowrap">${card.weight !== undefined ? card.weight + ' kg' : (card.range || '18m')}</span>
+    <div class="ygo-card compact-card type-${typeClass} rarity-${rarityClass} cursor-pointer group" onclick="window.openCardDetailModal('${card.id}')" title="Tocca per visualizzare la descrizione e le statistiche">
+      <div class="relative w-full h-full overflow-hidden rounded-lg bg-black">
+        <img src="${artUrl}" alt="${card.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+
+        <!-- Top Header Overlay -->
+        <div class="absolute top-1.5 inset-x-1.5 flex justify-between items-center pointer-events-none">
+          <span class="text-[8px] font-cinzel font-bold px-1.5 py-0.5 rounded bg-black/80 text-amber-200 border border-white/10 uppercase tracking-wider backdrop-blur-sm truncate max-w-[68%]">${card.name}</span>
+          <span class="text-[7px] font-bold px-1 py-0.5 rounded bg-black/80 text-sky-300 border border-sky-400/30 uppercase backdrop-blur-sm">${badgeLabel}</span>
+        </div>
+
+        <!-- Bottom Stat Glass Footer -->
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/85 to-transparent pt-4 pb-1.5 px-2 flex justify-between items-end">
+          <div class="min-w-0 flex-1">
+            <span class="text-[8px] font-mono text-slate-300 truncate block">${card.type} • ${card.damage || '—'}</span>
+          </div>
+          <span class="text-[9px] text-amber-400 font-bold opacity-80 group-hover:opacity-100 transition ml-1"></span>
         </div>
       </div>
-      ${interactive ? `
-        <div class="grid grid-cols-2 gap-1.5 pt-1" onclick="event.stopPropagation()">
-          <button type="button" onclick="event.stopPropagation(); window.deployCardInCombat('${card.id}')" class="py-1.5 rounded bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-cinzel font-bold text-[10px] shadow">USA</button>
-          <button type="button" onclick="event.stopPropagation(); window.openTradeCardModal('${card.id}')" class="py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 font-cinzel font-bold text-[10px]">SCAMBIA</button>
-        </div>
-      ` : ''}
     </div>
   `;
 };
 
 window.openCardDetailModal = function(cardId) {
+  window.currentActiveCardModalId = cardId;
   let card = null;
   const ch = window.getMyCharacter();
   if (ch && ch.cards) card = ch.cards.find(c => c.id === cardId);
@@ -1057,6 +1051,80 @@ window.openCardDetailModal = function(cardId) {
 
   modal.classList.remove('hidden');
   modal.classList.add('flex');
+};
+
+
+window.handleCardCustomImageUpload = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const dataUrl = ev.target.result;
+    document.getElementById('cdm-img').src = dataUrl;
+    
+    // Aggiorna l'immagine della carta sul personaggio attuale
+    if (window.currentActiveCardModalId) {
+      const ch = window.getMyCharacter();
+      if (ch && ch.cards) {
+        const found = ch.cards.find(c => c.id === window.currentActiveCardModalId);
+        if (found) {
+          found.img = dataUrl;
+          window.propagateCharacterToCampaigns(ch);
+          window.saveDB();
+          window.renderDdbSectionContent(ch);
+        }
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.openClanDetailModal = function(clanId) {
+  let clan = null;
+  if (clanId) {
+    clan = (window.JTR_CLANS || []).find(c => c.id === clanId || c.name === clanId);
+  }
+  if (!clan) {
+    const ch = window.getMyCharacter();
+    if (ch && ch.clan) {
+      clan = (window.JTR_CLANS || []).find(c => c.id === ch.clan || c.name === ch.clan);
+    }
+  }
+  if (!clan && window.JTR_CLANS && window.JTR_CLANS.length > 0) {
+    clan = window.JTR_CLANS[0];
+  }
+  if (!clan) return;
+
+  const modal = document.getElementById('clan-detail-modal');
+  if (!modal) return;
+
+  document.getElementById('clm-name').textContent = clan.name;
+  document.getElementById('clm-motto').textContent = clan.motto || '';
+  document.getElementById('clm-crest').src = clan.crest || 'assets/clans/Logo-Bear_Warriors.png';
+  document.getElementById('clm-banner').src = clan.banner || clan.crest || '';
+  document.getElementById('clm-desc').textContent = clan.desc || '';
+  document.getElementById('clm-vantaggi').textContent = clan.vantaggi || clan.trait || '';
+  document.getElementById('clm-svantaggi').textContent = clan.svantaggi || 'Nessun tabù registrato.';
+  document.getElementById('clm-amicizie').textContent = clan.amicizie || 'Neutralità con i regni vicini.';
+  document.getElementById('clm-odii').textContent = clan.odii || 'Nessun rancore registrato.';
+
+  if (clan.heirloom) {
+    document.getElementById('clm-heirloom-img').src = clan.heirloom.img || '';
+    document.getElementById('clm-heirloom-name').textContent = clan.heirloom.name || '';
+    document.getElementById('clm-heirloom-rarity').textContent = (clan.heirloom.rarity || 'Raro').toUpperCase();
+    document.getElementById('clm-heirloom-desc').textContent = clan.heirloom.desc || '';
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeClanDetailModal = function() {
+  const modal = document.getElementById('clan-detail-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
 };
 
 window.closeCardDetailModal = function() {
@@ -1242,7 +1310,10 @@ window.renderDdbSectionContent = function(ch) {
   if (!body || !ch) return;
 
   const secObj = window.DDB_SECTIONS.find(s => s.id === window.activeDdbSection) || window.DDB_SECTIONS[0];
-  document.getElementById('ddb-active-section-label').textContent = secObj.label;
+  const labelEl = document.getElementById('ddb-active-section-label');
+  if (labelEl) labelEl.textContent = secObj.label;
+  const iconEl = document.getElementById('ddb-active-section-icon');
+  if (iconEl) iconEl.innerHTML = secObj.iconSvg || secObj.icon || '';
 
   const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
   const saves = ch.saves || {};
@@ -1385,7 +1456,7 @@ window.renderAllViews = function() {
       condLabel.textContent = normCond.toUpperCase();
       condLabel.className = normCond !== 'Normale' ? 'text-rose-400 font-black' : 'text-amber-400 font-bold';
     } else if (condBtn) {
-      condBtn.textContent = normCond !== 'Normale' ? `⚠️ ${normCond.toUpperCase()}` : 'CONDIZIONI';
+      condBtn.textContent = normCond !== 'Normale' ? `• ${normCond.toUpperCase()}` : 'CONDIZIONI';
     }
 
     let activeCamp = null;
@@ -1398,8 +1469,33 @@ window.renderAllViews = function() {
     if (lvlBanner) lvlBanner.classList.toggle('hidden', !ch.pendingLevelUp);
 
     const pct = Math.round((ch.hp / ch.maxHp) * 100);
-    document.getElementById('sheet-hp-label').textContent = `${ch.hp} / ${ch.maxHp}`;
-    document.getElementById('sheet-hp-bar').style.width = `${pct}%`;
+    const hpBarEl = document.getElementById('sheet-hp-bar');
+    const hpLabelEl = document.getElementById('sheet-hp-label');
+    hpLabelEl.textContent = `${ch.hp} / ${ch.maxHp}`;
+    hpBarEl.style.width = `${pct}%`;
+
+    // Calcolo Dinamico Colore HP: Verde Brillante (100%) -> Ambra (50%) -> Rosso -> Rosso Scuro Sangue (1 HP)
+    function computeHpColor(hp, maxHp) {
+      if (hp <= 0) return '#3f0c0c';
+      const ratio = Math.max(0, Math.min(1, hp / maxHp));
+      let r, g, b;
+      if (ratio >= 0.5) {
+        const factor = (ratio - 0.5) / 0.5; // 1 a 100%, 0 a 50%
+        r = Math.round(234 + factor * (16 - 234));
+        g = Math.round(179 + factor * (185 - 179));
+        b = Math.round(8 + factor * (129 - 8));
+      } else {
+        const factor = ratio / 0.5; // 1 a 50%, 0 a 0%
+        r = Math.round(110 + factor * (234 - 110));
+        g = Math.round(15 + factor * (179 - 15));
+        b = Math.round(15 + factor * (8 - 15));
+      }
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+    const curHpColor = computeHpColor(ch.hp, ch.maxHp);
+    hpBarEl.style.background = curHpColor;
+    hpBarEl.style.boxShadow = (ch.hp / ch.maxHp) > 0.5 ? '0 0 10px rgba(16,185,129,0.4)' : '0 0 12px rgba(185,28,28,0.7)';
+    hpLabelEl.style.color = curHpColor;
 
     const desMod = Math.floor(((ch.stats?.DES || 10) - 10) / 2);
     document.getElementById('sheet-ac').textContent = ch.ac || 14;
@@ -1431,16 +1527,7 @@ window.renderAllViews = function() {
     window.renderDdbSectionContent(ch);
   }
 
-  window.rollQuickDice = function(sides) {
-    const roll = Math.floor(Math.random() * sides) + 1;
-    const logEl = document.getElementById('quick-dice-log');
-    if (logEl) {
-      const isCrit = (sides === 20 && roll === 20);
-      const isFail = (sides === 20 && roll === 1);
-      const color = isCrit ? 'text-amber-400 font-black' : isFail ? 'text-red-400 font-bold' : 'text-sky-300 font-bold';
-      logEl.innerHTML = `Lancio d${sides}: <span class="${color} text-sm">${roll}</span>`;
-    }
-  };
+  
 
   document.getElementById('join-char-select').innerHTML = chars.map(c => `<option value="${c.id}">${c.name} (${c.className} Liv.${c.level || 1})</option>`).join('');
 
@@ -1452,12 +1539,19 @@ window.renderAllViews = function() {
         const membersEntries = Object.entries(camp.members || {});
         return `
           <div class="norse-panel rounded-2xl p-4 space-y-3 border border-sky-500/30">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-2 gap-2">
               <div>
                 <span class="text-[10px] text-sky-400 font-bold uppercase">Codice Sala: ${camp.code}</span>
                 <h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4>
               </div>
-              <span class="text-[10px] text-slate-400">${membersEntries.length} Eroi nel Party</span>
+              <div class="flex items-center gap-2">
+                <a href="mappa.html?camp=${encodeURIComponent(camp.code)}&role=PLAYER" target="_blank"
+                   class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                  MAPPA TATTICA
+                </a>
+                <span class="text-[10px] text-slate-400 font-mono">${membersEntries.length} Eroi</span>
+              </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               ${membersEntries.map(([uKey, f]) => {

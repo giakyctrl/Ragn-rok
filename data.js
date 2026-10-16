@@ -5,7 +5,7 @@ window.FIREBASE_DATABASE_URL = "https://yggdrasill-39093-default-rtdb.europe-wes
 
 window.ADMIN_CREDENTIALS = {
   username: "admin",
-  password: "ragnarok2026"
+  password: "qwerty"
 };
 
 // Ritratti Ufficiali dell'Eroe (Personaggi Nordici Fantasy Disegnati)
@@ -79,17 +79,17 @@ window.CARD_ARTWORKS = {
 };
 
 window.DDB_SECTIONS = [
-  { id: "abilities", label: "Caratteristiche, Salvezza e Sensi", icon: "🐉" },
-  { id: "skills", label: "Abilità (Inclusa Asatru)", icon: "✨" },
-  { id: "actions", label: "Azioni e Attacchi", icon: "💥" },
-  { id: "inventory", label: "Inventario", icon: "🧰" },
-  { id: "spells", label: "Incantesimi e Rune", icon: "🔥" },
-  { id: "defenses", label: "Velocità, Difese e Condizioni", icon: "🛡️" },
-  { id: "features", label: "Privilegi di Classe e Clan", icon: "👤" },
-  { id: "proficiencies", label: "Competenze e Addestramento", icon: "🔍" },
-  { id: "background", label: "Clan, Background e Virtù", icon: "📜" },
-  { id: "notes", label: "Note di Viaggio", icon: "💬" },
-  { id: "creatures", label: "Creature e Compagni", icon: "🐺" }
+  { id: "abilities", label: "Caratteristiche, Salvezza e Sensi", iconSvg: '<svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>' },
+  { id: "skills", label: "Abilità (Inclusa Asatru)", iconSvg: '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+  { id: "actions", label: "Azioni e Attacchi", iconSvg: '<svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>' },
+  { id: "inventory", label: "Inventario", iconSvg: '<svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>' },
+  { id: "spells", label: "Incantesimi e Rune", iconSvg: '<svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>' },
+  { id: "defenses", label: "Velocità, Difese e Condizioni", iconSvg: '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+  { id: "features", label: "Privilegi di Classe e Clan", iconSvg: '<svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
+  { id: "proficiencies", label: "Competenze e Addestramento", iconSvg: '<svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' },
+  { id: "background", label: "Clan, Background e Virtù", iconSvg: '<svg class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>' },
+  { id: "notes", label: "Note di Viaggio", iconSvg: '<svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+  { id: "creatures", label: "Creature e Compagni", iconSvg: '<svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>' }
 ];
 
 // Abilità ufficiali D&D 5e + ASATRU (Saggezza) da Journey to Ragnarok
@@ -120,22 +120,28 @@ window.DDB_SKILLS = [
 // ============================================================================
 window.JTR_RACES = [
   { id: "umano", name: "Umano di Midgardr", speed: "9m", bonus: { FOR: 1, COS: 1 }, traits: ["Sangue di Midgardr: Adattabilità e resilienza nei Nove Mondi"] },
-  { id: "ljosalfar", name: "Ljósálfar (Elfo della Luce)", speed: "9m", bonus: { DES: 2, SAG: 1 }, traits: ["Scurovisione 18m", "Luce di Ljosalfheimr", "Sensi Acuti"] },
+  { id: "ljosalfar", name: "Ljósálfar", speed: "9m", bonus: { DES: 2, SAG: 1 }, traits: ["Scurovisione 18m", "Luce di Ljosalfheimr", "Sensi Acuti"] },
   { id: "svartalfar", name: "Svartálfar / Nano di Nidavellir", speed: "7.5m", bonus: { COS: 2, FOR: 1 }, traits: ["Scurovisione 18m", "Resilienza di Svartalfheimr (Resistenza al veleno)", "Maestria Runica della Forgia"] },
-  { id: "mezzogigante", name: "Sangue Jötunn (Goliath)", speed: "9m", bonus: { FOR: 2, COS: 1 }, traits: ["Tempra dei Giganti del Gelo (Resistenza al freddo)", "Corporatura Possente"] }
+  { id: "mezzogigante", name: "Sangue Jötunn", speed: "9m", bonus: { FOR: 2, COS: 1 }, traits: ["Tempra dei Giganti del Gelo (Resistenza al freddo)", "Corporatura Possente"] }
 ];
 
 window.JTR_CLANS = [
   {
     id: "bear_warriors",
-    name: "Guerrieri dell'Orso (Bear Warriors)",
+    name: "Guerrieri dell'Orso",
+    motto: "La forza della montagna scorre nel sangue dei berserkir.",
     bonusText: "+1 Forza, Competenza in Atletica o Intimidire",
     bonus: { FOR: 1 },
     crest: "assets/clans/Logo-Bear_Warriors.png",
     banner: "assets/clans/OrsiGuerrireri.png",
+    desc: "I Guerrieri dell'Orso dominano le aspre foreste montane e i picchi innevati di Midgardr. Noti per la loro vigoria titanica e per i feroci berserkir che combattono avvolti in pelli d'orso sacro, credono nella comunione mistica con la terra primordiale e traggono potenza da Thorr e dagli spiriti selvaggi delle montagne.",
+    vantaggi: "Furia di Björn: Vantaggio alle prove di Forza (Atletica) per lottare, sfondare porte o scudi, e atterrare nemici. Hanno diritto a vitto, rifugio d'onore e assistenza in qualsiasi villaggio o sala d'armi dell'Orso.",
+    svantaggi: "Codice del Berserkr: Fuggire da un avversario ferito o colpire alle spalle è ritenuto una colpa imperdonabile. Chi rifiuta una sfida rituale o vìola una caverna d'orso sacro subisce l'ostracismo e il bando dai boschi.",
+    amicizie: "Solida alleanza militare con il Clan dell'Occhio di Odhinn; reciproco rispetto con i cacciatori dei Lupi dell'Ombra per i confini delle selve.",
+    odii: "Furia inesausta contro i Figli di Jötunn, considerati profanatori eretici dei monti ancestrali, e continue faide di confine con i predoni dei Corvi del Ghiaccio.",
     heirloom: {
       id: "heirloom_bear_warriors",
-      name: "Artiglio della Montagna (Claw of the Mountain)",
+      name: "Artiglio della Montagna",
       type: "arma",
       rarity: "Raro",
       damage: "2d6+FOR",
@@ -149,13 +155,19 @@ window.JTR_CLANS = [
   {
     id: "gjallarhorn",
     name: "Clan Gjallarhorn",
+    motto: "Sentinelle imperiture alla guardia dell'alba dei mondi.",
     bonusText: "+1 Carisma, Guardiani di Heimdallr",
     bonus: { CAR: 1 },
     crest: "assets/clans/Logo-Gjallarhorn.png",
     banner: "assets/clans/gjallarhorn.png",
+    desc: "I custodi del Corno dorato e sentinelle devote a Heimdallr, la divinità dallo sguardo infallibile che veglia sul ponte di luce Bifröst. Vivono in alte torri costiere e fari runici monumentali, proteggendo gli insediamenti di Midgardr dalle minacce che scendono dal cielo e dalle onde scure.",
+    vantaggi: "Sentinella dell'Alba: Non puoi essere sorpreso mentre sei cosciente; bonus fisso di +2 alla Percezione Passiva. Rispetto garantito da parte di tutti i messaggeri, araldi e giudici del Thing in ogni regno di Midgardr.",
+    svantaggi: "Dovere Inviolabile: Vietato addormentarsi durante un turno di guardia o ignorare una richiesta di soccorso da parte di innocenti. Hanno il sacro obbligo di suonare l'allarme tempestivo al primo segno di corruzione o avvento di Ragnarok.",
+    amicizie: "Intesa diplomatica e spirituale d'acciaio con i Gothi dell'Occhio di Odhinn; protettori riconosciuti delle assemblee pacifiche di Midgardr.",
+    odii: "Nemici giurati degli infiltrati di Hel e dei Lupi dell'Ombra, di cui condannano l'ambiguità morale, le imboscate clandestine e i culti segreti.",
     heirloom: {
       id: "heirloom_gjallarhorn",
-      name: "Corno Fragoroso (Clangorous Horn)",
+      name: "Corno Fragoroso",
       type: "oggetto",
       rarity: "Raro",
       damage: "3d8 Tuono",
@@ -168,14 +180,20 @@ window.JTR_CLANS = [
   },
   {
     id: "icy_crow",
-    name: "Corvi del Ghiaccio (Icy Crows)",
+    name: "Corvi del Ghiaccio",
+    motto: "Dove il ghiaccio incrina le onde, le nostre ali aprono il sentiero.",
     bonusText: "+1 Destrezza, Esploratori dei Fiordi",
     bonus: { DES: 1 },
     crest: "assets/clans/Logo-Icy-Crows.png",
     banner: "assets/clans/CorviDiGhiaccio.png",
+    desc: "Insuperabili navigatori, scuotitori di fiordi e predoni del grande mare boreale. Ispirati ai corvi Hugin e Munin e consacrati ai venti di Njördr, solcano i mari coperti di banchise a bordo dei loro agili drakkar da guerra, scoprendo rotte nascoste e tesori sepolti sotto le tempeste polari.",
+    vantaggi: "Ali del Nord: Ignori qualsiasi terreno difficile provocato da neve, lastroni di ghiaccio e burrasche. Vantaggio a tutte le prove di Navigazione, Nautica e Orientamento tra i ghiacci eterni.",
+    svantaggi: "Superstizione del Volo: Se prima della battaglia o della partenza un corvo vola verso ovest o verso un lido d'ombre, il clan rinvia lo sbarco interpretando il presagio funesto. Mal tollerano chi vive lontano dall'acqua salmastra.",
+    amicizie: "Intese commerciali e scambi di pellicce con i Lupi dell'Ombra; accordi marittimi con i mercanti delle isole meridionali.",
+    odii: "Rancori centenari con i Guerrieri dell'Orso per il predominio sui fiordi boscati e per il legname dei drakkar.",
     heirloom: {
       id: "heirloom_icy_crows",
-      name: "Ramo Runico (Runic Branch)",
+      name: "Ramo Runico",
       type: "oggetto",
       rarity: "Raro",
       damage: "Focus +1 CD",
@@ -188,14 +206,20 @@ window.JTR_CLANS = [
   },
   {
     id: "jotunn_sons",
-    name: "Figli di Jötunn (Jötunn Sons)",
+    name: "Figli di Jötunn",
+    motto: "Nelle nostre vene ribolle la tormenta dei giganti delle origini.",
     bonusText: "+1 Costituzione, Sangue Primordiale",
     bonus: { COS: 1 },
     crest: "assets/clans/Logo-Jotunn-Sons.png",
     banner: "assets/clans/FigliDiJotun.png",
+    desc: "Guerrieri imponenti e sciamani che discendono dall'antico lignaggio dei Jötnar (giganti del gelo e del fuoco primordiali). Vivono arroccati nelle gole più inospitali di Midgardr, custodi di una sapienza primigenia legata alle forze telluriche e al Seiðr occulto della terra prima degli dei.",
+    vantaggi: "Gelo nelle Vene: Resistenza naturale a tutti i danni da freddo e totale immunità agli effetti del clima polare rigido. Ottengono +1 Punto Ferita massimo addizionale per ogni livello posseduto.",
+    svantaggi: "Stigma del Sangue Gigante: Visti con diffidenza e timore dai clan devoti agli Aesir. Subiscono svantaggio alle prove di Carisma (Persuasione) quando interagiscono con sacerdoti ortodossi degli Aesir.",
+    amicizie: "Fratellanza con i clan di Mezzigiganti (Goliath), eremiti della tundra e druidi dei circoli elementali più remoti.",
+    odii: "Guerra perenne e sangue versato contro i Guerrieri dell'Orso e contro il Clan Gjallarhorn, che li considerano una minaccia da estirpare prima della battaglia finale.",
     heirloom: {
       id: "heirloom_jotunn_sons",
-      name: "Dente della Strega (Witch's Tooth)",
+      name: "Dente della Strega",
       type: "arma",
       rarity: "Raro",
       damage: "1d4+DES + 2d6 Veleno",
@@ -208,14 +232,20 @@ window.JTR_CLANS = [
   },
   {
     id: "odhinns_eye",
-    name: "Occhio di Odhinn (Odyn's Eye)",
+    name: "Occhio di Odhinn",
+    motto: "Il destino è inciso nelle rune; solo i saggi ne scorgono la trama.",
     bonusText: "+1 Saggezza, Custodi dei Misteri Runici",
     bonus: { SAG: 1 },
     crest: "assets/clans/Logo-Odyn's-Eye.png",
     banner: "assets/clans/OcchioDiOdino.png",
+    desc: "I custodi della suprema sapienza runica, delle leggi sacre del Thing e dei misteri del Padre di Tutto. Guidati da insigni Gothi e maestri dell'antico Futhark, studiano i presagi cosmici, forgiano le prodigiose lame d'acciaio crogiolo Ulfberht e guidano il popolo con discernimento e giustizia.",
+    vantaggi: "Sapienza del Padre di Tutto: Competenza d'ufficio nell'abilità Asatru e nelle Rune sacre. Hanno libero accesso a tutti i santuari e voce autorevole con diritto di arbitrato in ogni consiglio dei clan.",
+    svantaggi: "Giuramento sull'Anello Sacro: Rompere una promessa prestata su un anello sacro o violare un verdetto del Thing provoca la maledizione di Odhinn e la privazione del potere runico.",
+    amicizie: "Legame indissolubile con il Clan Gjallarhorn e stima fraterna con i capi dei Guerrieri dell'Orso.",
+    odii: "Rifiuto categorico dei Figli di Jötunn e di ogni forma di stregoneria corruttiva che tenta di alterare i destini stabiliti dalle Norne.",
     heirloom: {
       id: "heirloom_odhinns_eye",
-      name: "Spada Ulfberht (Ulfberht Sword)",
+      name: "Spada Ulfberht",
       type: "arma",
       rarity: "Raro",
       damage: "1d8+1+FOR Tagliente",
@@ -228,14 +258,20 @@ window.JTR_CLANS = [
   },
   {
     id: "wolves_shadow",
-    name: "Lupi dell'Ombra (Wolves of the Shadow)",
+    name: "Lupi dell'Ombra",
+    motto: "Nel silenzio della selva, il branco non fallisce mai il balzo.",
     bonusText: "+1 Destrezza, Cacciatori Silenziosi",
     bonus: { DES: 1 },
     crest: "assets/clans/Logo-Wolves-of-the-Shadow.png",
     banner: "assets/clans/LupiDellaNotte.png",
+    desc: "Cacciatori furtivi, esploratori d'avanguardia e maestri nell'arte dell'agguato tra le fitte foreste di conifere. Ispirati ai lupi cosmici Geri e Freki, agiscono con una coordinazione fulminea e letale, muovendosi senza lasciare orme nella neve e scomparendo come spettri nella bruma.",
+    vantaggi: "Istinto del Branco: Vantaggio a tutte le prove di Destrezza (Furtività) quando ti trovi nella penombra, nella nebbia o nel fitto della foresta. Aggiungi +1d6 danni da mischia se attacchi un bersaglio adiacente a un tuo alleato cosciente.",
+    svantaggi: "Legge del Branco: Non agire mai da cacciatore solitario quando il branco è in allarme. Tradire o abbandonare un compagno di pattuglia è punito con il taglio dei tendini e l'esilio nel gelo.",
+    amicizie: "Accordi e patti di caccia con i marinai dei Corvi del Ghiaccio; tolleranza prudente con i boscaioli dell'Orso.",
+    odii: "Aperta ostilità con le ronde doganali e le sentinelle del Clan Gjallarhorn, che tentano continuamente di setacciare le loro rotte clandestine nei boschi.",
     heirloom: {
       id: "heirloom_wolves_shadow",
-      name: "Scudo Ombra delle Fronde (Shadow of Leafage)",
+      name: "Scudo Ombra delle Fronde",
       type: "scudo",
       rarity: "Raro",
       damage: "+2 CA (+Vantaggio Furtività)",
@@ -274,7 +310,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "maestro_rune",
-    name: "Maestro delle Rune (Rune Master)",
+    name: "Maestro delle Rune",
     hitDie: "1d8",
     baseAc: 14,
     saves: ["COS", "SAG"],
@@ -320,7 +356,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "chierico",
-    name: "Chierico (Gothi / Sacerdote dei Vanir)",
+    name: "Chierico (Gothi)",
     hitDie: "1d8",
     baseAc: 16,
     saves: ["SAG", "CAR"],
@@ -340,7 +376,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "druido",
-    name: "Druido (Custode di Yggdrasill)",
+    name: "Druido",
     hitDie: "1d8",
     baseAc: 14,
     saves: ["INT", "SAG"],
@@ -380,7 +416,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "ladro",
-    name: "Ladro (Predatore dei Fiordi)",
+    name: "Ladro",
     hitDie: "1d8",
     baseAc: 14,
     saves: ["DES", "INT"],
@@ -400,7 +436,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "monaco",
-    name: "Monaco (Guerriero a Mani Nude dei Fiordi)",
+    name: "Monaco",
     hitDie: "1d8",
     baseAc: 15,
     saves: ["FOR", "DES"],
@@ -420,7 +456,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "paladino",
-    name: "Paladino (Cavaliere dei Nove Mondi)",
+    name: "Paladino",
     hitDie: "1d10",
     baseAc: 18,
     saves: ["SAG", "CAR"],
@@ -440,7 +476,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "ranger",
-    name: "Ranger (Cacciatore di Midgardr)",
+    name: "Ranger",
     hitDie: "1d10",
     baseAc: 15,
     saves: ["FOR", "DES"],
@@ -459,7 +495,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "stregone",
-    name: "Stregone (Sangue di Gigante / Seiðr)",
+    name: "Stregone (Seiðr)",
     hitDie: "1d6",
     baseAc: 12,
     saves: ["COS", "CAR"],
@@ -479,7 +515,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "warlock",
-    name: "Warlock (Patto con gli Dèi Oscuri / Hel)",
+    name: "Warlock",
     hitDie: "1d8",
     baseAc: 13,
     saves: ["SAG", "CAR"],
@@ -498,7 +534,7 @@ window.JTR_CLASSES = [
   },
   {
     id: "mago",
-    name: "Mago (Viandante Vegtamr)",
+    name: "Mago",
     hitDie: "1d6",
     baseAc: 12,
     saves: ["INT", "SAG"],
@@ -619,7 +655,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- TRUCCHETTI (LIVELLO 0) ---
   {
     id: "card_cantrip_firebolt",
-    name: "Dardo di Fuoco (Fire Bolt)",
+    name: "Dardo di Fuoco",
     type: "incantesimo",
     level: 0,
     classes: ["mago", "stregone"],
@@ -634,7 +670,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_ray_of_frost",
-    name: "Raggio di Gelo (Ray of Frost)",
+    name: "Raggio di Gelo",
     type: "incantesimo",
     level: 0,
     classes: ["mago", "stregone"],
@@ -649,7 +685,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_sacred_flame",
-    name: "Fiamma Sacra (Sacred Flame)",
+    name: "Fiamma Sacra",
     type: "incantesimo",
     level: 0,
     classes: ["chierico"],
@@ -664,7 +700,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_guidance",
-    name: "Guida (Guidance)",
+    name: "Guida",
     type: "incantesimo",
     level: 0,
     classes: ["chierico", "druido"],
@@ -679,7 +715,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_eldritch_blast",
-    name: "Deflagrazione Occulta (Eldritch Blast)",
+    name: "Deflagrazione Occulta",
     type: "incantesimo",
     level: 0,
     classes: ["warlock"],
@@ -694,7 +730,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_vicious_mockery",
-    name: "Beffa Crudele (Vicious Mockery)",
+    name: "Beffa Crudele",
     type: "incantesimo",
     level: 0,
     classes: ["bardo"],
@@ -709,7 +745,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_cantrip_shillelagh",
-    name: "Bastone Incantato (Shillelagh)",
+    name: "Bastone Incantato",
     type: "incantesimo",
     level: 0,
     classes: ["druido"],
@@ -726,7 +762,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- INCANTESIMI DI 1° LIVELLO ---
   {
     id: "card_spell_magic_missile",
-    name: "Dardo Incantato (Magic Missile)",
+    name: "Dardo Incantato",
     type: "incantesimo",
     level: 1,
     classes: ["mago", "stregone"],
@@ -741,7 +777,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_shield",
-    name: "Scudo (Shield)",
+    name: "Scudo",
     type: "incantesimo",
     level: 1,
     classes: ["mago", "stregone"],
@@ -756,7 +792,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_cure_wounds",
-    name: "Cura Ferite (Cure Wounds)",
+    name: "Cura Ferite",
     type: "incantesimo",
     level: 1,
     classes: ["chierico", "druido", "bardo", "paladino", "ranger"],
@@ -771,7 +807,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_healing_word",
-    name: "Parola Guaritrice (Healing Word)",
+    name: "Parola Guaritrice",
     type: "incantesimo",
     level: 1,
     classes: ["chierico", "druido", "bardo"],
@@ -786,7 +822,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_bless",
-    name: "Benedizione (Bless)",
+    name: "Benedizione",
     type: "incantesimo",
     level: 1,
     classes: ["chierico", "paladino"],
@@ -801,7 +837,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_thunderwave",
-    name: "Onda Tonante (Thunderwave)",
+    name: "Onda Tonante",
     type: "incantesimo",
     level: 1,
     classes: ["bardo", "druido", "stregone", "mago"],
@@ -816,7 +852,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_burning_hands",
-    name: "Mani Brucianti (Burning Hands)",
+    name: "Mani Brucianti",
     type: "incantesimo",
     level: 1,
     classes: ["stregone", "mago"],
@@ -831,7 +867,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_hex",
-    name: "Anatema (Hex)",
+    name: "Anatema",
     type: "incantesimo",
     level: 1,
     classes: ["warlock"],
@@ -846,7 +882,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_hunters_mark",
-    name: "Marchio del Cacciatore (Hunter's Mark)",
+    name: "Marchio del Cacciatore",
     type: "incantesimo",
     level: 1,
     classes: ["ranger"],
@@ -863,7 +899,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- INCANTESIMI DI 2° LIVELLO ---
   {
     id: "card_spell_scorching_ray",
-    name: "Raggio Rovente (Scorching Ray)",
+    name: "Raggio Rovente",
     type: "incantesimo",
     level: 2,
     classes: ["mago", "stregone"],
@@ -878,7 +914,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_misty_step",
-    name: "Passo Velato (Misty Step)",
+    name: "Passo Velato",
     type: "incantesimo",
     level: 2,
     classes: ["mago", "stregone", "warlock"],
@@ -893,7 +929,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_spiritual_weapon",
-    name: "Arma Spirituale (Spiritual Weapon)",
+    name: "Arma Spirituale",
     type: "incantesimo",
     level: 2,
     classes: ["chierico"],
@@ -908,7 +944,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_hold_person",
-    name: "Blocca Persone (Hold Person)",
+    name: "Blocca Persone",
     type: "incantesimo",
     level: 2,
     classes: ["bardo", "chierico", "druido", "stregone", "warlock", "mago"],
@@ -923,7 +959,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_shatter",
-    name: "Frantumare (Shatter)",
+    name: "Frantumare",
     type: "incantesimo",
     level: 2,
     classes: ["bardo", "stregone", "warlock", "mago"],
@@ -940,7 +976,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- INCANTESIMI DI 3° LIVELLO ---
   {
     id: "card_spell_fireball",
-    name: "Palla di Fuoco (Fireball)",
+    name: "Palla di Fuoco",
     type: "incantesimo",
     level: 3,
     classes: ["stregone", "mago"],
@@ -955,7 +991,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_lightning_bolt",
-    name: "Fulmine (Lightning Bolt)",
+    name: "Fulmine",
     type: "incantesimo",
     level: 3,
     classes: ["stregone", "mago"],
@@ -970,7 +1006,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_spirit_guardians",
-    name: "Guardiani Spirituali (Spirit Guardians)",
+    name: "Guardiani Spirituali",
     type: "incantesimo",
     level: 3,
     classes: ["chierico"],
@@ -985,7 +1021,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_revivify",
-    name: "Revivificare (Revivify)",
+    name: "Revivificare",
     type: "incantesimo",
     level: 3,
     classes: ["chierico", "paladino", "druido"],
@@ -1000,7 +1036,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_spell_haste",
-    name: "Velocità (Haste)",
+    name: "Velocità",
     type: "incantesimo",
     level: 3,
     classes: ["stregone", "mago"],
@@ -1109,7 +1145,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- ARMI NORRENE STANDARD E LEGGENDARIE ---
   {
     id: "card_weapon_bearded_axe",
-    name: "Ascia Barbuta (Skeggöx)",
+    name: "Ascia Barbuta",
     type: "arma",
     rarity: "Comune",
     damage: "1d8+FOR Tagliente",
@@ -1131,7 +1167,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_seax",
-    name: "Seax (Coltello da Guerra Norreno)",
+    name: "Seax",
     type: "arma",
     rarity: "Comune",
     damage: "1d6+DES Perforante/Tagliente",
@@ -1142,7 +1178,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_ash_spear",
-    name: "Lancia di Frassino (Geirr)",
+    name: "Lancia di Frassino",
     type: "arma",
     rarity: "Comune",
     damage: "1d6/1d8+FOR Perforante",
@@ -1153,7 +1189,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_mjolnir",
-    name: "Mjöllnir (Il Frantumatore di Thor)",
+    name: "Mjöllnir",
     type: "arma",
     rarity: "Leggendario",
     damage: "2d8+3 + 2d8 Tuono/Fulmine",
@@ -1164,7 +1200,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_gungnir",
-    name: "Gungnir (La Lancia di Odhinn)",
+    name: "Gungnir",
     type: "arma",
     rarity: "Leggendario",
     damage: "2d10+3 Perforante Magico",
@@ -1175,7 +1211,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_tyrfing",
-    name: "Tyrfing (La Spada Maledetta)",
+    name: "Tyrfing",
     type: "arma",
     rarity: "Leggendario",
     damage: "1d10+3 + 3d6 Necrotico",
@@ -1186,7 +1222,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_weapon_gramr",
-    name: "Gramr (La Spada dell'Uccisore di Draghi)",
+    name: "Gramr",
     type: "arma",
     rarity: "Leggendario",
     damage: "2d6+3 + 3d6 Tagliente vs Draghi",
@@ -1210,7 +1246,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_shield_skjaldborg",
-    name: "Scudo Alto del Muro di Scudi (Skjaldborg)",
+    name: "Scudo del Muro di Scudi",
     type: "scudo",
     rarity: "Non Comune",
     damage: "+2 CA (+1 ai TS Destrezza)",
@@ -1221,7 +1257,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_shield_svalinn",
-    name: "Svalinn (Lo Scudo del Sole)",
+    name: "Svalinn",
     type: "scudo",
     rarity: "Leggendario",
     damage: "+3 CA (Immune a Fuoco/Freddo)",
@@ -1232,7 +1268,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_armor_chainmail",
-    name: "Giaco di Maglia ad Anelli Ribattuti (Brynja)",
+    name: "Giaco di Maglia ad Anelli Ribattuti",
     type: "armatura",
     rarity: "Comune",
     damage: "CA 16 (Svantaggio Furtività)",
@@ -1256,7 +1292,7 @@ window.GLOBAL_CARDS_DATABASE = [
   // --- RELIQUIE E OGGETTI MAGICI ---
   {
     id: "card_item_draupnir",
-    name: "Draupnir (L'Anello d'Oro Inesauribile)",
+    name: "Draupnir",
     type: "oggetto",
     rarity: "Leggendario",
     damage: "Ricchezza Divina (8 anelli/9 notti)",
@@ -1267,7 +1303,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_item_brisingamen",
-    name: "Brísingamen (La Collana di Freyja)",
+    name: "Brísingamen",
     type: "oggetto",
     rarity: "Leggendario",
     damage: "+3 a CAR / Fascino Sovrano",
@@ -1278,7 +1314,7 @@ window.GLOBAL_CARDS_DATABASE = [
   },
   {
     id: "card_item_jarngreipr",
-    name: "Járngreipr (I Guanti di Ferro di Thor)",
+    name: "Járngreipr",
     type: "oggetto",
     rarity: "Molto Raro",
     damage: "Presa Invulnerabile",

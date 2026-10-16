@@ -30,9 +30,9 @@ window.RulesEngine = {
   // Oggetti Esotici proibiti alla creazione a Midgardr (JTR p. 80)
   EXOTIC_ITEMS_FORBIDDEN_AT_CREATION: [
     "Corazza a Strisce (Splint Mail)",
-    "Armatura Completa (Plate Armor)",
+    "Armatura Completa",
     "Falcione (Glaive)",
-    "Alabarda (Halberd)",
+    "Alabarda",
     "Balestra a Mano",
     "Balestra Pesante",
     "Balestra Leggera",
@@ -211,7 +211,7 @@ window.RulesEngine = {
         { name: "Ramo Runico Intagliato (Focus Futhark)", qty: 1, type: "arma", desc: "1d6 contundente, focus sacro e arcano per tracciare le Rune del Destino." },
         { name: "Corazza di Cuoio Bollito con Trame Runiche", qty: 1, type: "armatura", desc: "CA 11 + Mod DES" },
         { name: "Scure da Lancio Barbuta", qty: 1, type: "arma" },
-        { name: "Set di Strumenti per Incisione Runica (Rune Crafting Set)", qty: 1, type: "oggetto", desc: "Scalpelli in osso e ferro, inchiostro di sangue vegetale e 24 ciottoli Futhark." },
+        { name: "Set di Strumenti per Incisione Runica", qty: 1, type: "oggetto", desc: "Scalpelli in osso e ferro, inchiostro di sangue vegetale e 24 ciottoli Futhark." },
         { name: "Zaino da Studioso dei Misteri", qty: 1, type: "oggetto" }
       ],
       guerriero: [
@@ -326,8 +326,8 @@ window.RulesEngine = {
         spells: ["Cura Ferite", "Parlare con Animali", "Intralciare"]
       },
       maestro_rune: {
-        cantrips: ["Luce Runica (Light)", "Guida del Destino (Guidance)", "Runa del Freddo (Ray of Frost)"],
-        spells: ["Scudo della Runa (Shield)", "Incisione Protettiva (Sanctuary)", "Lettura degli Auspici (Detect Magic)"],
+        cantrips: ["Luce Runica", "Guida del Destino (Guidance)", "Runa del Freddo"],
+        spells: ["Scudo della Runa", "Incisione Protettiva", "Lettura degli Auspici"],
         runes: ["Futhark: Fehu (Ricchezza)", "Futhark: Uruz (Forza)", "Futhark: Thurisaz (Difesa)"]
       },
       bardo: {
@@ -343,7 +343,7 @@ window.RulesEngine = {
         spells: ["Mani Brucianti", "Scudo"]
       },
       warlock: {
-        cantrips: ["Deflagrazione Occulta (Eldritch Blast)", "Tocco Gelido"],
+        cantrips: ["Deflagrazione Occulta", "Tocco Gelido"],
         spells: ["Anatema (Hex)", "Braccia di Hadar"]
       }
     };
@@ -382,7 +382,7 @@ window.RulesEngine = {
           { name: "Talento: Furia del Guerriero dell'Orso", desc: "+1 a FOR o COS; quando riduci un nemico a 0 PF, puoi compiere un attacco extra come azione bonus." },
           { name: "Talento: Maestro delle Rune del Futhark", desc: "+1 a SAG o INT; impari 2 nuove Rune e puoi lanciare un incantesimo di 1° cerchio senza spendere slot 1 volta al giorno." },
           { name: "Talento: Muro di Scudi (Skjaldborg)", desc: "+1 a FOR; quando un alleato adiacente a te viene attaccato, puoi usare la reazione per imporre svantaggio all'attacco." },
-          { name: "Talento: Robusto (Tough)", desc: "+2 Punti Ferita massimi per ogni livello posseduto." },
+          { name: "Talento: Robusto", desc: "+2 Punti Ferita massimi per ogni livello posseduto." },
           { name: "Talento: Allerta dei Guardiani dell'Alba", desc: "+5 all'Iniziativa; non puoi essere sorpreso mentre sei cosciente." }
         ]
       });

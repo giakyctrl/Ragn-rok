@@ -788,6 +788,39 @@
       from { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
       to { box-shadow: 0 0 40px rgba(245, 208, 118, 0.8); }
     }
+  
+    /* Orientation Gate for Mobile/Tablet */
+    #orientation-gate {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: rgba(6, 9, 14, 0.98);
+      backdrop-filter: blur(12px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    @media screen and (orientation: portrait) and (max-width: 900px) {
+      #orientation-gate {
+        display: flex !important;
+      }
+    }
+    .orientation-gate-card {
+      background: rgba(14, 19, 29, 0.95);
+      border: 2px solid rgba(201, 160, 80, 0.6);
+      box-shadow: 0 0 40px rgba(201, 160, 80, 0.3);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      max-width: 380px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
   </style>
 </head>
 <body>
@@ -795,7 +828,12 @@
   <!-- TOP BAR -->
   <header id="top-bar">
     <div class="brand-section">
-      <span class="brand-title">⚔️ RAGNARÖK VTT</span>
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <svg style="width:20px; height:24px; color:#f3c663;" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="square">
+          <path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/>
+        </svg>
+        <span class="brand-title">RAGNARÖK VTT</span>
+      </div>
       <div class="map-current-pill" id="current-map-badge" title="Mappa della sessione attiva">
         <span id="active-map-type-icon">🗺️</span>
         <strong id="active-map-title-label">Caricamento Mappa...</strong>
@@ -820,10 +858,10 @@
       </div>
 
       <a href="index.html" class="btn-top" title="Torna alla Scheda Personaggio">🛡️ Portale</a>
-      <a href="admin.html" class="btn-top" style="border-color:#ef4444; color:#fca5a5;" title="Suite Amministrazione">⚙️ Admin</a>
+      <a href="admin.html" class="btn-top" style="border-color:#ef4444; color:#fca5a5;" title="Suite Amministrazione"><svg style="width:14px; height:14px; display:inline; vertical-align:middle; margin-right:3px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</a>
       
       <button id="toggle-sidebar-btn" class="btn-top" style="background:var(--gold-primary); color:#080b11;">
-        ☰ PANNELLO
+        PANNELLO
       </button>
     </div>
   </header>
@@ -882,7 +920,7 @@
   <div id="subtool-bar" style="display:none;">
     <!-- Sottomenu Nebbia di Guerra -->
     <div id="subtool-fog-group" class="subtool-group" style="display:none;">
-      <span style="font-size:0.75rem; color:var(--gold-bright); font-weight:bold;">🌫️ Nebbia:</span>
+      <span style="font-size:0.75rem; color:var(--gold-bright); font-weight:bold;">Nebbia:</span>
       <button class="subtool-pill active" data-fog-action="reveal_brush">🖌️ Svela (Pennello)</button>
       <button class="subtool-pill" data-fog-action="hide_brush">⬛ Nascondi (Pennello)</button>
       <button class="subtool-pill" data-fog-action="reveal_rect">🔲 Svela Rettangolo</button>
@@ -940,11 +978,11 @@
   <!-- MENU A TENDA LATERALE (SIDEBAR) -->
   <aside id="curtain-sidebar">
     <div class="sidebar-tabs">
-      <button class="tab-btn active" data-tab="tab-maps">🗺️ Mappe</button>
-      <button class="tab-btn" data-tab="tab-tokens">♟️ Token</button>
-      <button class="tab-btn" data-tab="tab-pois">📍 Note</button>
-      <button class="tab-btn" data-tab="tab-fog">🌫️ Nebbia</button>
-      <button class="tab-btn" data-tab="tab-dice">🎲 Dadi</button>
+      <button class="tab-btn active" data-tab="tab-maps">Mappe</button>
+      <button class="tab-btn" data-tab="tab-tokens">Token</button>
+      <button class="tab-btn" data-tab="tab-pois">Segnalini</button>
+      <button class="tab-btn" data-tab="tab-fog">Nebbia</button>
+      <button class="tab-btn" data-tab="tab-dice">Dadi</button>
     </div>
 
     <!-- TAB 1: GALLERIA DELLE 26 MAPPE DA MAPPACK.PDF -->
@@ -952,7 +990,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 style="font-size:0.85rem; color:var(--gold-bright);">Mappe Ufficiali (26 Aree)</h3>
         <label for="custom-map-upload" class="btn-action-sm" style="cursor:pointer;" title="Carica una mappa personale PNG/JPG">
-          📁 Carica Mappa
+          Carica Mappa
         </label>
         <input type="file" id="custom-map-upload" accept="image/*" style="display:none;">
       </div>
@@ -975,7 +1013,7 @@
         </p>
         <div id="party-tokens-list"></div>
         <button class="btn-top" id="btn-spawn-all-heroes" style="width:100%; justify-content:center; margin-top:8px;">
-          ⚡ Schiera Tutti gli Eroi sulla Mappa
+          Schiera Tutti gli Eroi
         </button>
       </div>
 
@@ -992,7 +1030,7 @@
         </div>
 
         <button class="btn-top" id="btn-open-create-token" style="width:100%; justify-content:center;">
-          ➕ Crea Mostro / PNG Personalizzato
+          Crea Mostro / PNG Personalizzato
         </button>
       </div>
 
@@ -1000,7 +1038,7 @@
         <h3>Ordine di Iniziativa</h3>
         <div id="initiative-list" style="font-size:0.8rem; margin-bottom:8px;"></div>
         <button class="btn-top" id="btn-next-turn" style="width:100%; justify-content:center;">
-          ⏭️ Prossimo Turno
+          Prossimo Turno
         </button>
       </div>
     </div>
@@ -1200,8 +1238,31 @@
      * ========================================================================
      */
     const urlParams = new URLSearchParams(window.location.search);
-    let currentRole = (urlParams.get("role") || "DM").toUpperCase();
-    let currentCampaignCode = (urlParams.get("matricola") || "RAG-001").toUpperCase();
+    let currentCampaignCode = (urlParams.get("camp") || urlParams.get("matricola") || urlParams.get("code") || "RAG-001").toUpperCase();
+
+    // Utente attivo e permessi DM
+    const currentUser = localStorage.getItem("yggdrasill_current_user") || "Guest";
+    const isAdmin = (sessionStorage.getItem("admin_authenticated") === "true") || (currentUser === "admin");
+    let isUserDm = isAdmin;
+
+    try {
+      const dbRaw = localStorage.getItem("yggdrasill_v3_db");
+      if (dbRaw) {
+        const db = JSON.parse(dbRaw);
+        if (db.campaigns && db.campaigns[currentCampaignCode]) {
+          const camp = db.campaigns[currentCampaignCode];
+          if (camp.dmUser === currentUser || isAdmin) {
+            isUserDm = true;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Auth check error:", e);
+    }
+
+    // Se l'utente NON è il DM o root admin, forza assolutamente il ruolo GIOCATORE
+    let requestedRole = (urlParams.get("role") || (isUserDm ? "DM" : "PLAYER")).toUpperCase();
+    let currentRole = isUserDm ? requestedRole : "PLAYER";
 
     const VTT_STATE = {
       campaignCode: currentCampaignCode,
@@ -1330,30 +1391,53 @@
         const raw = localStorage.getItem("yggdrasill_v3_db");
         if (raw) {
           const db = JSON.parse(raw);
-          if (db.users) {
-            Object.values(db.users).forEach(u => {
-              if (u.characters && Array.isArray(u.characters)) {
-                u.characters.forEach(c => {
+          // Isolamento rigoroso per Campagna: mostra solo gli eroi registrati in questa campagna!
+          if (db.campaigns && db.campaigns[currentCampaignCode]) {
+            const camp = db.campaigns[currentCampaignCode];
+            if (camp.members && typeof camp.members === "object") {
+              Object.entries(camp.members).forEach(([uKey, c]) => {
+                if (c) {
                   heroes.push({
-                    id: "pg_" + c.id,
+                    id: "pg_" + (c.id || uKey),
                     type: "hero",
-                    name: c.name,
+                    name: c.name || uKey,
                     className: c.className || "Eroe",
                     clanCrest: c.clanCrest || "assets/clans/Logo-Bear_Warriors.png",
                     img: c.avatar || "assets/heroes/Guerriero.png",
                     hp: c.hp || c.maxHp || 25,
                     maxHp: c.maxHp || 25,
-                    ac: 14,
-                    speed: 30,
-                    owner: u.username || c.owner || "Player"
+                    ac: c.ac || 14,
+                    speed: c.speed || 30,
+                    owner: uKey || c.owner || "Player"
                   });
-                });
-              }
-            });
+                }
+              });
+            }
+          }
+
+          // Se la campagna non ha ancora membri registrati, carica l'eroe dell'utente loggato
+          if (heroes.length === 0 && currentUser && db.users && db.users[currentUser]) {
+            const u = db.users[currentUser];
+            if (u.characters && Array.isArray(u.characters) && u.characters.length > 0) {
+              const c = u.characters[0];
+              heroes.push({
+                id: "pg_" + c.id,
+                type: "hero",
+                name: c.name,
+                className: c.className || "Eroe",
+                clanCrest: c.clanCrest || "assets/clans/Logo-Bear_Warriors.png",
+                img: c.avatar || "assets/heroes/Guerriero.png",
+                hp: c.hp || c.maxHp || 25,
+                maxHp: c.maxHp || 25,
+                ac: c.ac || 14,
+                speed: c.speed || 30,
+                owner: currentUser
+              });
+            }
           }
         }
       } catch (e) {
-        console.warn("Error reading yggdrasill chars:", e);
+        console.warn("Error reading campaign party characters:", e);
       }
       return heroes;
     }
@@ -1893,6 +1977,110 @@
       requestCanvasRepaint();
     }, { passive: false });
 
+    // ========================================================================
+    // GESTIONE TOUCHSCREEN & PINCH-TO-ZOOM SU TABLET E SMARTPHONE
+    // ========================================================================
+    let touchStartDistance = 0;
+    let touchStartZoom = 1;
+    let touchStartPan = { x: 0, y: 0 };
+    let isTouchPanning = false;
+
+    viewport.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const sx = t.clientX - rect.left;
+        const sy = t.clientY - rect.top;
+        const mapPos = screenToMapCoords(sx, sy);
+        currentMouseMapPos = mapPos;
+
+        // Se tocca un token, inizia drag token
+        let touchedToken = null;
+        for (let i = VTT_STATE.tokens.length - 1; i >= 0; i--) {
+          const tok = VTT_STATE.tokens[i];
+          if (Math.hypot(mapPos.x - tok.x, mapPos.y - tok.y) <= 32) {
+            touchedToken = tok;
+            break;
+          }
+        }
+
+        if (touchedToken && (currentRole === "DM" || touchedToken.owner === currentUser)) {
+          draggedToken = touchedToken;
+          tokenDragOrigin = { x: touchedToken.x, y: touchedToken.y };
+          document.getElementById("distance-hud").style.display = "block";
+        } else {
+          isTouchPanning = true;
+          touchStartPan = { x: t.clientX - camera.x, y: t.clientY - camera.y };
+        }
+      } else if (e.touches.length === 2) {
+        isTouchPanning = false;
+        draggedToken = null;
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        touchStartDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        touchStartZoom = camera.zoom;
+      }
+    }, { passive: false });
+
+    viewport.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const sx = t.clientX - rect.left;
+        const sy = t.clientY - rect.top;
+        const mapPos = screenToMapCoords(sx, sy);
+        currentMouseMapPos = mapPos;
+
+        if (draggedToken) {
+          draggedToken.x = mapPos.x;
+          draggedToken.y = mapPos.y;
+          const distPx = Math.hypot(draggedToken.x - tokenDragOrigin.x, draggedToken.y - tokenDragOrigin.y);
+          const gSize = VTT_STATE.grid.size || 50;
+          const squares = Math.round((distPx / gSize) * 10) / 10;
+          currentDragDistFeet = Math.round(squares * 5);
+          document.getElementById("distance-val").textContent = `${currentDragDistFeet} ft (${Math.round(squares)} caselle)`;
+          requestCanvasRepaint();
+        } else if (isTouchPanning) {
+          camera.x = t.clientX - touchStartPan.x;
+          camera.y = t.clientY - touchStartPan.y;
+          requestCanvasRepaint();
+        }
+      } else if (e.touches.length === 2 && touchStartDistance > 0) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const scale = currentDist / touchStartDistance;
+        const newZoom = Math.max(0.15, Math.min(touchStartZoom * scale, 3.5));
+
+        const midX = (t1.clientX + t2.clientX) / 2 - canvas.getBoundingClientRect().left;
+        const midY = (t1.clientY + t2.clientY) / 2 - canvas.getBoundingClientRect().top;
+        camera.x = midX - (midX - camera.x) * (newZoom / camera.zoom);
+        camera.y = midY - (midY - camera.y) * (newZoom / camera.zoom);
+        camera.zoom = newZoom;
+
+        updateZoomLabel();
+        requestCanvasRepaint();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener("touchend", (e) => {
+      if (draggedToken) {
+        const snapped = snapToGrid(draggedToken.x, draggedToken.y);
+        draggedToken.x = snapped.x;
+        draggedToken.y = snapped.y;
+        draggedToken = null;
+        document.getElementById("distance-hud").style.display = "none";
+        saveSessionData();
+        requestCanvasRepaint();
+      }
+      isTouchPanning = false;
+      if (e.touches.length < 2) {
+        touchStartDistance = 0;
+      }
+    });
+
+
     /**
      * ========================================================================
      * 7. OPERAZIONI NEBBIA DI GUERRA
@@ -2077,7 +2265,7 @@
               </div>
             </div>
             <button class="btn-action-sm" onclick="toggleTokenOnMap('${hero.id}')">
-              ${isOnMap ? "❌ Rimuovi" : "➕ Metti su Mappa"}
+              ${isOnMap ? "Rimuovi" : "Metti su Mappa"}
             </button>
           `;
           list.appendChild(row);
@@ -2439,7 +2627,16 @@
      */
     function updateRoleView() {
       const badge = document.getElementById("active-role-badge");
-      const isDm = currentRole === "DM";
+      const switcher = document.getElementById("role-switcher-select");
+      const isDm = (currentRole === "DM" && isUserDm);
+
+      // Solo il DM effettivo o l'Admin può avere accesso al selettore del ruolo
+      if (!isUserDm) {
+        currentRole = "PLAYER";
+        if (switcher) switcher.style.display = "none";
+      } else {
+        if (switcher) switcher.style.display = "";
+      }
 
       badge.textContent = isDm ? "MASTER (DM)" : "GIOCATORE";
       badge.className = "role-badge " + (isDm ? "role-dm" : "role-player");

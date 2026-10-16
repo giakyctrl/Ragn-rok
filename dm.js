@@ -329,6 +329,8 @@ window.renderDmViews = function() {
 
   document.getElementById('dm-ws-title').textContent = camp.title;
   document.getElementById('dm-ws-code').textContent = camp.code;
+  const dmMapLink = document.getElementById('dm-map-link');
+  if (dmMapLink) dmMapLink.href = `mappa.html?camp=${encodeURIComponent(camp.code)}&role=DM`;
 
   const members = Object.entries(camp.members || {});
   const condOptions = ['Normale', 'Avvelenato', 'Stordito', 'Invisibile', 'Spaventato', 'Prono'];

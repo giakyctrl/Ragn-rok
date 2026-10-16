@@ -799,3 +799,48 @@ body {
   100% { box-shadow: 0 0 35px rgba(243, 198, 99, 0.9), 0 0 15px #fb5607; }
 }
 
+
+/* Stili Carte Compatte Immagine & Bordo Rarità */
+.ygo-card.compact-card {
+  position: relative;
+  width: 100% !important;
+  max-width: 175px !important;
+  height: 230px !important;
+  padding: 4px !important;
+  border-radius: 12px;
+  background: #06090e;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ygo-card.compact-card:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+.cards-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+  gap: 12px !important;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .cards-flow-grid {
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .ygo-card.compact-card {
+    height: 165px !important;
+    border-radius: 9px;
+  }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cards-flow-grid {
+    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .ygo-card.compact-card {
+    height: 195px !important;
+  }
+}

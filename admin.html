@@ -21,13 +21,51 @@
 </head>
 <body class="p-4 md:p-6">
 
-  <div class="max-w-7xl mx-auto space-y-6">
+  <!-- MODALE AUTENTICAZIONE ADMIN ROOT (USERNAME: admin / PASSWORD: qwerty) -->
+  <div id="admin-auth-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
+    <div class="admin-card rounded-2xl p-7 max-w-md w-full space-y-5 border-2 border-amber-500/60 shadow-[0_0_50px_rgba(201,160,80,0.35)] animate-modal-pop">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(201,160,80,0.3)]">
+          <svg class="w-9 h-9" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="square">
+            <path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/>
+          </svg>
+        </div>
+        <span class="text-[10px] font-cinzel font-bold text-amber-400 tracking-widest uppercase block">Sede dei Nove Mondi</span>
+        <h2 class="font-cinzel font-black text-xl text-white tracking-wide">Accesso Riservato Root</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">Inserisci le credenziali supreme per accedere alla Consolle di Amministrazione di Ragnarok.</p>
+      </div>
+
+      <form id="admin-login-form" onsubmit="window.handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1 font-cinzel">Nome Utente</label>
+          <input type="text" id="admin-input-user" required autocomplete="username" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="admin">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1 font-cinzel">Password Segreta</label>
+          <input type="password" id="admin-input-pass" required autocomplete="current-password" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm outline-none transition" placeholder="••••••••">
+        </div>
+        <div id="admin-auth-error" class="text-xs text-rose-400 font-bold hidden text-center bg-rose-950/40 p-2 rounded-lg border border-rose-800"></div>
+        <div class="pt-2 flex flex-col gap-2">
+          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-sm tracking-wider shadow-[0_0_20px_rgba(201,160,80,0.4)] transition">
+            ENTRA NELLA CONSOLLE ROOT
+          </button>
+          <a href="index.html" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-xs text-center border border-slate-700 transition">
+            Torna al Portale Giocatori
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-main-content" class="max-w-7xl mx-auto space-y-6 hidden">
 
     <!-- TOP HEADER ADMIN -->
     <header class="admin-card rounded-2xl p-5 flex flex-wrap justify-between items-center gap-4 border-2 border-amber-500/40 shadow-[0_0_25px_rgba(201,160,80,0.2)]">
       <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-inner">
-          👑
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-300 shadow-inner">
+          <svg class="w-7 h-7" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="square">
+            <path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/>
+          </svg>
         </div>
         <div>
           <span class="text-[10px] font-cinzel font-bold text-amber-400 tracking-widest uppercase block">Sede dei Nove Mondi • Accesso Root</span>
@@ -42,11 +80,11 @@
         </button>
 
         <a href="index.html" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-xs border border-slate-700 transition">
-          🛡️ Portale Giocatori
+          <svg class="w-3.5 h-3.5 inline mr-1 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Portale Giocatori
         </a>
 
         <button type="button" onclick="window.adminLogout()" class="px-4 py-2 rounded-xl bg-red-950/60 hover:bg-red-900 border border-red-700/60 text-red-200 font-cinzel font-bold text-xs transition">
-          🚪 Esci da Admin
+          <svg class="w-3.5 h-3.5 inline mr-1 text-red-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Esci da Admin
         </button>
       </div>
     </header>
@@ -54,16 +92,16 @@
     <!-- ADMIN NAV TABS -->
     <nav class="flex flex-wrap gap-2">
       <button type="button" onclick="window.switchAdminTab('cards')" id="tab-btn-cards" class="admin-tab-btn active px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
-        <span>🃏</span> Gestione Carte & Compendio
+        <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Gestione Carte & Compendio
       </button>
       <button type="button" onclick="window.switchAdminTab('campaigns')" id="tab-btn-campaigns" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
-        <span>🏰</span> Gestione Campagne
+        <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l3-3 3 3v14M13 21V7l3-3 3 3v14"/></svg> Gestione Campagne
       </button>
       <button type="button" onclick="window.switchAdminTab('players')" id="tab-btn-players" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
-        <span>👥</span> Gestione Player & Account
+        <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gestione Player & Account
       </button>
       <button type="button" onclick="window.switchAdminTab('system')" id="tab-btn-system" class="admin-tab-btn px-5 py-2.5 rounded-xl font-cinzel text-xs font-bold transition flex items-center gap-2">
-        <span>⚙️</span> Manutenzione & Cloud DB
+        <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Manutenzione & Cloud DB
       </button>
     </nav>
 
@@ -75,7 +113,7 @@
           <p class="text-xs text-slate-400">Visualizza, modifica o crea nuove carte (armi, incantesimi, armature, cimeli) disponibili per tutti i giocatori.</p>
         </div>
         <button type="button" onclick="window.openCreateCardModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs tracking-wider shadow-[0_0_15px_rgba(201,160,80,0.4)] flex items-center gap-2">
-          <span>✨</span> + CREA NUOVA CARTA
+          <svg class="w-4 h-4 text-slate-950 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> CREA NUOVA CARTA
         </button>
       </div>
 
@@ -161,7 +199,7 @@
           <h3 class="font-cinzel font-bold text-red-400">Svuota Intero Database (Wipe)</h3>
           <p class="text-slate-400">Azione irreversibile. Cancella tutte le campagne, utenti e personaggi, mantenendo unicamente l'amministratore.</p>
           <button type="button" onclick="window.adminWipeDatabase()" class="w-full py-2.5 rounded-xl bg-red-700 hover:bg-red-600 font-cinzel font-bold text-xs text-white">
-            ⚠️ SVUOTA DATABASE
+            SVUOTA DEFINITIVAMENTE DATABASE
           </button>
         </div>
       </div>
@@ -323,7 +361,7 @@
       const isMaint = dbState.maintenance === true;
       const stBtn = document.getElementById('admin-status-toggle');
       if (stBtn) {
-        stBtn.textContent = isMaint ? "🔴 SITO BLOCCATO (MANUTENZIONE)" : "🟢 SITO ATTIVO ONLINE";
+        stBtn.textContent = isMaint ? "• SITO BLOCCATO (MANUTENZIONE)" : "🟢 SITO ATTIVO ONLINE";
         stBtn.className = isMaint 
           ? "px-4 py-2 rounded-xl font-cinzel font-black text-xs bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer"
           : "px-4 py-2 rounded-xl font-cinzel font-black text-xs bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] cursor-pointer";
@@ -374,7 +412,7 @@
         return true;
       });
 
-      document.getElementById('card-count-badge').textContent = `${filtered.length} di ${all.length} Carte (${custom.length} Custom)`;
+      document.getElementById('card-count-badge').textContent = `${filtered.length} di ${all.length} Carte`;
 
       const container = document.getElementById('admin-cards-grid');
       if (!container) return;
@@ -385,7 +423,7 @@
           <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')}">
             <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
               <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate">${c.name}</span>
-              ${c.isCustom ? `<span class="text-[8px] px-1 rounded bg-amber-500 text-black font-extrabold">CUSTOM</span>` : `<span class="text-[8px] text-slate-400 font-bold">CANONICA</span>`}
+              
             </div>
 
             <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
@@ -697,7 +735,45 @@
       alert("Database svuotato.");
     };
 
-    initAdmin();
+    
+    // Gestione Autenticazione Root
+    window.handleAdminLogin = function(e) {
+      if (e) e.preventDefault();
+      const u = (document.getElementById('admin-input-user').value || '').trim();
+      const p = (document.getElementById('admin-input-pass').value || '').trim();
+      const validUser = (window.ADMIN_CREDENTIALS && window.ADMIN_CREDENTIALS.username) || "admin";
+      const validPass = (window.ADMIN_CREDENTIALS && window.ADMIN_CREDENTIALS.password) || "qwerty";
+
+      if (u === validUser && p === validPass) {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        document.getElementById('admin-auth-overlay').classList.add('hidden');
+        document.getElementById('admin-main-content').classList.remove('hidden');
+        initAdmin();
+      } else {
+        const err = document.getElementById('admin-auth-error');
+        err.textContent = "Credenziali Amministratore non valide. Accesso negato!";
+        err.classList.remove('hidden');
+      }
+    };
+
+    window.adminLogout = function() {
+      sessionStorage.removeItem('admin_authenticated');
+      localStorage.removeItem('yggdrasill_current_user');
+      window.location.href = "index.html";
+    };
+
+    function checkAdminAuth() {
+      if (sessionStorage.getItem('admin_authenticated') === 'true') {
+        document.getElementById('admin-auth-overlay').classList.add('hidden');
+        document.getElementById('admin-main-content').classList.remove('hidden');
+        initAdmin();
+      } else {
+        document.getElementById('admin-auth-overlay').classList.remove('hidden');
+        document.getElementById('admin-main-content').classList.add('hidden');
+      }
+    }
+
+    checkAdminAuth();
   </script>
 </body>
 </html>
