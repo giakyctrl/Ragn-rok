@@ -1490,7 +1490,7 @@ window.renderDdbSectionContent = function(ch) {
   }
 
   if (window.activeDdbSection === 'actions' || window.activeDdbSection === 'inventory' || window.activeDdbSection === 'spells') {
-    // Auto-idratazione e collegamento immediato per carte prive di ID o descrizione (es. personaggi preesistenti)
+    // Auto-idratazione e collegamento una tantum per carte prive di ID o dati
     if (ch.cards && ch.cards.length > 0) {
       const allDb = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
       let changed = false;
@@ -1499,7 +1499,7 @@ window.renderDdbSectionContent = function(ch) {
           c.id = 'card_inst_' + Date.now() + '_' + idx;
           changed = true;
         }
-        if (!c.desc || !c.damage || c.damage === '—' || !c.img || c.img.includes('undefined')) {
+        if (!c._hydrated) {
           if (typeof window.resolveDatabaseCardForItem === 'function') {
             const matched = window.resolveDatabaseCardForItem(c, allDb);
             if (matched) {
@@ -1513,13 +1513,15 @@ window.renderDdbSectionContent = function(ch) {
               if (matched.img) c.img = matched.img;
               if (matched.desc) c.desc = matched.desc;
               c.canonicalId = matched.canonicalId || matched.id;
-              changed = true;
             }
           }
+          c._hydrated = true;
+          changed = true;
         }
       });
       if (changed) {
-        window.saveDB();
+        try { localStorage.setItem('yggdrasill_v3_db', JSON.stringify(window.dbState)); } catch (e) {}
+        if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch (e) {} }
       }
     }
 
@@ -1557,9 +1559,12 @@ window.renderDdbSectionContent = function(ch) {
 };
 
 window.renderAllViews = function() {
-  if (!window.currentUser || !window.dbState.users[window.currentUser]) return;
-  const account = window.dbState.users[window.currentUser];
-  document.getElementById('top-user-label').textContent = window.isCurrentUserAdmin() ? `Admin: ${account.username}` : `Account: ${account.username}`;
+  if (window._isRenderingViews) return;
+  window._isRenderingViews = true;
+  try {
+    if (!window.currentUser || !window.dbState.users[window.currentUser]) return;
+    const account = window.dbState.users[window.currentUser];
+    document.getElementById('top-user-label').textContent = window.isCurrentUserAdmin() ? `Admin: ${account.username}` : `Account: ${account.username}`;
 
   const chars = account.characters || [];
   const ch = window.getMyCharacter();
@@ -1708,6 +1713,9 @@ window.renderAllViews = function() {
       }).join('');
 
   if (typeof window.renderDmViews === 'function') window.renderDmViews();
+  } finally {
+    window._isRenderingViews = false;
+  }
 };
 
 window.initCloudConnection();
