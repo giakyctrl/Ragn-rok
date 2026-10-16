@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   
   <!-- Dati canonici di Journey to Ragnarok -->
-  <script src="data.js?v=23"></script>
+  <script src="data.js?v=24"></script>
 
   <style>
     :root {
@@ -367,6 +367,53 @@
     .zoom-btn:hover {
       background: var(--gold-primary);
       color: #080b11;
+    }
+
+    /* QUICK FLOATING DICE BAR (STILE D&D BEYOND VTT) */
+    .vtt-quick-dice-bar {
+      position: fixed;
+      bottom: 20px;
+      right: 68px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(13, 18, 28, 0.94);
+      border: 1px solid rgba(201, 160, 80, 0.45);
+      border-radius: 30px;
+      padding: 4px 10px;
+      z-index: 80;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 10px rgba(201, 160, 80, 0.2);
+    }
+    .qdice-btn {
+      background: rgba(22, 30, 46, 0.9);
+      border: 1px solid rgba(201, 160, 80, 0.35);
+      color: var(--gold-bright);
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .qdice-btn:hover {
+      background: var(--gold-primary);
+      color: #080b11;
+      transform: scale(1.15) translateY(-2px);
+      box-shadow: 0 0 12px rgba(245, 208, 118, 0.5);
+    }
+    .qdice-btn.d20-btn {
+      background: linear-gradient(135deg, rgba(201, 160, 80, 0.35) 0%, rgba(245, 208, 118, 0.25) 100%);
+      border-color: var(--gold-bright);
+      color: #ffffff;
+      font-weight: 900;
+      width: 35px;
+      height: 35px;
     }
 
     #zoom-level-label {
@@ -1307,12 +1354,24 @@
     </div>
   </div>
 
-  <!-- ZOOM HUD IN BASSO A SINISTRA -->
+  <!-- ZOOM HUD & BUSSOLA IN BASSO A SINISTRA -->
   <div id="zoom-controls">
     <button class="zoom-btn" id="btn-zoom-out" title="Riduci">-</button>
     <span id="zoom-level-label">100%</span>
     <button class="zoom-btn" id="btn-zoom-in" title="Ingrandisci">+</button>
     <button class="zoom-btn" id="btn-zoom-reset" style="width:auto; padding:0 6px; font-size:0.72rem;" title="Adatta allo Schermo">FIT</button>
+    <button class="zoom-btn" id="btn-compass-center" onclick="fitMapToScreen()" title="Bussola • Centra Mappa &amp; Reset Camera">🧭</button>
+  </div>
+
+  <!-- QUICK FLOATING DICE BAR (STILE D&D BEYOND) -->
+  <div id="vtt-quick-dice-bar" class="vtt-quick-dice-bar" title="Vaschetta Dadi Rapidi (D&amp;D Beyond)">
+    <button type="button" class="qdice-btn" onclick="quickRollDie(4)" title="Lancia d4">d4</button>
+    <button type="button" class="qdice-btn" onclick="quickRollDie(6)" title="Lancia d6">d6</button>
+    <button type="button" class="qdice-btn" onclick="quickRollDie(8)" title="Lancia d8">d8</button>
+    <button type="button" class="qdice-btn" onclick="quickRollDie(10)" title="Lancia d10">d10</button>
+    <button type="button" class="qdice-btn" onclick="quickRollDie(12)" title="Lancia d12">d12</button>
+    <button type="button" class="qdice-btn d20-btn" onclick="quickRollDie(20)" title="Lancia d20">d20</button>
+    <button type="button" class="qdice-btn" onclick="quickRollDie(100)" title="Lancia d100">d100</button>
   </div>
 
   <!-- HUD DISTANZA MOVIMENTO -->
@@ -1715,34 +1774,34 @@
       { id: "yggdrasill_9worlds", act: "Atto 0", title: "Atto 0 - I Nove Mondi (Yggdrasill)", type: "cosmic", scale: "Cosmica", file: "assets/maps/yggdrasill_9worlds.jpg", grid: "none", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 100 },
       { id: "midgardr_full", act: "Atto I", title: "Atto I - Midgardr: Terre del Nord", type: "world", scale: "1 Hex = 500 Miglia", file: "assets/maps/midgardr_full.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
       { id: "norvegr_regional", act: "Atto I", title: "Atto I - Norvegr: Costa dei Fiordi", type: "regional", scale: "Regionale", file: "assets/maps/norvegr_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_shipyard", act: "Atto I", title: "Atto I - Cantiere Navale & Porto", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_shipyard.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_shipyard", act: "Atto I", title: "Atto I - Cantiere Navale & Porto", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_shipyard.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
       { id: "snowy_mountains_regional", act: "Atto I", title: "Atto I - Le Montagne Innevate", type: "regional", scale: "Regionale", file: "assets/maps/snowy_mountains_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_bandit_camp", act: "Atto I", title: "Atto I - Accampamento di Guthrum", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_bandit_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
-      { id: "battle_mountain_pass", act: "Atto I", title: "Atto I - Il Sentiero tra i Ghiacci", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_mountain_pass.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_bandit_camp", act: "Atto I", title: "Atto I - Accampamento di Guthrum", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_bandit_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
+      { id: "battle_mountain_pass", act: "Atto I", title: "Atto I - Il Sentiero tra i Ghiacci", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_mountain_pass.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
       
       { id: "svitjod_regional", act: "Atto II", title: "Atto II - Svitjod: Pianure e Foreste", type: "regional", scale: "Regionale", file: "assets/maps/svitjod_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_svitjod_camp", act: "Atto II", title: "Atto II - Radura dei Clan di Svitjod", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svitjod_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
-      { id: "battle_uppsala_temple", act: "Atto II", title: "Atto II - Tempio Sacro di Uppsala", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_uppsala_temple.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_svitjod_camp", act: "Atto II", title: "Atto II - Radura dei Clan di Svitjod", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_svitjod_camp.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
+      { id: "battle_uppsala_temple", act: "Atto II", title: "Atto II - Tempio Sacro di Uppsala", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_uppsala_temple.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
       { id: "fenmark_swamp_regional", act: "Atto II", title: "Atto II - Fenmark: La Grande Palude", type: "regional", scale: "Regionale", file: "assets/maps/fenmark_swamp_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_fenmark_ruins", act: "Atto II", title: "Atto II - Rovine nella Palude di Fenmark", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_fenmark_ruins.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_fenmark_ruins", act: "Atto II", title: "Atto II - Rovine nella Palude di Fenmark", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_fenmark_ruins.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
       { id: "jutland_regional", act: "Atto II", title: "Atto II - Jutland: Penisola dei Re", type: "regional", scale: "Regionale", file: "assets/maps/jutland_regional.jpg", grid: "square", gridSize: 45, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_danevirke_wall", act: "Atto II", title: "Atto II - Il Vallo di Danevirke", type: "battle", scale: "1 Quad = 5 ft", file: "assets/maps/battle_danevirke_wall.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
-      { id: "battle_jutland_keep", act: "Atto II", title: "Atto II - Insediamento Fortificato dello Jarl", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_jutland_keep.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
+      { id: "battle_danevirke_wall", act: "Atto II", title: "Atto II - Il Vallo di Danevirke", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_danevirke_wall.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
+      { id: "battle_jutland_keep", act: "Atto II", title: "Atto II - Insediamento Fortificato dello Jarl", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_jutland_keep.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
 
       { id: "niflheimr_realm", act: "Atto III", title: "Atto III - Niflheimr: Fiumi Gjoll e Gelo Primordiale", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/niflheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
       { id: "helheimr_realm", act: "Atto III", title: "Atto III - Helheimr: Regno dei Morti", type: "realm", scale: "1 Hex = 100 Miglia", file: "assets/maps/helheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 100 },
 
       { id: "asgardr_realm", act: "Atto IV", title: "Atto IV - Asgardr: Dimora degli Dei", type: "realm", scale: "1 Hex = 200 Miglia", file: "assets/maps/asgardr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 200 },
       { id: "svartalfheimr_realm", act: "Atto IV", title: "Atto IV - Svartalfheimr: Miniere e Caverne dei Nani", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/svartalfheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
-      { id: "battle_svartalfheimr_city", act: "Atto IV", title: "Atto IV - Svartalfheimr: La Città Sotterranea", type: "battle", scale: "1 Quad = 15 ft", file: "assets/maps/battle_svartalfheimr_city.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 15 },
-      { id: "battle_pillars_of_gods", act: "Atto IV", title: "Atto IV - Sala delle Colonne Runiche", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_pillars_of_gods.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 10 },
+      { id: "battle_svartalfheimr_city", act: "Atto IV", title: "Atto IV - Svartalfheimr: La Città Sotterranea", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_svartalfheimr_city.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
+      { id: "battle_pillars_of_gods", act: "Atto IV", title: "Atto IV - Sala delle Colonne Runiche", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_pillars_of_gods.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 },
 
       { id: "ljosalfheimr_realm", act: "Atto V", title: "Atto V - Ljosalfheimr: Regno degli Elfi di Luce", type: "realm", scale: "1 Hex = 50 Miglia", file: "assets/maps/ljosalfheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 50 },
       { id: "vanaheimr_realm", act: "Atto V", title: "Atto V - Vanaheimr: Terre dei Saggi Vani", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/vanaheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
       { id: "jotunheimr_realm", act: "Atto V", title: "Atto V - Jotunheimr: Terra dei Giganti del Gelo", type: "realm", scale: "1 Hex = 500 Miglia", file: "assets/maps/jotunheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 500 },
 
       { id: "muspellsheimr_realm", act: "Atto Finale", title: "Atto Finale - Muspellsheimr: Mare di Fiamme e Lava", type: "realm", scale: "1 Hex = 250 Miglia", file: "assets/maps/muspellsheimr_realm.jpg", grid: "hex", gridSize: 50, gridOffsetX: 0, gridOffsetY: 0, scaleFeet: 250 },
-      { id: "battle_muspellsheimr_lava", act: "Atto Finale", title: "Atto Finale - Fiume di Lava e Sigilli", type: "battle", scale: "1 Quad = 10 ft", file: "assets/maps/battle_muspellsheimr_lava.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 10 }
+      { id: "battle_muspellsheimr_lava", act: "Atto Finale", title: "Atto Finale - Fiume di Lava e Sigilli", type: "battle", scale: "1 Quad = 5 ft (1.5m)", file: "assets/maps/battle_muspellsheimr_lava.jpg", grid: "square", gridSize: 24.35, gridOffsetX: 10.5, gridOffsetY: 3.5, scaleFeet: 5 }
     ];
 
     /**
@@ -2958,11 +3017,11 @@
         const distPx = Math.hypot(draggedToken.x - tokenDragOrigin.x, draggedToken.y - tokenDragOrigin.y);
         const gSize = VTT_STATE.grid.size || 24.35;
         const squares = Math.round((distPx / gSize) * 10) / 10;
-        const scaleFeet = VTT_STATE.grid.scaleFeet || 15;
+        const scaleFeet = VTT_STATE.grid.scaleFeet || 5;
         currentDragDistFeet = Math.round(squares * scaleFeet);
-        const currentDragDistMeters = Math.round(currentDragDistFeet * 0.3 * 10) / 10;
+        const currentDragDistMeters = Math.round(currentDragDistFeet * 0.3048 * 10) / 10;
 
-        document.getElementById("distance-val").textContent = `${currentDragDistMeters}m (${currentDragDistFeet} ft) • ${squares} quad`;
+        document.getElementById("distance-val").textContent = `${currentDragDistMeters}m (${currentDragDistFeet} ft) • ${squares.toFixed(1)} quad`;
         requestCanvasRepaint();
         return;
       }
@@ -3084,10 +3143,12 @@
           draggedToken.x = mapPos.x;
           draggedToken.y = mapPos.y;
           const distPx = Math.hypot(draggedToken.x - tokenDragOrigin.x, draggedToken.y - tokenDragOrigin.y);
-          const gSize = VTT_STATE.grid.size || 50;
+          const gSize = VTT_STATE.grid.size || 24.35;
           const squares = Math.round((distPx / gSize) * 10) / 10;
-          currentDragDistFeet = Math.round(squares * 5);
-          document.getElementById("distance-val").textContent = `${currentDragDistFeet} ft (${Math.round(squares)} caselle)`;
+          const scaleFeet = VTT_STATE.grid.scaleFeet || 5;
+          currentDragDistFeet = Math.round(squares * scaleFeet);
+          const currentDragDistMeters = Math.round(currentDragDistFeet * 0.3048 * 10) / 10;
+          document.getElementById("distance-val").textContent = `${currentDragDistMeters}m (${currentDragDistFeet} ft) • ${squares.toFixed(1)} quad`;
           requestCanvasRepaint();
         } else if (isTouchPanning) {
           camera.x = t.clientX - touchStartPan.x;
@@ -3265,13 +3326,23 @@
       document.getElementById("active-map-type-icon").textContent = typeIcons[mapMeta.type] || "🗺️";
 
       // Carica calibrazione specifica salvata per questa mappa o preset da catalogo
+      let loadedGrid = false;
       const savedMapGrid = localStorage.getItem(`grid_${currentCampaignCode}_${mapId}`);
       if (savedMapGrid) {
         try {
           const parsed = JSON.parse(savedMapGrid);
+          // Se la mappa è una battlemap e il size salvato è obsoleto (>35), reimposta il preset preciso
+          if (mapMeta.type === "battle" && parsed.size && parsed.size > 35) {
+            parsed.size = mapMeta.gridSize || 24.35;
+            parsed.offsetX = mapMeta.gridOffsetX !== undefined ? mapMeta.gridOffsetX : 10.5;
+            parsed.offsetY = mapMeta.gridOffsetY !== undefined ? mapMeta.gridOffsetY : 3.5;
+            parsed.scaleFeet = 5;
+          }
           Object.assign(VTT_STATE.grid, parsed);
+          loadedGrid = true;
         } catch(e) {}
-      } else if (mapMeta) {
+      }
+      if (!loadedGrid && mapMeta) {
         if (mapMeta.gridSize) VTT_STATE.grid.size = mapMeta.gridSize;
         if (mapMeta.gridOffsetX !== undefined) VTT_STATE.grid.offsetX = mapMeta.gridOffsetX;
         if (mapMeta.gridOffsetY !== undefined) VTT_STATE.grid.offsetY = mapMeta.gridOffsetY;
@@ -3282,6 +3353,14 @@
           VTT_STATE.grid.enabled = true;
         }
       }
+
+      // Sincronizza i controlli della toolbar
+      const sizeInput = document.getElementById("grid-cell-size");
+      const sizeNum = document.getElementById("grid-size-num");
+      if (sizeInput) sizeInput.value = VTT_STATE.grid.size;
+      if (sizeNum) sizeNum.textContent = Number(VTT_STATE.grid.size).toFixed(2);
+      const opInput = document.getElementById("grid-cell-opacity");
+      if (opInput) opInput.value = VTT_STATE.grid.opacity;
 
       loadActiveMapTexture();
       renderMapsGallery();
@@ -3605,6 +3684,32 @@
       if (VTT_STATE.diceLog.length > 25) VTT_STATE.diceLog.pop();
       saveSessionData();
       renderDiceLog();
+      showDiceBanner(rollItem);
+    }
+    window.rollDie = rollDie;
+
+    function quickRollDie(faces) {
+      rollDie(faces);
+    }
+    window.quickRollDie = quickRollDie;
+
+    function showDiceBanner(rollItem) {
+      let toast = document.getElementById("vtt-dice-toast");
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "vtt-dice-toast";
+        toast.style.cssText = "position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:100; background:rgba(13,18,28,0.95); border:2px solid var(--gold-bright); border-radius:16px; padding:8px 20px; color:#fff; font-family:'Cinzel',serif; box-shadow:0 0 25px rgba(245,208,118,0.4); pointer-events:none; display:flex; align-items:center; gap:12px; transition:all 0.3s ease;";
+        document.body.appendChild(toast);
+      }
+      const critClass = rollItem.isCrit ? "color:#4ade80; font-weight:900;" : rollItem.isFumble ? "color:#f87171; font-weight:900;" : "color:var(--gold-bright);";
+      toast.innerHTML = `<span style="font-size:1.4rem;">🎲</span><div><span style="font-size:0.75rem; color:#94a3b8; display:block;">${rollItem.user} ha lanciato ${rollItem.formula}</span><strong style="font-size:1.15rem; ${critClass}">Risultato: ${rollItem.result} ${rollItem.isCrit ? '💥 CRITICO!' : rollItem.isFumble ? '💀 FALLIMENTO CRITICO!' : ''}</strong></div>`;
+      toast.style.opacity = "1";
+      toast.style.transform = "translateX(-50%) translateY(0)";
+      clearTimeout(window._diceToastTimeout);
+      window._diceToastTimeout = setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(-50%) translateY(-15px)";
+      }, 2500);
     }
 
     function rollAdvantage(isAdv) {
@@ -3827,7 +3932,9 @@
       e.target.textContent = "Snap: " + (VTT_STATE.grid.snap ? "ON" : "OFF");
     };
     document.getElementById("grid-cell-size").addEventListener("input", (e) => {
-      VTT_STATE.grid.size = parseInt(e.target.value);
+      VTT_STATE.grid.size = parseFloat(e.target.value);
+      const sizeNum = document.getElementById("grid-size-num");
+      if (sizeNum) sizeNum.textContent = VTT_STATE.grid.size.toFixed(2);
       requestCanvasRepaint();
     });
     document.getElementById("grid-cell-opacity").addEventListener("input", (e) => {

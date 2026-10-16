@@ -1523,11 +1523,312 @@ window.renderDdbSectionContent = function(ch) {
     }
 
     const currentCards = ch.cards || [];
-    const sectionCards = currentCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
-    body.innerHTML = sectionCards.length === 0
-      ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna carta in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti, rune e incantesimi!</div>`
-      : `<div class="cards-flow-grid py-2 px-1">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
-    return;
+
+    // ========================================================================
+    // 1. SEZIONE AZIONI ED ATTACCHI (ARMI & MANOVRE)
+    // ========================================================================
+    if (window.activeDdbSection === 'actions') {
+      const actionCards = currentCards.filter(c => window.classifyCardToDdbSection(c) === 'actions');
+      body.innerHTML = actionCards.length === 0
+        ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna arma o azione disponibile. Il DM o la Forgia possono assegnarti armi e attacchi leggendari!</div>`
+        : `<div class="cards-flow-grid py-2 px-1">${actionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
+      return;
+    }
+
+    // ========================================================================
+    // 2. SEZIONE INVENTARIO CON 4 SLOT ARMATURA (ELMO, BUSTO, GAMBE, PIEDI)
+    // ========================================================================
+    if (window.activeDdbSection === 'inventory') {
+      if (!ch.equippedArmor) {
+        ch.equippedArmor = { head: null, chest: null, legs: null, feet: null };
+      }
+      if (typeof window.recalculateCharacterAC === 'function') {
+        window.recalculateCharacterAC(ch);
+      }
+
+      const activeCamp = window.dbState.campaigns && Object.values(window.dbState.campaigns).find(c => c.members && c.members[window.currentUser]);
+      const marketCount = (activeCamp && activeCamp.market && activeCamp.market.length) || 0;
+      const myGold = ch.gold !== undefined ? ch.gold : 50;
+
+      const armorSlotDefs = [
+        { key: 'head', name: 'Elmo (Testa)', icon: '🪖', desc: 'Protezione cranica, corone o spangenhelm' },
+        { key: 'chest', name: 'Busto (Corazza)', icon: '🛡️', desc: 'Corazza di scaglie, piastre o cuoio' },
+        { key: 'legs', name: 'Gambe (Schinieri)', icon: '👖', desc: 'Schinieri d\'acciaio, bronzo o pelliccia' },
+        { key: 'feet', name: 'Piedi (Stivali)', icon: '👢', desc: 'Stivali delle terre d\'inverno o falcate' }
+      ];
+
+      const slotsHTML = armorSlotDefs.map(def => {
+        const eqCardRef = ch.equippedArmor[def.key];
+        let eqCard = null;
+        if (eqCardRef) {
+          eqCard = currentCards.find(c => c.id === eqCardRef || c.canonicalId === eqCardRef) || (typeof eqCardRef === 'object' ? eqCardRef : null);
+        }
+
+        if (eqCard) {
+          const art = eqCard.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[eqCard.type]) || 'assets/items/spada_ulfberht.jpg';
+          return `
+            <div class="norse-panel rounded-xl p-3 border-2 border-emerald-500/50 bg-slate-950/80 space-y-2 flex flex-col justify-between shadow-lg relative group">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                <span class="text-[10px] font-cinzel font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <span>${def.icon}</span> ${def.name}
+                </span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 uppercase">INDOSSATO</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <img src="${art}" onclick="window.openCardDetailModal('${eqCard.id || eqCard.canonicalId}')" class="w-12 h-16 rounded-lg object-cover border border-emerald-400/60 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+                <div class="min-w-0 flex-1 space-y-0.5">
+                  <h4 class="font-cinzel font-bold text-xs text-white truncate cursor-pointer hover:text-amber-300" onclick="window.openCardDetailModal('${eqCard.id || eqCard.canonicalId}')">${eqCard.name}</h4>
+                  <p class="text-[10px] text-amber-300 font-mono font-bold">${eqCard.damage || '+1 CA'}</p>
+                  <p class="text-[9px] text-slate-400 truncate">${eqCard.rarity || 'Comune'}</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-800/80">
+                <button type="button" onclick="window.openCardDetailModal('${eqCard.id || eqCard.canonicalId}')" class="py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 text-[10px] font-cinzel font-bold border border-slate-700 text-center">
+                  🔍 Dettagli
+                </button>
+                <button type="button" onclick="window.unequipArmorSlot('${def.key}')" class="py-1 px-2 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-300 text-[10px] font-cinzel font-bold text-center">
+                  ✖️ Togli
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div onclick="window.openArmorSlotPickerModal('${def.key}')" class="norse-panel rounded-xl p-3 border-2 border-dashed border-slate-700 hover:border-amber-400/80 bg-slate-950/40 space-y-2 flex flex-col justify-between cursor-pointer group transition duration-200">
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+                <span class="text-[10px] font-cinzel font-bold uppercase tracking-wider text-slate-400 group-hover:text-amber-300 flex items-center gap-1.5">
+                  <span>${def.icon}</span> ${def.name}
+                </span>
+                <span class="text-[9px] text-slate-500 font-mono">VUOTO</span>
+              </div>
+              <div class="py-3 flex flex-col items-center justify-center text-center space-y-1 text-slate-400 group-hover:text-slate-200">
+                <div class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-amber-400 group-hover:scale-110 transition font-bold text-base">+</div>
+                <span class="text-[10px] font-bold">Equipaggia da Inventario</span>
+              </div>
+              <p class="text-[9px] text-slate-500 text-center truncate">${def.desc}</p>
+            </div>
+          `;
+        }
+      }).join('');
+
+      const invCards = currentCards.filter(c => window.classifyCardToDdbSection(c) === 'inventory');
+
+      body.innerHTML = `
+        <div class="space-y-4 animate-section-fade text-xs">
+          <!-- 4 SLOT ARMATURA DEDICATI -->
+          <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3 shadow-xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/30 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🛡️</span>
+                <div>
+                  <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Slot Armatura & Protezione Corporea</h3>
+                  <p class="text-[10px] text-slate-400">Seleziona le carte dal tuo inventario per equipaggiarle nei 4 slot e aggiornare la tua Classe Armatura (CA: <strong class="text-white">${ch.ac || 14}</strong>).</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-400/40 text-[10px] font-mono text-amber-300 font-bold">4 Slot Disponibili</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              ${slotsHTML}
+            </div>
+          </div>
+
+          <!-- BANNER VALUTA & BAZAR COMMERCIO -->
+          <div class="norse-panel rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 border border-amber-500/40 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-950 shadow-lg">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-xl shrink-0">💰</div>
+              <div>
+                <span class="text-[10px] font-cinzel uppercase text-slate-400 block font-bold">Patrimonio del Guerriero (Hacksilver)</span>
+                <strong class="font-mono text-sm text-amber-300">${myGold} Monete d'Oro (mo)</strong>
+              </div>
+            </div>
+            <button type="button" onclick="window.openPlayerMarketModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-xs transition flex items-center gap-1.5 shadow-md">
+              🛒 Visita Bazar del DM (${marketCount} merci)
+            </button>
+          </div>
+
+          <!-- TUTTI GLI OGGETTI & RELIQUIE NELL'INVENTARIO -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between px-1">
+              <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Tutte le Merci &amp; Oggetti nell'Inventario (${invCards.length})</h4>
+              <span class="text-[10px] text-slate-400">Clicca su una carta per ispezionarla</span>
+            </div>
+            ${invCards.length === 0
+              ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400">Nessun oggetto nell'inventario. Visita il Bazar del DM o apri le casse del dungeon!</div>`
+              : `<div class="cards-flow-grid py-2 px-1">
+                  ${invCards.map(c => {
+                    let equippedBadge = '';
+                    const equippedSlotKey = Object.keys(ch.equippedArmor || {}).find(k => ch.equippedArmor[k] === c.id || ch.equippedArmor[k] === c.canonicalId);
+                    if (equippedSlotKey) {
+                      const slotLabel = equippedSlotKey === 'head' ? 'Elmo' : equippedSlotKey === 'chest' ? 'Busto' : equippedSlotKey === 'legs' ? 'Gambe' : 'Piedi';
+                      equippedBadge = `<div class="mb-1 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400 font-bold text-[9px] uppercase tracking-wider">🛡️ INDOSSATO [${slotLabel}]</span></div>`;
+                    }
+                    return `<div class="flex flex-col">${equippedBadge}${window.buildYgoCardHTML(c, true)}</div>`;
+                  }).join('')}
+                </div>`
+            }
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // ========================================================================
+    // 3. SEZIONE INCANTESIMI & RUNE CON SISTEMA INCANTESIMI ATTIVI / PREPARATI
+    // ========================================================================
+    if (window.activeDdbSection === 'spells') {
+      if (!ch.preparedSpells) ch.preparedSpells = [];
+
+      // Calcolo abilità da incantatore
+      const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
+      const intMod = Math.floor(((stats.INT || 10) - 10) / 2);
+      const sagMod = Math.floor(((stats.SAG || 10) - 10) / 2);
+      const carMod = Math.floor(((stats.CAR || 10) - 10) / 2);
+
+      const cls = (ch.className || '').toLowerCase();
+      let spellMod = intMod;
+      if (cls.includes('chieric') || cls.includes('gothi') || cls.includes('druid') || cls.includes('ranger')) {
+        spellMod = sagMod;
+      } else if (cls.includes('bard') || cls.includes('skald') || cls.includes('stregon') || cls.includes('warlock') || cls.includes('paladin')) {
+        spellMod = carMod;
+      } else {
+        spellMod = Math.max(intMod, sagMod, carMod);
+      }
+      const maxPrepared = Math.max(1, (ch.level || 1) + Math.max(0, spellMod));
+
+      const allSpells = currentCards.filter(c => window.classifyCardToDdbSection(c) === 'spells');
+
+      const isCantrip = (c) => {
+        const typeStr = (c.type || '').toLowerCase();
+        const nameStr = (c.name || '').toLowerCase();
+        const descStr = (c.desc || '').toLowerCase();
+        return c.level === 0 || typeStr.includes('trucchetto') || nameStr.includes('trucchetto') || nameStr.includes('runa minore') || descStr.includes('trucchetto');
+      };
+
+      const cantrips = allSpells.filter(isCantrip);
+      const leveledSpells = allSpells.filter(c => !isCantrip(c));
+
+      const isPrepared = (c) => ch.preparedSpells.includes(c.id) || (c.canonicalId && ch.preparedSpells.includes(c.canonicalId));
+      const preparedList = leveledSpells.filter(isPrepared);
+      const unpreparedList = leveledSpells.filter(c => !isPrepared(c));
+
+      body.innerHTML = `
+        <div class="space-y-4 animate-section-fade text-xs">
+          <!-- BANNER GESTIONE INCANTESIMI PREPARATI -->
+          <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-2.5 shadow-xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/30 pb-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">⚡</span>
+                <div>
+                  <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Incantesimi & Rune Preparate per il Combattimento</h3>
+                  <p class="text-[10px] text-slate-400">Un incantatore non può lanciare magie a casaccio: seleziona gli incantesimi attivi dal tuo Grimorio. I Trucchetti e le Rune Minori sono sempre pronti.</p>
+                </div>
+              </div>
+              <div class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center gap-2 shadow">
+                <span class="text-[10px] font-cinzel font-bold text-slate-300">Preparati:</span>
+                <strong class="font-mono text-sm text-amber-300 font-bold">${preparedList.length} / ${maxPrepared}</strong>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+              <span>Capacità di Preparazione: Livello (${ch.level || 1}) + Mod. Incantatore (${spellMod >= 0 ? '+' + spellMod : spellMod}) = <strong>${maxPrepared} incantesimi attivi</strong></span>
+              <span class="${preparedList.length >= maxPrepared ? 'text-amber-400 font-bold' : 'text-emerald-400'}">
+                ${preparedList.length >= maxPrepared ? '⚠️ Massimo raggiunto' : `${maxPrepared - preparedList.length} slot liberi`}
+              </span>
+            </div>
+          </div>
+
+          <!-- SEZIONE 1: INCANTESIMI ATTIVI (TRUCCHETTI + PREPARATI) -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between px-1">
+              <h4 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🔥</span> Incantesimi &amp; Rune Attivi (Pronti al Lancio) [${cantrips.length + preparedList.length}]
+              </h4>
+              <span class="text-[10px] text-slate-400">Clicca "Lancia Incantesimo" per scatenare la magia</span>
+            </div>
+
+            ${(cantrips.length + preparedList.length) === 0
+              ? `<div class="norse-panel rounded-2xl p-6 text-center text-xs text-slate-400">Nessun incantesimo attivo. Prepara le tue magie dal Grimorio sottostante!</div>`
+              : `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  ${cantrips.map(c => `
+                    <div class="norse-panel rounded-xl p-3 border border-sky-400/50 bg-slate-950/80 flex gap-3 items-center shadow-lg">
+                      <img src="${c.img || window.CARD_ARTWORKS.incantesimo}" onclick="window.openCardDetailModal('${c.id}')" class="w-14 h-20 rounded-lg object-cover border border-sky-400 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+                      <div class="flex-1 min-w-0 space-y-1">
+                        <div class="flex justify-between items-start">
+                          <h4 class="font-cinzel font-bold text-xs text-sky-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${c.id}')">${c.name}</h4>
+                          <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-400 font-bold uppercase">TRUCCHETTO</span>
+                        </div>
+                        <p class="text-[10px] text-amber-300 font-mono font-bold">${c.damage || '1d10 o Effetto'}</p>
+                        <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
+                        <div class="pt-1 flex gap-2">
+                          <button type="button" onclick="window.castSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-cinzel font-bold text-[10px] shadow transition">
+                            ✨ Lancia Magia
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+
+                  ${preparedList.map(c => `
+                    <div class="norse-panel rounded-xl p-3 border-2 border-amber-400/70 bg-slate-950/90 flex gap-3 items-center shadow-[0_0_15px_rgba(245,208,118,0.2)]">
+                      <img src="${c.img || window.CARD_ARTWORKS.incantesimo}" onclick="window.openCardDetailModal('${c.id}')" class="w-14 h-20 rounded-lg object-cover border border-amber-400 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+                      <div class="flex-1 min-w-0 space-y-1">
+                        <div class="flex justify-between items-start">
+                          <h4 class="font-cinzel font-bold text-xs text-amber-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${c.id}')">${c.name}</h4>
+                          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400 font-bold uppercase">⚡ PREPARATO</span>
+                        </div>
+                        <p class="text-[10px] text-amber-300 font-mono font-bold">${c.damage || 'Effetto Magico'}</p>
+                        <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
+                        <div class="pt-1 flex gap-2">
+                          <button type="button" onclick="window.castSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] shadow transition">
+                            ✨ Lancia Magia
+                          </button>
+                          <button type="button" onclick="window.togglePrepareSpell('${c.id}')" class="py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-cinzel font-bold border border-slate-700">
+                            Disattiva
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>`
+            }
+          </div>
+
+          <!-- SEZIONE 2: GRIMORIO COMPLETO / RUNE NON PREPARATE -->
+          <div class="space-y-2.5 pt-2">
+            <div class="flex items-center justify-between px-1 border-t border-slate-800 pt-3">
+              <h4 class="font-cinzel font-bold text-xs text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>📜</span> Grimorio &amp; Rune Apprese (Inattive) [${unpreparedList.length}]
+              </h4>
+              <span class="text-[10px] text-slate-400">Clicca "Prepara" per renderle attive in battaglia</span>
+            </div>
+
+            ${unpreparedList.length === 0
+              ? `<div class="norse-panel rounded-2xl p-4 text-center text-xs text-slate-400">Tutti gli incantesimi del tuo Grimorio sono attualmente preparati!</div>`
+              : `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  ${unpreparedList.map(c => `
+                    <div class="norse-panel rounded-xl p-3 border border-slate-800 hover:border-slate-700 bg-slate-950/60 flex gap-3 items-center opacity-85 hover:opacity-100 transition">
+                      <img src="${c.img || window.CARD_ARTWORKS.incantesimo}" onclick="window.openCardDetailModal('${c.id}')" class="w-14 h-20 rounded-lg object-cover border border-slate-700 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+                      <div class="flex-1 min-w-0 space-y-1">
+                        <div class="flex justify-between items-start">
+                          <h4 class="font-cinzel font-bold text-xs text-white truncate cursor-pointer hover:text-amber-300" onclick="window.openCardDetailModal('${c.id}')">${c.name}</h4>
+                          <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold uppercase">Nel Grimorio</span>
+                        </div>
+                        <p class="text-[10px] text-slate-300 font-mono">${c.damage || 'Effetto'}</p>
+                        <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
+                        <div class="pt-1 flex gap-2">
+                          <button type="button" onclick="window.togglePrepareSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px] border border-amber-500/30 shadow transition">
+                            ⚡ Prepara / Rendi Attivo
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>`
+            }
+          </div>
+        </div>
+      `;
+      return;
+    }
   }
 
   if (window.activeDdbSection === 'defenses') {
@@ -1915,8 +2216,11 @@ window.renderDdbSectionContent = function(ch) {
           </div>
           <div class="norse-panel rounded-2xl p-3.5 space-y-1 text-center">
             <span class="text-[10px] font-cinzel uppercase text-emerald-400 font-bold block">Oro & Argento (Hacksilver)</span>
-            <strong class="font-mono text-sm text-amber-300 block">${ch.gold || 15} Monete d'Oro</strong>
+            <strong class="font-mono text-sm text-amber-300 block">${ch.gold !== undefined ? ch.gold : 50} Monete d'Oro (mo)</strong>
             <p class="text-[10px] text-slate-400 leading-snug">Bracciali d'argento spezzato e monete coniate dai re del Nord.</p>
+            <button type="button" onclick="window.openPlayerMarketModal()" class="mt-2 w-full py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] transition flex items-center justify-center gap-1 shadow">
+              ⚖️ Apri Bazar del Party
+            </button>
           </div>
         </div>
 
@@ -2217,7 +2521,13 @@ window.renderAllViews = function() {
     hpLabelEl.style.color = curHpColor;
 
     const desMod = Math.floor(((ch.stats?.DES || 10) - 10) / 2);
-    document.getElementById('sheet-ac').textContent = ch.ac || 14;
+    if (typeof window.recalculateCharacterAC === 'function') {
+      window.recalculateCharacterAC(ch);
+    } else {
+      document.getElementById('sheet-ac').textContent = ch.ac || 14;
+    }
+    const goldValEl = document.getElementById('sheet-gold-val');
+    if (goldValEl) goldValEl.textContent = ch.gold !== undefined ? ch.gold : 50;
     document.getElementById('sheet-init').textContent = desMod >= 0 ? `+${desMod}` : desMod;
     const speedEl = document.getElementById('sheet-speed');
     if (speedEl) speedEl.textContent = ch.speed || '9m';
@@ -2467,6 +2777,426 @@ window.rollCompanionAttack = function(compName, atkName, bonus, dmgFormula) {
   const d20 = Math.floor(Math.random() * 20) + 1;
   const total = d20 + bonus;
   alert(`⚔️ ${compName} esegue ${atkName}!\nTiro per Colpire: 1d20+${bonus} = ${total} (Dado: ${d20})\nDanno inflitto: ${dmgFormula}`);
+};
+
+// ============================================================================
+// SISTEMA DI CALCOLO DINAMICO CLASSE ARMATURA (CA) CON I 4 SLOT EQUIPAGGIAMENTO
+// ============================================================================
+window.recalculateCharacterAC = function(ch) {
+  if (!ch) return 14;
+  const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
+  const desMod = Math.floor(((stats.DES || 10) - 10) / 2);
+  const conMod = Math.floor(((stats.COS || 10) - 10) / 2);
+  const isBarbarian = (ch.className || '').toLowerCase().includes('barbar');
+
+  if (!ch.equippedArmor) {
+    ch.equippedArmor = { head: null, chest: null, legs: null, feet: null };
+  }
+  const allCards = ch.cards || [];
+
+  const getCardForSlot = (slotKey) => {
+    const ref = ch.equippedArmor[slotKey];
+    if (!ref) return null;
+    return allCards.find(c => c.id === ref || c.canonicalId === ref) || (typeof ref === 'object' ? ref : null);
+  };
+
+  const chestCard = getCardForSlot('chest');
+  let baseAC = 10 + desMod;
+
+  if (chestCard) {
+    const cName = (chestCard.name || '').toLowerCase();
+    const cDmg = (chestCard.damage || '').toLowerCase();
+    if (cDmg.includes('ca 18') || cName.includes('completa') || cName.includes('piastre pesante')) {
+      baseAC = 18;
+    } else if (cDmg.includes('ca 17') || cName.includes('strisce')) {
+      baseAC = 17;
+    } else if (cDmg.includes('ca 16') || cName.includes('cotta di maglia') || cName.includes('chain mail')) {
+      baseAC = 16;
+    } else if (cDmg.includes('ca 15') || cName.includes('mezza armatura')) {
+      baseAC = 15 + Math.min(desMod, 2);
+    } else if (cDmg.includes('ca 14') || cName.includes('scaglie') || cName.includes('scale')) {
+      baseAC = 14 + Math.min(desMod, 2);
+    } else if (cDmg.includes('ca 13') || cName.includes('giaco')) {
+      baseAC = 13 + Math.min(desMod, 2);
+    } else if (cDmg.includes('ca 12') || cName.includes('borchiato')) {
+      baseAC = 12 + desMod;
+    } else if (cDmg.includes('ca 11') || cName.includes('cuoio')) {
+      baseAC = 11 + desMod;
+    } else {
+      const numMatch = cDmg.match(/\b(1[0-8])\b/);
+      if (numMatch) {
+        baseAC = parseInt(numMatch[1], 10) + Math.min(desMod, 2);
+      } else {
+        baseAC = 13 + Math.min(desMod, 2);
+      }
+    }
+  } else if (isBarbarian) {
+    baseAC = 10 + desMod + conMod;
+  }
+
+  // Bonus Scudo se presente
+  const hasShield = allCards.some(c => (c.type === 'scudo' || (c.name || '').toLowerCase().includes('scudo')) && (c.equipped || ch.equippedArmor.shield === c.id));
+  if (hasShield) {
+    baseAC += 2;
+  }
+
+  // Bonus Elmo e Schinieri
+  const headCard = getCardForSlot('head');
+  if (headCard) {
+    const hDmg = (headCard.damage || '').toLowerCase();
+    if (hDmg.includes('+1 ca') || hDmg.includes('ca +1')) baseAC += 1;
+  }
+
+  const legsCard = getCardForSlot('legs');
+  if (legsCard) {
+    const lDmg = (legsCard.damage || '').toLowerCase();
+    if (lDmg.includes('+1 ca') || lDmg.includes('ca +1')) baseAC += 1;
+  }
+
+  ch.ac = baseAC;
+  const acEl = document.getElementById('sheet-ac');
+  if (acEl) acEl.textContent = baseAC;
+
+  return baseAC;
+};
+
+// ============================================================================
+// GESTIONE MODALE EQUIPAGGIAMENTO SLOT ARMATURA
+// ============================================================================
+window.activePickingArmorSlot = null;
+
+window.openArmorSlotPickerModal = function(slotKey) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  window.activePickingArmorSlot = slotKey;
+
+  const modal = document.getElementById('armor-slot-picker-modal');
+  if (!modal) return;
+
+  const titleMap = {
+    head: { icon: '🪖', title: 'Equipaggia Elmo / Copricapo' },
+    chest: { icon: '🛡️', title: 'Equipaggia Corazza / Busto' },
+    legs: { icon: '👖', title: 'Equipaggia Schinieri / Gambe' },
+    feet: { icon: '👢', title: 'Equipaggia Stivali / Calzari' }
+  };
+  const cfg = titleMap[slotKey] || { icon: '🛡️', title: 'Seleziona Armatura' };
+
+  const iconEl = document.getElementById('aspm-slot-icon');
+  const titleEl = document.getElementById('aspm-slot-title');
+  if (iconEl) iconEl.textContent = cfg.icon;
+  if (titleEl) titleEl.textContent = cfg.title;
+
+  const allCards = ch.cards || [];
+  const candidates = allCards.filter(c => {
+    if (typeof window.getArmorSlotForCard === 'function') {
+      const detected = window.getArmorSlotForCard(c);
+      if (detected === slotKey) return true;
+    }
+    const name = (c.name || '').toLowerCase();
+    const type = (c.type || '').toLowerCase();
+    if (slotKey === 'head') return name.includes('elmo') || name.includes('corona') || name.includes('copricapo');
+    if (slotKey === 'chest') return type === 'armatura' || name.includes('corazza') || name.includes('maglia') || name.includes('cuoio') || name.includes('giaco');
+    if (slotKey === 'legs') return name.includes('schinieri') || name.includes('gambali');
+    if (slotKey === 'feet') return name.includes('stivali') || name.includes('calzari');
+    return false;
+  });
+
+  const listEl = document.getElementById('aspm-options-list');
+  if (listEl) {
+    let unequipBtn = '';
+    if (ch.equippedArmor && ch.equippedArmor[slotKey]) {
+      unequipBtn = `
+        <div class="p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 flex justify-between items-center mb-3">
+          <span class="text-xs text-red-200">Hai un oggetto attualmente indossato in questo slot.</span>
+          <button type="button" onclick="window.unequipArmorSlot('${slotKey}')" class="px-3 py-1.5 rounded-lg bg-red-900 hover:bg-red-800 text-white font-cinzel font-bold text-xs">
+            ✖️ Togli Equipaggiamento
+          </button>
+        </div>
+      `;
+    }
+
+    if (candidates.length === 0) {
+      listEl.innerHTML = `
+        ${unequipBtn}
+        <div class="norse-panel rounded-xl p-6 text-center text-xs text-slate-400">
+          Nessun equipaggiamento idoneo per lo slot <strong>${cfg.title}</strong> trovato nel tuo inventario.<br>
+          <span class="text-amber-300 font-bold block mt-1">Puoi acquistare nuove armature e protezioni dal Bazar del Dungeon Master!</span>
+        </div>
+      `;
+    } else {
+      listEl.innerHTML = unequipBtn + candidates.map(c => {
+        const isCurrent = ch.equippedArmor && (ch.equippedArmor[slotKey] === c.id || ch.equippedArmor[slotKey] === c.canonicalId);
+        const art = c.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[c.type]) || 'assets/items/spada_ulfberht.jpg';
+        return `
+          <div class="norse-panel rounded-xl p-3 flex items-center justify-between gap-3 border ${isCurrent ? 'border-emerald-500 bg-emerald-950/20' : 'border-slate-800 hover:border-sky-400/50'} transition">
+            <img src="${art}" class="w-12 h-16 rounded-lg object-cover border border-slate-700 shrink-0">
+            <div class="flex-1 min-w-0 space-y-0.5">
+              <h4 class="font-cinzel font-bold text-xs text-white truncate">${c.name}</h4>
+              <p class="text-[10px] text-amber-300 font-mono font-bold">${c.damage || '+1 CA'}</p>
+              <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
+            </div>
+            ${isCurrent ? `
+              <span class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-cinzel font-bold text-xs border border-emerald-400/50">
+                ✓ Attuale
+              </span>
+            ` : `
+              <button type="button" onclick="window.equipArmorToSlot('${slotKey}', '${c.id}')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-cinzel font-bold text-xs shadow transition">
+                Indossa
+              </button>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeArmorSlotPickerModal = function() {
+  const modal = document.getElementById('armor-slot-picker-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  window.activePickingArmorSlot = null;
+};
+
+window.equipArmorToSlot = function(slotKey, cardId) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  if (!ch.equippedArmor) ch.equippedArmor = { head: null, chest: null, legs: null, feet: null };
+
+  ch.equippedArmor[slotKey] = cardId;
+  window.recalculateCharacterAC(ch);
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+  window.closeArmorSlotPickerModal();
+  window.renderDdbSectionContent(ch);
+  if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+};
+
+window.unequipArmorSlot = function(slotKey) {
+  const ch = window.getMyCharacter();
+  if (!ch || !ch.equippedArmor) return;
+
+  ch.equippedArmor[slotKey] = null;
+  window.recalculateCharacterAC(ch);
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+  window.closeArmorSlotPickerModal();
+  window.renderDdbSectionContent(ch);
+  if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+};
+
+// ============================================================================
+// GESTIONE INCANTESIMI PREPARATI & LANCIO MAGIE
+// ============================================================================
+window.togglePrepareSpell = function(cardId) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  if (!ch.preparedSpells) ch.preparedSpells = [];
+
+  const idx = ch.preparedSpells.indexOf(cardId);
+  if (idx !== -1) {
+    ch.preparedSpells.splice(idx, 1);
+  } else {
+    // Calcolo limite massimo
+    const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
+    const intMod = Math.floor(((stats.INT || 10) - 10) / 2);
+    const sagMod = Math.floor(((stats.SAG || 10) - 10) / 2);
+    const carMod = Math.floor(((stats.CAR || 10) - 10) / 2);
+    const cls = (ch.className || '').toLowerCase();
+    let spellMod = intMod;
+    if (cls.includes('chieric') || cls.includes('gothi') || cls.includes('druid') || cls.includes('ranger')) spellMod = sagMod;
+    else if (cls.includes('bard') || cls.includes('skald') || cls.includes('stregon') || cls.includes('warlock') || cls.includes('paladin')) spellMod = carMod;
+    else spellMod = Math.max(intMod, sagMod, carMod);
+    const maxPrepared = Math.max(1, (ch.level || 1) + Math.max(0, spellMod));
+
+    if (ch.preparedSpells.length >= maxPrepared) {
+      alert(`⚠️ Hai già raggiunto il limite massimo di ${maxPrepared} incantesimi preparati!\nDisattiva un altro incantesimo prima di poterne preparare uno nuovo.`);
+      return;
+    }
+    ch.preparedSpells.push(cardId);
+  }
+
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+  window.renderDdbSectionContent(ch);
+};
+
+window.castSpell = function(cardId) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  const allCards = ch.cards || [];
+  const card = allCards.find(c => c.id === cardId || c.canonicalId === cardId);
+  if (!card) return;
+
+  const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
+  const intMod = Math.floor(((stats.INT || 10) - 10) / 2);
+  const sagMod = Math.floor(((stats.SAG || 10) - 10) / 2);
+  const carMod = Math.floor(((stats.CAR || 10) - 10) / 2);
+  const cls = (ch.className || '').toLowerCase();
+  let spellMod = intMod;
+  if (cls.includes('chieric') || cls.includes('gothi') || cls.includes('druid') || cls.includes('ranger')) spellMod = sagMod;
+  else if (cls.includes('bard') || cls.includes('skald') || cls.includes('stregon') || cls.includes('warlock') || cls.includes('paladin')) spellMod = carMod;
+  else spellMod = Math.max(intMod, sagMod, carMod);
+
+  const profBonus = ch.atkBonus || 2;
+  const d20 = Math.floor(Math.random() * 20) + 1;
+  const atkTotal = d20 + profBonus + spellMod;
+  const spellDC = 8 + profBonus + spellMod;
+
+  alert(`🔮 ${ch.name} incanala le rune e lancia "${card.name}"!\n\n` +
+        `🎲 Tiro Attacco Magico: 1d20+${profBonus + spellMod} = ${atkTotal} (Dado: ${d20})\n` +
+        `🛡️ CD Salvezza per i Nemici: ${spellDC}\n` +
+        `💥 Danno / Effetto: ${card.damage || 'Effetto magico applicato!'}\n` +
+        `📖 Lore: ${card.desc || ''}`);
+};
+
+// ============================================================================
+// MODALE BAZAR / COMMERCIO GIOCATORE (ACQUISTO CON MONETE D'ORO)
+// ============================================================================
+window.openPlayerMarketModal = function() {
+  const modal = document.getElementById('player-market-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  window.renderPlayerMarket();
+};
+
+window.closePlayerMarketModal = function() {
+  const modal = document.getElementById('player-market-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.renderPlayerMarket = function() {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+
+  const playerGold = ch.gold !== undefined ? ch.gold : 50;
+  const goldEl = document.getElementById('pmm-player-gold');
+  if (goldEl) goldEl.textContent = `${playerGold} mo`;
+
+  const activeCamp = window.dbState.campaigns && Object.values(window.dbState.campaigns).find(c => c.members && c.members[window.currentUser]);
+  const grid = document.getElementById('pmm-items-grid');
+  if (!grid) return;
+
+  if (!activeCamp) {
+    grid.innerHTML = `
+      <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-xs text-slate-400 space-y-2">
+        <p>Non sei ancora unito ad alcuna campagna attiva.</p>
+        <p class="text-sky-300">Unisciti a una campagna dalla scheda "Le Tue Campagne" con il codice fornito dal DM per accedere al Bazar!</p>
+      </div>
+    `;
+    return;
+  }
+
+  const marketItems = activeCamp.market || [];
+  if (marketItems.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-xs text-slate-400 space-y-2">
+        <p class="text-amber-300 font-bold text-sm">Il Bazar del Dungeon Master è attualmente vuoto.</p>
+        <p>Il DM non ha ancora inviato merci in vendita per la campagna "${activeCamp.title}". Chiedigli di inserire nuove armi, pozioni e armature dalla sua sezione Commercio!</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = marketItems.map(item => {
+    const costGold = item.priceGold !== undefined ? item.priceGold : (window.parseCostToGold ? window.parseCostToGold(item.cost) : 10);
+    const canAfford = playerGold >= costGold;
+    const art = item.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[item.type]) || 'assets/items/spada_ulfberht.jpg';
+
+    return `
+      <div class="norse-panel rounded-2xl p-4 border border-amber-500/40 bg-slate-950/80 space-y-3 flex flex-col justify-between shadow-xl group hover:border-amber-400 transition">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-[10px] font-cinzel font-bold text-amber-300 uppercase">${item.type}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 font-semibold">${item.rarity || 'Comune'}</span>
+        </div>
+
+        <div class="flex gap-3 items-center">
+          <img src="${art}" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')" class="w-14 h-20 rounded-xl object-cover border border-amber-500/50 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+          <div class="flex-1 min-w-0 space-y-1">
+            <h4 class="font-cinzel font-bold text-xs text-white truncate cursor-pointer hover:text-amber-300" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')">${item.name}</h4>
+            <p class="text-[10px] text-amber-300 font-mono font-bold">${item.damage || 'Effetto Speciale'}</p>
+            <p class="text-[10px] text-slate-400 line-clamp-2">${item.desc || ''}</p>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base">💰</span>
+            <strong class="font-mono text-sm text-amber-300">${costGold} mo</strong>
+          </div>
+
+          ${canAfford ? `
+            <button type="button" onclick="window.buyMarketItem('${item.marketId}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-xs shadow-md transition flex items-center gap-1 active:scale-95">
+              🛒 Compra
+            </button>
+          ` : `
+            <button type="button" disabled class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-red-400 font-cinzel font-bold text-[10px] cursor-not-allowed">
+              Mancano ${costGold - playerGold} mo
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.buyMarketItem = function(marketId) {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  const activeCamp = window.dbState.campaigns && Object.values(window.dbState.campaigns).find(c => c.members && c.members[window.currentUser]);
+  if (!activeCamp || !activeCamp.market) return;
+
+  const itemIdx = activeCamp.market.findIndex(i => i.marketId === marketId);
+  if (itemIdx === -1) return alert("Questo oggetto non è più disponibile nel Bazar.");
+
+  const item = activeCamp.market[itemIdx];
+  const costGold = item.priceGold !== undefined ? item.priceGold : (window.parseCostToGold ? window.parseCostToGold(item.cost) : 10);
+  const playerGold = ch.gold !== undefined ? ch.gold : 50;
+
+  if (playerGold < costGold) {
+    alert(`Monete d'Oro insufficienti! Possiedi ${playerGold} mo, ma questo oggetto costa ${costGold} mo.`);
+    return;
+  }
+
+  // 1. Scala le monete d'oro
+  ch.gold = playerGold - costGold;
+
+  // 2. Crea istanza della carta nell'inventario del giocatore
+  const purchasedCard = {
+    ...item,
+    id: 'bought_' + (item.id || 'card') + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000)
+  };
+  delete purchasedCard.marketId;
+
+  if (!ch.cards) ch.cards = [];
+  ch.cards.unshift(purchasedCard);
+
+  // 3. Rimuovi dal mercato della campagna
+  activeCamp.market.splice(itemIdx, 1);
+
+  // 4. Sincronizza nel database e nella campagna
+  if (activeCamp.members && activeCamp.members[window.currentUser]) {
+    activeCamp.members[window.currentUser].gold = ch.gold;
+    activeCamp.members[window.currentUser].cards = ch.cards;
+  }
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+
+  // 5. Aggiorna UI
+  window.renderPlayerMarket();
+  window.renderDdbSectionContent(ch);
+  if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+
+  alert(`⚔️ Acquisto completato con successo!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
 };
 
 window.initCloudConnection();

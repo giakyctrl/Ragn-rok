@@ -67,19 +67,34 @@ window.switchDmWorkspaceTab = function(tab) {
   const mView = document.getElementById('dm-subview-manage');
   const pView = document.getElementById('dm-subview-party');
   const cView = document.getElementById('dm-subview-create');
+  const tView = document.getElementById('dm-subview-trade');
 
-  mView.classList.toggle('hidden', tab !== 'manage');
-  pView.classList.toggle('hidden', tab !== 'party');
-  cView.classList.toggle('hidden', tab !== 'create');
+  if (mView) mView.classList.toggle('hidden', tab !== 'manage');
+  if (pView) pView.classList.toggle('hidden', tab !== 'party');
+  if (cView) cView.classList.toggle('hidden', tab !== 'create');
+  if (tView) tView.classList.toggle('hidden', tab !== 'trade');
 
-  const activeSub = tab === 'manage' ? mView : tab === 'party' ? pView : cView;
-  activeSub.classList.remove('animate-page-switch');
-  void activeSub.offsetWidth;
-  activeSub.classList.add('animate-page-switch');
+  const activeSub = tab === 'manage' ? mView : tab === 'party' ? pView : tab === 'create' ? cView : tView;
+  if (activeSub) {
+    activeSub.classList.remove('animate-page-switch');
+    void activeSub.offsetWidth;
+    activeSub.classList.add('animate-page-switch');
+  }
 
-  document.getElementById('dmnav-manage').className = tab === 'manage' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
-  document.getElementById('dmnav-create').className = tab === 'create' ? 'flex flex-col items-center gap-1 text-amber-400 w-28 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-28 py-2';
+  const setClass = (id, isActive) => {
+    const el = document.getElementById(id);
+    if (el) el.className = isActive ? 'flex flex-col items-center gap-1 text-amber-400 w-20 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-20 py-2';
+  };
+  setClass('dmnav-manage', tab === 'manage');
+  setClass('dmnav-trade', tab === 'trade');
+  setClass('dmnav-create', tab === 'create');
+  const partyLabel = document.getElementById('dmnav-party-label');
+  if (partyLabel) partyLabel.className = tab === 'party' ? 'font-cinzel font-black text-[9px] sm:text-[10px] text-amber-300 mt-1 uppercase' : 'font-cinzel font-bold text-[9px] sm:text-[10px] text-slate-400 mt-1 uppercase';
+
   window.renderDmViews();
+  if (tab === 'trade') {
+    window.renderDmTradeViews();
+  }
   if (tab === 'create') window.updateDmCardPreview();
 };
 
@@ -555,6 +570,19 @@ window.renderDmViews = function() {
                 ${condOptions.map(co => `<option value="${co}" ${curCond === co ? 'selected' : ''}>${co}</option>`).join('')}
               </select>
             </div>
+
+            <div class="pt-1.5 flex items-center justify-between gap-1 border-t border-slate-800/80 text-[10px]">
+              <div class="flex items-center gap-1.5">
+                <span class="text-amber-300 font-bold">💰 Oro:</span>
+                <span class="font-mono font-black text-amber-200">${mChar.gold !== undefined ? mChar.gold : 50} mo</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', -10)" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-[9px] font-bold hover:text-white" title="-10 mo">-10</button>
+                <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', 10)" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold hover:bg-amber-500/30" title="+10 mo">+10</button>
+                <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', 50)" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold hover:bg-amber-500/30" title="+50 mo">+50</button>
+                <button type="button" onclick="window.dmPromptSetPlayerGold('${uKey}')" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-sky-300 text-[9px] font-bold hover:text-white" title="Imposta ammontare manuale">✏️</button>
+              </div>
+            </div>
           </div>
         `;
       }).join('');
@@ -610,4 +638,245 @@ window.renderDmViews = function() {
           </div>
         `).join('');
   }
+
+  // Rende anche la vista Commercio se visibile o presente
+  window.renderDmTradeViews();
+};
+
+// ============================================================================
+// GESTIONE ECONOMIA & MONETE D'ORO DEI GIOCATORI DA PARTE DEL DM
+// ============================================================================
+window.dmAdjustPlayerGold = function(uKey, delta) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.members || !camp.members[uKey]) return;
+  const mChar = camp.members[uKey];
+  if (mChar.gold === undefined) mChar.gold = 50;
+  mChar.gold = Math.max(0, mChar.gold + delta);
+
+  if (window.dbState.users[uKey]?.characters) {
+    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
+    if (idx !== -1) {
+      window.dbState.users[uKey].characters[idx].gold = mChar.gold;
+    }
+  }
+  if (window.activeCharacter && window.activeCharacter.id === mChar.id) {
+    window.activeCharacter.gold = mChar.gold;
+    if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+  }
+  window.saveDB();
+  window.renderDmViews();
+};
+
+window.dmPromptSetPlayerGold = function(uKey) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.members || !camp.members[uKey]) return;
+  const mChar = camp.members[uKey];
+  const cur = mChar.gold !== undefined ? mChar.gold : 50;
+  const res = prompt(`Imposta Monete d'Oro per ${mChar.name}:`, cur);
+  if (res === null) return;
+  const val = parseInt(res, 10);
+  if (isNaN(val) || val < 0) {
+    alert("Valore monete non valido.");
+    return;
+  }
+  mChar.gold = val;
+
+  if (window.dbState.users[uKey]?.characters) {
+    const idx = window.dbState.users[uKey].characters.findIndex(c => c.id === mChar.id);
+    if (idx !== -1) {
+      window.dbState.users[uKey].characters[idx].gold = mChar.gold;
+    }
+  }
+  if (window.activeCharacter && window.activeCharacter.id === mChar.id) {
+    window.activeCharacter.gold = mChar.gold;
+    if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+  }
+  window.saveDB();
+  window.renderDmViews();
+};
+
+// ============================================================================
+// SEZIONE COMMERCIO / BAZAR CAMPAGNA (DM)
+// ============================================================================
+window.renderDmTradeViews = function() {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp) return;
+  if (!camp.market) camp.market = [];
+
+  const countEl = document.getElementById('dm-market-count');
+  if (countEl) countEl.textContent = camp.market.length;
+
+  const mGrid = document.getElementById('dm-market-items-grid');
+  if (mGrid) {
+    if (camp.market.length === 0) {
+      mGrid.innerHTML = `
+        <div class="col-span-full norse-panel rounded-xl p-6 text-center text-xs text-slate-400 border border-slate-800">
+          Nessuna mercanzia presente nel Bazar. Seleziona le carte dal catalogo sottostante e clicca <strong>"Manda al Bazar"</strong> per renderle acquistabili dai giocatori!
+        </div>
+      `;
+    } else {
+      mGrid.innerHTML = camp.market.map(item => {
+        const art = item.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[item.type]) || 'assets/items/spada_ulfberht.jpg';
+        const costGold = item.priceGold !== undefined ? item.priceGold : (window.parseCostToGold ? window.parseCostToGold(item.cost) : 10);
+        return `
+          <div class="norse-panel rounded-xl p-3 border border-amber-500/40 flex gap-3 items-center shadow-lg relative group">
+            <img src="${art}" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')" class="w-14 h-20 rounded-lg object-cover border border-amber-500/60 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+            <div class="flex-1 min-w-0 space-y-1">
+              <div class="flex justify-between items-start gap-1">
+                <h4 class="font-cinzel font-bold text-xs text-amber-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')">${item.name}</h4>
+                <button type="button" onclick="window.dmRemoveCardFromMarket('${item.marketId}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-950/60 border border-red-500/30" title="Ritira mercanzia dal Bazar">✕</button>
+              </div>
+              <div class="flex items-center gap-2 text-[10px]">
+                <span class="text-amber-300 uppercase font-bold">${item.type}</span>
+                <span class="text-slate-400">•</span>
+                <span class="text-sky-300 font-semibold">${item.rarity || 'Comune'}</span>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs">💰</span>
+                  <span class="font-mono font-black text-amber-300 text-xs">${costGold} mo</span>
+                </div>
+                <button type="button" onclick="window.dmEditMarketItemPrice('${item.marketId}')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-sky-300 border border-slate-700">
+                  ✏️ Modifica Prezzo
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  window.renderDmTradeCatalog();
+};
+
+window.renderDmTradeCatalog = function() {
+  const grid = document.getElementById('dm-trade-catalog-grid');
+  if (!grid) return;
+
+  const q = (document.getElementById('dm-trade-catalog-search')?.value || '').toLowerCase().trim();
+  const fType = document.getElementById('dm-trade-catalog-filter')?.value || 'tutti';
+
+  const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+
+  const filtered = all.filter(c => {
+    if (fType !== 'tutti') {
+      const cType = (c.type || '').toLowerCase();
+      if (fType === 'pozione') {
+        if (!cType.includes('pozione') && !c.name.toLowerCase().includes('pozione') && !c.name.toLowerCase().includes('idromele')) return false;
+      } else if (fType === 'oggetto') {
+        if (cType !== 'oggetto' && cType !== 'valuta' && !c.name.toLowerCase().includes('hacksilver') && !c.name.toLowerCase().includes('monet')) return false;
+      } else if (cType !== fType) {
+        return false;
+      }
+    }
+    if (q) {
+      const nameMatch = (c.name || '').toLowerCase().includes(q);
+      const descMatch = (c.desc || '').toLowerCase().includes(q);
+      const typeMatch = (c.type || '').toLowerCase().includes(q);
+      if (!nameMatch && !descMatch && !typeMatch) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-full norse-panel rounded-xl p-5 text-center text-xs text-slate-400">Nessun oggetto trovato nel catalogo.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => {
+    const art = c.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[c.type]) || 'assets/items/spada_ulfberht.jpg';
+    const defCost = c.cost || (window.parseCostToGold ? window.parseCostToGold(c.cost) + ' mo' : '10 mo');
+    return `
+      <div class="norse-panel rounded-xl p-2.5 flex items-center justify-between gap-2.5 border border-slate-800 hover:border-amber-500/40 transition">
+        <img src="${art}" onclick="window.openCardDetailModal('${c.id}')" class="w-12 h-16 rounded-lg object-cover border border-slate-700 shrink-0 cursor-pointer hover:scale-105 transition" title="Tocca per ingrandire">
+        <div class="flex-1 min-w-0 space-y-0.5">
+          <h5 class="font-cinzel font-bold text-xs text-white truncate cursor-pointer hover:text-amber-300" onclick="window.openCardDetailModal('${c.id}')">${c.name}</h5>
+          <div class="flex items-center gap-1.5 text-[9px]">
+            <span class="text-amber-300 font-bold uppercase">${c.type}</span>
+            <span class="text-slate-500">•</span>
+            <span class="text-sky-300">${c.rarity || 'Comune'}</span>
+          </div>
+          <span class="text-[10px] font-mono text-amber-200 block font-semibold">💰 Valore: ${defCost}</span>
+        </div>
+        <button type="button" onclick="window.dmAddCardToMarket('${c.id}')" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] shrink-0 shadow flex items-center gap-1 transition">
+          ⚖️ Manda
+        </button>
+      </div>
+    `;
+  }).join('');
+};
+
+window.dmAddCardToMarket = function(cardId) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp) return alert("Nessuna campagna attiva selezionata.");
+  if (!camp.market) camp.market = [];
+
+  const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+  const card = all.find(c => c.id === cardId);
+  if (!card) return alert("Carta non trovata.");
+
+  const defaultGold = window.parseCostToGold ? window.parseCostToGold(card.cost) : 10;
+  const input = prompt(`Prezzo in Monete d'Oro (mo) per mettere in vendita "${card.name}":`, defaultGold);
+  if (input === null) return;
+  const priceGold = parseInt(input, 10);
+  if (isNaN(priceGold) || priceGold < 0) return alert("Prezzo non valido.");
+
+  const marketItem = {
+    ...card,
+    marketId: 'mkt_' + card.id + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    priceGold: priceGold,
+    cost: priceGold + ' mo'
+  };
+
+  camp.market.push(marketItem);
+  window.saveDB();
+  window.renderDmTradeViews();
+  alert(`⚖️ "${card.name}" è ora disponibile nel Bazar per ${priceGold} mo!`);
+};
+
+window.dmRemoveCardFromMarket = function(marketId) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.market) return;
+  camp.market = camp.market.filter(item => item.marketId !== marketId);
+  window.saveDB();
+  window.renderDmTradeViews();
+};
+
+window.dmEditMarketItemPrice = function(marketId) {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.market) return;
+  const item = camp.market.find(i => i.marketId === marketId);
+  if (!item) return;
+  const cur = item.priceGold !== undefined ? item.priceGold : (window.parseCostToGold ? window.parseCostToGold(item.cost) : 10);
+  const input = prompt(`Nuovo prezzo in Monete d'Oro per "${item.name}":`, cur);
+  if (input === null) return;
+  const val = parseInt(input, 10);
+  if (isNaN(val) || val < 0) return alert("Prezzo non valido.");
+  item.priceGold = val;
+  item.cost = val + ' mo';
+  window.saveDB();
+  window.renderDmTradeViews();
+};
+
+window.dmClearMarket = function() {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp || !camp.market || camp.market.length === 0) return;
+  if (!confirm("Sei sicuro di voler svuotare tutte le merci dal Bazar?")) return;
+  camp.market = [];
+  window.saveDB();
+  window.renderDmTradeViews();
+};
+
+window.dmBroadcastMarketUpdate = function() {
+  const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
+  if (!camp) return;
+  const count = (camp.market || []).length;
+  camp.globalEvent = {
+    type: 'TRADE_UPDATE',
+    message: `Il Dungeon Master ha aggiornato le merci nel Bazar (${count} oggetti disponibili)!`,
+    timestamp: Date.now()
+  };
+  window.saveDB();
+  alert(`📢 Notifica inviata al party! I giocatori vedranno le nuove merci del Bazar.`);
 };

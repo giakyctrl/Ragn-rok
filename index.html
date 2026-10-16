@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="style.css?v=24">
 </head>
 <body class="relative">
 
@@ -301,9 +301,10 @@
                   <div class="min-w-0 flex-1">
                     <h2 id="sheet-name" class="text-lg sm:text-xl font-cinzel font-extrabold text-white tracking-tight truncate"></h2>
                     <p id="sheet-race-class" class="text-xs text-sky-300 font-semibold truncate"></p>
-                    <div class="flex items-center gap-2 mt-1">
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
                       <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
                       <button type="button" onclick="window.openClanDetailModal(window.getMyCharacter() ? (window.getMyCharacter().clanId || window.getMyCharacter().clan || window.getMyCharacter().clanName) : null)" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Clan di Midgardr</button>
+                      <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Bazar del DM">💰 <span id="sheet-gold-val">50</span> mo</button>
                     </div>
                   </div>
                 </div>
@@ -604,6 +605,70 @@
             </div>
           </div>
         </div>
+
+        <!-- DM 4: COMMERCIO & BAZAR DEI GIOCATORI -->
+        <div id="dm-subview-trade" class="hidden space-y-5 animate-section-fade">
+          <div class="norse-panel norse-border-gold rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="flex flex-wrap justify-between items-center border-b border-amber-500/30 pb-3 gap-2">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">⚖️</span>
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Commercio &amp; Bazar di Midgardr</h3>
+                  <p class="text-[11px] text-slate-400">Invia carte ed equipaggiamenti al mercato. I giocatori vedranno queste merci e potranno acquistarle con le loro monete d'oro.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="window.dmClearMarket()" class="px-3 py-1.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-bold font-cinzel hover:bg-red-900 transition">
+                  🗑️ Svuota Bazar
+                </button>
+                <button type="button" onclick="window.dmBroadcastMarketUpdate()" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-bold font-cinzel hover:bg-amber-500/30 transition flex items-center gap-1.5 shadow">
+                  📢 Notifica Giocatori
+                </button>
+              </div>
+            </div>
+
+            <!-- STATO ATTUALE MERCATO -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="font-cinzel text-xs font-bold uppercase text-amber-400 tracking-wider">
+                  Merci Attualmente in Vendita per il Party (<span id="dm-market-count">0</span>)
+                </span>
+                <span class="text-[10px] text-slate-400">Acquistabili direttamente dai player con scalo automatico delle monete</span>
+              </div>
+              <div id="dm-market-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- popolato dinamicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- CATALOGO GENERALE CARTE -->
+          <div class="norse-panel rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📦</span>
+                <h4 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">
+                  Attingi dal Database Generale &amp; Manda al Bazar
+                </h4>
+              </div>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <input type="text" id="dm-trade-catalog-search" oninput="window.renderDmTradeCatalog()" placeholder="Cerca armi, armature, pozioni, oro..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none w-full sm:w-60 focus:border-amber-400 transition">
+                <select id="dm-trade-catalog-filter" onchange="window.renderDmTradeCatalog()" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold outline-none">
+                  <option value="tutti">Tutti</option>
+                  <option value="arma">Armi</option>
+                  <option value="armatura">Armature</option>
+                  <option value="scudo">Scudi</option>
+                  <option value="pozione">Pozioni</option>
+                  <option value="incantesimo">Incantesimi</option>
+                  <option value="oggetto">Oggetti &amp; Valuta</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="dm-trade-catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[550px] overflow-y-auto p-1">
+              <!-- popolato dinamicamente -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- BARRA INFERIORE STANDARD -->
@@ -628,11 +693,16 @@
         </button>
       </nav>
 
-      <!-- BARRA INFERIORE CAMPAGNA DM -->
-      <nav id="bottom-nav-dm-workspace" class="hidden bottom-nav-bar flex justify-around items-center px-4 border-t border-amber-500/40">
-        <button type="button" onclick="window.switchDmWorkspaceTab('manage')" id="dmnav-manage" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
-          <span class="font-cinzel font-bold text-[10px]">Gestisci</span>
+      <!-- BARRA INFERIORE CAMPAGNA DM (CON COMMERCIO) -->
+      <nav id="bottom-nav-dm-workspace" class="hidden bottom-nav-bar flex justify-around items-center px-2 sm:px-4 border-t border-amber-500/40">
+        <button type="button" onclick="window.switchDmWorkspaceTab('manage')" id="dmnav-manage" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+          <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Gestisci</span>
+        </button>
+
+        <button type="button" onclick="window.switchDmWorkspaceTab('trade')" id="dmnav-trade" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Commercio</span>
         </button>
 
         <div class="relative -top-5 flex flex-col items-center">
@@ -641,12 +711,12 @@
               <path d="M18 26 C8 24, 4 14, 10 8 C12 14, 16 18, 22 20" fill="currentColor"/><path d="M46 26 C56 24, 60 14, 54 8 C52 14, 48 18, 42 20" fill="currentColor"/><path d="M18 32 C18 18, 46 18, 46 32 Z" fill="currentColor"/><rect x="16" y="32" width="32" height="6" rx="2" fill="#0f172a"/><path d="M32 22 L32 48 M20 38 L20 48 L26 52 M44 38 L44 48 L38 52" stroke="#0f172a" stroke-width="3.5"/>
             </svg>
           </button>
-          <span id="dmnav-party-label" class="font-cinzel font-black text-[10px] text-amber-300 mt-1 uppercase">Eroi Campagna</span>
+          <span id="dmnav-party-label" class="font-cinzel font-black text-[9px] sm:text-[10px] text-amber-300 mt-1 uppercase">Eroi</span>
         </div>
 
-        <button type="button" onclick="window.switchDmWorkspaceTab('create')" id="dmnav-create" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          <span class="font-cinzel font-bold text-[10px]">Crea Carta</span>
+        <button type="button" onclick="window.switchDmWorkspaceTab('create')" id="dmnav-create" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Crea Carta</span>
         </button>
       </nav>
 
@@ -768,11 +838,11 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=23"></script>
-  <script src="rules.js?v=23"></script>
-  <script src="forge.js?v=23"></script>
-  <script src="app.js?v=23"></script>
-  <script src="dm.js?v=23"></script>
+  <script src="data.js?v=24"></script>
+  <script src="rules.js?v=24"></script>
+  <script src="forge.js?v=24"></script>
+  <script src="app.js?v=24"></script>
+  <script src="dm.js?v=24"></script>
 
   <!-- MODALE DETTAGLIO CLAN DI MIDGARDR -->
   <div id="clan-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeClanDetailModal()">
@@ -853,6 +923,76 @@
       <div class="flex justify-end pt-2">
         <button type="button" onclick="window.closeClanDetailModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cinzel font-bold text-xs">
           Chiudi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE BAZAR & COMMERCIO GIOCATORI -->
+  <div id="player-market-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closePlayerMarketModal()">
+    <div class="norse-panel rounded-2xl p-5 sm:p-6 max-w-4xl w-full border-2 border-amber-500/60 shadow-[0_0_50px_rgba(201,160,80,0.35)] max-h-[92vh] overflow-y-auto space-y-5 animate-modal-pop" onclick="event.stopPropagation()">
+      <div class="flex flex-wrap justify-between items-center border-b border-amber-500/30 pb-3 gap-3">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">🛒</span>
+          <div>
+            <span class="text-[9px] font-cinzel uppercase text-amber-400 font-bold tracking-widest block">Emporio dei Nove Mondi</span>
+            <h2 class="font-cinzel font-black text-xl text-white tracking-wide">Bazar di Midgardr</h2>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center gap-2 shadow">
+            <span class="text-base">💰</span>
+            <span class="text-xs font-cinzel font-bold text-slate-300">Il Tuo Oro:</span>
+            <strong id="pmm-player-gold" class="font-mono text-sm text-amber-300">0 mo</strong>
+          </div>
+          <button type="button" onclick="window.closePlayerMarketModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+        Mercanzie, armi forgiate, tomi di magia e armature approvate dal Dungeon Master per la tua avventura. L'acquisto scalerà direttamente le monete d'oro dal tuo patrimonio e sposterà l'oggetto nel tuo inventario.
+      </p>
+
+      <div id="pmm-items-container" class="space-y-3">
+        <div id="pmm-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <!-- popolato dinamicamente -->
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <span class="text-[11px] text-slate-400">Le merci inviate dal DM vengono sincronizzate in tempo reale con la campagna.</span>
+        <button type="button" onclick="window.closePlayerMarketModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cinzel font-bold text-xs">
+          Chiudi Bazar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE SELEZIONE EQUIPAGGIAMENTO PER SLOT ARMATURA -->
+  <div id="armor-slot-picker-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeArmorSlotPickerModal()">
+    <div class="norse-panel rounded-2xl p-5 max-w-xl w-full border-2 border-sky-500/50 shadow-2xl max-h-[88vh] overflow-y-auto space-y-4 animate-modal-pop" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span id="aspm-slot-icon" class="text-2xl">🛡️</span>
+          <div>
+            <span class="text-[9px] font-cinzel uppercase text-sky-400 font-bold tracking-widest block">Slot Equipaggiamento</span>
+            <h3 id="aspm-slot-title" class="font-cinzel font-black text-base text-white">Seleziona Armatura</h3>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeArmorSlotPickerModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Scegli una carta dal tuo inventario per indossarla in questo slot corporeo o disinstalla quella corrente.
+      </p>
+
+      <div id="aspm-options-list" class="space-y-2.5 max-h-[420px] overflow-y-auto p-1">
+        <!-- popolato dinamicamente -->
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-800">
+        <button type="button" onclick="window.closeArmorSlotPickerModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cinzel font-bold text-xs">
+          Annulla
         </button>
       </div>
     </div>

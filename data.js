@@ -1100,13 +1100,128 @@ window.GLOBAL_CARDS_DATABASE = [
     "id": "card_armor_fullplate",
     "name": "Armatura Completa a Piastre dello Jarl",
     "type": "armatura",
+    "slot": "chest",
     "rarity": "Comune",
     "cost": "1.500 mo",
     "damage": "CA 18 (Richiede FOR 15, Svant. Furtività)",
     "weight": 30.0,
-    "range": "Personale",
+    "range": "Busto",
     "img": "assets/items/armatura_completa.jpg",
     "desc": "Armatura Pesante. Il vertice della metallurgia nordica. Piastre d'acciaio incernierate e ribattute a mano con incisioni runiche dorate che proteggono totalmente il guerriero."
+  },
+  {
+    "id": "card_armor_helm_spangenhelm",
+    "name": "Elmo Vichingo con Occhiali (Spangenhelm)",
+    "type": "armatura",
+    "slot": "head",
+    "rarity": "Comune",
+    "cost": "25 mo",
+    "damage": "+1 CA (Testa)",
+    "weight": 2.0,
+    "range": "Testa",
+    "img": "assets/items/Huscarl.png",
+    "desc": "Elmo da guerra vichingo in ferro a quattro spicchi con nasale e visiera a occhiali. Protegge il capo e le tempie dalle asce nemiche."
+  },
+  {
+    "id": "card_armor_helm_valkyrie",
+    "name": "Diadema Alato delle Valchirie",
+    "type": "armatura",
+    "slot": "head",
+    "rarity": "Raro",
+    "cost": "450 mo",
+    "damage": "+1 CA (+2 Tiri Salvezza Saggezza)",
+    "weight": 1.0,
+    "range": "Testa",
+    "img": "assets/items/brisingamen.jpg",
+    "desc": "Splendido elmo cerimoniale intagliato in argento lucente con ali stilizzate consacrato a Freyja. Protegge la mente e conferisce +2 a tutti i tiri salvezza su Saggezza."
+  },
+  {
+    "id": "card_armor_greaves_bronze",
+    "name": "Schinieri Rinforzati di Ferro e Cuoio",
+    "type": "armatura",
+    "slot": "legs",
+    "rarity": "Comune",
+    "cost": "20 mo",
+    "damage": "+1 CA (Gambe)",
+    "weight": 2.5,
+    "range": "Gambe",
+    "img": "assets/items/megingjord.jpg",
+    "desc": "Gambali composti da stecche longitudinali di ferro ribattute su cuoio d'alce. Proteggono stinchi e ginocchia durante la mischia."
+  },
+  {
+    "id": "card_armor_greaves_bear",
+    "name": "Cosciali di Pelliccia d'Orso dei Berserkir",
+    "type": "armatura",
+    "slot": "legs",
+    "rarity": "Non Comune",
+    "cost": "120 mo",
+    "damage": "+1 CA (Resistenza al Gelo)",
+    "weight": 3.0,
+    "range": "Gambe",
+    "img": "assets/items/megingjord.jpg",
+    "desc": "Pantaloni da combattimento rinforzati in pelle d'orso bruno impermeabilizzata con grasso di foca. Proteggono da colpi bassi e garantiscono resistenza al freddo intenso."
+  },
+  {
+    "id": "card_armor_boots_winter",
+    "name": "Stivali da Neve dei Giganti del Gelo",
+    "type": "armatura",
+    "slot": "feet",
+    "rarity": "Non Comune",
+    "cost": "150 mo",
+    "damage": "Passo Sicuro sui Ghiacci",
+    "weight": 1.5,
+    "range": "Piedi",
+    "img": "assets/items/megingjord.jpg",
+    "desc": "Stivali foderati con suole rinforzate in osso di balena e chiodi di bronzo. Ignori qualsiasi terreno difficile provocato da neve, ghiaccio e burrasca."
+  },
+  {
+    "id": "card_armor_boots_striding",
+    "name": "Stivali della Corsa dei Lupi dell'Ombra",
+    "type": "armatura",
+    "slot": "feet",
+    "rarity": "Raro",
+    "cost": "350 mo",
+    "damage": "+3m Passo Base (+2 Furtività)",
+    "weight": 1.0,
+    "range": "Piedi",
+    "img": "assets/items/megingjord.jpg",
+    "desc": "Calzari soffici e silenziosi benedetti dagli sciamani dei Lupi. Aumentano la tua velocità base di +3m (2 quad) e conferiscono +2 alle prove di Destrezza (Furtività)."
+  },
+  {
+    "id": "card_currency_hacksilver_bag",
+    "name": "Sacchetto di Monete d'Oro (Hacksilver)",
+    "type": "oggetto",
+    "rarity": "Comune",
+    "cost": "50 mo",
+    "damage": "Valuta di Scambio: 50 mo",
+    "weight": 0.5,
+    "range": "Borsa",
+    "img": "assets/items/draupnir.jpg",
+    "desc": "Robusto sacchetto in pelle contenente 50 monete d'oro sonanti e frammenti di lingotti d'argento (Hacksilver) impiegati nei commerci di Midgardr."
+  },
+  {
+    "id": "card_currency_hacksilver_chest",
+    "name": "Scrigno d'Oro dei Jarl di Svitjod",
+    "type": "oggetto",
+    "rarity": "Non Comune",
+    "cost": "250 mo",
+    "damage": "Valuta di Scambio: 250 mo",
+    "weight": 5.0,
+    "range": "Forziere",
+    "img": "assets/items/draupnir.jpg",
+    "desc": "Scrigno di quercia cerchiato di ferro contenente 250 monete d'oro fuso e ornamenti preziosi, ideale per ricompense e riscatti."
+  },
+  {
+    "id": "card_currency_hacksilver_treasure",
+    "name": "Tesoro Aureo di Fafnir",
+    "type": "oggetto",
+    "rarity": "Raro",
+    "cost": "1.000 mo",
+    "damage": "Valuta di Scambio: 1.000 mo",
+    "weight": 15.0,
+    "range": "Tesoro",
+    "img": "assets/items/draupnir.jpg",
+    "desc": "Leggendario cumulo di monete d'oro primordiali e gioielli ancestrali, del valore di 1.000 monete d'oro spendibili nei grandi mercati."
   },
   {
     "id": "card_shield_round",
@@ -2806,4 +2921,43 @@ window.autoFitImageFile = function(file, targetW, targetH, callback) {
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
+};
+
+// ============================================================================
+// HELPER COMMERCIO, VALUTA (MONETE D'ORO) & SLOT ARMATURA
+// ============================================================================
+window.parseCostToGold = function(costStr) {
+  if (costStr === undefined || costStr === null) return 0;
+  if (typeof costStr === 'number') return Math.max(0, Math.round(costStr));
+  const raw = String(costStr).trim().toLowerCase();
+  if (raw === 'gratis' || raw === '—' || raw === 'inestimabile') return 0;
+  // Gestisce formati come: "50 mo", "1.500 mo", "250 gp", "100 oro", "25"
+  const clean = raw.replace(/\./g, '').replace(/,/g, '');
+  const match = clean.match(/(\d+[\d\s]*)/);
+  if (match) {
+    const num = parseInt(match[1].replace(/\s+/g, ''));
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
+};
+
+window.getArmorSlotForCard = function(card) {
+  if (!card) return 'chest';
+  if (card.slot && ['head', 'chest', 'legs', 'feet'].includes(card.slot)) {
+    return card.slot;
+  }
+  const name = (card.name || '').toLowerCase();
+  const desc = (card.desc || '').toLowerCase();
+  const range = (card.range || '').toLowerCase();
+
+  if (range === 'testa' || name.includes('elmo') || name.includes('corona') || name.includes('cappuccio') || name.includes('diadema') || name.includes('maschera') || name.includes('helm') || name.includes('spangenhelm')) {
+    return 'head';
+  }
+  if (range === 'piedi' || name.includes('stival') || name.includes('calzar') || name.includes('babban') || name.includes('boot')) {
+    return 'feet';
+  }
+  if (range === 'gambe' || name.includes('schinier') || name.includes('gambal') || name.includes('coscial') || name.includes('pantal') || name.includes('greaves') || name.includes('gambe')) {
+    return 'legs';
+  }
+  return 'chest';
 };
