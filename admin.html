@@ -6,10 +6,10 @@
   <title>Journey to Ragnarok - Consolle di Amministrazione Suprema</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&family=Metamorphous&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="data.js?v=17"></script>
+  <script src="data.js?v=18"></script>
   <style>
     body { background-color: #06090e; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
     .font-norse { font-family: 'MedievalSharp', cursive; }
@@ -376,12 +376,13 @@
         <p id="cdm-desc" class="whitespace-pre-line"></p>
       </div>
 
-      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-        <button type="button" id="cdm-edit-btn" onclick="window.closeCardDetailModal(); window.editAdminCard(window.currentActiveCardModalId);" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 font-cinzel font-bold text-xs text-white shadow transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Modifica Carta
+      <div class="flex justify-between items-center pt-3 border-t border-slate-800 gap-3">
+        <button type="button" id="cdm-edit-btn" onclick="window.closeCardDetailModal(); window.editAdminCard(window.currentActiveCardModalId);" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 font-cinzel font-bold text-xs text-white shadow-lg transition flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          MODIFICA CARTA
         </button>
-        <button type="button" onclick="window.closeCardDetailModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-cinzel font-bold text-xs text-slate-300">
-          Chiudi
+        <button type="button" onclick="window.closeCardDetailModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 font-cinzel font-bold text-xs text-slate-300 transition">
+          CHIUDI
         </button>
       </div>
     </div>
@@ -509,58 +510,43 @@
 
       container.innerHTML = filtered.length === 0
         ? `<div class="p-8 text-center text-slate-400 font-cinzel col-span-full">Nessuna carta trovata con i filtri correnti.</div>`
-        : filtered.map(c => `
-          <div class="ygo-card type-${c.type} rarity-${(c.rarity||'comune').toLowerCase().replace(/\s+/g,'-')} cursor-pointer hover:scale-[1.02] transition duration-200" onclick="window.openCardDetailModal('${c.id}')" title="Clicca per visualizzare la carta estesa">
-            <div class="card-glass-header flex justify-between items-center px-2 py-1 rounded bg-black/60 border border-white/10">
-              <span class="font-cinzel font-bold text-[11px] text-amber-200 truncate">${c.name}</span>
-              <span class="text-[9px] font-mono text-amber-300 font-bold">${c.cost ? '💰 ' + c.cost : '—'}</span>
-            </div>
+        : filtered.map(c => {
+            const sec = typeof window.classifyCardToDdbSection === 'function' ? window.classifyCardToDdbSection(c) : 'inventory';
+            const badgeLabel = sec === 'actions' ? 'AZIONE' : sec === 'spells' ? 'MAGIA' : 'INVENTARIO';
+            const rarityClass = (c.rarity || 'comune').toLowerCase().replace(/\s+/g, '-');
+            const typeClass = (c.type || 'arma').toLowerCase();
+            const artUrl = c.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[c.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg';
 
-            <div class="flex justify-between items-center px-1 text-[9px] uppercase font-bold text-slate-300">
-              <span>${c.type}</span>
-              <span class="text-amber-300">${c.rarity || 'Comune'}</span>
-            </div>
+            return `
+              <div class="ygo-card compact-card type-${typeClass} rarity-${rarityClass} cursor-pointer group" onclick="window.openCardDetailModal('${c.id}')" title="Clicca sulla carta per aprirla ed esaminare dettagli e modifiche">
+                <div class="relative w-full h-full overflow-hidden rounded-lg bg-black">
+                  <img src="${artUrl}" alt="${c.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
 
-            <div class="ygo-art">
-              <img src="${c.img || window.CARD_ARTWORKS[c.type] || window.CARD_ARTWORKS.arma}">
-            </div>
+                  <!-- Header Overlay -->
+                  <div class="absolute top-1.5 inset-x-1.5 flex justify-between items-center pointer-events-none">
+                    <span class="text-[8px] font-cinzel font-bold px-1.5 py-0.5 rounded bg-black/85 text-amber-200 border border-white/10 uppercase tracking-wider backdrop-blur-sm truncate max-w-[68%]">${c.name}</span>
+                    <span class="text-[7px] font-bold px-1 py-0.5 rounded bg-black/85 text-sky-300 border border-sky-400/30 uppercase backdrop-blur-sm">${badgeLabel}</span>
+                  </div>
 
-            <div class="ygo-lore">
-              <p class="text-[10px] leading-snug line-clamp-3 overflow-hidden">${c.desc || ''}</p>
-              <div class="border-t border-amber-900/30 pt-1 flex justify-between font-mono text-[10px] font-bold">
-                <span class="text-red-900 font-extrabold truncate">EFF: ${c.damage || '—'}</span>
-                <span>${c.weight !== undefined ? c.weight + ' kg' : (c.range || '18m')}</span>
+                  <!-- Footer Glass -->
+                  <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/85 to-transparent pt-4 pb-1.5 px-2 flex justify-between items-end">
+                    <div class="min-w-0 flex-1">
+                      <span class="text-[8px] font-mono text-slate-300 truncate block">${c.type} • ${c.damage || '—'}</span>
+                    </div>
+                    <span class="text-[9px] text-amber-300 font-mono font-bold opacity-90 group-hover:opacity-100 transition ml-1">${c.cost ? '💰 ' + c.cost : ''}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button type="button" onclick="event.stopPropagation(); window.editAdminCard('${c.id}')" class="py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1">
-                <span>✏️</span> MODIFICA
-              </button>
-              ${c.isModifiedCanonical ? `
-                <button type="button" onclick="event.stopPropagation(); window.resetAdminCardToCanonical('${c.id}')" class="py-1.5 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1" title="Ripristina ai valori del manuale">
-                  <span>↩️</span> RIPRISTINA
-                </button>
-              ` : c.isCustom ? `
-                <button type="button" onclick="event.stopPropagation(); window.deleteAdminCard('${c.id}')" class="py-1.5 rounded bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[10px] shadow flex items-center justify-center gap-1">
-                  <span>🗑️</span> ELIMINA
-                </button>
-              ` : `
-                <button type="button" onclick="event.stopPropagation(); window.openCardDetailModal('${c.id}')" class="py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-cinzel font-semibold text-[10px] shadow">
-                  DETTAGLI
-                </button>
-              `}
-            </div>
-          </div>
-        `).join('');
+            `;
+          }).join('');
     };
 
     window.currentActiveCardModalId = null;
 
     window.openCardDetailModal = function(cardId) {
       window.currentActiveCardModalId = cardId;
-      const all = [...(dbState.customCards || []), ...(window.GLOBAL_CARDS_DATABASE || [])];
-      const card = all.find(c => c.id === cardId);
+      const all = typeof window.getAllCards === 'function' ? window.getAllCards(dbState) : (window.GLOBAL_CARDS_DATABASE || []);
+      const card = all.find(c => c.id === cardId || c.name.toLowerCase() === (cardId||'').toLowerCase());
       if (!card) return;
 
       const modal = document.getElementById('card-detail-modal');
@@ -619,17 +605,20 @@
         const dataUrl = evt.target.result;
         document.getElementById('cdm-img').src = dataUrl;
 
-        let card = (dbState.customCards || []).find(c => c.id === window.currentActiveCardModalId);
+        if (!dbState.customCards) dbState.customCards = [];
+        let card = dbState.customCards.find(c => c.id === window.currentActiveCardModalId || (c.name && c.name.toLowerCase() === window.currentActiveCardModalId.toLowerCase()));
         if (card) {
           card.img = dataUrl;
         } else {
           const globalCard = (window.GLOBAL_CARDS_DATABASE || []).find(c => c.id === window.currentActiveCardModalId);
           if (globalCard) {
-            const newCustom = Object.assign({}, globalCard, { id: 'custom_' + Date.now(), img: dataUrl, isCustom: true });
-            if (!dbState.customCards) dbState.customCards = [];
-            dbState.customCards.unshift(newCustom);
-            window.currentActiveCardModalId = newCustom.id;
+            const updated = Object.assign({}, globalCard, { img: dataUrl, isCustom: true, isModifiedCanonical: true });
+            dbState.customCards.push(updated);
+            card = updated;
           }
+        }
+        if (card && typeof window.syncCardUpdateToAllPlayers === 'function') {
+          window.syncCardUpdateToAllPlayers(card, card.name, dbState);
         }
         saveDB();
         renderCards();
@@ -732,12 +721,9 @@
       };
 
       if (!dbState.customCards) dbState.customCards = [];
-      const idx = dbState.customCards.findIndex(c => c.id === cardObj.id);
-      if (idx !== -1) {
-        dbState.customCards[idx] = cardObj;
-      } else {
-        dbState.customCards.unshift(cardObj);
-      }
+      // Rimuove qualsiasi eventuale duplicato con lo stesso ID o lo stesso Nome
+      dbState.customCards = dbState.customCards.filter(c => c.id !== cardObj.id && c.name.toLowerCase() !== cardObj.name.toLowerCase());
+      dbState.customCards.unshift(cardObj);
 
       // Sincronizza la modifica a tutti i player e forzieri!
       if (typeof window.syncCardUpdateToAllPlayers === 'function') {

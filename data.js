@@ -2183,27 +2183,514 @@ window.GLOBAL_CARDS_DATABASE = [
     "img": "assets/items/ramo_runico.jpg",
     "desc": "La sacra runa dell'ispirazione e della parola di Odhinn. Comprendi e parli qualsiasi lingua vivente o antica e puoi imporre il comando di Odhinn (TS Saggezza o costretto a ubbidire per 1 minuto)."
   }
+,
+  {
+      "id": "card_weapon_scure_assalto",
+      "name": "Scure d'Assalto Norrena",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "10 mo",
+      "damage": "1d8+FOR Tagliente",
+      "weight": 1.5,
+      "range": "Mischia (1.5m)",
+      "img": "assets/items/artiglio_montagna.jpg",
+      "desc": "Arma da Guerra (Accurata, JTR Manuale p. 58).\nTipica ascia monomanuale dei predatori norreni, forgiata con lama svasata per penetrare pellicce e armature di cuoio. Proprietà Maestria [Vex]."
+  },
+  {
+      "id": "card_weapon_scure_barbuta",
+      "name": "Scure da Lancio Barbuta",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "5 mo",
+      "damage": "1d6+FOR Tagliente",
+      "weight": 1.0,
+      "range": "Mischia (1.5m) / Lancio (6m/18m)",
+      "img": "assets/items/artiglio_montagna.jpg",
+      "desc": "Arma Semplice (Leggera, Lancio, JTR).\nLa leggendaria Skeggøx con barbetta allungata per agganciare e tirare gli scudi avversari nello Skjaldborg. Proprietà Maestria [Nick]."
+  },
+  {
+      "id": "card_weapon_giavellotto_ferro",
+      "name": "Giavellotto da Battaglia",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "1 mo",
+      "damage": "1d6+FOR Perforante",
+      "weight": 1.0,
+      "range": "Lancio (9m/36m)",
+      "img": "assets/items/gungnir.jpg",
+      "desc": "Arma Semplice da Lancio bilanciata con punta in ferro battuto scandinavo e fusto in frassino flessibile."
+  },
+  {
+      "id": "card_weapon_pugnale_osso",
+      "name": "Pugnale in Osso",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "1 mo",
+      "damage": "1d4+DES Perforante",
+      "weight": 0.5,
+      "range": "Mischia (1.5m) / Lancio (6m/18m)",
+      "img": "assets/items/dente_strega.jpg",
+      "desc": "Pugnale leggero e affilato ricavato da costola d'orso o corno di renna dai cacciatori della taiga."
+  },
+  {
+      "id": "card_weapon_pugnale_selce",
+      "name": "Pugnale di Selce e Pietra Focaia",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "1 mo",
+      "damage": "1d4+DES Perforante",
+      "weight": 0.5,
+      "range": "Mischia (1.5m) / Lancio (6m/18m)",
+      "img": "assets/items/dente_strega.jpg",
+      "desc": "Lama scheggiata ancestrale usata dai fuorilegge Skogarmadhr. Il dorso è smerigliato per produrre scintille con l'acciarino."
+  },
+  {
+      "id": "card_weapon_dardi_ferro",
+      "name": "Dardi in Ferro",
+      "type": "arma",
+      "rarity": "Comune",
+      "cost": "5 ma",
+      "damage": "1d4+DES Perforante",
+      "weight": 0.5,
+      "range": "Lancio (6m/18m)",
+      "img": "assets/items/gungnir.jpg",
+      "desc": "Dardi pesanti da lancio per combattenti a mani nude e lottatori Glima."
+  },
+  {
+      "id": "card_weapon_spada_jarl",
+      "name": "Spada da Guerra dello Jarl",
+      "type": "arma",
+      "rarity": "Non Comune",
+      "cost": "45 mo",
+      "damage": "1d8 (1d10)+FOR Tagliente",
+      "weight": 1.5,
+      "range": "Mischia (1.5m)",
+      "img": "assets/items/spada_ulfberht.jpg",
+      "desc": "Spada d'acciaio prezioso con elsa in bronzo sbalzato e pomolo inciso con le rune di comando e vittoria."
+  },
+  {
+      "id": "card_armor_chainmail_rings",
+      "name": "Cotta di Maglia ad Anelli Norrena",
+      "type": "armatura",
+      "rarity": "Comune",
+      "cost": "75 mo",
+      "damage": "CA 16",
+      "weight": 20.0,
+      "range": "Personale",
+      "img": "assets/items/cotta_maglia.jpg",
+      "desc": "Armatura Pesante formata da migliaia di anelli di ferro ribattuti. Richiede Forza 13. Svantaggio alle prove di Destrezza (Furtività)."
+  },
+  {
+      "id": "card_armor_scale_norse",
+      "name": "Corazza a Scaglie Norrena",
+      "type": "armatura",
+      "rarity": "Comune",
+      "cost": "50 mo",
+      "damage": "CA 14 + Mod DES (max 2)",
+      "weight": 18.0,
+      "range": "Personale",
+      "img": "assets/items/corazza_scaglie.jpg",
+      "desc": "Armatura Media composta da piastre di cuoio sovrapposte a scaglie di ferro. Svantaggio a Furtività."
+  },
+  {
+      "id": "card_armor_boiled_leather",
+      "name": "Corazza di Cuoio Bollito con Trame Runiche",
+      "type": "armatura",
+      "rarity": "Comune",
+      "cost": "25 mo",
+      "damage": "CA 11 + Mod DES",
+      "weight": 4.0,
+      "range": "Personale",
+      "img": "assets/items/corazza_cuoio.jpg",
+      "desc": "Armatura Leggera trattata con cera d'api e oli vegetali, decorata con rune protettive dei Maestri delle Rune."
+  },
+  {
+      "id": "card_armor_huscarl",
+      "name": "Divisa d'Onore dell'Huscarl con Mantello Pesante",
+      "type": "armatura",
+      "rarity": "Non Comune",
+      "cost": "35 mo",
+      "damage": "CA 12 + Mod DES (max 2)",
+      "weight": 6.0,
+      "range": "Personale",
+      "img": "assets/items/mantello_protezione.jpg",
+      "desc": "Divisa militare d'onore della guardia personale del Jarl con mantello pesante impermeabile e spilla d'argento."
+  },
+  {
+      "id": "card_armor_helm_ferro",
+      "name": "Elmo di Ferro Inciso con Rune di Protezione",
+      "type": "armatura",
+      "rarity": "Non Comune",
+      "cost": "20 mo",
+      "damage": "+1 Tiri Salvezza vs Paura",
+      "weight": 2.5,
+      "range": "Personale",
+      "img": "assets/items/elmo_norreno.jpg",
+      "desc": "Elmo a calotta con paranasale e incisioni dell'Ægishjálmr (Timone del Terrore) per fortificare il coraggio."
+  },
+  {
+      "id": "card_shield_oak_round",
+      "name": "Scudo Rotondo di Quercia con Umbone in Ferro",
+      "type": "scudo",
+      "rarity": "Comune",
+      "cost": "10 mo",
+      "damage": "+2 CA",
+      "weight": 3.0,
+      "range": "Mano Secondaria",
+      "img": "assets/items/scudo_rotondo_frassino.jpg",
+      "desc": "Classico scudo tondo dei vichinghi con umbone centrale per deflettere fendenti e serrarsi nel Muro di Scudi."
+  },
+  {
+      "id": "card_shield_asatru",
+      "name": "Scudo con Inciso il Simbolo della Divinità Asatru",
+      "type": "scudo",
+      "rarity": "Non Comune",
+      "cost": "15 mo",
+      "damage": "+2 CA",
+      "weight": 3.0,
+      "range": "Mano Secondaria",
+      "img": "assets/items/scudo_rotondo_frassino.jpg",
+      "desc": "Scudo benedetto dal Blót su cui è dipinto il martello Mjöllnir o il triskele di Odhinn. Funge da Focus Sacro."
+  },
+  {
+      "id": "card_shield_yggdrasill",
+      "name": "Scudo in Legno con Intagli di Yggdrasill",
+      "type": "scudo",
+      "rarity": "Non Comune",
+      "cost": "15 mo",
+      "damage": "+2 CA",
+      "weight": 2.5,
+      "range": "Mano Secondaria",
+      "img": "assets/items/scudo_ombra_fronde.jpg",
+      "desc": "Scudo leggero in legno di frassino intagliato con i rami cosmici di Yggdrasill. Funge da Focus Druidico."
+  },
+  {
+      "id": "card_pack_wild_explorer",
+      "name": "Zaino dell'Esploratore delle Terre Selvagge",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "10 mo",
+      "damage": "Dotazione Completa",
+      "weight": 12.0,
+      "range": "Inventario",
+      "img": "assets/items/borsa_conservante.jpg",
+      "desc": "Zaino da spedizione contenente: sacco a pelo in pelliccia, gamella, acciarino, 10 torce, 10 razioni norrene di carne essiccata, otre d'acqua e 15m di corda di canapa."
+  },
+  {
+      "id": "card_pack_adventurer",
+      "name": "Zaino dell'Avventuriero",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "12 mo",
+      "damage": "Dotazione Completa",
+      "weight": 11.0,
+      "range": "Inventario",
+      "img": "assets/items/borsa_conservante.jpg",
+      "desc": "Zaino rinforzato con sacco a pelo, gavetta, acciarino, 10 torce, 10 razioni e corda di canapa."
+  },
+  {
+      "id": "card_pack_scholar",
+      "name": "Zaino da Studioso dei Misteri",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "15 mo",
+      "damage": "Dotazione Studio",
+      "weight": 5.0,
+      "range": "Inventario",
+      "img": "assets/items/borsa_conservante.jpg",
+      "desc": "Contiene: rotoli di cuoio, inchiostro nero vegetale, pennini d'uccello, calamaio, candele e pietra focaia."
+  },
+  {
+      "id": "card_pack_priest",
+      "name": "Zaino del Sacerdote del Blót",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "15 mo",
+      "damage": "Dotazione Sacra",
+      "weight": 6.0,
+      "range": "Inventario",
+      "img": "assets/items/borsa_conservante.jpg",
+      "desc": "Contiene: ciotola rituale per le offerte del Blót, incenso di bosco sacro, abiti cerimoniali e candele d'api."
+  },
+  {
+      "id": "card_tool_thieves",
+      "name": "Arnesi da Scasso e Disattivazione Trappole",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "25 mo",
+      "damage": "Strumenti di Precisione",
+      "weight": 1.0,
+      "range": "Mano",
+      "img": "assets/items/dente_strega.jpg",
+      "desc": "Set norreno di grimaldelli, ferri uncinati e cunei in osso per forzare serrature e disinnescare trappole."
+  },
+  {
+      "id": "card_tool_runecarving",
+      "name": "Set di Strumenti per Incisione Runica",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "15 mo",
+      "damage": "Strumenti Futhark",
+      "weight": 2.0,
+      "range": "Mano",
+      "img": "assets/items/ramo_runico.jpg",
+      "desc": "Scalpelli da pietra e legno, inchiostro sacro e 24 ciottoli vergini per incidere le Rune del Destino."
+  },
+  {
+      "id": "card_tool_herbalism",
+      "name": "Borsa con Strumenti da Erborista",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "5 mo",
+      "damage": "Strumenti Erbe",
+      "weight": 1.5,
+      "range": "Mano",
+      "img": "assets/items/pozione_guarigione.jpg",
+      "desc": "Mortaio e pestello, forbici di ferro, fiale e sacchetti per preparare impiastri e antidoti naturali."
+  },
+  {
+      "id": "card_item_horn_skald",
+      "name": "Corno da Battaglia dello Skaldo",
+      "type": "oggetto",
+      "rarity": "Non Comune",
+      "cost": "20 mo",
+      "damage": "Strumento Musicale",
+      "weight": 1.5,
+      "range": "Suono udibile fino a 300m",
+      "img": "assets/items/tromba_valhalla.jpg",
+      "desc": "Grande corno da battaglia intagliato con saghe di eroi. Fornisce Vantaggio alle prove di Intrattenere per canti di guerra."
+  },
+  {
+      "id": "card_item_talisman_blot",
+      "name": "Talismano Sacro del Blót (Focus Divino)",
+      "type": "oggetto",
+      "rarity": "Non Comune",
+      "cost": "15 mo",
+      "damage": "Focus Sacro",
+      "weight": 0.5,
+      "range": "Personale",
+      "img": "assets/items/amuleto_salute.jpg",
+      "desc": "Pietra levigata con runa divina consacrata con l'idromele del Blót. Indispensabile come focus per i Gothi."
+  },
+  {
+      "id": "card_item_druidic_focus",
+      "name": "Focus Druidico di Vischio e Corno",
+      "type": "oggetto",
+      "rarity": "Non Comune",
+      "cost": "10 mo",
+      "damage": "Focus Druidico",
+      "weight": 0.5,
+      "range": "Personale",
+      "img": "assets/items/ramo_runico.jpg",
+      "desc": "Ramo di vischio sacro intrecciato su corno di cervo delle foreste primordiali di Midgardr."
+  },
+  {
+      "id": "card_item_sunstone",
+      "name": "Pietra Solare Runica (Strumenti da Navigatore)",
+      "type": "oggetto",
+      "rarity": "Non Comune",
+      "cost": "25 mo",
+      "damage": "Navigazione Solare",
+      "weight": 0.3,
+      "range": "Visivo",
+      "img": "assets/items/pietra_del_sole.jpg",
+      "desc": "Calcite ottica (Sólarsteinn) che polarizza la luce solare, consentendo di individuare la posizione del Sole anche attraverso nuvole fitte o nebbia marina."
+  },
+  {
+      "id": "card_item_cloth_vikingr",
+      "name": "Abito Sfarzoso da Razziatore",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "15 mo",
+      "damage": "Vestiario Pregiato",
+      "weight": 2.0,
+      "range": "Personale",
+      "img": "assets/items/mantello_protezione.jpg",
+      "desc": "Tunica di lana finemente tessuta con bordature dorate e spilla in bronzo per ostentare onore e bottini."
+  },
+  {
+      "id": "card_item_oath_bracelet",
+      "name": "Bracciale del Giuramento con Runa del Focolare",
+      "type": "oggetto",
+      "rarity": "Non Comune",
+      "cost": "20 mo",
+      "damage": "Simbolo di Fedeltà",
+      "weight": 0.2,
+      "range": "Personale",
+      "img": "assets/items/anello_draupnir.jpg",
+      "desc": "Bracciale spiraliforme da braccio in argento massiccio. Chi infrange un giuramento fatto su di esso diviene Níðingr (disonorato)."
+  },
+  {
+      "id": "card_item_clay_flask",
+      "name": "Otre in Terracotta",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "2 ma",
+      "damage": "Capienza 2 Litri",
+      "weight": 1.0,
+      "range": "Inventario",
+      "img": "assets/items/pozione_guarigione.jpg",
+      "desc": "Otre rivestito di pece naturale all'interno per conservare idromele fresco durante le lunghe traversate."
+  },
+  {
+      "id": "card_item_norse_pouch",
+      "name": "Borsa di Cuoio Norrena",
+      "type": "oggetto",
+      "rarity": "Comune",
+      "cost": "1 mo",
+      "damage": "Capienza 3 kg",
+      "weight": 0.5,
+      "range": "Cintura",
+      "img": "assets/items/borsa_conservante.jpg",
+      "desc": "Borsa da cintura in cuoio d'alce con fibbia a teste di corvo per riporre monete, rune e piccoli oggetti."
+  }
 ];
 
-// Funzione helper per ottenere tutte le carte disponibili (Canoniche + Custom Admin)
+// ==============================================================================
+// MOTORE RISOLUZIONE UNIVERSALE CLAN DI MIDGARDR (CON TOLLERANZA ALIAS & KEYWORDS)
+// ==============================================================================
+window.resolveClan = function(query) {
+  const clans = window.JTR_CLANS || [];
+  if (!clans.length) return null;
+  if (!query) return clans[0];
+
+  let qStr = "";
+  if (typeof query === 'object') {
+    qStr = String(query.clanId || query.clan || query.clanName || query.background || query.name || '');
+  } else {
+    qStr = String(query);
+  }
+
+  const raw = qStr.toLowerCase().trim();
+  const direct = clans.find(c => c.id.toLowerCase() === raw || c.name.toLowerCase() === raw);
+  if (direct) return direct;
+
+  let norm = raw.replace(/[öòó]/g, 'o').replace(/['\s_\-]/g, '');
+  norm = norm.replace(/odino|odyn/g, 'odin');
+
+  const aliasMap = [
+    { id: 'odhinns_eye', keywords: ['odin', 'occhio'] },
+    { id: 'jotunn_sons', keywords: ['jotun'] },
+    { id: 'icy_crow', keywords: ['corv', 'crow', 'ghiaccio'] },
+    { id: 'wolves_shadow', keywords: ['lup', 'wolf', 'ombra', 'notte'] },
+    { id: 'gjallarhorn', keywords: ['gjallarhorn', 'corno'] },
+    { id: 'bear_warriors', keywords: ['orso', 'bear'] }
+  ];
+
+  for (const item of aliasMap) {
+    if (item.id === raw || item.keywords.some(k => norm.includes(k))) {
+      const found = clans.find(c => c.id === item.id);
+      if (found) return found;
+    }
+  }
+
+  return clans[0];
+};
+
+// ==============================================================================
+// RISOLUZIONE & LINKING DI OGGETTI/ARMI AI RECORD UFFICIALI DEL DATABASE
+// ==============================================================================
+window.resolveDatabaseCardForItem = function(item, allCards) {
+  if (!item) return null;
+  const all = allCards || (typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []));
+  const rawName = (item.name || '').trim();
+  const cleanName = rawName.split('(')[0].trim().toLowerCase();
+
+  // 1. Cerca per uguaglianza esatta ID o Nome
+  let found = all.find(c => c.id === item.id || c.name.toLowerCase() === rawName.toLowerCase() || c.name.toLowerCase() === cleanName);
+
+  // 2. Cerca per inclusione testuale del nome
+  if (!found) {
+    found = all.find(c => c.name.toLowerCase().includes(cleanName) || cleanName.includes(c.name.toLowerCase()));
+  }
+
+  // 3. Fallback semantico per categoria / parole chiave
+  if (!found) {
+    if (cleanName.includes('scure') || cleanName.includes('ascia')) {
+      found = (cleanName.includes('lancio') || cleanName.includes('barbuta'))
+        ? all.find(c => c.id === 'card_weapon_scure_barbuta' || c.id === 'card_weapon_handaxe')
+        : all.find(c => c.id === 'card_weapon_scure_assalto' || c.id === 'card_weapon_battleaxe');
+    } else if (cleanName.includes('giavellotto')) {
+      found = all.find(c => c.id === 'card_weapon_giavellotto_ferro' || c.id === 'card_weapon_javelin');
+    } else if (cleanName.includes('spada')) {
+      if (cleanName.includes('corta')) found = all.find(c => c.id === 'card_weapon_shortsword');
+      else if (cleanName.includes('due mani') || cleanName.includes('spadone')) found = all.find(c => c.id === 'card_weapon_greatsword');
+      else if (cleanName.includes('jarl')) found = all.find(c => c.id === 'card_weapon_spada_jarl');
+      else found = all.find(c => c.id === 'heirloom_odhinns_eye' || c.id === 'card_weapon_longsword');
+    } else if (cleanName.includes('arco')) {
+      found = cleanName.includes('lungo') ? all.find(c => c.id === 'card_weapon_longbow') : all.find(c => c.id === 'card_weapon_shortbow');
+    } else if (cleanName.includes('scudo')) {
+      found = all.find(c => c.id === 'card_shield_oak_round' || c.id === 'card_shield_round');
+    } else if (cleanName.includes('cotta') || cleanName.includes('maglia')) {
+      found = all.find(c => c.id === 'card_armor_chainmail_rings' || c.id === 'card_armor_chainmail');
+    } else if (cleanName.includes('scaglie')) {
+      found = all.find(c => c.id === 'card_armor_scale_norse' || c.id === 'card_armor_scalemail');
+    } else if (cleanName.includes('cuoio')) {
+      found = all.find(c => c.id === 'card_armor_boiled_leather' || c.id === 'card_armor_leather');
+    } else if (cleanName.includes('zaino') || cleanName.includes('esploratore') || cleanName.includes('avventuriero')) {
+      found = all.find(c => c.id === 'card_pack_wild_explorer' || c.id === 'card_pack_adventurer');
+    }
+  }
+
+  const instId = item.id && !item.id.includes('undefined') ? item.id : ('item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+
+  if (found) {
+    return {
+      ...found,
+      id: instId,
+      canonicalId: found.id,
+      qty: item.qty || 1,
+      desc: item.desc ? `${found.desc}\n\n[Dotazione]: ${item.desc}` : found.desc
+    };
+  }
+
+  // Fallback completo valido con tutti i parametri necessari per visualizzazione ed esecuzione
+  return {
+    id: instId,
+    canonicalId: 'custom_' + instId,
+    name: rawName || 'Oggetto di Midgardr',
+    type: item.type || 'oggetto',
+    rarity: item.rarity || 'Comune',
+    damage: item.damage || (item.desc && item.desc.includes('d') ? item.desc.match(/\d+d\d+[\+\d]*/)?.[0] : '—') || '—',
+    cost: item.cost || '—',
+    range: item.range || (item.type === 'arma' ? 'Mischia (1.5m)' : '—'),
+    weight: item.weight || 1,
+    img: item.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[item.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg',
+    desc: item.desc || `${rawName} dei Nove Mondi di Midgardr.`,
+    qty: item.qty || 1
+  };
+};
+
+// Funzione helper per ottenere tutte le carte disponibili (DEDUPLICAZIONE RIGOROSA PER ID E NOME: NESSUN CLONE!)
 window.getAllCards = function(state) {
   const canonical = window.GLOBAL_CARDS_DATABASE || [];
   const currentDb = state || window.dbState || {};
   const custom = currentDb.customCards || [];
 
   const cardMap = new Map();
-  // Inserisce prima le carte canoniche
-  canonical.forEach(c => cardMap.set(c.id, { ...c, isCustom: false }));
-  // Sovrascrive o aggiunge con le carte modificate/create (nessun clone!)
+  // 1. Inserisce le carte canoniche
+  canonical.forEach(c => {
+    cardMap.set(c.id, { ...c, isCustom: false });
+  });
+
+  // 2. Applica le modifiche in-place o inserisce le carte custom (se una custom ha lo stesso nome di una canonica, sovrascrive senza duplicare!)
   custom.forEach(c => {
-    const isOverride = canonical.some(orig => orig.id === c.id);
-    cardMap.set(c.id, { ...c, isCustom: true, isModifiedCanonical: isOverride });
+    // Trova se corrisponde a una canonica per ID o per Nome
+    const matchedCanonical = canonical.find(orig => orig.id === c.id || orig.name.toLowerCase() === (c.name || '').toLowerCase());
+    const finalId = matchedCanonical ? matchedCanonical.id : c.id;
+
+    cardMap.set(finalId, {
+      ...c,
+      id: finalId,
+      isCustom: true,
+      isModifiedCanonical: !!matchedCanonical
+    });
   });
 
   return Array.from(cardMap.values());
 };
 
-// Sincronizza istantaneamente la modifica di una carta a tutti i giocatori, membri e forzieri
+// Sincronizza istantaneamente la modifica in-place di una carta a tutti i giocatori, membri e forzieri
 window.syncCardUpdateToAllPlayers = function(cardObj, originalName, targetDb) {
   const db = targetDb || window.dbState;
   if (!db || !cardObj) return;
@@ -2212,8 +2699,8 @@ window.syncCardUpdateToAllPlayers = function(cardObj, originalName, targetDb) {
   const matchFn = (c) => {
     if (!c) return false;
     if (c.id === targetId) return true;
-    if (typeof c.id === 'string' && c.id.startsWith('inst_' + targetId)) return true;
     if (c.canonicalId && c.canonicalId === targetId) return true;
+    if (c.name && cardObj.name && c.name.toLowerCase() === cardObj.name.toLowerCase()) return true;
     if (originalName && c.name && c.name.toLowerCase() === originalName.toLowerCase()) return true;
     return false;
   };
@@ -2228,84 +2715,45 @@ window.syncCardUpdateToAllPlayers = function(cardObj, originalName, targetDb) {
     c.weight = cardObj.weight !== undefined ? cardObj.weight : c.weight;
     c.img = cardObj.img;
     c.desc = cardObj.desc;
-    if (cardObj.level !== undefined) c.level = cardObj.level;
-    if (cardObj.castingTime !== undefined) c.castingTime = cardObj.castingTime;
-    if (cardObj.duration !== undefined) c.duration = cardObj.duration;
-    if (cardObj.components !== undefined) c.components = cardObj.components;
+    if (cardObj.castingTime) c.castingTime = cardObj.castingTime;
+    if (cardObj.duration) c.duration = cardObj.duration;
+    if (cardObj.components) c.components = cardObj.components;
   };
 
-  // 1. Aggiorna in tutte le campagne (camp.chest e camp.members)
-  Object.values(db.campaigns || {}).forEach(camp => {
-    if (camp.chest && Array.isArray(camp.chest)) {
-      camp.chest.forEach(c => {
-        if (matchFn(c)) applyUpdate(c);
+  // 1. Aggiorna i personaggi di tutti gli account
+  if (db.users) {
+    Object.values(db.users).forEach(u => {
+      (u.characters || []).forEach(ch => {
+        (ch.cards || []).forEach(c => {
+          if (matchFn(c)) applyUpdate(c);
+        });
       });
-    }
-    if (camp.members && typeof camp.members === 'object') {
-      Object.values(camp.members).forEach(mChar => {
-        if (mChar && mChar.cards && Array.isArray(mChar.cards)) {
-          mChar.cards.forEach(c => {
-            if (matchFn(c)) applyUpdate(c);
-          });
-        }
-      });
-    }
-  });
+    });
+  }
 
-  // 2. Aggiorna in tutti i personaggi registrati di tutti gli utenti
-  Object.values(db.users || {}).forEach(u => {
-    if (u && u.characters && Array.isArray(u.characters)) {
-      u.characters.forEach(char => {
-        if (char && char.cards && Array.isArray(char.cards)) {
-          char.cards.forEach(c => {
-            if (matchFn(c)) applyUpdate(c);
-          });
-        }
-      });
-    }
-  });
-};
-
-window.classifyCardToDdbSection = function(card) {
-  const t = (card.type || "").toLowerCase();
-  if (t === "arma") return "actions";
-  if (t === "incantesimo") return "spells";
-  return "inventory";
-};
-
-window.autoFitImageFile = function(file, targetW, targetH, callback) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const img = new Image();
-    img.onload = function() {
-      const c = document.createElement("canvas");
-      c.width = targetW;
-      c.height = targetH;
-      const ctx = c.getContext("2d");
-
-      const imgR = img.width / img.height;
-      const targetR = targetW / targetH;
-      let dW, dH, oX, oY;
-
-      if (imgR > targetR) {
-        dH = targetH;
-        dW = img.width * (targetH / img.height);
-        oX = (targetW - dW) / 2;
-        oY = 0;
-      } else {
-        dW = targetW;
-        dH = img.height * (targetW / img.width);
-        oX = 0;
-        oY = (targetH - dH) / 2;
+  // 2. Aggiorna membri del party e forzieri di tutte le campagne
+  if (db.campaigns) {
+    Object.values(db.campaigns).forEach(camp => {
+      if (camp.chest) {
+        camp.chest.forEach(c => {
+          if (matchFn(c)) applyUpdate(c);
+        });
       }
+      if (camp.members) {
+        Object.values(camp.members).forEach(mChar => {
+          (mChar.cards || []).forEach(c => {
+            if (matchFn(c)) applyUpdate(c);
+          });
+        });
+      }
+    });
+  }
 
-      ctx.fillStyle = "#090d12";
-      ctx.fillRect(0, 0, targetW, targetH);
-      ctx.drawImage(img, oX, oY, dW, dH);
-      callback(c.toDataURL("image/jpeg", 0.82));
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
+  // 3. Aggiorna in memoria anche GLOBAL_CARDS_DATABASE per sincronia immediata nell'app
+  if (window.GLOBAL_CARDS_DATABASE) {
+    const origIdx = window.GLOBAL_CARDS_DATABASE.findIndex(c => c.id === targetId || (c.name && c.name.toLowerCase() === (originalName || cardObj.name).toLowerCase()));
+    if (origIdx !== -1) {
+      applyUpdate(window.GLOBAL_CARDS_DATABASE[origIdx]);
+    }
+  }
 };

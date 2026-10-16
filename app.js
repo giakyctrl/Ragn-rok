@@ -556,13 +556,13 @@ window.renderBuilderClans = function() {
   container.innerHTML = window.JTR_CLANS.map(clan => {
     const active = window.selectedBuilderClanId === clan.id;
     return `
-      <div onclick="window.selectedBuilderClanId='${clan.id}'; window.renderBuilderClans(); window.recalcBuilderStats();"
-           class="cursor-pointer rounded-xl p-3 border transition ${active ? 'bg-sky-950/70 border-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.35)]' : 'bg-slate-950 border-slate-800 opacity-75'}">
+      <div onclick="window.selectBuilderClan('${clan.id}')"
+           class="cursor-pointer rounded-xl p-3 border transition ${active ? 'bg-sky-950/90 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] scale-[1.02]' : 'bg-slate-950 border-slate-800 opacity-75 hover:opacity-100 hover:border-slate-700'}">
         <div class="flex items-center gap-3">
           <img src="${clan.crest}" class="w-10 h-10 object-contain drop-shadow flex-shrink-0" alt="${clan.name}">
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-center">
-              <span class="font-cinzel font-bold text-xs text-white">${clan.name}</span>
+              <span class="font-cinzel font-bold text-xs ${active ? 'text-sky-300' : 'text-white'}">${clan.name}</span>
               <span class="text-[10px] text-amber-300 font-bold">${clan.bonusText.split(',')[0]}</span>
             </div>
             <p class="text-[10px] text-slate-400 mt-0.5 leading-snug">${clan.trait}</p>
@@ -571,6 +571,14 @@ window.renderBuilderClans = function() {
       </div>
     `;
   }).join('');
+};
+
+window.selectBuilderClan = function(clanId) {
+  window.selectedBuilderClanId = clanId;
+  const cfClan = document.getElementById('cf-clan');
+  if (cfClan) cfClan.value = clanId;
+  window.renderBuilderClans();
+  window.recalcBuilderStats();
 };
 
 window.onBuilderSelectionChange = function() {
@@ -635,7 +643,8 @@ window.applyStandardArray = function() {
 window.recalcBuilderStats = function() {
   const raceObj = window.JTR_RACES.find(r => r.id === document.getElementById('cf-race').value) || window.JTR_RACES[0];
   const clsObj = window.JTR_CLASSES.find(c => c.id === document.getElementById('cf-class').value) || window.JTR_CLASSES[0];
-  const clanObj = window.JTR_CLANS.find(c => c.id === window.selectedBuilderClanId) || window.JTR_CLANS[0];
+  const selClanKey = document.getElementById('cf-clan')?.value || window.selectedBuilderClanId;
+  const clanObj = (typeof window.resolveClan === 'function' ? window.resolveClan(selClanKey) : null) || window.JTR_CLANS[0];
   const lvl = parseInt(document.getElementById('cf-level').value) || 1;
 
   const cosVal = (parseInt(document.getElementById('cf-stat-COS').value) || 10) + (raceObj.bonus.COS || 0) + (clanObj.bonus.COS || 0);
@@ -748,16 +757,36 @@ window.saveFullCharacterSheet = function(e) {
     notes: document.getElementById('cf-notes').value.trim() || 'Nessuna nota.',
     cards: (() => {
       const allC = typeof window.getAllCards === "function" ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
-      const initCards = [...(startingGear.items || [])];
+      const initCards = [];
+
+      // 1. Cimelio Sacro del Clan di Midgardr (con record completo del compendio)
       if (clanObj.heirloom) {
-        initCards.unshift({ ...clanObj.heirloom, id: 'heirloom_' + Date.now() });
+        const foundH = allC.find(c => c.id === clanObj.heirloom.id || c.name.toLowerCase() === clanObj.heirloom.name.toLowerCase());
+        const baseH = foundH ? { ...foundH } : { ...clanObj.heirloom };
+        initCards.push({
+          ...baseH,
+          id: 'heirloom_' + Date.now(),
+          canonicalId: (foundH && foundH.id) || clanObj.heirloom.id
+        });
       }
+
+      // 2. Equipaggiamento e Armi Iniziali di Classe e Background collegati al Database
+      if (startingGear && startingGear.items) {
+        startingGear.items.forEach((it, idx) => {
+          const resolved = (typeof window.resolveDatabaseCardForItem === 'function')
+            ? window.resolveDatabaseCardForItem(it, allC)
+            : { ...it, id: 'item_' + Date.now() + '_' + idx };
+          if (resolved) initCards.push(resolved);
+        });
+      }
+
+      // 3. Incantesimi, Trucchetti e Rune Iniziali
       if (startingSpells) {
         const spellNames = [...(startingSpells.spells || []), ...(startingSpells.cantrips || []), ...(startingSpells.runes || [])];
         spellNames.forEach((sName, sIdx) => {
           const found = allC.find(c => c.name.toLowerCase().includes(sName.toLowerCase()) || sName.toLowerCase().includes(c.name.toLowerCase()));
           if (found) {
-            initCards.push({ ...found, id: 'spell_init_' + Date.now() + '_' + sIdx });
+            initCards.push({ ...found, id: 'spell_init_' + Date.now() + '_' + sIdx, canonicalId: found.id });
           }
         });
       }
@@ -1016,7 +1045,7 @@ window.openCardDetailModal = function(cardId) {
   window.currentActiveCardModalId = cardId;
   let card = null;
   const ch = window.getMyCharacter();
-  if (ch && ch.cards) card = ch.cards.find(c => c.id === cardId);
+  if (ch && ch.cards) card = ch.cards.find(c => c.id === cardId || (c.name && c.name.toLowerCase() === String(cardId).toLowerCase()));
   if (!card && window.dbState && window.dbState.campaigns) {
     for (const code in window.dbState.campaigns) {
       const camp = window.dbState.campaigns[code];
@@ -1108,27 +1137,9 @@ window.handleCardCustomImageUpload = function(e) {
 };
 
 window.openClanDetailModal = function(clanId) {
-  let clan = null;
   const ch = window.getMyCharacter();
-  const searchKey = clanId || (ch ? (ch.clanId || ch.clan || ch.clanName) : null);
-
-  if (searchKey) {
-    const norm = String(searchKey).toLowerCase().trim();
-    clan = (window.JTR_CLANS || []).find(c => 
-      c.id.toLowerCase() === norm || 
-      c.name.toLowerCase() === norm ||
-      c.name.toLowerCase().includes(norm) ||
-      norm.includes(c.id.toLowerCase()) ||
-      norm.includes(c.name.toLowerCase())
-    );
-  }
-  if (!clan && ch) {
-    const allText = `${ch.clanName || ''} ${ch.background || ''} ${ch.name || ''}`.toLowerCase();
-    clan = (window.JTR_CLANS || []).find(c => allText.includes(c.id.toLowerCase()) || allText.includes(c.name.toLowerCase()));
-  }
-  if (!clan && window.JTR_CLANS && window.JTR_CLANS.length > 0) {
-    clan = window.JTR_CLANS[0];
-  }
+  const target = clanId || ch;
+  const clan = (typeof window.resolveClan === 'function' ? window.resolveClan(target) : null) || (window.JTR_CLANS && window.JTR_CLANS[0]);
   if (!clan) return;
 
   const modal = document.getElementById('clan-detail-modal');
@@ -1432,7 +1443,41 @@ window.renderDdbSectionContent = function(ch) {
   }
 
   if (window.activeDdbSection === 'actions' || window.activeDdbSection === 'inventory' || window.activeDdbSection === 'spells') {
-    const sectionCards = allCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
+    // Auto-idratazione e collegamento immediato per carte prive di ID o descrizione (es. personaggi preesistenti)
+    if (ch.cards && ch.cards.length > 0) {
+      const allDb = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
+      let changed = false;
+      ch.cards.forEach((c, idx) => {
+        if (!c.id || c.id === 'undefined') {
+          c.id = 'card_inst_' + Date.now() + '_' + idx;
+          changed = true;
+        }
+        if (!c.desc || !c.damage || c.damage === '—' || !c.img || c.img.includes('undefined')) {
+          if (typeof window.resolveDatabaseCardForItem === 'function') {
+            const matched = window.resolveDatabaseCardForItem(c, allDb);
+            if (matched) {
+              c.name = c.name || matched.name;
+              c.type = c.type || matched.type;
+              c.rarity = c.rarity || matched.rarity;
+              if (matched.damage && matched.damage !== '—') c.damage = matched.damage;
+              if (matched.cost) c.cost = matched.cost;
+              if (matched.range) c.range = matched.range;
+              if (matched.weight !== undefined) c.weight = matched.weight;
+              if (matched.img) c.img = matched.img;
+              if (matched.desc) c.desc = matched.desc;
+              c.canonicalId = matched.canonicalId || matched.id;
+              changed = true;
+            }
+          }
+        }
+      });
+      if (changed) {
+        window.saveDB();
+      }
+    }
+
+    const currentCards = ch.cards || [];
+    const sectionCards = currentCards.filter(c => window.classifyCardToDdbSection(c) === window.activeDdbSection);
     body.innerHTML = sectionCards.length === 0
       ? `<div class="ddb-top-card rounded-2xl p-6 text-center text-xs text-slate-400">Nessuna carta in <strong>${secObj.label}</strong>. Il Dungeon Master ti assegnerà equipaggiamenti, rune e incantesimi!</div>`
       : `<div class="cards-flow-grid py-2 px-1">${sectionCards.map(c => window.buildYgoCardHTML(c, true)).join('')}</div>`;
@@ -1557,11 +1602,7 @@ window.renderAllViews = function() {
     const clanNameEl = document.getElementById('sheet-clan-name');
     const clanTraitEl = document.getElementById('sheet-clan-trait');
 
-    const matchedClan = (window.JTR_CLANS || []).find(c =>
-      (ch.clanId && c.id === ch.clanId) ||
-      (ch.clan && c.id === ch.clan) ||
-      (ch.clanName && (c.name.toLowerCase() === ch.clanName.toLowerCase() || c.name.toLowerCase().includes(ch.clanName.toLowerCase()) || ch.clanName.toLowerCase().includes(c.id)))
-    ) || window.JTR_CLANS[0];
+    const matchedClan = (typeof window.resolveClan === 'function' ? window.resolveClan(ch) : null) || window.JTR_CLANS[0];
 
     if (clanCrestEl) clanCrestEl.src = (matchedClan && matchedClan.crest) || ch.clanCrest || 'assets/clans/Logo-Bear_Warriors.png';
     if (clanNameEl) clanNameEl.textContent = (matchedClan && matchedClan.name) || ch.clanName || 'Midgardr';
