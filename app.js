@@ -1,3 +1,50 @@
+// Fallback difensivi globali per garantire resilienza all'interfaccia e alle sezioni
+if (typeof window.classifyCardToDdbSection !== 'function') {
+  window.classifyCardToDdbSection = function(card) {
+    if (!card) return "inventory";
+    const t = (card.type || "").toLowerCase().trim();
+    if (t === "arma" || t === "attacco" || t === "azione") return "actions";
+    if (t === "incantesimo" || t === "magia" || t === "runa") return "spells";
+    return "inventory";
+  };
+}
+
+if (typeof window.autoFitImageFile !== 'function') {
+  window.autoFitImageFile = function(file, targetW, targetH, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = new Image();
+      img.onload = function() {
+        const c = document.createElement("canvas");
+        c.width = targetW;
+        c.height = targetH;
+        const ctx = c.getContext("2d");
+        const imgR = img.width / img.height;
+        const targetR = targetW / targetH;
+        let dW, dH, oX, oY;
+        if (imgR > targetR) {
+          dH = targetH;
+          dW = img.width * (targetH / img.height);
+          oX = (targetW - dW) / 2;
+          oY = 0;
+        } else {
+          dW = targetW;
+          dH = img.height * (targetW / img.width);
+          oX = 0;
+          oY = (targetH - dH) / 2;
+        }
+        ctx.fillStyle = "#090d12";
+        ctx.fillRect(0, 0, targetW, targetH);
+        ctx.drawImage(img, oX, oY, dW, dH);
+        callback(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+}
+
 // ============================================================================
 // 1. MOTORE CANVAS REATTIVO ALLE CONDIZIONI DEL PERSONAGGIO
 // (Normale: Neve | Avvelenato: Gas Verde | Stordito: Onde Senso di Ragno Bianche
