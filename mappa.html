@@ -552,9 +552,9 @@
     </div>
   </div>
 
-  <!-- 11b. MODALE PERSONALIZZAZIONE MINIATURA 3D (PRE-MAP POPUP & FUCINA) -->
+  <!-- 11b. MODALE PERSONALIZZAZIONE MINIATURA 3D (PRE-MAP POPUP CON ANTEPRIMA 3D A DESTRA) -->
   <div id="modal-miniature-customizer" class="hidden fixed inset-0 z-50 bg-[#06090e]/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
-    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
+    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
       <!-- HEADER FUCINA -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/30 bg-slate-950/80">
         <div class="flex items-center gap-3">
@@ -566,120 +566,137 @@
             <span class="text-[10px] text-slate-400">Personalizza la tua miniatura prima di scendere sul campo di battaglia</span>
           </div>
         </div>
-        <button onclick="window.closeMiniatureCustomizer()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
+        <button id="btn-close-customizer" onclick="window.closeMiniatureCustomizer()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
       </div>
 
-      <!-- CORPO FUCINA -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-[#080d17]">
-        <!-- ANTEPRIMA MINIATURA LIVE -->
-        <div class="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 flex items-center gap-4 shadow-inner">
-          <div class="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-400 flex items-center justify-center bg-slate-900 shadow-lg flex-shrink-0">
-            <img id="custom-preview-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-full h-full object-cover">
-            <div id="custom-preview-ring" class="absolute inset-0 rounded-2xl border-4 border-amber-400 pointer-events-none shadow-[0_0_15px_rgba(245,158,11,0.8)]"></div>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <h4 id="custom-preview-name" class="font-cinzel font-black text-sm text-white">Ragnar Lodbrok</h4>
-              <span id="custom-preview-tag" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase border border-amber-500/30">Modello: Berserker</span>
+      <!-- CORPO FUCINA A DUE COLONNE (OPZIONI A SINISTRA, ANTEPRIMA 3D A DESTRA) -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#080d17]">
+        <!-- COLONNA SINISTRA: SELEZIONE MODELLO, AURA E PIEDISTALLO (7 COLONNE SU 12) -->
+        <div class="md:col-span-7 space-y-4">
+          <!-- 1. SCELTA MODELLO 3D FIGURINA -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">1. Scegli Modello Scolpito 3D:</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button type="button" onclick="window.selectMiniatureModel('berserker')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition" data-model="berserker">
+                <div class="font-cinzel font-bold text-xs text-amber-300">🪓 Berserker</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Spada & Scudo rotondo</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('shieldmaiden')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="shieldmaiden">
+                <div class="font-cinzel font-bold text-xs text-sky-300">🛡️ Shieldmaiden</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Grande Scudo & Lancia</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('runemaster')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="runemaster">
+                <div class="font-cinzel font-bold text-xs text-purple-300">⚡ Runemaster</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Cappuccio & Bastone</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('valkyrie')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="valkyrie">
+                <div class="font-cinzel font-bold text-xs text-amber-200">🪽 Valkyria</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Ali dorate & Lancia</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('wolf')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="wolf">
+                <div class="font-cinzel font-bold text-xs text-red-300">🐺 Fenrir Wolf</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Lupo quadrupede</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('giant')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="giant">
+                <div class="font-cinzel font-bold text-xs text-cyan-300">❄️ Jotunn Giant</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Colosso & Clava</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('draugr')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="draugr">
+                <div class="font-cinzel font-bold text-xs text-emerald-300">💀 Draugr</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Non-morto risorto</span>
+              </button>
             </div>
-            <p id="custom-preview-desc" class="text-[11px] text-slate-300 mt-1 leading-snug">
-              Guerriero d'assalto con ascia da battaglia e mantello di lupo.
-            </p>
-            <div class="flex items-center gap-2 mt-2 text-[10px]">
-              <span class="text-slate-400">Piedistallo: <strong id="custom-preview-pedestal" class="text-sky-300">Ardesia Runica</strong></span> &bull;
-              <span class="text-slate-400">Aura: <strong id="custom-preview-aura" class="text-amber-400">Ambra di Freya</strong></span>
+          </div>
+
+          <!-- 2. SCELTA AURA ANELLO DI FAZIONE -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">2. Colore Anello Runico della Fazione:</label>
+            <div class="grid grid-cols-5 gap-2 text-center">
+              <button type="button" onclick="window.selectRingColor('amber', 0xf59e0b, '#f59e0b')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt" data-color="amber">
+                <span class="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+                <span class="text-[9px] font-bold text-amber-300">Ambra</span>
+              </button>
+              <button type="button" onclick="window.selectRingColor('frost', 0x38bdf8, '#38bdf8')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 flex flex-col items-center gap-1 ring-color-opt" data-color="frost">
+                <span class="w-4 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
+                <span class="text-[9px] font-bold text-sky-300">Gelo</span>
+              </button>
+              <button type="button" onclick="window.selectRingColor('emerald', 0x10b981, '#10b981')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-400 flex flex-col items-center gap-1 ring-color-opt" data-color="emerald">
+                <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+                <span class="text-[9px] font-bold text-emerald-300">Smeraldo</span>
+              </button>
+              <button type="button" onclick="window.selectRingColor('blood', 0xef4444, '#ef4444')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-400 flex flex-col items-center gap-1 ring-color-opt" data-color="blood">
+                <span class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
+                <span class="text-[9px] font-bold text-red-300">Sangue</span>
+              </button>
+              <button type="button" onclick="window.selectRingColor('rune', 0xa855f7, '#a855f7')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-purple-400 flex flex-col items-center gap-1 ring-color-opt" data-color="rune">
+                <span class="w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
+                <span class="text-[9px] font-bold text-purple-300">Runa</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. MATERIALE DEL PIEDISTALLO -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Materiale Piedistallo Bisellato:</label>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <button type="button" onclick="window.selectPedestalMaterial('ardesia')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt" data-pedestal="ardesia">
+                <span class="text-sm">🪨</span>
+                <span class="text-[9px] font-bold text-white block mt-0.5">Ardesia</span>
+              </button>
+              <button type="button" onclick="window.selectPedestalMaterial('ossidiana')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="ossidiana">
+                <span class="text-sm">💎</span>
+                <span class="text-[9px] font-bold text-slate-300 block mt-0.5">Ossidiana</span>
+              </button>
+              <button type="button" onclick="window.selectPedestalMaterial('ghiaccio')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 pedestal-opt" data-pedestal="ghiaccio">
+                <span class="text-sm">🧊</span>
+                <span class="text-[9px] font-bold text-sky-200 block mt-0.5">Ghiaccio</span>
+              </button>
+              <button type="button" onclick="window.selectPedestalMaterial('bronzo')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="bronzo">
+                <span class="text-sm">🪙</span>
+                <span class="text-[9px] font-bold text-amber-200 block mt-0.5">Bronzo</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- 1. SCELTA MODELLO 3D FIGURINA -->
-        <div class="space-y-2">
-          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">1. Scegli Modello Scolpito 3D:</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            <button type="button" onclick="window.selectMiniatureModel('berserker')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition" data-model="berserker">
-              <div class="font-cinzel font-bold text-xs text-amber-300">🪓 Berserker</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Spada Ulfberht & Scudo rotondo</span>
-            </button>
-            <button type="button" onclick="window.selectMiniatureModel('shieldmaiden')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="shieldmaiden">
-              <div class="font-cinzel font-bold text-xs text-sky-300">🛡️ Shieldmaiden</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Grande Scudo & Lancia lunga</span>
-            </button>
-            <button type="button" onclick="window.selectMiniatureModel('runemaster')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="runemaster">
-              <div class="font-cinzel font-bold text-xs text-purple-300">⚡ Runemaster</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Cappuccio & Bastone delle Rune</span>
-            </button>
-            <button type="button" onclick="window.selectMiniatureModel('valkyrie')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="valkyrie">
-              <div class="font-cinzel font-bold text-xs text-amber-200">🪽 Valkyria</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Ali dorate & Lancia di luce</span>
-            </button>
-            <button type="button" onclick="window.selectMiniatureModel('wolf')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="wolf">
-              <div class="font-cinzel font-bold text-xs text-red-300">🐺 Fenrir Wolf</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Lupo predatore quadrupede</span>
-            </button>
-            <button type="button" onclick="window.selectMiniatureModel('giant')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="giant">
-              <div class="font-cinzel font-bold text-xs text-cyan-300">❄️ Jotunn Giant</div>
-              <span class="text-[9px] text-slate-400 block mt-0.5">Colosso di ghiaccio & clava</span>
-            </button>
-          </div>
-        </div>
+        <!-- COLONNA DESTRA: ANTEPRIMA 3D LIVE A DESTRA (5 COLONNE SU 12) -->
+        <div class="md:col-span-5 flex flex-col justify-between bg-slate-950 p-4 rounded-2xl border border-amber-500/40 shadow-2xl space-y-3">
+          <div>
+            <div class="flex items-center justify-between border-b border-amber-500/20 pb-1.5 mb-2">
+              <h4 class="font-cinzel font-black text-xs text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🛡️</span> ANTEPRIMA 3D LIVE
+              </h4>
+              <span class="text-[9px] text-sky-400 font-mono animate-pulse">Rotazione Live</span>
+            </div>
 
-        <!-- 2. SCELTA AURA ANELLO DI FAZIONE -->
-        <div class="space-y-2">
-          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">2. Colore Anello Runico della Fazione:</label>
-          <div class="grid grid-cols-5 gap-2 text-center">
-            <button type="button" onclick="window.selectRingColor('amber', 0xf59e0b, '#f59e0b')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt" data-color="amber">
-              <span class="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
-              <span class="text-[9px] font-bold text-amber-300">Ambra</span>
-            </button>
-            <button type="button" onclick="window.selectRingColor('frost', 0x38bdf8, '#38bdf8')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 flex flex-col items-center gap-1 ring-color-opt" data-color="frost">
-              <span class="w-4 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
-              <span class="text-[9px] font-bold text-sky-300">Gelo</span>
-            </button>
-            <button type="button" onclick="window.selectRingColor('emerald', 0x10b981, '#10b981')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-400 flex flex-col items-center gap-1 ring-color-opt" data-color="emerald">
-              <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-              <span class="text-[9px] font-bold text-emerald-300">Smeraldo</span>
-            </button>
-            <button type="button" onclick="window.selectRingColor('blood', 0xef4444, '#ef4444')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-400 flex flex-col items-center gap-1 ring-color-opt" data-color="blood">
-              <span class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
-              <span class="text-[9px] font-bold text-red-300">Sangue</span>
-            </button>
-            <button type="button" onclick="window.selectRingColor('rune', 0xa855f7, '#a855f7')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-purple-400 flex flex-col items-center gap-1 ring-color-opt" data-color="rune">
-              <span class="w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
-              <span class="text-[9px] font-bold text-purple-300">Runa</span>
-            </button>
-          </div>
-        </div>
+            <!-- Canvas 3D Three.js Turntable -->
+            <div class="relative w-full h-56 rounded-xl overflow-hidden border border-amber-400/30 bg-[#06090f] shadow-inner flex items-center justify-center">
+              <canvas id="mini-preview-canvas" class="w-full h-full block"></canvas>
+              <div class="absolute bottom-1 right-2 pointer-events-none text-[8px] font-mono text-slate-500 bg-black/60 px-1 rounded">
+                Ginnungagap 3D Mini
+              </div>
+            </div>
 
-        <!-- 3. MATERIALE DEL PIEDISTALLO -->
-        <div class="space-y-2">
-          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Materiale Piedistallo Bisellato:</label>
-          <div class="grid grid-cols-4 gap-2 text-center">
-            <button type="button" onclick="window.selectPedestalMaterial('ardesia')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt" data-pedestal="ardesia">
-              <span class="text-sm">🪨</span>
-              <span class="text-[9px] font-bold text-white block mt-0.5">Ardesia</span>
-            </button>
-            <button type="button" onclick="window.selectPedestalMaterial('ossidiana')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="ossidiana">
-              <span class="text-sm">💎</span>
-              <span class="text-[9px] font-bold text-slate-300 block mt-0.5">Ossidiana</span>
-            </button>
-            <button type="button" onclick="window.selectPedestalMaterial('ghiaccio')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 pedestal-opt" data-pedestal="ghiaccio">
-              <span class="text-sm">🧊</span>
-              <span class="text-[9px] font-bold text-sky-200 block mt-0.5">Ghiaccio</span>
-            </button>
-            <button type="button" onclick="window.selectPedestalMaterial('bronzo')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="bronzo">
-              <span class="text-sm">🪙</span>
-              <span class="text-[9px] font-bold text-amber-200 block mt-0.5">Bronzo</span>
-            </button>
+            <!-- Info Eroe & Archetipo -->
+            <div class="mt-3 space-y-1">
+              <div class="flex items-center justify-between">
+                <span id="custom-preview-name" class="font-cinzel font-black text-sm text-white truncate">Ragnar Lodbrok</span>
+                <span id="custom-preview-tag" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase border border-amber-500/30">Berserker</span>
+              </div>
+              <p id="custom-preview-desc" class="text-[11px] text-slate-400 leading-snug">
+                Guerriero vichingo con spada Ulfberht forgiata, elmo Gjermundbu e scudo tondo.
+              </p>
+              <div class="flex items-center gap-2 pt-1 text-[10px] text-slate-400">
+                <span>Base: <strong id="custom-preview-pedestal" class="text-sky-300">Ardesia</strong></span> &bull;
+                <span>Aura: <strong id="custom-preview-aura" class="text-amber-400">Ambra</strong></span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <!-- FOOTER CON PULSANTE SCHIERAMENTO -->
-      <div class="p-4 border-t border-amber-500/30 bg-slate-950 flex items-center justify-between">
-        <span class="text-[11px] text-slate-400">Tutto pronto per Ginnungagap</span>
-        <button onclick="window.confirmMiniatureCustomization()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow-xl hover:brightness-110 flex items-center gap-2">
-          <span>⚔️ SCHIERA MINIATURA NEL MONDO 3D</span> ➔
-        </button>
+          <button onclick="window.confirmMiniatureCustomization()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow-xl hover:brightness-110 flex items-center justify-center gap-2 transition transform active:scale-95">
+            <span>⚔️ CONFERMA E SCHIERA NEL 3D</span> ➔
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1059,6 +1076,95 @@
     // CARICAMENTO MAPPE DAL PDF IN ALTA RISOLUZIONE SUL TERRENO
     // ============================================================================
 
+    function loadBattleMap(mapId, broadcast = true) {
+      let mapDef = MAPS_MANIFEST.find(m => m.id === mapId);
+      if (!mapDef) mapDef = MAPS_MANIFEST[3] || MAPS_MANIFEST[0]; // fallback battle_shipyard
+      
+      window.Ginnungagap.activeMapId = mapDef.id;
+
+      const topWorldName = document.getElementById('top-world-name');
+      if (topWorldName) topWorldName.textContent = mapDef.title;
+      const labelActiveRealm = document.getElementById('label-active-realm');
+      if (labelActiveRealm) labelActiveRealm.textContent = `${mapDef.act} • ${mapDef.title}`;
+
+      if (groundGroup) {
+        while (groundGroup.children.length > 0) {
+          const obj = groundGroup.children[0];
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+            else obj.material.dispose();
+          }
+          groundGroup.remove(obj);
+        }
+      }
+
+      const planeW = mapDef.cellsW * TILE_SIZE;
+      const planeH = mapDef.cellsH * TILE_SIZE;
+
+      const textureLoader = new THREE.TextureLoader();
+      const planeGeo = new THREE.PlaneGeometry(planeW, planeH);
+
+      const planeMat = new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        roughness: 0.85,
+        metalness: 0.1
+      });
+
+      const battlePlane = new THREE.Mesh(planeGeo, planeMat);
+      battlePlane.rotation.x = -Math.PI / 2;
+      battlePlane.position.set(0, 0, 0);
+      battlePlane.receiveShadow = true;
+      groundGroup.add(battlePlane);
+
+      textureLoader.load(
+        mapDef.file,
+        function(tex) {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          planeMat.map = tex;
+          planeMat.color.setHex(0xffffff);
+          planeMat.needsUpdate = true;
+        },
+        undefined,
+        function(err) {
+          console.warn("Texture mappa non caricata:", mapDef.file, err);
+          planeMat.color.setHex(0x233145);
+          planeMat.needsUpdate = true;
+        }
+      );
+
+      const gridHelper = new THREE.GridHelper(Math.max(planeW, planeH), Math.max(mapDef.cellsW, mapDef.cellsH), 0xc9a050, 0x475569);
+      gridHelper.position.set(0, 0.02, 0);
+      gridHelper.material.opacity = 0.55;
+      gridHelper.material.transparent = true;
+      groundGroup.add(gridHelper);
+
+      const borderGeo = new THREE.BoxGeometry(planeW + 0.8, 0.4, planeH + 0.8);
+      const borderMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9, metalness: 0.3 });
+      const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+      borderMesh.position.set(0, -0.2, 0);
+      borderMesh.receiveShadow = true;
+      groundGroup.add(borderMesh);
+
+      build3DStructuresForMap(mapDef.id, planeW, planeH);
+
+      if (dragPlane) {
+        dragPlane.scale.set(planeW / 10, planeH / 10, 1);
+      }
+
+      if (broadcast && broadBus) {
+        broadBus.postMessage({
+          type: 'MAP_CHANGED',
+          mapId: mapDef.id,
+          timestamp: Date.now()
+        });
+        saveGinnungagapState();
+      }
+    }
+    window.loadBattleMap = loadBattleMap;
+
     // ============================================================================
     // SELETTORE MAPPE UFFICIALI OPACO (26 MAPPE) & COSTRUZIONE STRUTTURE 3D
     // ============================================================================
@@ -1362,14 +1468,85 @@
     // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
     // ============================================================================
 
+    // ============================================================================
+    // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
+    // ============================================================================
+
     let currentCustomModel = 'berserker';
     let currentCustomRingColor = { key: 'amber', hexVal: 0xf59e0b, hexStr: '#f59e0b' };
     let currentCustomPedestal = 'ardesia';
 
-    window.openMiniatureCustomizer = function() {
+    let previewRenderer = null;
+    let previewScene = null;
+    let previewCamera = null;
+    let previewMiniGroup = null;
+
+    function initMiniaturePreviewEngine() {
+      const canvas = document.getElementById('mini-preview-canvas');
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width || 340;
+      const height = rect.height || 224;
+
+      if (!previewRenderer) {
+        previewScene = new THREE.Scene();
+        previewScene.background = new THREE.Color(0x06090f);
+
+        previewCamera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+        previewCamera.position.set(0, 2.3, 4.6);
+        previewCamera.lookAt(0, 0.95, 0);
+
+        previewRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        previewRenderer.setSize(width, height);
+        previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        previewRenderer.shadowMap.enabled = true;
+
+        const amb = new THREE.AmbientLight(0xdbeafe, 1.3);
+        previewScene.add(amb);
+
+        const dirLight = new THREE.DirectionalLight(0xfff7ed, 1.9);
+        dirLight.position.set(3, 5, 4);
+        previewScene.add(dirLight);
+
+        const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.1);
+        rimLight.position.set(-3, 3, -3);
+        previewScene.add(rimLight);
+
+        previewMiniGroup = new THREE.Group();
+        previewScene.add(previewMiniGroup);
+
+        function animatePreview() {
+          requestAnimationFrame(animatePreview);
+          if (previewMiniGroup) {
+            previewMiniGroup.rotation.y += 0.016;
+          }
+          if (previewRenderer && previewScene && previewCamera) {
+            previewRenderer.render(previewScene, previewCamera);
+          }
+        }
+        animatePreview();
+      } else {
+        previewCamera.aspect = width / height;
+        previewCamera.updateProjectionMatrix();
+        previewRenderer.setSize(width, height);
+      }
+    }
+
+    window.openMiniatureCustomizer = function(isMandatory = false) {
       const modal = document.getElementById('modal-miniature-customizer');
       if (modal) modal.classList.remove('hidden');
-      updateCustomizerPreview();
+
+      const closeBtn = document.getElementById('btn-close-customizer');
+      if (closeBtn) {
+        if (isMandatory) closeBtn.classList.add('hidden');
+        else closeBtn.classList.remove('hidden');
+      }
+
+      setTimeout(() => {
+        initMiniaturePreviewEngine();
+        updateCustomizerPreview();
+      }, 80);
     };
 
     window.closeMiniatureCustomizer = function() {
@@ -1381,9 +1558,9 @@
       currentCustomModel = modelKey;
       document.querySelectorAll('.mini-model-opt').forEach(b => {
         if (b.dataset.model === modelKey) {
-          b.className = "mini-model-opt p-2.5 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition";
+          b.className = "mini-model-opt p-2 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition";
         } else {
-          b.className = "mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition";
+          b.className = "mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition";
         }
       });
       updateCustomizerPreview();
@@ -1439,10 +1616,8 @@
 
       const pName = document.getElementById('custom-preview-name');
       if (pName) pName.textContent = heroName;
-      const pAvatar = document.getElementById('custom-preview-avatar');
-      if (pAvatar) pAvatar.src = heroAvatar;
       const pTag = document.getElementById('custom-preview-tag');
-      if (pTag) pTag.textContent = `Modello: ${nameMap[currentCustomModel] || currentCustomModel}`;
+      if (pTag) pTag.textContent = nameMap[currentCustomModel] || currentCustomModel;
       const pDesc = document.getElementById('custom-preview-desc');
       if (pDesc) pDesc.textContent = descMap[currentCustomModel] || "";
       const pPed = document.getElementById('custom-preview-pedestal');
@@ -1450,18 +1625,40 @@
       const pAura = document.getElementById('custom-preview-aura');
       if (pAura) pAura.textContent = currentCustomRingColor.key.toUpperCase();
 
-      const pRing = document.getElementById('custom-preview-ring');
-      if (pRing) {
-        pRing.style.borderColor = currentCustomRingColor.hexStr;
-        pRing.style.boxShadow = `0 0 15px ${currentCustomRingColor.hexStr}`;
+      // Aggiorna anteprima 3D sul canvas
+      if (previewMiniGroup) {
+        while (previewMiniGroup.children.length > 0) {
+          const c = previewMiniGroup.children[0];
+          previewMiniGroup.remove(c);
+        }
+
+        const baseRad = currentCustomModel === 'giant' ? 1.4 : 0.88;
+        const pMesh = createPedestalMesh(currentCustomPedestal, baseRad);
+        previewMiniGroup.add(pMesh);
+
+        const rMesh = createFactionRingMesh(currentCustomRingColor.hexVal, baseRad);
+        previewMiniGroup.add(rMesh);
+
+        const tDisc = createTokenDiscMesh(heroAvatar, baseRad);
+        previewMiniGroup.add(tDisc);
+
+        const fMesh = buildSculptedFigure(currentCustomModel);
+        previewMiniGroup.add(fMesh);
       }
     }
 
     window.confirmMiniatureCustomization = function() {
       window.closeMiniatureCustomizer();
       sessionStorage.setItem('ginnunga_customized_' + currentUser, 'true');
+      localStorage.setItem('ginnunga_customized_' + currentCampaignCode + '_' + currentUser, 'true');
 
-      const myMini = window.Ginnungagap.myHeroMini;
+      let myMini = window.Ginnungagap.myHeroMini;
+      if (!myMini) {
+        myMini = window.Ginnungagap.miniatures.find(m => 
+          m.userData.name.toLowerCase().includes(currentUser.toLowerCase()) || m.userData.owner === currentUser
+        );
+      }
+
       if (myMini) {
         const u = myMini.userData;
         const tileX = u.tileX;
@@ -1470,6 +1667,9 @@
         const hp = u.hp;
         const maxHp = u.maxHp;
         const ac = u.ac;
+        const avatar = u.avatar;
+        const name = u.name;
+        const className = u.className;
 
         minisGroup.remove(myMini);
         const idx = window.Ginnungagap.miniatures.indexOf(myMini);
@@ -1477,13 +1677,13 @@
 
         const newMini = createMiniature({
           id: oldId,
-          name: u.name,
-          className: u.className,
+          name: name,
+          className: className,
           hp: hp,
           maxHp: maxHp,
           ac: ac,
-          role: u.role,
-          avatar: u.avatar,
+          role: 'PLAYER',
+          avatar: avatar,
           tileX: tileX,
           tileZ: tileZ,
           modelType: currentCustomModel,
@@ -1495,11 +1695,33 @@
         window.Ginnungagap.miniatures.push(newMini);
         window.Ginnungagap.myHeroMini = newMini;
         selectMiniature(newMini);
-        saveGinnungagapState();
-
-        showToast('✨ Miniatura Schierata', `Miniatura forgiata come [${currentCustomModel}] con anello ${currentCustomRingColor.key}!`);
-        logCombatEvent('MINIATURA', `${currentUser} ha schierato la propria miniatura: [${currentCustomModel}].`);
+      } else {
+        const ch = getHeroCharacterRecord();
+        const heroName = (ch && ch.name) || currentUser || 'Ragnar Lodbrok';
+        const newMini = createMiniature({
+          id: 'hero_' + currentUser.replace(/\s+/g, '_').toLowerCase(),
+          name: heroName,
+          className: (ch && ch.className) || 'Guerriero',
+          hp: (ch && ch.hp) || 28,
+          maxHp: (ch && ch.maxHp) || 28,
+          ac: (ch && ch.ac) || 15,
+          role: 'PLAYER',
+          avatar: (ch && ch.avatar) || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+          tileX: 0,
+          tileZ: 1,
+          modelType: currentCustomModel,
+          ringColor: currentCustomRingColor.hexVal,
+          pedestalMaterial: currentCustomPedestal
+        });
+        minisGroup.add(newMini);
+        window.Ginnungagap.miniatures.push(newMini);
+        window.Ginnungagap.myHeroMini = newMini;
+        selectMiniature(newMini);
       }
+
+      saveGinnungagapState();
+      showToast('✨ Miniatura Schierata', `Miniatura forgiata come [${currentCustomModel}] e schierata in Ginnungagap!`);
+      logCombatEvent('MINIATURA', `${currentUser} ha schierato la miniatura: [${currentCustomModel}].`);
     };
 
     // ============================================================================
@@ -1511,92 +1733,42 @@
     function worldToTileX(wx) { return Math.floor(wx / TILE_SIZE); }
     function worldToTileZ(wz) { return Math.floor(wz / TILE_SIZE); }
 
-    function createMiniature(data) {
-      const mini = new THREE.Group();
-      mini.userData = {
-        id: data.id || ('mini_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
-        name: data.name || 'Guerriero',
-        className: data.className || 'Barbaro',
-        level: data.level || 1,
-        hp: data.hp !== undefined ? data.hp : 28,
-        maxHp: data.maxHp !== undefined ? data.maxHp : 28,
-        ac: data.ac || 15,
-        speedMeters: data.speedMeters || 9.0, // 9m = 6 caselle
-        role: data.role || 'PLAYER', // 'PLAYER', 'DM', 'ENEMY'
-        avatar: data.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
-        tileX: data.tileX !== undefined ? data.tileX : 0,
-        tileZ: data.tileZ !== undefined ? data.tileZ : 0,
-        initiative: data.initiative || 10,
-        conditions: data.conditions || []
-      };
-
-      const modelType = data.modelType || 'berserker';
-      const isBossValkyrie = modelType === 'valkyrie' || mini.userData.name.toLowerCase().includes('valkyr');
-      const isWolf = modelType === 'wolf' || mini.userData.name.toLowerCase().includes('lupo') || mini.userData.name.toLowerCase().includes('fenrir');
-      const isGiant = modelType === 'giant' || mini.userData.name.toLowerCase().includes('gigante') || mini.userData.name.toLowerCase().includes('jotunn');
-      const isShieldmaiden = modelType === 'shieldmaiden';
-      const isRunemaster = modelType === 'runemaster';
-      const isDraugr = modelType === 'draugr';
-
-      // 1. BASE BISELLATA IN PIETRA, OSSIDIANA, GHIACCIO O BRONZO
-      const baseRadius = isGiant ? 1.6 : 0.88;
+    function createPedestalMesh(ped, baseRadius = 0.88) {
       let baseMat;
-      const ped = data.pedestalMaterial || 'ardesia';
       if (ped === 'ossidiana') {
         baseMat = new THREE.MeshStandardMaterial({ color: 0x070b14, roughness: 0.08, metalness: 0.95 });
       } else if (ped === 'ghiaccio') {
-        baseMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, transparent: true, opacity: 0.8 });
+        baseMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, transparent: true, opacity: 0.85 });
       } else if (ped === 'bronzo') {
         baseMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.25, metalness: 0.85 });
       } else {
         baseMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.45, metalness: 0.4 });
       }
-
       const baseMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(baseRadius * 0.95, baseRadius, 0.22, 32),
         baseMat
       );
       baseMesh.position.y = 0.11;
       baseMesh.castShadow = true;
-      mini.add(baseMesh);
+      return baseMesh;
+    }
 
-      // Anello Runicamente Inciso di Fazione (o personalizzato nella Fucina)
-      const ringCol = (data.ringColor !== undefined)
-        ? data.ringColor
-        : (mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8));
-
+    function createFactionRingMesh(ringCol, baseRadius = 0.88) {
       const factionRing = new THREE.Mesh(
         new THREE.TorusGeometry(baseRadius * 0.98, 0.05, 12, 36),
         new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.85 })
       );
       factionRing.rotation.x = Math.PI / 2;
       factionRing.position.y = 0.22;
-      mini.add(factionRing);
+      return factionRing;
+    }
 
-      // Medaglione Superiore con Ritratto Eroe / Mostro
+    function createTokenDiscMesh(avatarUrl, baseRadius = 0.88) {
       const tokenCanvas = document.createElement('canvas');
       tokenCanvas.width = 128; tokenCanvas.height = 128;
       const tCtx = tokenCanvas.getContext('2d');
       tCtx.fillStyle = '#0f172a';
       tCtx.fillRect(0, 0, 128, 128);
-      
-      const tokenImg = new Image();
-      tokenImg.crossOrigin = "anonymous";
-      tokenImg.src = mini.userData.avatar;
-      tokenImg.onload = () => {
-        tCtx.save();
-        tCtx.beginPath();
-        tCtx.arc(64, 64, 58, 0, Math.PI * 2);
-        tCtx.clip();
-        tCtx.drawImage(tokenImg, 0, 0, 128, 128);
-        tCtx.restore();
-        tCtx.strokeStyle = '#c9a050';
-        tCtx.lineWidth = 6;
-        tCtx.beginPath();
-        tCtx.arc(64, 64, 58, 0, Math.PI * 2);
-        tCtx.stroke();
-        tokenTex.needsUpdate = true;
-      };
 
       const tokenTex = new THREE.CanvasTexture(tokenCanvas);
       const tokenDisc = new THREE.Mesh(
@@ -1605,16 +1777,42 @@
       );
       tokenDisc.rotation.x = -Math.PI / 2;
       tokenDisc.position.y = 0.23;
-      mini.add(tokenDisc);
 
-      // 2. MODELLO 3D FIGURINA SCOLPITA
+      if (avatarUrl) {
+        const tokenImg = new Image();
+        tokenImg.crossOrigin = "anonymous";
+        tokenImg.src = avatarUrl;
+        tokenImg.onload = () => {
+          tCtx.save();
+          tCtx.beginPath();
+          tCtx.arc(64, 64, 58, 0, Math.PI * 2);
+          tCtx.clip();
+          tCtx.drawImage(tokenImg, 0, 0, 128, 128);
+          tCtx.restore();
+          tCtx.strokeStyle = '#c9a050';
+          tCtx.lineWidth = 6;
+          tCtx.beginPath();
+          tCtx.arc(64, 64, 58, 0, Math.PI * 2);
+          tCtx.stroke();
+          tokenTex.needsUpdate = true;
+        };
+      }
+      return tokenDisc;
+    }
+
+    function buildSculptedFigure(modelType) {
       const figGroup = new THREE.Group();
       figGroup.position.y = 0.24;
 
-      if (isBossValkyrie) {
-        // --- VALKYRIA D'ODHINN (BOSS CELESTIALE CON ALI D'ORO E LANCIA RUNICA) ---
-        figGroup.position.y = 0.55;
+      const isBossValkyrie = modelType === 'valkyrie';
+      const isWolf = modelType === 'wolf';
+      const isGiant = modelType === 'giant';
+      const isShieldmaiden = modelType === 'shieldmaiden';
+      const isRunemaster = modelType === 'runemaster';
+      const isDraugr = modelType === 'draugr';
 
+      if (isBossValkyrie) {
+        figGroup.position.y = 0.55;
         const vTorso = new THREE.Mesh(
           new THREE.CylinderGeometry(0.35, 0.26, 1.15, 12),
           new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 })
@@ -1653,10 +1851,8 @@
         const vLight = new THREE.PointLight(0xfef08a, 1.5, 8);
         vLight.position.set(0, 1.5, 0.5);
         figGroup.add(vLight);
-        new TWEEN.Tween(figGroup.position).to({ y: 0.75 }, 1200).yoyo(true).repeat(Infinity).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
       } else if (isWolf) {
-        // --- LUPO DI FENRIR (PREDATORE QUADRUPEDE CON CRINIERA E ZANNE) ---
         const wBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.6, 1.5), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 }));
         wBody.position.y = 0.5;
         wBody.castShadow = true;
@@ -1674,8 +1870,7 @@
         });
 
       } else if (isGiant) {
-        // --- GIGANTE DEL GELO (JOTUNN CON CLAVA RUNICA) ---
-        figGroup.scale.set(1.8, 1.8, 1.8);
+        figGroup.scale.set(1.5, 1.5, 1.5);
         const gTorso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.3, 0.55), new THREE.MeshStandardMaterial({ color: 0x67e8f9, roughness: 0.7 }));
         gTorso.position.y = 0.9;
         figGroup.add(gTorso);
@@ -1685,7 +1880,6 @@
         figGroup.add(gClub);
 
       } else if (isShieldmaiden) {
-        // --- GUERRIERA CON SCUDO E LANCIA (SHIELDMAIDEN) ---
         [-0.16, 0.16].forEach(x => {
           const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
           leg.position.set(x, 0.32, 0);
@@ -1713,7 +1907,6 @@
         figGroup.add(spearTip);
 
       } else if (isRunemaster) {
-        // --- MAESTRO DELLE RUNE (INCANTATORE CON CAPPUCCIO E BASTONE) ---
         const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.55, 1.35, 12), new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.9 }));
         robe.position.y = 0.72;
         figGroup.add(robe);
@@ -1735,7 +1928,6 @@
         figGroup.add(staffLight);
 
       } else if (isDraugr) {
-        // --- DRAUGR DELLE CRIPTE (NON-MORTO RISORTO) ---
         [-0.16, 0.16].forEach(x => {
           const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.65, 6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
           leg.position.set(x, 0.32, 0);
@@ -1760,7 +1952,7 @@
         figGroup.add(rustySword);
 
       } else {
-        // --- BERSERKER VICHINGO STANDARD (RAGNAR, GUERRIERI) ---
+        // berserker (default)
         [-0.18, 0.18].forEach(x => {
           const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x37271c, roughness: 0.8 }));
           leg.position.set(x, 0.32, 0);
@@ -1815,9 +2007,55 @@
         figGroup.add(runeGlow);
       }
 
+      return figGroup;
+    }
+
+    function createMiniature(data) {
+      const mini = new THREE.Group();
+      mini.userData = {
+        id: data.id || ('mini_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+        name: data.name || 'Guerriero',
+        className: data.className || 'Barbaro',
+        level: data.level || 1,
+        hp: data.hp !== undefined ? data.hp : 28,
+        maxHp: data.maxHp !== undefined ? data.maxHp : 28,
+        ac: data.ac || 15,
+        speedMeters: data.speedMeters || 9.0, // 9m = 6 caselle
+        role: data.role || 'PLAYER', // 'PLAYER', 'DM', 'ENEMY'
+        avatar: data.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+        tileX: data.tileX !== undefined ? data.tileX : 0,
+        tileZ: data.tileZ !== undefined ? data.tileZ : 0,
+        initiative: data.initiative || 10,
+        conditions: data.conditions || [],
+        modelType: data.modelType || 'berserker',
+        ringColor: data.ringColor,
+        pedestalMaterial: data.pedestalMaterial || 'ardesia'
+      };
+
+      const modelType = mini.userData.modelType;
+      const isGiant = modelType === 'giant' || mini.userData.name.toLowerCase().includes('gigante') || mini.userData.name.toLowerCase().includes('jotunn');
+      const baseRadius = isGiant ? 1.6 : 0.88;
+
+      // 1. Base bisellata
+      const baseMesh = createPedestalMesh(mini.userData.pedestalMaterial, baseRadius);
+      mini.add(baseMesh);
+
+      // 2. Anello fazione
+      const ringCol = (mini.userData.ringColor !== undefined)
+        ? mini.userData.ringColor
+        : (mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8));
+      const factionRing = createFactionRingMesh(ringCol, baseRadius);
+      mini.add(factionRing);
+
+      // 3. Medaglione superiore
+      const tokenDisc = createTokenDiscMesh(mini.userData.avatar, baseRadius);
+      mini.add(tokenDisc);
+
+      // 4. Figura scolpita 3D
+      const figGroup = buildSculptedFigure(modelType);
       mini.add(figGroup);
 
-      // 3. CARTELLINO FLUTTUANTE BILLBOARD (NOME, CLASSE & BARRA PF)
+      // 5. Billboard fluttuante
       const bb = createBillboardSprite(mini.userData);
       bb.position.y = isGiant ? 4.2 : 2.5;
       bb.name = 'billboard';
@@ -1977,11 +2215,12 @@
       showToast('🦵 Modalità Spinta', 'Clicca su un nemico per spingerlo indietro!');
     };
 
-    window.cancelTargetingMode = function() {
+    function cancelTargetingMode() {
       window.Ginnungagap.targetingMode = null;
       document.body.classList.remove('targeting-cursor');
       document.getElementById('targeting-mode-banner').classList.add('hidden');
-    };
+    }
+    window.cancelTargetingMode = cancelTargetingMode;
 
     function executeCombatAttack(attackerMini, targetMini) {
       cancelTargetingMode();
@@ -2741,7 +2980,7 @@
     // METEO DINAMICO & PARTICELLE NORRENE
     // ============================================================================
 
-    window.setWeather = function(type, broadcast = true) {
+    function setWeather(type, broadcast = true) {
       window.Ginnungagap.activeWeather = type;
 
       const wData = {
@@ -2794,7 +3033,8 @@
         broadcastEvent({ type: 'WEATHER_CHANGED', weather: type });
         saveGinnungagapState();
       }
-    };
+    }
+    window.setWeather = setWeather;
 
     // ============================================================================
     // SINCRONIZZAZIONE STATO LOCALE & SCHIERAMENTO PARTY CAMPAGNA
@@ -2898,11 +3138,14 @@
         window.updateInventoryAndEquipmentUI();
       }
 
-      // Popup personalizzazione miniatura prima di entrare nel vivo della battaglia
-      if (!sessionStorage.getItem('ginnunga_customized_' + currentUser)) {
+      // Popup obbligatorio di personalizzazione miniatura al primo ingresso
+      const customizedKey = 'ginnunga_customized_' + currentCampaignCode + '_' + currentUser;
+      if (!localStorage.getItem(customizedKey) && !sessionStorage.getItem(customizedKey)) {
         setTimeout(() => {
-          if (typeof window.openMiniatureCustomizer === 'function') window.openMiniatureCustomizer();
-        }, 600);
+          if (typeof window.openMiniatureCustomizer === 'function') {
+            window.openMiniatureCustomizer(true); // Modalità obbligatoria al primo ingresso
+          }
+        }, 300);
       }
     }
 
