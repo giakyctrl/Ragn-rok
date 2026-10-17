@@ -3311,6 +3311,13 @@ window.buyMarketItem = function(marketId) {
   alert(`⚔️ Acquisto completato con successo nel Kaupang di Midgard!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
 };
 
+window.openGinnungagap = function() {
+  const activeCamp = window.activeDmWorkspaceCode || sessionStorage.getItem('yggdrasill_active_dm_camp') || Object.keys(window.dbState.campaigns || {})[0] || 'MIDGARD-VALHALLA';
+  const role = window.isCurrentUserAdmin() ? 'DM' : 'PLAYER';
+  const url = `mappa.html?camp=${encodeURIComponent(activeCamp)}&user=${encodeURIComponent(window.currentUser || '')}&role=${role}`;
+  window.open(url, '_blank');
+};
+
 window.initCloudConnection();
 if (window.currentUser && window.dbState.users && window.dbState.users[window.currentUser]) {
   window.enterAfterLogin();

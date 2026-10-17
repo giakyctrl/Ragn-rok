@@ -3,111 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GINNUNGAGAP - 3D Virtual Tabletop (Sigil Experience)</title>
+  <title>GINNUNGAGAP - 3D Virtual Tabletop (Sigil & BG3 Experience)</title>
 
-  <!-- Google Fonts Ufficiali per l'estetica Sigil & Journey to Ragnarok -->
+  <!-- Google Fonts per estetica Sigil, Baldur's Gate 3 e Journey to Ragnarok -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS per UI sovrapposta ad altissima definizione -->
+  <!-- Tailwind CSS per la UI sovrapposta ad altissima definizione -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase SDK per sincronizzazione real-time multi-giocatore -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <!-- Three.js (r128), OrbitControls e Tween.js per grafica 3D e animazioni cinematografiche fluide -->
+  <!-- Three.js (r128), OrbitControls e Tween.js per grafica 3D e animazioni fluide -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
   <!-- Dati canonici di Journey to Ragnarok -->
-  <script src="data.js?v=25"></script>
+  <script src="data.js?v=26"></script>
 
   <style>
     :root {
       --gold-primary: #c9a050;
       --gold-bright: #f5d076;
-      --gold-glow: rgba(201, 160, 80, 0.4);
+      --gold-glow: rgba(201, 160, 80, 0.45);
       --ice-primary: #38bdf8;
-      --ice-glow: rgba(56, 189, 248, 0.45);
-      --blood-red: #ef4444;
-      --bg-dark: #07090e;
-      --panel-bg: rgba(10, 14, 22, 0.92);
-      --panel-border: rgba(201, 160, 80, 0.3);
+      --bg-dark: #06090e;
+      --bg3-panel: rgba(11, 16, 26, 0.94);
+      --bg3-border: rgba(201, 160, 80, 0.35);
+      --bg3-slot-bg: #121824;
     }
 
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
     body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: var(--bg-dark);
-      color: #f1f5f9;
-      font-family: 'Inter', sans-serif;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      overflow: hidden; background-color: var(--bg-dark);
+      color: #f1f5f9; font-family: 'Inter', sans-serif;
     }
 
     .font-cinzel { font-family: 'Cinzel', serif; }
     .font-cinzel-dec { font-family: 'Cinzel Decorative', serif; }
 
-    /* Glassmorphism avanzato stile Sigil VTT */
-    .sigil-panel {
-      background: var(--panel-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--panel-border);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    /* UI Baldur's Gate 3 Glassmorphism & Metallic Borders */
+    .bg3-hud {
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.96) 0%, rgba(9, 13, 20, 0.98) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--bg3-border);
+      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
-    .sigil-btn {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    .bg3-slot {
+      background: var(--bg3-slot-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .sigil-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 14px var(--gold-glow);
+    .bg3-slot:hover {
+      border-color: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px var(--gold-glow);
     }
-    .sigil-btn:active {
-      transform: translateY(1px);
-    }
+    .bg3-slot:active { transform: translateY(1px); }
 
-    /* Radial Action Menu di Sigil */
-    .action-fan-btn {
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    .bg3-turn-btn {
+      background: radial-gradient(circle, #b45309 0%, #78350f 70%, #451a03 100%);
+      border: 2px solid var(--gold-bright);
+      box-shadow: 0 0 18px rgba(245, 208, 118, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+      transition: all 0.2s ease;
+    }
+    .bg3-turn-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(245, 208, 118, 0.8);
     }
 
     /* Modalità Fotografica Letterbox */
-    #photo-mode-frame {
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
     .letterbox-bar {
-      height: 80px;
-      background: #000000;
-      width: 100%;
-      position: absolute;
-      z-index: 60;
+      height: 80px; background: #000000; width: 100%; position: absolute; z-index: 60;
     }
 
-    /* Scrollbar sottile */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
-
-    /* Animazione badge evento */
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.9; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.04); box-shadow: 0 0 20px rgba(245, 208, 118, 0.6); }
-    }
-    .pulse-glow { animation: pulseGlow 2.5s infinite; }
   </style>
 </head>
 <body class="relative w-screen h-screen overflow-hidden">
@@ -115,36 +95,36 @@
   <!-- 1. CANVAS PRINCIPALE THREE.JS (MONDI 3D DI GINNUNGAGAP) -->
   <div id="webgl-container" class="absolute inset-0 z-0"></div>
 
-  <!-- 2. BARRA SUPERIORE SIGIL VTT (HUD NORDICO ELEGANTE) -->
-  <header id="sigil-top-bar" class="absolute top-0 left-0 right-0 h-14 sigil-panel z-40 flex items-center justify-between px-4 border-b border-amber-500/30">
+  <!-- 2. BARRA SUPERIORE (REGNO, METEO, CAMERA & STATO SESSIONE) -->
+  <header id="ginnunga-top-bar" class="absolute top-0 left-0 right-0 h-14 bg-slate-950/90 backdrop-blur-md z-40 flex items-center justify-between px-4 border-b border-amber-500/30 shadow-2xl">
     
-    <!-- BRAND & TITOLO DEL VTT -->
+    <!-- BRAND & RUOLO -->
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 via-sky-500/20 to-slate-900 border border-amber-400/60 flex items-center justify-center shadow-lg">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/30 via-slate-900 to-sky-950 border border-amber-400 flex items-center justify-center shadow-lg">
         <span class="font-cinzel font-black text-amber-300 text-lg">ᚷ</span>
       </div>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="font-cinzel-dec font-black text-sm tracking-widest text-amber-300">GINNUNGAGAP</h1>
-          <span class="text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-300 font-bold uppercase tracking-wider">3D VTT • Sigil</span>
+          <span id="badge-user-role" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold uppercase tracking-wider">DUNGEON MASTER</span>
         </div>
-        <p class="text-[10px] text-slate-400 font-medium">Tavolo Virtuale dei Nove Mondi &bull; <span id="label-active-realm" class="text-amber-200 font-semibold">Midgardr: Cantiere Navale</span></p>
+        <p class="text-[10px] text-slate-400 font-medium">Campagna: <span id="label-camp-code" class="text-sky-300 font-bold">CARICAMENTO...</span> &bull; <span id="label-active-realm" class="text-amber-200">Porto di Midgard</span></p>
       </div>
     </div>
 
-    <!-- SELETTORE AMBIENTI 3D & MONDI -->
+    <!-- SELETTORI CENTRALI: MONDI 3D, METEO DINAMICO & TELECAMERE -->
     <div class="flex items-center gap-2">
       
       <!-- MENU MONDI 3D -->
       <div class="relative group">
-        <button id="btn-select-world" class="sigil-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/40 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400">
-          <span id="current-world-icon">⚓</span>
-          <span id="current-world-name">Porto di Midgard</span>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400 transition">
+          <span id="top-world-icon">⚓</span>
+          <span id="top-world-name">Porto di Midgard</span>
           <svg class="w-3.5 h-3.5 text-amber-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
 
-        <div id="dropdown-worlds" class="hidden group-hover:block absolute top-full left-0 mt-1 w-64 sigil-panel rounded-xl p-1.5 space-y-1 shadow-2xl z-50">
-          <div class="text-[9px] font-cinzel font-bold text-amber-400/80 px-2.5 py-1 uppercase tracking-wider border-b border-slate-800">Mondi 3D di Ginnungagap</div>
+        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-64 bg-slate-950/95 border border-amber-500/40 rounded-xl p-1.5 space-y-1 shadow-2xl z-50 backdrop-blur-md">
+          <div class="text-[9px] font-cinzel font-bold text-amber-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Mondi 3D di Ginnungagap</div>
           <button onclick="window.switch3DWorld('midgard_shipyard')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
             <span>⚓</span> Midgardr: Porto &amp; Cantiere Navale
           </button>
@@ -160,506 +140,484 @@
           <button onclick="window.switch3DWorld('valhalla_hall')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
             <span>🛡️</span> Valhalla: Salone degli Einherjar
           </button>
-          <div class="text-[9px] font-cinzel font-bold text-sky-400/80 px-2.5 py-1 uppercase tracking-wider border-b border-t border-slate-800 mt-1">Diorama Mappe Ufficiali JTR</div>
-          <button onclick="window.openMapsGalleryModal()" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-sky-500/20 text-sky-200 hover:text-white flex items-center gap-2 transition">
-            <span>🗺️</span> Proietta Mappa Campagna (26 Mappe)
-          </button>
         </div>
       </div>
 
-      <!-- SELETTORE ATMOSFERA E LUCI -->
+      <!-- SELETTORE METEO DINAMICO & VISIVO -->
       <div class="relative group">
-        <button class="sigil-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-cinzel font-semibold text-slate-200 hover:border-amber-400">
-          <span id="current-light-icon">☀️</span>
-          <span class="hidden sm:inline" id="current-light-name">Giorno</span>
+        <button id="btn-weather-menu" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-sky-500/40 text-xs font-cinzel font-bold text-sky-200 hover:border-sky-400 transition">
+          <span id="top-weather-icon">☀️</span>
+          <span id="top-weather-name">Sereno</span>
         </button>
-        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-48 sigil-panel rounded-xl p-1.5 space-y-1 shadow-2xl z-50">
-          <div class="text-[9px] font-cinzel font-bold text-amber-400/80 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Atmosfera &amp; Illuminazione</div>
-          <button onclick="window.setAtmosphere('day')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-500/20 text-slate-200 flex items-center gap-2">☀️ Giorno Radioso</button>
-          <button onclick="window.setAtmosphere('twilight')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-500/20 text-slate-200 flex items-center gap-2">🌅 Crepuscolo Fimbulwinter</button>
-          <button onclick="window.setAtmosphere('night')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-500/20 text-slate-200 flex items-center gap-2">🌌 Notte &amp; Aurora Boreale</button>
-          <button onclick="window.setAtmosphere('fog')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-500/20 text-slate-200 flex items-center gap-2">🌫️ Nebbia Mistica</button>
-          <button onclick="window.setAtmosphere('ragnarok')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-500/20 text-slate-200 flex items-center gap-2">🔥 Ragnarok di Sangue</button>
+        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-56 bg-slate-950/95 border border-sky-500/40 rounded-xl p-1.5 space-y-1 shadow-2xl z-50 backdrop-blur-md">
+          <div class="text-[9px] font-cinzel font-bold text-sky-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Condizioni Meteo Dinamiche</div>
+          <button onclick="window.setWeather('clear')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">☀️ Sole dei Fiordi (Sereno)</button>
+          <button onclick="window.setWeather('blizzard')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">❄️ Bufera Fimbulwinter (Neve)</button>
+          <button onclick="window.setWeather('rain')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌧️ Pioggia Torrenziale &amp; Tuoni</button>
+          <button onclick="window.setWeather('mist')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌫️ Fitta Nebbia dei Fiordi</button>
+          <button onclick="window.setWeather('aurora')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌌 Notte &amp; Aurora Boreale</button>
+          <button onclick="window.setWeather('embers')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🔥 Cenere &amp; Braci di Muspelheim</button>
         </div>
       </div>
 
       <!-- SELETTORE TELECAMERA SIGIL (ORBIT, TATTICA, VISTA EROE, FOTO) -->
-      <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-1 flex items-center gap-1">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-1 flex items-center gap-1">
         <button id="cam-btn-orbit" onclick="window.setCameraMode('orbit')" title="Vista Spettatore 360°" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1">
           <span>🎥</span> <span class="hidden md:inline">Orbit</span>
         </button>
-        <button id="cam-btn-tactical" onclick="window.setCameraMode('tactical')" title="Vista Tattica Top-Down dall'Alto" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
+        <button id="cam-btn-tactical" onclick="window.setCameraMode('tactical')" title="Vista Tattica Top-Down" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
           <span>📐</span> <span class="hidden md:inline">Tattica</span>
         </button>
         <button id="cam-btn-hero" onclick="window.setCameraMode('hero')" title="Vista Eroe in Prima Persona" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
           <span>👁️</span> <span class="hidden md:inline">Vista Eroe</span>
         </button>
-        <button id="cam-btn-photo" onclick="window.setCameraMode('photo')" title="Modalità Fotografica Cinematografica Sigil" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
+        <button id="cam-btn-photo" onclick="window.setCameraMode('photo')" title="Modalità Fotografica Cinematografica" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
           <span>📸</span> <span class="hidden md:inline">Foto</span>
         </button>
       </div>
 
     </div>
 
-    <!-- STRUMENTI GENERALI & CONTROLLI DM / PLAYER -->
+    <!-- STRUMENTI GENERALI / CHIUSURA -->
     <div class="flex items-center gap-2">
-      
-      <!-- LANCIA DADI 3D CON FISICA -->
-      <button onclick="window.openDicePhysicsModal()" class="sigil-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600/40 to-amber-500/30 border border-amber-400/50 text-xs font-cinzel font-bold text-amber-200 flex items-center gap-1.5">
-        <span class="text-sm">🎲</span> Dadi 3D
+      <!-- Badge Effetto Meteo Tattico -->
+      <div id="weather-tactical-badge" class="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-950/80 border border-sky-400/40 text-[10px] text-sky-300 font-semibold">
+        <span>ℹ️</span> <span id="weather-tactical-desc">Visibilità e movimento ottimali</span>
+      </div>
+
+      <button onclick="window.openDicePhysicsModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-cinzel font-extrabold text-xs shadow hover:brightness-110 flex items-center gap-1.5">
+        <span>🎲</span> Dadi 3D
       </button>
 
-      <!-- NEBBIA DI GUERRA 3D -->
-      <button id="btn-toggle-fog" onclick="window.toggleFogOfWar()" class="sigil-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-cinzel font-bold text-slate-300 flex items-center gap-1.5">
-        <span>🌫️</span> <span class="hidden lg:inline">Nebbia 3D</span>
-      </button>
-
-      <!-- MODALITÀ COSTRUTTORE 3D (PROPS & ELEMENTI) -->
-      <button id="btn-toggle-builder" onclick="window.toggle3DBuilder()" class="sigil-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-cinzel font-bold text-slate-300 flex items-center gap-1.5">
-        <span>🛠️</span> <span class="hidden lg:inline">Costruttore</span>
-      </button>
-
-      <!-- GESTIONE EROI E MOSTRI -->
-      <button onclick="window.openMiniaturesManagerModal()" class="sigil-btn px-3 py-1.5 rounded-xl bg-sky-950/70 border border-sky-400/40 text-xs font-cinzel font-bold text-sky-200 flex items-center gap-1.5">
-        <span>👥</span> <span class="hidden sm:inline">Party Eroi</span>
-      </button>
-
-      <!-- RITORNO ALLA SCHEDA / HOME -->
-      <a href="index.html" class="sigil-btn px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
+      <a href="index.html" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1">
         <span>↩️</span> <span class="hidden sm:inline">Scheda</span>
       </a>
-
     </div>
 
   </header>
 
-  <!-- 3. ACTION RADIAL HUD DI SIGIL PER LA MINIATURA SELEZIONATA -->
-  <div id="sigil-mini-action-hud" class="hidden absolute z-30 transition-all pointer-events-auto">
-    <div class="relative flex flex-col items-center">
-      
-      <!-- CARTELLINO MINIATURA (NOME, CLASSE, PF) -->
-      <div class="sigil-panel rounded-2xl px-3 py-2 mb-2 flex items-center gap-3 border border-amber-400/50 shadow-2xl animate-fade-in">
-        <img id="hud-mini-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-9 h-9 rounded-xl object-cover border border-amber-400">
-        <div>
-          <div class="flex items-center gap-2">
-            <span id="hud-mini-name" class="font-cinzel font-bold text-xs text-white">Ragnar Lodbrok</span>
-            <span id="hud-mini-role-pill" class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-extrabold uppercase">Eroe</span>
-          </div>
-          <!-- Barra PF interattiva -->
-          <div class="flex items-center gap-2 mt-1">
-            <div class="w-24 h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
-              <div id="hud-mini-hp-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%;"></div>
-            </div>
-            <span id="hud-mini-hp-text" class="text-[10px] font-mono text-emerald-300 font-bold">28/28 PF</span>
-          </div>
-        </div>
-        <button onclick="window.deselectMiniature()" class="text-slate-400 hover:text-white text-xs px-1">&times;</button>
-      </div>
-
-      <!-- FAN DI PULSANTI AZIONE (STILE SIGIL ACTION WHEEL) -->
-      <div class="flex items-center gap-2 sigil-panel rounded-2xl p-1.5 border border-slate-700 shadow-2xl">
-        <button onclick="window.triggerMiniAction('move')" title="Muovi Miniatura sulla Griglia" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-sky-500/20 border border-slate-700 hover:border-sky-400 flex flex-col items-center justify-center text-xs text-sky-300">
-          <span>👣</span>
-          <span class="text-[8px] font-bold">MUOVI</span>
-        </button>
-        <button onclick="window.triggerMiniAction('attack')" title="Attacco con Arma Equipaggiata" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-red-500/20 border border-slate-700 hover:border-red-400 flex flex-col items-center justify-center text-xs text-red-300">
-          <span>⚔️</span>
-          <span class="text-[8px] font-bold">ATTACCA</span>
-        </button>
-        <button onclick="window.triggerMiniAction('spell')" title="Lancia Runa o Incantesimo 3D" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-400 flex flex-col items-center justify-center text-xs text-amber-300">
-          <span>⚡</span>
-          <span class="text-[8px] font-bold">MAGIA</span>
-        </button>
-        <button onclick="window.triggerMiniAction('defense')" title="Schivata o Scudo Runico" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-emerald-500/20 border border-slate-700 hover:border-emerald-400 flex flex-col items-center justify-center text-xs text-emerald-300">
-          <span>🛡️</span>
-          <span class="text-[8px] font-bold">DIFESA</span>
-        </button>
-        <button onclick="window.triggerMiniAction('hp')" title="Modifica Punti Ferita (Danno/Cura)" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-pink-500/20 border border-slate-700 hover:border-pink-400 flex flex-col items-center justify-center text-xs text-pink-300">
-          <span>💖</span>
-          <span class="text-[8px] font-bold">PF</span>
-        </button>
-        <button onclick="window.setCameraMode('hero')" title="Entra nella Vista Eroe (POV Miniatura)" class="action-fan-btn w-10 h-10 rounded-xl bg-slate-900 hover:bg-purple-500/20 border border-slate-700 hover:border-purple-400 flex flex-col items-center justify-center text-xs text-purple-300">
-          <span>👁️</span>
-          <span class="text-[8px] font-bold">VISTA</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- 4. BANNER NOTIFICHE EVENTI DI COMBATTIMENTO E TIRI DADI 3D (IN ALTO AL CENTRO) -->
-  <div id="sigil-event-toast" class="hidden absolute top-16 left-1/2 transform -translate-x-1/2 z-40 sigil-panel rounded-2xl px-6 py-2.5 border border-amber-400/80 shadow-[0_0_30px_rgba(201,160,80,0.5)] flex items-center gap-3 transition-all duration-300">
-    <div id="event-toast-icon" class="text-2xl">🎲</div>
-    <div>
-      <div id="event-toast-title" class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">CRITICO 20!</div>
-      <div id="event-toast-body" class="text-xs text-slate-200">Ragnar colpisce con la Spada Ulfberht infliggendo 22 danni da taglio!</div>
-    </div>
-  </div>
-
-  <!-- 5. RIGHELLO TATTICO 3D (HUD INFERIORE SINISTRO) -->
-  <div id="sigil-ruler-hud" class="hidden absolute bottom-5 left-5 z-30 sigil-panel rounded-2xl p-3 border border-sky-400/50 shadow-xl flex items-center gap-3">
-    <div class="w-8 h-8 rounded-lg bg-sky-950 border border-sky-400 flex items-center justify-center text-sky-300">
-      📏
-    </div>
-    <div>
-      <span class="text-[9px] font-cinzel uppercase text-slate-400 block">Distanza Movimento</span>
-      <span id="ruler-distance-text" class="font-mono font-bold text-sm text-sky-300">9.0m (30 ft) - 6 Caselle</span>
-    </div>
-  </div>
-
-  <!-- 6. PALETTE COSTRUTTORE 3D (SLIDING BOTTOM BAR IN MODALITÀ BUILDER) -->
-  <div id="sigil-builder-tray" class="hidden absolute bottom-0 left-0 right-0 h-28 sigil-panel z-40 p-3 border-t border-amber-500/40 flex flex-col justify-between">
-    <div class="flex items-center justify-between">
+  <!-- 3. PANNELLO ORGANIZZATORE DUNGEON MASTER (SOLO DM) -->
+  <aside id="dm-organizer-panel" class="hidden absolute top-16 left-4 z-40 w-80 bg-slate-950/95 border border-amber-500/40 rounded-2xl p-4 space-y-4 shadow-2xl backdrop-blur-md">
+    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
       <div class="flex items-center gap-2">
-        <span class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">🛠️ Palette Costruttore Sigil 3D:</span>
-        <span class="text-[11px] text-slate-400">Clicca un elemento e tocca la griglia 3D per posizionarlo. Tasto <strong>R</strong> per ruotare.</span>
+        <span class="text-base text-amber-400">⚖️</span>
+        <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Centro Comando DM</h3>
       </div>
-      <button onclick="window.toggle3DBuilder()" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-900 border border-slate-800 rounded-lg">Chiudi Costruttore &times;</button>
+      <button onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="text-slate-400 hover:text-white text-xs">&times;</button>
     </div>
 
-    <!-- SELETTORE PROPS 3D -->
-    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
-      <button onclick="window.selectBuilderProp('rock')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>🪨</span> Masso Roccioso
-      </button>
-      <button onclick="window.selectBuilderProp('tree')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>🌲</span> Pino Innevato
-      </button>
-      <button onclick="window.selectBuilderProp('crate')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>📦</span> Cassa da Carico
-      </button>
-      <button onclick="window.selectBuilderProp('barrel')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>🛢️</span> Barile d'Idromele
-      </button>
-      <button onclick="window.selectBuilderProp('brazier')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>🔥</span> Braciere Ardente
-      </button>
-      <button onclick="window.selectBuilderProp('stone_wall')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>🏛️</span> Muro in Pietra
-      </button>
-      <button onclick="window.selectBuilderProp('runestone')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>ᚱ</span> Monolite Runico
-      </button>
-      <button onclick="window.selectBuilderProp('sarcophagus')" class="flex-shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
-        <span>⚰️</span> Tomba del Draugr
-      </button>
+    <!-- SCHIERAMENTO NEMICI E BOSS -->
+    <div class="space-y-2">
+      <div class="flex justify-between items-center">
+        <span class="font-cinzel text-[11px] font-bold text-red-400 uppercase">Schiera Nemici &amp; Boss:</span>
+        <span class="text-[9px] text-slate-500">Trascina o clicca</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="window.dmSpawnEnemy('valkyrie')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
+          <div class="font-cinzel font-bold text-xs text-red-200">🪽 Valkyria</div>
+          <span class="text-[9px] text-slate-400">Boss &bull; 75 PF &bull; Volo</span>
+        </button>
+        <button onclick="window.dmSpawnEnemy('fenrir_wolf')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
+          <div class="font-cinzel font-bold text-xs text-red-200">🐺 Lupo Fenrir</div>
+          <span class="text-[9px] text-slate-400">Bestia &bull; 32 PF &bull; Rapido</span>
+        </button>
+        <button onclick="window.dmSpawnEnemy('frost_giant')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
+          <div class="font-cinzel font-bold text-xs text-red-200">❄️ Gigante Gelo</div>
+          <span class="text-[9px] text-slate-400">Jotunn &bull; 110 PF &bull; Grande</span>
+        </button>
+        <button onclick="window.dmSpawnEnemy('draugr')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
+          <div class="font-cinzel font-bold text-xs text-red-200">💀 Draugr</div>
+          <span class="text-[9px] text-slate-400">Non-Morto &bull; 24 PF</span>
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- 7. MODALITÀ FOTOGRAFICA SIGIL (PHOTO MODE OVERLAY) -->
-  <div id="sigil-photo-overlay" class="hidden absolute inset-0 z-50 pointer-events-none flex flex-col justify-between">
-    <!-- Barre letterbox cinematografiche nere -->
-    <div class="h-16 bg-black w-full flex items-center justify-between px-8 pointer-events-auto">
-      <span class="font-cinzel text-amber-300 text-xs tracking-widest uppercase">GINNUNGAGAP &bull; MODALITÀ FOTOGRAFICA SIGIL</span>
-      <span class="text-[10px] text-slate-400">Inquadra la tua miniatura e scatta una foto cinematografica</span>
+    <!-- GESTIONE PARTY CAMPAGNA SULLA MAPPA -->
+    <div class="space-y-2 border-t border-slate-800 pt-2">
+      <div class="flex justify-between items-center">
+        <span class="font-cinzel text-[11px] font-bold text-sky-400 uppercase">Eroi del Party Campagna:</span>
+        <button onclick="window.dmSpawnAllParty()" class="text-[9px] text-sky-300 underline font-bold">Schiera Tutti</button>
+      </div>
+      <div id="dm-party-list" class="space-y-1.5 max-h-36 overflow-y-auto">
+        <!-- Generato dinamicamente con i veri membri della campagna -->
+      </div>
     </div>
+
+    <!-- STRUMENTI NEBBIA DI GUERRA MORBIDA -->
+    <div class="space-y-2 border-t border-slate-800 pt-2">
+      <span class="font-cinzel text-[11px] font-bold text-purple-400 uppercase">Nebbia di Guerra Volumetrica:</span>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="window.toggleSoftFog(true)" class="p-1.5 rounded-lg bg-purple-950 border border-purple-500/50 text-[10px] text-purple-200 font-bold">
+          🌫️ Attiva Nebbia
+        </button>
+        <button onclick="window.toggleSoftFog(false)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-[10px] text-slate-300 font-bold">
+          ☀️ Dissolvi Nebbia
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- PULSANTE APRI PANNELLO DM (SEMINASCOSTO IN ALTO A SINISTRA) -->
+  <button id="btn-open-dm-panel" onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="hidden absolute top-16 left-4 z-30 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs shadow-xl flex items-center gap-1.5">
+    <span>⚖️</span> Pannello DM
+  </button>
+
+  <!-- 4. UI ALLA BALDUR'S GATE III (BG3 BOTTOM ACTION BAR PER GIOCATORI & EROI) -->
+  <div id="bg3-bottom-bar" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-40 w-[96%] max-w-5xl bg3-hud rounded-3xl p-3 border border-amber-500/40 flex items-center justify-between gap-4 shadow-2xl">
     
-    <!-- Pulsanti di scatto in basso -->
-    <div class="h-20 bg-black/90 w-full flex items-center justify-center gap-4 pointer-events-auto border-t border-amber-500/20 px-8">
-      <button onclick="window.capturePhotoScreenshot()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 font-cinzel font-bold text-xs text-slate-950 flex items-center gap-2 shadow-lg hover:brightness-110">
-        <span>📸</span> SCATTA &amp; SCARICA FOTO 3D
-      </button>
-      <button onclick="window.setCameraMode('orbit')" class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 font-cinzel font-bold text-xs text-slate-300 hover:text-white">
-        ESCI DA PHOTO MODE
-      </button>
-    </div>
-  </div>
+    <!-- SEZIONE SINISTRA: RITRATTO EROE, STATISTICHE & MISURATORE MOVIMENTO CIRCOLARE -->
+    <div class="flex items-center gap-3">
+      <!-- RITRATTO IN CORNICE NORDICA -->
+      <div class="relative">
+        <img id="bg3-portrait" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-lg">
+        <div id="bg3-ac-badge" class="absolute -bottom-1.5 -right-1.5 bg-slate-900 border border-amber-400 px-1.5 py-0.2 rounded-md font-mono text-[10px] text-amber-300 font-extrabold flex items-center gap-0.5">
+          🛡️ <span id="bg3-ac-val">16</span>
+        </div>
+      </div>
 
-  <!-- 8. MODALE DI LANCIO DADI 3D (FISICA REALE SUL TAVOLO) -->
-  <div id="modal-dice-physics" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sigil-panel rounded-3xl max-w-md w-full p-6 space-y-5 border border-amber-400/50 shadow-2xl animate-fade-in">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+      <!-- NOME, PF E MISURATORE MOVIMENTO METRICO -->
+      <div>
         <div class="flex items-center gap-2">
-          <span class="text-xl">🎲</span>
-          <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Lancio Dadi 3D Fisici</h3>
+          <h4 id="bg3-hero-name" class="font-cinzel font-bold text-sm text-white">Ragnar Lodbrok</h4>
+          <span id="bg3-hero-class" class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-extrabold uppercase">Barbaro 3</span>
         </div>
-        <button onclick="window.closeDicePhysicsModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
-      </div>
 
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Scegli quale dado norreno lanciare sul campo di battaglia 3D. Il dado rotolerà con fisica reale impattando sulla griglia!
-      </p>
+        <!-- Barra Punti Ferita -->
+        <div class="flex items-center gap-2 mt-1">
+          <div class="w-28 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-700">
+            <div id="bg3-hp-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%;"></div>
+          </div>
+          <span id="bg3-hp-text" class="text-[11px] font-mono text-emerald-300 font-bold">28/28 PF</span>
+        </div>
 
-      <div class="grid grid-cols-3 gap-3">
-        <button onclick="window.rollPhysicsDie('d20')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-amber-500/40 hover:border-amber-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-amber-300">d20</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Attacco &bull; Salvezza</span>
-        </button>
-        <button onclick="window.rollPhysicsDie('d12')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-sky-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-sky-300">d12</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Barbaro &bull; Ascia</span>
-        </button>
-        <button onclick="window.rollPhysicsDie('d10')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-emerald-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-emerald-300">d10</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Guerriero &bull; Halberd</span>
-        </button>
-        <button onclick="window.rollPhysicsDie('d8')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-amber-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-amber-200">d8</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Spada &bull; Arco</span>
-        </button>
-        <button onclick="window.rollPhysicsDie('d6')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-purple-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-purple-300">d6</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Magia &bull; Furtivo</span>
-        </button>
-        <button onclick="window.rollPhysicsDie('d4')" class="sigil-btn p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-pink-400 flex flex-col items-center gap-1 text-center">
-          <span class="font-cinzel font-black text-lg text-pink-300">d4</span>
-          <span class="text-[9px] text-slate-400 uppercase font-bold">Pugnale &bull; Guida</span>
-        </button>
-      </div>
-
-      <div class="flex items-center gap-3 pt-2">
-        <label class="text-xs text-slate-400">Modificatore Caratteristica:</label>
-        <input type="number" id="dice-mod-val" value="0" class="w-16 bg-slate-950 border border-slate-700 rounded-xl p-1.5 text-center text-white font-bold text-xs">
+        <!-- Misuratore Movimento Dinamico (Metri Rimanenti & Caselle) -->
+        <div class="flex items-center gap-1.5 mt-1">
+          <span class="text-[9px] font-cinzel text-slate-400">Movimento:</span>
+          <span id="bg3-movement-meter" class="font-mono font-extrabold text-[11px] text-emerald-400">9.0m / 9.0m (6 Caselle)</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 9. MODALE SELETTORE MAPPE JTR (GALLERIA DIORAMA 26 MAPPE) -->
-  <div id="modal-maps-gallery" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sigil-panel rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col p-6 space-y-4 border border-sky-400/50 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="font-cinzel font-bold text-base text-sky-300 uppercase tracking-wider">Diorama 3D: Mappe Ufficiali Journey to Ragnarok</h3>
-          <p class="text-xs text-slate-400">Proietta una delle 26 mappe della campagna sul tavolo tattico 3D con griglia e rilievi.</p>
-        </div>
-        <button onclick="window.closeMapsGalleryModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+    <!-- SEZIONE CENTRALE: HOTBAR AZIONI BALDUR'S GATE III -->
+    <div class="flex flex-col items-center gap-1 flex-1 max-w-xl">
+      <!-- TURN RESOURCES (Azione verde, Azione Bonus arancione, Reazione) -->
+      <div class="flex items-center gap-3 text-[10px] font-cinzel font-bold">
+        <span id="res-action" class="flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Azione</span>
+        <span id="res-bonus" class="flex items-center gap-1 text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Azione Bonus</span>
+        <span id="res-reaction" class="flex items-center gap-1 text-sky-400"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Reazione</span>
       </div>
 
-      <div id="maps-gallery-grid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pr-1">
-        <!-- Generato dinamicamente via JS -->
+      <!-- SLOTS AZIONI ALLA BG3 -->
+      <div class="flex items-center gap-1.5 overflow-x-auto p-1 max-w-full">
+        <!-- 1. Attacco Principale -->
+        <button onclick="window.bg3Action('attack')" title="Attacco con Arma Equipaggiata" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base group-hover:scale-110 transition">⚔️</span>
+          <span class="text-[7px] font-cinzel font-bold text-slate-300 uppercase">Colpo</span>
+        </button>
+
+        <!-- 2. Scatto (Dash) - Raddoppia Movimento -->
+        <button onclick="window.bg3Action('dash')" title="Scatto (Raddoppia il movimento massimo per questo turno)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base text-amber-300 group-hover:scale-110 transition">🏃</span>
+          <span class="text-[7px] font-cinzel font-bold text-amber-300 uppercase">Scatto</span>
+        </button>
+
+        <!-- 3. Schivata (Dodge) -->
+        <button onclick="window.bg3Action('dodge')" title="Schivata (Svantaggio agli attacchi nemici)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base text-emerald-300 group-hover:scale-110 transition">🛡️</span>
+          <span class="text-[7px] font-cinzel font-bold text-emerald-300 uppercase">Schiva</span>
+        </button>
+
+        <!-- 4. Disimpegno (Disengage) -->
+        <button onclick="window.bg3Action('disengage')" title="Disimpegno (Nessun attacco d'opportunità)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base text-sky-300 group-hover:scale-110 transition">💨</span>
+          <span class="text-[7px] font-cinzel font-bold text-sky-300 uppercase">Disimp.</span>
+        </button>
+
+        <!-- 5. Spinta (Shove) -->
+        <button onclick="window.bg3Action('shove')" title="Spinta (Spingi un nemico all'indietro)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base text-orange-400 group-hover:scale-110 transition">🦵</span>
+          <span class="text-[7px] font-cinzel font-bold text-orange-300 uppercase">Spinta</span>
+        </button>
+
+        <!-- Separatore -->
+        <div class="w-px h-8 bg-slate-800 mx-1"></div>
+
+        <!-- 6. Magie & Rune 3D -->
+        <button onclick="window.openSpellsVfxModal()" title="Lancia Incantesimo o Runa 3D" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 border-amber-500/40 group">
+          <span class="text-base text-amber-400 group-hover:scale-110 transition">⚡</span>
+          <span class="text-[7px] font-cinzel font-bold text-amber-400 uppercase">Rune</span>
+        </button>
+
+        <!-- 7. Pozione di Guarigione (Azione Bonus) -->
+        <button onclick="window.bg3Action('potion')" title="Bevi Pozione di Guarigione (2d4+2 PF)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+          <span class="text-base text-pink-400 group-hover:scale-110 transition">🧪</span>
+          <span class="text-[7px] font-cinzel font-bold text-pink-300 uppercase">Pozione</span>
+        </button>
       </div>
     </div>
+
+    <!-- SEZIONE DESTRA: PULSANTE CIRCOLARE "TERMINA TURNO" BG3 -->
+    <div class="flex items-center gap-3">
+      <button onclick="window.bg3EndTurn()" class="bg3-turn-btn w-14 h-14 rounded-full flex flex-col items-center justify-center text-white cursor-pointer active:scale-95" title="Termina il tuo turno (Ripristina Movimento e Risorse)">
+        <span class="text-base">⏳</span>
+        <span class="text-[8px] font-cinzel font-black uppercase tracking-wider">FINE</span>
+      </button>
+    </div>
+
   </div>
 
-  <!-- 10. MODALE GESTIONE MINIATURE ED EROI DELLA CAMPAGNA -->
-  <div id="modal-miniatures-manager" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sigil-panel rounded-3xl max-w-2xl w-full p-6 space-y-5 border border-amber-400/50 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">👥</span>
-          <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Gestione Miniature Ginnungagap</h3>
+  <!-- 5. MODALE ARBITRO ASSOLUTO DM: "L'ULTIMA PAROLA DEL DM" (OVERRULE & REVOCA) -->
+  <div id="modal-dm-arbiter" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-950 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-[0_0_50px_rgba(201,160,80,0.6)] animate-modal-pop">
+      <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl text-amber-400">⚖️</span>
+          <div>
+            <span class="text-[9px] font-cinzel uppercase text-amber-400 tracking-widest block font-bold">L'Ultima Parola del Dungeon Master</span>
+            <h3 class="font-cinzel font-black text-base text-white">Risoluzione Esito Combattimento</h3>
+          </div>
         </div>
-        <button onclick="window.closeMiniaturesManagerModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        <button onclick="window.closeDmArbiterModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
       </div>
 
-      <!-- SEZIONE A: EROI DELLA CAMPAGNA ATTIVA -->
+      <!-- DESCRIZIONE EVENTO DA VALIDARE -->
+      <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+        <span class="text-[10px] text-amber-300 font-bold uppercase block">Azione Eseguita dal Party:</span>
+        <p id="arbiter-action-summary" class="text-xs text-slate-200 leading-relaxed font-medium">
+          Ragnar Lodbrok ha sferrato il colpo letale contro la Valkyria d'Odhinn (Danno letale: 28 danni)!
+        </p>
+      </div>
+
+      <!-- LE SCELTE DEL DM -->
       <div class="space-y-3">
-        <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Eroi del Party (Importazione Automatica)</h4>
-        <div id="party-minis-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto">
-          <!-- Popolato dinamicamente -->
-        </div>
-      </div>
+        <span class="text-[11px] font-cinzel font-bold text-slate-300 block">Scegli la Risoluzione Finale:</span>
 
-      <!-- SEZIONE B: MOSTRUOSITÀ & CREATURE DEL NORD (PER IL DM) -->
-      <div class="space-y-3 border-t border-slate-800 pt-3">
-        <h4 class="font-cinzel font-bold text-xs text-red-400 uppercase tracking-wider">Genera Mostri &amp; Creature Nordiche (Solo DM)</h4>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <button onclick="window.spawnMonsterMini('fenrir_wolf')" class="sigil-btn p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-red-500 text-left">
-            <span class="text-sm">🐺</span>
-            <div class="font-cinzel font-bold text-[11px] text-white">Lupo di Fenrir</div>
-            <span class="text-[9px] text-slate-400">GS 3 &bull; Bestia</span>
-          </button>
-          <button onclick="window.spawnMonsterMini('frost_giant')" class="sigil-btn p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-400 text-left">
-            <span class="text-sm">❄️</span>
-            <div class="font-cinzel font-bold text-[11px] text-white">Gigante del Gelo</div>
-            <span class="text-[9px] text-slate-400">GS 8 &bull; Jotunn</span>
-          </button>
-          <button onclick="window.spawnMonsterMini('draugr_warrior')" class="sigil-btn p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500 text-left">
-            <span class="text-sm">💀</span>
-            <div class="font-cinzel font-bold text-[11px] text-white">Draugr Guerriero</div>
-            <span class="text-[9px] text-slate-400">GS 2 &bull; Non-Morto</span>
-          </button>
-          <button onclick="window.spawnMonsterMini('valkyrie')" class="sigil-btn p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-left">
-            <span class="text-sm">🪽</span>
-            <div class="font-cinzel font-bold text-[11px] text-white">Valkyria d'Odhinn</div>
-            <span class="text-[9px] text-slate-400">GS 5 &bull; Celestiale</span>
+        <!-- OPZIONE 1: APPROVA NORMALE -->
+        <button onclick="window.confirmArbiterResolution(true)" class="w-full p-3 rounded-2xl bg-emerald-950/70 border border-emerald-400 hover:bg-emerald-900/80 text-left transition flex items-center justify-between">
+          <div>
+            <div class="font-cinzel font-bold text-xs text-emerald-300">✅ Conferma Esito Regolare</div>
+            <span class="text-[10px] text-slate-400">Il nemico viene sconfitto regolarmente e cade a 0 PF.</span>
+          </div>
+        </button>
+
+        <!-- OPZIONE 2: REVOCA & COLPO DI SCENA -->
+        <div class="p-3.5 rounded-2xl bg-amber-950/50 border border-amber-400/80 space-y-2.5">
+          <div class="font-cinzel font-bold text-xs text-amber-300 flex items-center gap-1.5">
+            <span>⚡</span> Revoca / Modifica Esito (Colpo di Scena DM)
+          </div>
+          <p class="text-[10px] text-slate-300">
+            Il boss non muore! Lasciala a 1 PF e fai scattare una narrazione personalizzata o un evento divino.
+          </p>
+          <div class="flex items-center gap-2">
+            <label class="text-[10px] text-slate-400 font-bold">PF Rimanenti:</label>
+            <input type="number" id="arbiter-override-hp" value="1" min="1" class="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1 text-center font-bold text-xs text-amber-300">
+          </div>
+          <textarea id="arbiter-override-story" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white" placeholder="La Valkyria cade a terra ma spezza una pietra runica del viaggio fuggendo tra le nubi per curarsi le ferite..."></textarea>
+          
+          <button onclick="window.confirmArbiterResolution(false)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow-lg hover:brightness-110">
+            APPLICA COLPO DI SCENA DEL DM
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 11. MODALE SCELTA MAGIA 3D (VFX INCANTESIMI) -->
-  <div id="modal-spells-vfx" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sigil-panel rounded-3xl max-w-md w-full p-6 space-y-4 border border-amber-400/50 shadow-2xl animate-fade-in">
+  <!-- 6. MODALE LANCIO DADI 3D CON FISICA -->
+  <div id="modal-dice-physics" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-950 border border-amber-400 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">⚡</span>
-          <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Lancia Magia o Runa 3D</h3>
-        </div>
-        <button onclick="window.closeSpellsVfxModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase">Lancio Dadi 3D Fisici</h3>
+        <button onclick="document.getElementById('modal-dice-physics').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg">&times;</button>
       </div>
+      <div class="grid grid-cols-3 gap-3">
+        <button onclick="window.rollPhysicsDie('d20')" class="p-3 rounded-2xl bg-slate-900 border border-amber-500/40 hover:border-amber-400 font-cinzel font-black text-lg text-amber-300">d20</button>
+        <button onclick="window.rollPhysicsDie('d12')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-sky-400 font-cinzel font-black text-lg text-sky-300">d12</button>
+        <button onclick="window.rollPhysicsDie('d10')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-emerald-400 font-cinzel font-black text-lg text-emerald-300">d10</button>
+        <button onclick="window.rollPhysicsDie('d8')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-amber-400 font-cinzel font-black text-lg text-amber-200">d8</button>
+        <button onclick="window.rollPhysicsDie('d6')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-purple-400 font-cinzel font-black text-lg text-purple-300">d6</button>
+        <button onclick="window.rollPhysicsDie('d4')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-pink-400 font-cinzel font-black text-lg text-pink-300">d4</button>
+      </div>
+      <div class="flex items-center gap-2 pt-2">
+        <label class="text-xs text-slate-400">Modificatore Caratteristica:</label>
+        <input type="number" id="dice-mod-val" value="0" class="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1 text-center font-bold text-white text-xs">
+      </div>
+    </div>
+  </div>
 
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Seleziona un incantesimo: il sistema genererà spettacolari effetti particellari 3D che voleranno dalla miniatura verso il bersaglio!
-      </p>
-
+  <!-- 7. MODALE SPETTACOLARI MAGIE 3D -->
+  <div id="modal-spells-vfx" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-950 border border-amber-400 rounded-3xl max-w-md w-full p-6 space-y-3 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase">Magie &amp; Rune 3D</h3>
+        <button onclick="document.getElementById('modal-spells-vfx').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
       <div class="space-y-2">
-        <button onclick="window.cast3DSpell('thor_lightning')" class="w-full sigil-btn p-3 rounded-2xl bg-slate-900 border border-sky-500/40 hover:border-sky-400 flex items-center gap-3 text-left">
+        <button onclick="window.cast3DSpell('thor_lightning')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-sky-500/40 hover:border-sky-400 flex items-center gap-3 text-left">
           <span class="text-2xl">⚡</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-sky-300">Fulmine di Thor (Thor's Lightning)</div>
-            <span class="text-[10px] text-slate-400">Scaglia fulmini azzurri dal cielo con impatto e scuotimento dello schermo.</span>
+            <div class="font-cinzel font-bold text-xs text-sky-300">Fulmine di Thor</div>
+            <span class="text-[10px] text-slate-400">Scarica folgorante dal cielo con impatto e scuotimento.</span>
           </div>
         </button>
-        <button onclick="window.cast3DSpell('surtur_fireball')" class="w-full sigil-btn p-3 rounded-2xl bg-slate-900 border border-red-500/40 hover:border-red-400 flex items-center gap-3 text-left">
+        <button onclick="window.cast3DSpell('surtur_fireball')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-red-500/40 hover:border-red-400 flex items-center gap-3 text-left">
           <span class="text-2xl">🔥</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-red-300">Palla di Fuoco di Surtur (Fireball)</div>
-            <span class="text-[10px] text-slate-400">Dardo infuocato con esplosione sferica 3D e pioggia di braci incandescenti.</span>
+            <div class="font-cinzel font-bold text-xs text-red-300">Palla di Fuoco di Surtur</div>
+            <span class="text-[10px] text-slate-400">Dardo infuocato con esplosione sferica 3D e braci ardenti.</span>
           </div>
         </button>
-        <button onclick="window.cast3DSpell('niflheim_frost')" class="w-full sigil-btn p-3 rounded-2xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3 text-left">
+        <button onclick="window.cast3DSpell('niflheim_frost')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3 text-left">
           <span class="text-2xl">❄️</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-cyan-300">Runa Isa del Gelo Glaciale</div>
-            <span class="text-[10px] text-slate-400">Spuntoni di ghiaccio cristallino eruttano dal terreno congelando il bersaglio.</span>
+            <div class="font-cinzel font-bold text-xs text-cyan-300">Runa Isa del Gelo</div>
+            <span class="text-[10px] text-slate-400">Spuntoni di ghiaccio eruttano dal suolo congelando il nemico.</span>
           </div>
         </button>
-        <button onclick="window.cast3DSpell('odin_shield')" class="w-full sigil-btn p-3 rounded-2xl bg-slate-900 border border-amber-500/40 hover:border-amber-400 flex items-center gap-3 text-left">
-          <span class="text-2xl">🛡️</span>
-          <div>
-            <div class="font-cinzel font-bold text-xs text-amber-300">Scudo Runico di Protezione</div>
-            <span class="text-[10px] text-slate-400">Bolla runica dorata brillante avvolge la miniatura difendendola dagli attacchi.</span>
-          </div>
-        </button>
-        <button onclick="window.cast3DSpell('idunn_heal')" class="w-full sigil-btn p-3 rounded-2xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3 text-left">
+        <button onclick="window.cast3DSpell('idunn_heal')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3 text-left">
           <span class="text-2xl">🌿</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-emerald-300">Rugiada Curativa di Idunn</div>
-            <span class="text-[10px] text-slate-400">Colonne di luce smeraldo e particelle ascendenti curano le ferite della miniatura.</span>
+            <div class="font-cinzel font-bold text-xs text-emerald-300">Rugiada di Idunn</div>
+            <span class="text-[10px] text-slate-400">Colonne di luce smeraldo curano +12 Punti Ferita.</span>
           </div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPT MOTORE 3D GINNUNGAGAP (THREE.JS / SIGIL VTT ENGINE) -->
+  <!-- 8. BANNER NOTIFICA EVENTI IN ALTO AL CENTRO -->
+  <div id="sigil-event-toast" class="hidden absolute top-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-950/95 border-2 border-amber-400 rounded-2xl px-6 py-2.5 shadow-[0_0_35px_rgba(201,160,80,0.6)] flex items-center gap-3 transition-all">
+    <div id="event-toast-icon" class="text-2xl">⚖️</div>
+    <div>
+      <div id="event-toast-title" class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">EVENTO</div>
+      <div id="event-toast-body" class="text-xs text-slate-200 font-medium"></div>
+    </div>
+  </div>
+
+  <!-- SCRIPT MOTORE 3D GINNUNGAGAP (THREE.JS r128) -->
   <script>
     // ============================================================================
-    // GINNUNGAGAP - MOTORE 3D VIRTUALE SIGIL (THREE.JS r128)
+    // GINNUNGAGAP V2 - MOTORE 3D VTT AVANZATO (SIGIL & BALDUR'S GATE 3)
     // ============================================================================
 
-    // Parametri URL di sessione e sincronizzazione
+    // Parametri di Sessione e Ruolo
     const urlParams = new URLSearchParams(window.location.search);
     const currentCampaignCode = urlParams.get('camp') || sessionStorage.getItem('yggdrasill_active_dm_camp') || 'MIDGARD-VALHALLA';
     const currentUser = urlParams.get('user') || localStorage.getItem('yggdrasill_v3_user') || 'giocatore';
     const currentRole = urlParams.get('role') || (currentUser === 'admin' ? 'DM' : 'PLAYER');
 
-    // Stato globale Ginnungagap VTT
-    window.Ginnungagap = {
-      activeWorld: 'midgard_shipyard',
-      activeAtmosphere: 'day',
-      cameraMode: 'orbit',
-      isBuilderActive: false,
-      isFogActive: false,
-      selectedMini: null,
-      selectedPropType: 'rock',
-      miniatures: [],
-      props: [],
-      fogTiles: [],
-      dicePool: []
-    };
-
-    // Variabili Three.js Core
-    let scene, camera, renderer, controls;
-    let groundPlane, gridHelper, worldGroup, propsGroup, minisGroup, fogGroup, vfxGroup, diceGroup;
-    let directionalLight, ambientLight, hemisphereLight;
-    let raycaster, mouse;
-    let isDraggingMini = false;
-    let dragPlane;
-    let targetedMiniForVFX = null;
-
-    // Configurazione Griglia Sigil (1 unità = 1 casella = 5 piedi / 1.5 metri)
-    const GRID_SIZE = 30; // 30x30 caselle
+    // Dimensioni Griglia: 1 Casella = 2.0 unità 3D = 1.5 metri (5 piedi)
+    const GRID_SIZE = 32;
     const TILE_SIZE = 2.0;
 
-    // Inizializzazione al caricamento della pagina
+    // Stato Globale
+    window.Ginnungagap = {
+      campaignCode: currentCampaignCode,
+      currentUser: currentUser,
+      currentRole: currentRole,
+      activeWorld: 'midgard_shipyard',
+      activeWeather: 'clear',
+      cameraMode: 'orbit',
+      isDashActive: false,
+      selectedMini: null,
+      myHeroMini: null,
+      miniatures: [],
+      weatherParticles: null,
+      softFogGroup: null,
+      movementPathLine: null,
+      movementTileHighlights: []
+    };
+
+    let scene, camera, renderer, controls;
+    let worldGroup, minisGroup, fogGroup, vfxGroup, diceGroup, vectorGroup;
+    let directionalLight, ambientLight;
+    let raycaster, mouse, dragPlane;
+    let isDraggingMini = false;
+    let dragMini = null;
+    let dragStartTile = null;
+
     window.addEventListener('DOMContentLoaded', () => {
       initThreeEngine();
-      initMultiplayerSync();
+      initUIByRole();
       loadActiveWorld('midgard_shipyard');
-      loadPartyCharactersFromDB();
+      loadCampaignState();
+      setWeather('clear');
       animateLoop();
 
       window.addEventListener('resize', onWindowResize);
-      window.addEventListener('keydown', onKeyDown);
     });
 
+    function initUIByRole() {
+      document.getElementById('label-camp-code').textContent = currentCampaignCode;
+      const roleBadge = document.getElementById('badge-user-role');
+
+      if (currentRole === 'DM') {
+        roleBadge.textContent = 'DUNGEON MASTER';
+        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-extrabold uppercase';
+        document.getElementById('btn-open-dm-panel').classList.remove('hidden');
+        document.getElementById('dm-organizer-panel').classList.remove('hidden');
+      } else {
+        roleBadge.textContent = 'GIOCATORE';
+        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-400 text-sky-300 font-extrabold uppercase';
+      }
+    }
+
+    // ============================================================================
+    // INIZIALIZZAZIONE SCENA THREE.JS
+    // ============================================================================
     function initThreeEngine() {
       const container = document.getElementById('webgl-container');
 
-      // 1. Scene
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0a0e17);
-      scene.fog = new THREE.FogExp2(0x0a0e17, 0.015);
+      scene.background = new THREE.Color(0x070a11);
+      scene.fog = new THREE.FogExp2(0x070a11, 0.012);
 
-      // 2. Camera (Prospettica Sigil a 50 gradi per realismo e scala esatta)
       camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 24, 28);
+      camera.position.set(0, 26, 30);
 
-      // 3. Renderer con Ombre Morbide e Tone Mapping Cinematografico
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.1;
+      renderer.toneMappingExposure = 1.15;
       container.appendChild(renderer.domElement);
 
-      // 4. OrbitControls con smorzamento fluido
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.maxPolarAngle = Math.PI / 2 - 0.05; // Evita di andare sotto al pavimento
+      controls.maxPolarAngle = Math.PI / 2 - 0.04;
       controls.minDistance = 4;
-      controls.maxDistance = 90;
+      controls.maxDistance = 110;
       controls.target.set(0, 0, 0);
 
-      // 5. Gruppi di Scena Organizzati
       worldGroup = new THREE.Group(); scene.add(worldGroup);
-      propsGroup = new THREE.Group(); scene.add(propsGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
       fogGroup = new THREE.Group(); scene.add(fogGroup);
       vfxGroup = new THREE.Group(); scene.add(vfxGroup);
       diceGroup = new THREE.Group(); scene.add(diceGroup);
+      vectorGroup = new THREE.Group(); scene.add(vectorGroup);
 
-      // 6. Illuminazione Ambientale & Direzionale Dinamica
-      ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
+      ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
       scene.add(ambientLight);
-
-      hemisphereLight = new THREE.HemisphereLight(0xfef08a, 0x1e293b, 0.4);
-      scene.add(hemisphereLight);
 
       directionalLight = new THREE.DirectionalLight(0xfff7ed, 1.4);
       directionalLight.position.set(25, 45, 20);
       directionalLight.castShadow = true;
       directionalLight.shadow.mapSize.width = 2048;
       directionalLight.shadow.mapSize.height = 2048;
-      directionalLight.shadow.camera.near = 1;
-      directionalLight.shadow.camera.far = 120;
-      directionalLight.shadow.camera.left = -35;
-      directionalLight.shadow.camera.right = 35;
-      directionalLight.shadow.camera.top = 35;
-      directionalLight.shadow.camera.bottom = -35;
       directionalLight.shadow.bias = -0.0005;
       scene.add(directionalLight);
 
-      // 7. Griglia Tattica Sigil con Rilievi Dorati e Ciano
-      gridHelper = new THREE.GridHelper(GRID_SIZE * TILE_SIZE, GRID_SIZE, 0xc9a050, 0x334155);
+      // GRIGLIA TATTICA SIGIL
+      const gridHelper = new THREE.GridHelper(GRID_SIZE * TILE_SIZE, GRID_SIZE, 0xc9a050, 0x334155);
       gridHelper.position.y = 0.02;
       scene.add(gridHelper);
 
-      // Piano di intersezione invisibile per calcolo trascinamento
-      dragPlane = new THREE.Mesh(
-        new THREE.PlaneGeometry(300, 300),
-        new THREE.MeshBasicMaterial({ visible: false })
-      );
+      dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshBasicMaterial({ visible: false }));
       dragPlane.rotation.x = -Math.PI / 2;
       scene.add(dragPlane);
 
-      // 8. Raycaster per interazione Mouse & Touch
       raycaster = new THREE.Raycaster();
       mouse = new THREE.Vector2();
 
@@ -669,542 +627,493 @@
     }
 
     // ============================================================================
-    // COSTRUZIONE MONDI E AMBIENTI 3D DI GINNUNGAGAP
+    // EDIFICI NORRENI 3D E MONDI AD ALTA DEFINIZIONE
     // ============================================================================
 
-    function clearWorldGroup() {
-      while(worldGroup.children.length > 0) {
-        const obj = worldGroup.children[0];
-        worldGroup.remove(obj);
-      }
+    function clearWorld() {
+      while(worldGroup.children.length > 0) worldGroup.remove(worldGroup.children[0]);
     }
 
     function loadActiveWorld(worldId) {
       window.Ginnungagap.activeWorld = worldId;
-      clearWorldGroup();
+      clearWorld();
 
-      const worldNames = {
-        'midgard_shipyard': 'Midgardr: Cantiere Navale & Porto',
-        'yggdrasill_temple': 'Yggdrasill: Tempio delle Rune',
-        'niflheim_glacier': 'Niflheim: Falesie del Gelo Eterno',
-        'muspelheim_forge': 'Muspelheim: Forgia Lavica di Surtur',
-        'valhalla_hall': 'Valhalla: Gran Salone degli Einherjar'
+      const names = {
+        'midgard_shipyard': 'Porto & Cantiere Navale',
+        'yggdrasill_temple': 'Tempio delle Rune',
+        'niflheim_glacier': 'Falesie del Gelo',
+        'muspelheim_forge': 'Forgia Lavica di Surtur',
+        'valhalla_hall': 'Salone degli Einherjar'
       };
+      const icons = { 'midgard_shipyard':'⚓', 'yggdrasill_temple':'🌳', 'niflheim_glacier':'❄️', 'muspelheim_forge':'🌋', 'valhalla_hall':'🛡️' };
 
-      const worldIcons = {
-        'midgard_shipyard': '⚓',
-        'yggdrasill_temple': '🌳',
-        'niflheim_glacier': '❄️',
-        'muspelheim_forge': '🌋',
-        'valhalla_hall': '🛡️'
-      };
+      document.getElementById('top-world-name').textContent = names[worldId] || 'Porto di Midgard';
+      document.getElementById('top-world-icon').textContent = icons[worldId] || '⚓';
+      document.getElementById('label-active-realm').textContent = names[worldId] || 'Porto di Midgard';
 
-      document.getElementById('current-world-icon').textContent = worldIcons[worldId] || '⚓';
-      document.getElementById('current-world-name').textContent = worldNames[worldId] || 'Porto di Midgard';
-      document.getElementById('label-active-realm').textContent = worldNames[worldId] || 'Porto di Midgard';
-
-      if (worldId === 'midgard_shipyard') buildMidgardShipyardWorld();
-      else if (worldId === 'yggdrasill_temple') buildYggdrasillTempleWorld();
-      else if (worldId === 'niflheim_glacier') buildNiflheimGlacierWorld();
-      else if (worldId === 'muspelheim_forge') buildMuspelheimForgeWorld();
-      else if (worldId === 'valhalla_hall') buildValhallaHallWorld();
+      if (worldId === 'midgard_shipyard') buildDetailedMidgardPorto();
+      else if (worldId === 'yggdrasill_temple') buildDetailedYggdrasill();
+      else if (worldId === 'niflheim_glacier') buildDetailedNiflheim();
+      else if (worldId === 'muspelheim_forge') buildDetailedMuspelheim();
+      else if (worldId === 'valhalla_hall') buildDetailedValhalla();
     }
 
     window.switch3DWorld = function(wId) {
       loadActiveWorld(wId);
-      broadcastState({ type: 'WORLD_SWITCH', worldId: wId });
+      saveGinnungagapState();
     };
 
-    // 1. MIDGARDR: PORTO E CANTIERE NAVALE DEI DRAKKAR (Acqua animata, banchine in legno, drakkar, torce)
-    function buildMidgardShipyardWorld() {
-      // Pavimento banchine e terra ferma
+    // PORTO & CANTIERE NAVALE DI MIDGARD (Casa Lunga Vichinga, Torre di Guardia, Moli, Drakkar)
+    function buildDetailedMidgardPorto() {
+      // Pavimento banchina in legno
       const pierGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1.2, GRID_SIZE * TILE_SIZE * 0.65);
-      const pierMat = new THREE.MeshStandardMaterial({
-        color: 0x4a3728,
-        roughness: 0.85,
-        metalness: 0.1
-      });
-      const pierMesh = new THREE.Mesh(pierGeo, pierMat);
-      pierMesh.position.set(0, -0.6, -5);
-      pierMesh.receiveShadow = true;
-      worldGroup.add(pierMesh);
+      const pierMat = new THREE.MeshStandardMaterial({ color: 0x453120, roughness: 0.9 });
+      const pier = new THREE.Mesh(pierGeo, pierMat);
+      pier.position.set(0, -0.6, -6);
+      pier.receiveShadow = true;
+      worldGroup.add(pier);
 
-      // Tavole di legno del molo intagliate
-      for(let x = -28; x <= 28; x += 3.5) {
-        const postGeo = new THREE.CylinderGeometry(0.25, 0.28, 4.5, 8);
-        const postMat = new THREE.MeshStandardMaterial({ color: 0x2e1f14, roughness: 0.9 });
-        const post = new THREE.Mesh(postGeo, postMat);
-        post.position.set(x, -0.2, 14.5);
-        post.castShadow = true;
-        worldGroup.add(post);
-      }
-
-      // Oceano del Nord con riflessi d'acqua
-      const oceanGeo = new THREE.PlaneGeometry(160, 160, 32, 32);
-      const oceanMat = new THREE.MeshStandardMaterial({
-        color: 0x093a58,
-        roughness: 0.15,
-        metalness: 0.85,
-        transparent: true,
-        opacity: 0.88
-      });
+      // Oceano con riflessi d'acqua
+      const oceanGeo = new THREE.PlaneGeometry(160, 160);
+      const oceanMat = new THREE.MeshStandardMaterial({ color: 0x073b5c, roughness: 0.2, metalness: 0.8, transparent: true, opacity: 0.9 });
       const ocean = new THREE.Mesh(oceanGeo, oceanMat);
       ocean.rotation.x = -Math.PI / 2;
-      ocean.position.set(0, -1.1, 35);
+      ocean.position.set(0, -1.05, 34);
       worldGroup.add(ocean);
 
-      // Due 3D Drakkar Vichinghi ormeggiati al molo
-      buildDrakkarShip(-16, -0.4, 20, 0.1);
-      buildDrakkarShip(16, -0.4, 22, -0.15);
+      // 1. EDIFICIO NORRENO: CASA LUNGA VICHINGA (Longhouse)
+      buildNorseLonghouse(-16, 0, -14, 0);
 
-      // Torce con luce calda tremolante sul molo
-      addTorchLight(-12, 1.5, -4);
-      addTorchLight(12, 1.5, -4);
-      addTorchLight(0, 1.5, 8);
+      // 2. EDIFICIO NORRENO: TORRE DI GUARDIA IN PIETRA
+      buildWatchtower(20, 0, -16);
+
+      // 3. GRU NAVALE IN LEGNO PER CARICHI
+      buildHarbourCrane(12, 0, 12);
+
+      // 4. DUE DRAKKAR VICHINGHI D'ALTO MARE
+      buildDrakkar(-14, -0.4, 22, 0.08);
+      buildDrakkar(15, -0.4, 24, -0.12);
     }
 
-    // Costruzione 3D stilizzata di un Drakkar Vichingo
-    function buildDrakkarShip(x, y, z, rotY) {
-      const shipGroup = new THREE.Group();
-      shipGroup.position.set(x, y, z);
-      shipGroup.rotation.y = rotY;
+    // Costruzione Casa Lunga Vichinga 3D
+    function buildNorseLonghouse(x, y, z, rot) {
+      const house = new THREE.Group();
+      house.position.set(x, y, z);
+      house.rotation.y = rot;
 
-      // Scafo del Drakkar
-      const hullGeo = new THREE.CylinderGeometry(2.4, 1.8, 16, 8, 1, false, 0, Math.PI);
-      const hullMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 });
-      const hull = new THREE.Mesh(hullGeo, hullMat);
+      // Mura in assi di legno orizzontali
+      const wallsGeo = new THREE.BoxGeometry(10, 4.5, 6.5);
+      const wallsMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.85 });
+      const walls = new THREE.Mesh(wallsGeo, wallsMat);
+      walls.position.y = 2.25;
+      walls.castShadow = true;
+      house.add(walls);
+
+      // Tetto spiovente in paglia/erba verde norrena
+      const roofGeo = new THREE.ConeGeometry(5.2, 3.8, 4);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x2e3a23, roughness: 0.9 });
+      const roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.rotation.y = Math.PI / 4;
+      roof.position.y = 5.8;
+      roof.scale.set(1.4, 1, 1.8);
+      roof.castShadow = true;
+      house.add(roof);
+
+      // Porta in legno con cardini
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.8, 0.2), new THREE.MeshStandardMaterial({ color: 0x1f140c }));
+      door.position.set(0, 1.4, 3.3);
+      house.add(door);
+
+      // Torcia all'ingresso
+      const tLight = new THREE.PointLight(0xf59e0b, 2.0, 10);
+      tLight.position.set(1.4, 2.8, 3.5);
+      house.add(tLight);
+
+      worldGroup.add(house);
+    }
+
+    // Costruzione Torre di Guardia Costiera in Pietra
+    function buildWatchtower(x, y, z) {
+      const tower = new THREE.Group();
+      tower.position.set(x, y, z);
+
+      // Fusto in pietra squadrata
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 11, 8), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 }));
+      base.position.y = 5.5;
+      base.castShadow = true;
+      tower.add(base);
+
+      // Piattaforma merlata superiore
+      const plat = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.0, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+      plat.position.y = 11.4;
+      plat.castShadow = true;
+      tower.add(plat);
+
+      // Braciere di vedetta acceso
+      const bLight = new THREE.PointLight(0xf97316, 2.8, 16);
+      bLight.position.set(0, 13, 0);
+      tower.add(bLight);
+
+      worldGroup.add(tower);
+    }
+
+    // Gru in legno per carico/scarico navale
+    function buildHarbourCrane(x, y, z) {
+      const crane = new THREE.Group();
+      crane.position.set(x, y, z);
+
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 7, 6), new THREE.MeshStandardMaterial({ color: 0x3b2716 }));
+      post.position.y = 3.5;
+      post.castShadow = true;
+      crane.add(post);
+
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 5), new THREE.MeshStandardMaterial({ color: 0x3b2716 }));
+      arm.position.set(0, 6.8, 1.8);
+      arm.rotation.x = 0.2;
+      arm.castShadow = true;
+      crane.add(arm);
+
+      // Barile sospeso
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.3, 10), new THREE.MeshStandardMaterial({ color: 0x54371e }));
+      barrel.position.set(0, 4.0, 3.8);
+      barrel.castShadow = true;
+      crane.add(barrel);
+
+      worldGroup.add(crane);
+    }
+
+    // Drakkar Vichingo dettagliato
+    function buildDrakkar(x, y, z, rot) {
+      const drak = new THREE.Group();
+      drak.position.set(x, y, z);
+      drak.rotation.y = rot;
+
+      const hull = new THREE.Mesh(
+        new THREE.CylinderGeometry(2.5, 1.8, 17, 8, 1, false, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 })
+      );
       hull.rotation.z = Math.PI / 2;
       hull.rotation.y = Math.PI / 2;
       hull.castShadow = true;
-      shipGroup.add(hull);
+      drak.add(hull);
 
       // Prua del Drago intagliata
-      const prowGeo = new THREE.ConeGeometry(0.8, 3.5, 6);
-      const prowMat = new THREE.MeshStandardMaterial({ color: 0x221309, roughness: 0.7 });
-      const prow = new THREE.Mesh(prowGeo, prowMat);
-      prow.position.set(0, 2.2, 8.5);
-      prow.rotation.x = 0.4;
-      shipGroup.add(prow);
+      const prow = new THREE.Mesh(new THREE.ConeGeometry(0.9, 3.8, 6), new THREE.MeshStandardMaterial({ color: 0x1f130a }));
+      prow.position.set(0, 2.5, 9);
+      prow.rotation.x = 0.45;
+      drak.add(prow);
 
-      // Albero Maestro con Vela Ammainata
-      const mastGeo = new THREE.CylinderGeometry(0.2, 0.25, 9, 8);
-      const mast = new THREE.Mesh(mastGeo, new THREE.MeshStandardMaterial({ color: 0x543d2b }));
-      mast.position.set(0, 4.5, 0);
-      mast.castShadow = true;
-      shipGroup.add(mast);
-
-      // Scudi rotondi vichinghi lungo i fianchi
-      for (let s = -6; s <= 6; s += 2.2) {
-        const shieldGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.12, 16);
-        const shieldColor = (Math.abs(s) % 4 === 0) ? 0xc9a050 : 0xef4444;
-        const shieldMat = new THREE.MeshStandardMaterial({ color: shieldColor, metalness: 0.4 });
-        
-        const shieldL = new THREE.Mesh(shieldGeo, shieldMat);
-        shieldL.rotation.z = Math.PI / 2;
-        shieldL.position.set(-2.2, 0.4, s);
-        shipGroup.add(shieldL);
-
-        const shieldR = new THREE.Mesh(shieldGeo, shieldMat);
-        shieldR.rotation.z = Math.PI / 2;
-        shieldR.position.set(2.2, 0.4, s);
-        shipGroup.add(shieldR);
+      // Scudi rotondi
+      for(let s = -6; s <= 6; s += 2.2) {
+        const sGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.12, 16);
+        const sMat = new THREE.MeshStandardMaterial({ color: (Math.abs(s)%4===0)?0xc9a050:0xef4444 });
+        const sl = new THREE.Mesh(sGeo, sMat);
+        sl.rotation.z = Math.PI/2; sl.position.set(-2.2, 0.4, s);
+        drak.add(sl);
+        const sr = new THREE.Mesh(sGeo, sMat);
+        sr.rotation.z = Math.PI/2; sr.position.set(2.2, 0.4, s);
+        drak.add(sr);
       }
 
-      worldGroup.add(shipGroup);
+      worldGroup.add(drak);
     }
 
-    // 2. YGGDRASILL: TEMPIO DELLE RUNE & RADICI SACRE
-    function buildYggdrasillTempleWorld() {
-      // Pavimento in pietra muschiosa sacra
-      const floorGeo = new THREE.CylinderGeometry(28, 28, 1, 32);
-      const floorMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.9 });
-      const floor = new THREE.Mesh(floorGeo, floorMat);
-      floor.position.y = -0.5;
-      floor.receiveShadow = true;
-      worldGroup.add(floor);
+    function buildDetailedYggdrasill() {
+      const floor = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 1, 32), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 }));
+      floor.position.y = -0.5; floor.receiveShadow = true; worldGroup.add(floor);
 
-      // Colossali Radici del Frassino Yggdrasill che si inarcano sopra l'arena
       for(let r = 0; r < 5; r++) {
-        const angle = (r / 5) * Math.PI * 2;
-        const rootCurve = new THREE.CubicBezierCurve3(
-          new THREE.Vector3(Math.cos(angle)*26, -0.5, Math.sin(angle)*26),
-          new THREE.Vector3(Math.cos(angle)*16, 14, Math.sin(angle)*16),
-          new THREE.Vector3(Math.cos(angle + 0.8)*8, 18, Math.sin(angle + 0.8)*8),
+        const ang = (r / 5) * Math.PI * 2;
+        const curve = new THREE.CubicBezierCurve3(
+          new THREE.Vector3(Math.cos(ang)*26, -0.5, Math.sin(ang)*26),
+          new THREE.Vector3(Math.cos(ang)*16, 14, Math.sin(ang)*16),
+          new THREE.Vector3(Math.cos(ang+0.8)*8, 18, Math.sin(ang+0.8)*8),
           new THREE.Vector3(0, 24, 0)
         );
-        const rootGeo = new THREE.TubeGeometry(rootCurve, 20, 1.2, 8, false);
-        const rootMat = new THREE.MeshStandardMaterial({ color: 0x3b2219, roughness: 0.9 });
-        const rootMesh = new THREE.Mesh(rootGeo, rootMat);
-        rootMesh.castShadow = true;
-        worldGroup.add(rootMesh);
-      }
-
-      // Monoliti runici fluttuanti con luce runica azzurra pulsante
-      for(let m = 0; m < 8; m++) {
-        const ang = (m / 8) * Math.PI * 2;
-        const monoGeo = new THREE.BoxGeometry(1.4, 4.5, 0.8);
-        const monoMat = new THREE.MeshStandardMaterial({
-          color: 0x0f172a,
-          emissive: 0x0284c7,
-          emissiveIntensity: 0.35,
-          roughness: 0.6
-        });
-        const monolith = new THREE.Mesh(monoGeo, monoMat);
-        monolith.position.set(Math.cos(ang) * 18, 2.2, Math.sin(ang) * 18);
-        monolith.rotation.y = -ang + Math.PI / 2;
-        monolith.castShadow = true;
-        worldGroup.add(monolith);
-
-        // Luce azzurra alla sommità del monolito
-        const runeLight = new THREE.PointLight(0x38bdf8, 1.2, 8);
-        runeLight.position.set(Math.cos(ang) * 18, 4.5, Math.sin(ang) * 18);
-        worldGroup.add(runeLight);
+        const root = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 1.2, 8, false), new THREE.MeshStandardMaterial({ color: 0x3b2219 }));
+        root.castShadow = true; worldGroup.add(root);
       }
     }
 
-    // 3. NIFLHEIM: FALESIE DEL GELO ETERNO (Ghiacciai azzurri, neve, abisso ghiacciato)
-    function buildNiflheimGlacierWorld() {
-      const iceGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1.5, GRID_SIZE * TILE_SIZE);
-      const iceMat = new THREE.MeshStandardMaterial({
-        color: 0x0c4a6e,
-        roughness: 0.25,
-        metalness: 0.3,
-        emissive: 0x0369a1,
-        emissiveIntensity: 0.15
-      });
-      const iceFloor = new THREE.Mesh(iceGeo, iceMat);
-      iceFloor.position.y = -0.75;
-      iceFloor.receiveShadow = true;
-      worldGroup.add(iceFloor);
+    function buildDetailedNiflheim() {
+      const ice = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.5, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x0c4a6e, roughness: 0.25, metalness: 0.4 }));
+      ice.position.y = -0.75; ice.receiveShadow = true; worldGroup.add(ice);
 
-      // Pinnacoli e stalagmiti di ghiaccio frastagliati
-      for(let i = 0; i < 22; i++) {
-        const h = 3 + Math.random() * 5.5;
-        const spireGeo = new THREE.ConeGeometry(0.9, h, 5);
-        const spireMat = new THREE.MeshStandardMaterial({
-          color: 0xbae6fd,
-          roughness: 0.1,
-          metalness: 0.5,
-          transparent: true,
-          opacity: 0.85
-        });
-        const spire = new THREE.Mesh(spireGeo, spireMat);
-        const ang = Math.random() * Math.PI * 2;
-        const dist = 16 + Math.random() * 12;
-        spire.position.set(Math.cos(ang) * dist, h / 2, Math.sin(ang) * dist);
-        spire.rotation.x = (Math.random() - 0.5) * 0.3;
-        spire.rotation.z = (Math.random() - 0.5) * 0.3;
-        spire.castShadow = true;
-        worldGroup.add(spire);
+      for(let i=0; i<20; i++) {
+        const h = 4 + Math.random()*5;
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(1.0, h, 6), new THREE.MeshStandardMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.85 }));
+        const a = Math.random()*Math.PI*2; const d = 16 + Math.random()*12;
+        spire.position.set(Math.cos(a)*d, h/2, Math.sin(a)*d);
+        spire.castShadow = true; worldGroup.add(spire);
       }
-
-      // Luce fredda glaciale e particelle blizzard
-      const coldLight = new THREE.DirectionalLight(0xe0f2fe, 1.1);
-      coldLight.position.set(-15, 30, -15);
-      worldGroup.add(coldLight);
     }
 
-    // 4. MUSPELHEIM: FORGIA LAVICA DI SURTUR (Fiumi di lava incandescente, basalto nero, braci)
-    function buildMuspelheimForgeWorld() {
-      // Pavimento roccia vulcanica di basalto nero
-      const lavaFloorGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1.2, GRID_SIZE * TILE_SIZE);
-      const lavaFloorMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.95 });
-      const floor = new THREE.Mesh(lavaFloorGeo, lavaFloorMat);
-      floor.position.y = -0.6;
-      floor.receiveShadow = true;
-      worldGroup.add(floor);
+    function buildDetailedMuspelheim() {
+      const lava = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.2, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.9 }));
+      lava.position.y = -0.6; worldGroup.add(lava);
 
-      // Fessura / Fiume lavico centrale incandescente
-      const riverGeo = new THREE.PlaneGeometry(6, GRID_SIZE * TILE_SIZE);
-      const riverMat = new THREE.MeshStandardMaterial({
-        color: 0xef4444,
-        emissive: 0xf97316,
-        emissiveIntensity: 1.2,
-        roughness: 0.2
-      });
-      const lavaRiver = new THREE.Mesh(riverGeo, riverMat);
-      lavaRiver.rotation.x = -Math.PI / 2;
-      lavaRiver.position.set(0, 0.05, 0);
-      worldGroup.add(lavaRiver);
-
-      // Ponte di pietra di collegamento tra le rive del magma
-      const bridgeGeo = new THREE.BoxGeometry(10, 0.4, 4);
-      const bridge = new THREE.Mesh(bridgeGeo, new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.8 }));
-      bridge.position.set(0, 0.25, 0);
-      bridge.castShadow = true;
-      worldGroup.add(bridge);
-
-      // Luci rosse/arancioni vulcaniche dal fiume
-      const lavaLight1 = new THREE.PointLight(0xf97316, 2.5, 18);
-      lavaLight1.position.set(0, 1.5, -8);
-      worldGroup.add(lavaLight1);
-
-      const lavaLight2 = new THREE.PointLight(0xf97316, 2.5, 18);
-      lavaLight2.position.set(0, 1.5, 8);
-      worldGroup.add(lavaLight2);
+      const river = new THREE.Mesh(new THREE.PlaneGeometry(6, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xf97316, emissiveIntensity: 1.4 }));
+      river.rotation.x = -Math.PI/2; river.position.y = 0.05; worldGroup.add(river);
     }
 
-    // 5. VALHALLA: GRAN SALONE DEGLI EINHERJAR (Tavoli da banchetto, focolare ardente, scudi)
-    function buildValhallaHallWorld() {
-      // Pavimento in assi di pino massiccio
-      const woodFloorGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1.2, GRID_SIZE * TILE_SIZE);
-      const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3d24, roughness: 0.8 });
-      const hallFloor = new THREE.Mesh(woodFloorGeo, woodMat);
-      hallFloor.position.y = -0.6;
-      hallFloor.receiveShadow = true;
-      worldGroup.add(hallFloor);
+    function buildDetailedValhalla() {
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.2, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x5c3d24, roughness: 0.8 }));
+      hall.position.y = -0.6; worldGroup.add(hall);
 
-      // Colonne di legno intagliate del Valhalla
-      for (let z = -18; z <= 18; z += 9) {
-        [-12, 12].forEach(x => {
-          const colGeo = new THREE.CylinderGeometry(0.65, 0.75, 12, 12);
-          const colMat = new THREE.MeshStandardMaterial({ color: 0x3e2716, roughness: 0.85 });
-          const col = new THREE.Mesh(colGeo, colMat);
-          col.position.set(x, 6, z);
-          col.castShadow = true;
-          worldGroup.add(col);
-        });
-      }
-
-      // Focolare centrale ardente in pietra circolare
-      const hearthGeo = new THREE.CylinderGeometry(3.2, 3.5, 0.6, 16);
-      const hearthMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
-      const hearth = new THREE.Mesh(hearthGeo, hearthMat);
-      hearth.position.set(0, 0.3, 0);
-      worldGroup.add(hearth);
-
-      // Fuoco ardente nel focolare
-      const fireLight = new THREE.PointLight(0xf59e0b, 3.0, 24);
-      fireLight.position.set(0, 1.8, 0);
-      fireLight.castShadow = true;
-      worldGroup.add(fireLight);
-    }
-
-    function addTorchLight(x, y, z) {
-      const torchMat = new THREE.MeshStandardMaterial({ color: 0x221309 });
-      const torch = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 1.8), torchMat);
-      torch.position.set(x, y, z);
-      worldGroup.add(torch);
-
-      const light = new THREE.PointLight(0xf59e0b, 1.8, 12);
-      light.position.set(x, y + 1.1, z);
-      light.castShadow = true;
-      worldGroup.add(light);
+      const hearth = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.6, 16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+      hearth.position.y = 0.3; worldGroup.add(hearth);
+      const fLight = new THREE.PointLight(0xf59e0b, 3.2, 26);
+      fLight.position.set(0, 2, 0); worldGroup.add(fLight);
     }
 
     // ============================================================================
-    // SISTEMA MINIATURE 3D (SIGIL STYLE MINIS)
+    // MOTORE METEO DINAMICO & VISIBILE
     // ============================================================================
 
-    function createMiniatureObject(charData) {
-      const miniGroup = new THREE.Group();
-      miniGroup.userData = {
-        id: charData.id || ('mini_' + Date.now()),
-        name: charData.name || 'Guerriero',
-        className: charData.className || 'Barbaro',
-        level: charData.level || 1,
-        hp: charData.hp || 20,
-        maxHp: charData.maxHp || 20,
-        role: charData.role || (charData.owner === 'admin' ? 'DM' : 'PLAYER'),
-        avatar: charData.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
-        speedFeet: 30,
-        condition: 'Normale'
+    window.setWeather = function(wKey) {
+      window.Ginnungagap.activeWeather = wKey;
+      if (window.Ginnungagap.weatherParticles) {
+        scene.remove(window.Ginnungagap.weatherParticles);
+        window.Ginnungagap.weatherParticles = null;
+      }
+
+      const wData = {
+        'clear': { name: 'Sole Radioso', icon: '☀️', desc: 'Visibilità e movimento ottimali (Nessuna penalità)' },
+        'blizzard': { name: 'Bufera di Neve', icon: '❄️', desc: 'Fimbulwinter: Terreno Innevato (-1.5m Movimento, Visibilità 18m)' },
+        'rain': { name: 'Pioggia & Tuoni', icon: '🌧️', desc: 'Terreno Scivoloso (Svantaggio a prove acrobatiche)' },
+        'mist': { name: 'Fitta Nebbia', icon: '🌫️', desc: 'Occultamento: Tiri per colpire a distanza hanno svantaggio' },
+        'aurora': { name: 'Aurora Boreale', icon: '🌌', desc: 'Benedizione degli Dei: +1 ai Tiri Salvezza per il Party' },
+        'embers': { name: 'Cenere & Braci', icon: '🔥', desc: 'Calore di Muspelheim: Prove di Costituzione contro affaticamento' }
+      }[wKey] || { name: 'Sereno', icon: '☀️', desc: 'Ottimale' };
+
+      document.getElementById('top-weather-name').textContent = wData.name;
+      document.getElementById('top-weather-icon').textContent = wData.icon;
+      document.getElementById('weather-tactical-desc').textContent = wData.desc;
+
+      // Creazione particelle meteo
+      if (wKey === 'blizzard' || wKey === 'rain' || wKey === 'embers') {
+        const count = wKey === 'rain' ? 2000 : 1200;
+        const pGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const velocities = [];
+
+        for(let i=0; i<count; i++) {
+          positions[i*3] = (Math.random() - 0.5) * 80;
+          positions[i*3+1] = Math.random() * 35;
+          positions[i*3+2] = (Math.random() - 0.5) * 80;
+          velocities.push({
+            vy: wKey === 'rain' ? -(0.8 + Math.random()*0.5) : -(0.15 + Math.random()*0.1),
+            vx: wKey === 'blizzard' ? (0.2 + Math.random()*0.15) : 0
+          });
+        }
+        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const pColor = wKey === 'blizzard' ? 0xffffff : wKey === 'rain' ? 0x93c5fd : 0xf97316;
+        const pSize = wKey === 'blizzard' ? 0.35 : wKey === 'rain' ? 0.2 : 0.4;
+        const pMat = new THREE.PointsMaterial({ color: pColor, size: pSize, transparent: true, opacity: 0.8 });
+
+        const pMesh = new THREE.Points(pGeo, pMat);
+        pMesh.userData = { velocities: velocities, type: wKey };
+        scene.add(pMesh);
+        window.Ginnungagap.weatherParticles = pMesh;
+      }
+
+      showToast(wData.icon + ' Condizione Meteo: ' + wData.name, wData.desc);
+      saveGinnungagapState();
+    };
+
+    // ============================================================================
+    // NEBBIA DI GUERRA MORBIDA (FOG OF WAR NON A CUBI)
+    // ============================================================================
+
+    window.toggleSoftFog = function(active) {
+      while(fogGroup.children.length > 0) fogGroup.remove(fogGroup.children[0]);
+      if (!active) {
+        showToast('☀️ Nebbia Dissolta', 'Il campo di battaglia è ora visibile a tutti.');
+        return;
+      }
+
+      // Velo continuo di nebbia scura soffusa a dischi stratificati
+      for(let x = -GRID_SIZE/2; x < GRID_SIZE/2; x += 3) {
+        for(let z = -GRID_SIZE/2; z < GRID_SIZE/2; z += 3) {
+          const disc = new THREE.Mesh(
+            new THREE.CylinderGeometry(4.2, 4.2, 1.5, 16),
+            new THREE.MeshStandardMaterial({
+              color: 0x050811,
+              transparent: true,
+              opacity: 0.92,
+              roughness: 0.95
+            })
+          );
+          disc.position.set(x * TILE_SIZE, 0.8, z * TILE_SIZE);
+          fogGroup.add(disc);
+        }
+      }
+      showToast('🌫️ Nebbia di Guerra Attiva', 'Le aree non esplorate sono avvolte dalla nebbia mistica.');
+    };
+
+    // ============================================================================
+    // SISTEMA MINIATURE & SNAP AL CENTRO ESATTO DEI QUADRATI
+    // ============================================================================
+
+    // Formule esatte per centrare sempre all'interno del quadrato
+    function tileToWorldX(tx) { return tx * TILE_SIZE + TILE_SIZE / 2; }
+    function tileToWorldZ(tz) { return tz * TILE_SIZE + TILE_SIZE / 2; }
+    function worldToTileX(wx) { return Math.floor(wx / TILE_SIZE); }
+    function worldToTileZ(wz) { return Math.floor(wz / TILE_SIZE); }
+
+    function createMiniature(data) {
+      const mini = new THREE.Group();
+      mini.userData = {
+        id: data.id || ('mini_' + Date.now()),
+        name: data.name || 'Guerriero',
+        className: data.className || 'Barbaro',
+        level: data.level || 1,
+        hp: data.hp || 25,
+        maxHp: data.maxHp || 25,
+        speedMeters: data.speedMeters || 9.0, // 9.0m = 6 caselle
+        role: data.role || 'PLAYER',
+        avatar: data.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+        tileX: data.tileX !== undefined ? data.tileX : 0,
+        tileZ: data.tileZ !== undefined ? data.tileZ : 0
       };
 
-      // 1. Base Circolare Sigil in Pietra Bisellata
-      const baseGeo = new THREE.CylinderGeometry(0.95, 1.05, 0.35, 32);
-      const baseMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        roughness: 0.4,
-        metalness: 0.2
-      });
-      const base = new THREE.Mesh(baseGeo, baseMat);
-      base.position.y = 0.18;
+      // 1. BASE IN PIETRA BISELLATA
+      const base = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.85, 0.95, 0.3, 32),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
+      );
+      base.position.y = 0.15;
       base.castShadow = true;
-      miniGroup.add(base);
+      mini.add(base);
 
-      // Anello colorato di appartenenza alla base (Azzurro=Player, Oro=DM/Boss, Rosso=Mostro)
-      const ringColor = miniGroup.userData.role === 'DM' ? 0xf59e0b :
-                        miniGroup.userData.role === 'MONSTER' ? 0xef4444 : 0x38bdf8;
-      const ringGeo = new THREE.TorusGeometry(0.98, 0.06, 8, 32);
-      const ringMat = new THREE.MeshStandardMaterial({
-        color: ringColor,
-        emissive: ringColor,
-        emissiveIntensity: 0.6,
-        roughness: 0.2
-      });
-      const ring = new THREE.Mesh(ringGeo, ringMat);
+      // Anello di Fazione (Player = Azzurro, DM = Oro, Nemico = Rosso)
+      const ringCol = mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8);
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.88, 0.05, 8, 32),
+        new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.6 })
+      );
       ring.rotation.x = Math.PI / 2;
-      ring.position.y = 0.32;
-      miniGroup.add(ring);
+      ring.position.y = 0.28;
+      mini.add(ring);
 
-      // 2. Figura Stilizzata 3D (Stile Miniatura da Tavolo Dipinta)
-      const bodyGroup = new THREE.Group();
-      
-      // Torso / Armatura
-      const torsoGeo = new THREE.CylinderGeometry(0.42, 0.32, 1.1, 8);
-      const torsoMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.5 });
-      const torso = new THREE.Mesh(torsoGeo, torsoMat);
+      // 2. FIGURA MINIATURA 3D
+      const body = new THREE.Group();
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.3, 1.1, 8), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.4 }));
       torso.position.y = 0.95;
       torso.castShadow = true;
-      bodyGroup.add(torso);
+      body.add(torso);
 
-      // Mantello Norreno
-      const capeGeo = new THREE.BoxGeometry(0.85, 1.2, 0.15);
-      const capeMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.8 });
-      const cape = new THREE.Mesh(capeGeo, capeMat);
-      cape.position.set(0, 0.9, -0.3);
-      cape.castShadow = true;
-      bodyGroup.add(cape);
-
-      // Testa ed Elmo Vichingo
-      const headGeo = new THREE.SphereGeometry(0.3, 16, 16);
-      const headMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0 });
-      const head = new THREE.Mesh(headGeo, headMat);
-      head.position.y = 1.7;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+      head.position.y = 1.68;
       head.castShadow = true;
-      bodyGroup.add(head);
+      body.add(head);
 
-      const helmGeo = new THREE.ConeGeometry(0.34, 0.45, 8);
-      const helmMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.3 });
-      const helm = new THREE.Mesh(helmGeo, helmMat);
-      helm.position.y = 1.95;
-      bodyGroup.add(helm);
-
-      // Arma principale (Spada / Ascia / Staffa)
-      const weaponGeo = new THREE.BoxGeometry(0.12, 1.4, 0.08);
-      const weaponMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
-      const weapon = new THREE.Mesh(weaponGeo, weaponMat);
+      const weapon = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 0.08), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 }));
       weapon.position.set(0.65, 1.2, 0.2);
-      weapon.rotation.z = -0.3;
       weapon.castShadow = true;
-      bodyGroup.add(weapon);
+      body.add(weapon);
+      mini.add(body);
 
-      // Scudo Tondo
-      const shieldGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.08, 16);
-      const shieldMat = new THREE.MeshStandardMaterial({ color: ringColor, metalness: 0.4 });
-      const shield = new THREE.Mesh(shieldGeo, shieldMat);
-      shield.position.set(-0.6, 1.1, 0.2);
-      shield.rotation.z = Math.PI / 2;
-      shield.rotation.y = Math.PI / 6;
-      shield.castShadow = true;
-      bodyGroup.add(shield);
+      // 3. CARTELLINO FLUTTUANTE BILLBOARD (Nome & PF)
+      const bb = createBillboardSprite(mini.userData);
+      bb.position.y = 2.5;
+      bb.name = 'billboard';
+      mini.add(bb);
 
-      miniGroup.add(bodyGroup);
-
-      // 3. Cartellino Fluttuante 3D (Billboard Canvas con Nome & Barra PF)
-      const billboard = createMiniBillboard(miniGroup.userData);
-      billboard.position.y = 2.6;
-      billboard.name = 'billboard';
-      miniGroup.add(billboard);
-
-      // Posizione casuale vicina al centro
-      const tileX = charData.tileX !== undefined ? charData.tileX : Math.floor((Math.random() - 0.5) * 8);
-      const tileZ = charData.tileZ !== undefined ? charData.tileZ : Math.floor((Math.random() - 0.5) * 8);
-      miniGroup.position.set(tileX * TILE_SIZE, 0, tileZ * TILE_SIZE);
-
-      return miniGroup;
+      // Posizionamento al centro esatto della casella
+      mini.position.set(tileToWorldX(mini.userData.tileX), 0, tileToWorldZ(mini.userData.tileZ));
+      return mini;
     }
 
-    // Generatore Billboard 3D (Sprite Canvas in alta definizione)
-    function createMiniBillboard(uData) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 96;
-      const ctx = canvas.getContext('2d');
+    function createBillboardSprite(uData) {
+      const cvs = document.createElement('canvas');
+      cvs.width = 256; cvs.height = 80;
+      const ctx = cvs.getContext('2d');
 
-      // Sfondo scuro semitrasparente arrotondato
-      ctx.fillStyle = 'rgba(10, 14, 22, 0.85)';
-      ctx.beginPath();
-      ctx.roundRect(10, 10, 236, 76, 16);
-      ctx.fill();
-      ctx.strokeStyle = '#c9a050';
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      ctx.fillStyle = 'rgba(8, 12, 20, 0.85)';
+      ctx.beginPath(); ctx.roundRect(8, 8, 240, 64, 14); ctx.fill();
+      ctx.strokeStyle = '#c9a050'; ctx.lineWidth = 2.5; ctx.stroke();
 
-      // Nome Personaggio
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(uData.name, 128, 40);
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Cinzel, serif'; ctx.textAlign = 'center';
+      ctx.fillText(uData.name, 128, 36);
 
-      // Barra PF (Sfondo rosso, riempimento verde)
-      const hpPct = Math.max(0, Math.min(1, uData.hp / uData.maxHp));
-      ctx.fillStyle = '#450a0a';
-      ctx.beginPath();
-      ctx.roundRect(30, 52, 196, 16, 8);
-      ctx.fill();
+      const pct = Math.max(0, Math.min(1, uData.hp / uData.maxHp));
+      ctx.fillStyle = '#3f0c0c';
+      ctx.beginPath(); ctx.roundRect(24, 46, 208, 14, 6); ctx.fill();
 
-      ctx.fillStyle = hpPct > 0.5 ? '#10b981' : hpPct > 0.25 ? '#f59e0b' : '#ef4444';
-      ctx.beginPath();
-      ctx.roundRect(30, 52, 196 * hpPct, 16, 8);
-      ctx.fill();
+      ctx.fillStyle = pct > 0.5 ? '#10b981' : pct > 0.25 ? '#eab308' : '#ef4444';
+      ctx.beginPath(); ctx.roundRect(24, 46, 208 * pct, 14, 6); ctx.fill();
 
-      // Testo PF
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px Inter, sans-serif';
-      ctx.fillText(`${uData.hp}/${uData.maxHp} PF`, 128, 65);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
-      const sprite = new THREE.Sprite(spriteMat);
-      sprite.scale.set(2.8, 1.05, 1);
-      return sprite;
-    }
-
-    function addMiniatureToScene(charData) {
-      const miniObj = createMiniatureObject(charData);
-      minisGroup.add(miniObj);
-      window.Ginnungagap.miniatures.push(miniObj);
-      return miniObj;
-    }
-
-    // Carica personaggi da LocalDB e Firebase
-    function loadPartyCharactersFromDB() {
-      let camp = null;
-      if (window.dbState && window.dbState.campaigns && window.dbState.campaigns[currentCampaignCode]) {
-        camp = window.dbState.campaigns[currentCampaignCode];
-      }
-
-      const partyMembers = (camp && camp.members) ? Object.values(camp.members) : [];
-
-      if (partyMembers.length > 0) {
-        partyMembers.forEach((hero, idx) => {
-          addMiniatureToScene({
-            id: hero.id || ('hero_' + idx),
-            name: hero.name,
-            className: hero.className,
-            level: hero.level || 1,
-            hp: hero.hp || 25,
-            maxHp: hero.maxHp || 25,
-            avatar: hero.avatar,
-            role: 'PLAYER',
-            tileX: -4 + idx * 3,
-            tileZ: 2
-          });
-        });
-      } else {
-        // Personaggio dimostrativo canonico
-        addMiniatureToScene({
-          id: 'hero_ragnar_demo',
-          name: 'Ragnar Lodbrok',
-          className: 'Barbaro',
-          level: 3,
-          hp: 28,
-          maxHp: 28,
-          role: 'PLAYER',
-          tileX: 0,
-          tileZ: 0
-        });
-      }
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs), transparent: true }));
+      spr.scale.set(2.8, 0.9, 1);
+      return spr;
     }
 
     // ============================================================================
-    // INTERAZIONI MOUSE, RAYCASTING & TRASCINAMENTO SULLA GRIGLIA SIGIL
+    // VETTORE DI MOVIMENTO TRICOLORE (0-25% Verde, 25-75% Giallo, 75-100% Rosso)
     // ============================================================================
 
-    let activeDragMini = null;
-    let dragStartPos = null;
+    function updateMovementVector(startTx, startTz, curTx, curTz, maxTiles) {
+      // Pulisce il vettore precedente
+      while(vectorGroup.children.length > 0) vectorGroup.remove(vectorGroup.children[0]);
+
+      const dx = Math.abs(curTx - startTx);
+      const dz = Math.abs(curTz - startTz);
+      const tilesMoved = Math.max(dx, dz);
+      const pct = Math.min(1.0, tilesMoved / maxTiles);
+
+      // Colore del vettore e della griglia calcolato in base alla percentuale
+      let vColor = 0x22c55e; // Verde (0 - 25%)
+      let cssColor = 'text-emerald-400';
+      if (pct > 0.75) {
+        vColor = 0xef4444; // Rosso (75 - 100%)
+        cssColor = 'text-red-400';
+      } else if (pct > 0.25) {
+        vColor = 0xeab308; // Giallo (25 - 75%)
+        cssColor = 'text-amber-300';
+      }
+
+      // Linea 3D del vettore di spostamento
+      const startPos = new THREE.Vector3(tileToWorldX(startTx), 0.1, tileToWorldZ(startTz));
+      const endPos = new THREE.Vector3(tileToWorldX(curTx), 0.1, tileToWorldZ(curTz));
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
+      const lineMat = new THREE.LineBasicMaterial({ color: vColor, linewidth: 4 });
+      const line = new THREE.Line(lineGeo, lineMat);
+      vectorGroup.add(line);
+
+      // Freccia/indicatore al termine del vettore
+      const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.2, 8), new THREE.MeshBasicMaterial({ color: vColor }));
+      arrow.position.copy(endPos);
+      arrow.rotation.x = Math.PI / 2;
+      arrow.lookAt(startPos);
+      vectorGroup.add(arrow);
+
+      // Evidenziazione della casella di destinazione al centro
+      const quad = new THREE.Mesh(
+        new THREE.PlaneGeometry(TILE_SIZE * 0.95, TILE_SIZE * 0.95),
+        new THREE.MeshBasicMaterial({ color: vColor, transparent: true, opacity: 0.45, side: THREE.DoubleSide })
+      );
+      quad.rotation.x = -Math.PI / 2;
+      quad.position.set(tileToWorldX(curTx), 0.05, tileToWorldZ(curTz));
+      vectorGroup.add(quad);
+
+      // Aggiorna il misuratore metrico nella UI BG3
+      const metersSpent = (tilesMoved * 1.5).toFixed(1);
+      const maxMeters = (maxTiles * 1.5).toFixed(1);
+      const meterEl = document.getElementById('bg3-movement-meter');
+      meterEl.textContent = `${metersSpent}m / ${maxMeters}m (${tilesMoved}/${maxTiles} Caselle)`;
+      meterEl.className = `font-mono font-extrabold text-[11px] ${cssColor}`;
+    }
+
+    function clearMovementVector() {
+      while(vectorGroup.children.length > 0) vectorGroup.remove(vectorGroup.children[0]);
+    }
+
+    // ============================================================================
+    // INTERAZIONI MOUSE & MOVIMENTO TRASCINABILE
+    // ============================================================================
 
     function onPointerDown(e) {
       if (e.target.tagName !== 'CANVAS') return;
@@ -1212,41 +1121,25 @@
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(minisGroup.children, true);
 
-      // Se il costruttore è attivo, piazza un prop 3D
-      if (window.Ginnungagap.isBuilderActive) {
-        const hits = raycaster.intersectObject(dragPlane);
-        if (hits.length > 0) {
-          const pt = hits[0].point;
-          const tx = Math.round(pt.x / TILE_SIZE);
-          const tz = Math.round(pt.z / TILE_SIZE);
-          spawnBuilderProp(window.Ginnungagap.selectedPropType, tx * TILE_SIZE, 0, tz * TILE_SIZE);
-        }
-        return;
-      }
+      if (hits.length > 0) {
+        let root = hits[0].object;
+        while(root.parent && root.parent !== minisGroup) root = root.parent;
 
-      // Controlla click su miniatura
-      const miniIntersects = raycaster.intersectObjects(minisGroup.children, true);
-      if (miniIntersects.length > 0) {
-        // Trova il gruppo genitore root della miniatura
-        let obj = miniIntersects[0].object;
-        while(obj.parent && obj.parent !== minisGroup) {
-          obj = obj.parent;
-        }
+        if (root && root.userData && root.userData.id) {
+          // I giocatori possono muovere solo il loro eroe, il DM può muovere tutto
+          if (currentRole === 'PLAYER' && window.Ginnungagap.myHeroMini && root !== window.Ginnungagap.myHeroMini) {
+            showToast('⚠️ Controllo Limitato', 'Puoi muovere solo la miniatura del tuo Eroe!');
+            return;
+          }
 
-        if (obj && obj.userData && obj.userData.id) {
-          selectMiniature(obj);
-          activeDragMini = obj;
-          dragStartPos = obj.position.clone();
-          controls.enabled = false; // Disabilita rotazione camera durante il drag
+          selectMiniature(root);
+          dragMini = root;
+          dragStartTile = { tx: root.userData.tileX, tz: root.userData.tileZ };
+          controls.enabled = false;
           isDraggingMini = true;
-          return;
         }
-      }
-
-      // Click sul vuoto: deseleziona se non stiamo cliccando su UI
-      if (!isDraggingMini) {
-        deselectMiniature();
       }
     }
 
@@ -1254,737 +1147,388 @@
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-      if (isDraggingMini && activeDragMini) {
+      if (isDraggingMini && dragMini && dragStartTile) {
         raycaster.setFromCamera(mouse, camera);
         const hits = raycaster.intersectObject(dragPlane);
         if (hits.length > 0) {
-          const pt = hits[0].point;
-          // Snap alla griglia in tempo reale
-          const snapX = Math.round(pt.x / TILE_SIZE) * TILE_SIZE;
-          const snapZ = Math.round(pt.z / TILE_SIZE) * TILE_SIZE;
-          activeDragMini.position.x = snapX;
-          activeDragMini.position.z = snapZ;
+          let tx = worldToTileX(hits[0].point.x);
+          let tz = worldToTileZ(hits[0].point.z);
 
-          // Aggiorna righello di distanza
-          const distUnits = Math.hypot(snapX - dragStartPos.x, snapZ - dragStartPos.z) / TILE_SIZE;
-          const distMeters = (distUnits * 1.5).toFixed(1);
-          const distFeet = Math.round(distUnits * 5);
-          
-          document.getElementById('sigil-ruler-hud').classList.remove('hidden');
-          document.getElementById('ruler-distance-text').textContent = `${distMeters}m (${distFeet} ft) - ${Math.round(distUnits)} Caselle`;
+          // Limite Massimo di Spostamento (in base a speedMeters e Scatto)
+          const maxSpeed = window.Ginnungagap.isDashActive ? dragMini.userData.speedMeters * 2 : dragMini.userData.speedMeters;
+          const maxTiles = Math.floor(maxSpeed / 1.5);
 
-          updateHudPosition();
+          const dx = tx - dragStartTile.tx;
+          const dz = tz - dragStartTile.tz;
+          const dist = Math.max(Math.abs(dx), Math.abs(dz));
+
+          // Clampa lo spostamento al massimo consentito per il turno
+          if (dist > maxTiles) {
+            const ratio = maxTiles / dist;
+            tx = Math.round(dragStartTile.tx + dx * ratio);
+            tz = Math.round(dragStartTile.tz + dz * ratio);
+          }
+
+          // Posiziona al centro esatto
+          dragMini.position.x = tileToWorldX(tx);
+          dragMini.position.z = tileToWorldZ(tz);
+          dragMini.userData.tileX = tx;
+          dragMini.userData.tileZ = tz;
+
+          // Aggiorna Vettore Dinamico Tricolore
+          updateMovementVector(dragStartTile.tx, dragStartTile.tz, tx, tz, maxTiles);
         }
       }
     }
 
     function onPointerUp() {
-      if (isDraggingMini && activeDragMini) {
+      if (isDraggingMini && dragMini) {
         controls.enabled = true;
         isDraggingMini = false;
-        document.getElementById('sigil-ruler-hud').classList.add('hidden');
-
-        // Notifica movimento a Firebase e giocatori
-        broadcastState({
-          type: 'MINI_MOVE',
-          miniId: activeDragMini.userData.id,
-          x: activeDragMini.position.x,
-          z: activeDragMini.position.z
-        });
-
-        activeDragMini = null;
+        clearMovementVector();
+        saveGinnungagapState();
+        dragMini = null;
+        dragStartTile = null;
       }
     }
 
-    function selectMiniature(miniObj) {
-      window.Ginnungagap.selectedMini = miniObj;
+    function selectMiniature(mini) {
+      window.Ginnungagap.selectedMini = mini;
+      const u = mini.userData;
 
-      // Popola HUD
-      const u = miniObj.userData;
-      document.getElementById('hud-mini-name').textContent = u.name;
-      document.getElementById('hud-mini-avatar').src = u.avatar;
-      document.getElementById('hud-mini-role-pill').textContent = u.className;
+      document.getElementById('bg3-hero-name').textContent = u.name;
+      document.getElementById('bg3-hero-class').textContent = u.className;
+      document.getElementById('bg3-portrait').src = u.avatar;
       
       const pct = Math.max(0, Math.min(1, u.hp / u.maxHp));
-      document.getElementById('hud-mini-hp-bar').style.width = (pct * 100) + '%';
-      document.getElementById('hud-mini-hp-text').textContent = `${u.hp}/${u.maxHp} PF`;
-
-      document.getElementById('sigil-mini-action-hud').classList.remove('hidden');
-      updateHudPosition();
-    }
-
-    window.deselectMiniature = function() {
-      window.Ginnungagap.selectedMini = null;
-      document.getElementById('sigil-mini-action-hud').classList.add('hidden');
-    };
-
-    function updateHudPosition() {
-      if (!window.Ginnungagap.selectedMini) return;
-      const pos = window.Ginnungagap.selectedMini.position.clone();
-      pos.y += 3.2; // Appena sopra la miniatura
-      pos.project(camera);
-
-      const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-      const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
-
-      const hud = document.getElementById('sigil-mini-action-hud');
-      hud.style.left = `${x}px`;
-      hud.style.top = `${y}px`;
-      hud.style.transform = 'translate(-50%, -100%)';
+      document.getElementById('bg3-hp-bar').style.width = (pct * 100) + '%';
+      document.getElementById('bg3-hp-text').textContent = `${u.hp}/${u.maxHp} PF`;
     }
 
     // ============================================================================
-    // AZIONI DI COMBATTIMENTO DELLA MINIATURA (SIGIL ACTION WHEEL)
+    // AZIONI BALDUR'S GATE III (HOTBAR INFERIORE)
     // ============================================================================
 
-    window.triggerMiniAction = function(actionType) {
-      const mini = window.Ginnungagap.selectedMini;
-      if (!mini) return;
+    window.bg3Action = function(act) {
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!mini) { alert("Seleziona una miniatura!"); return; }
 
-      if (actionType === 'move') {
-        showEventToast('👣 Modalità Movimento', `${mini.userData.name}: Trascina la miniatura sulla griglia per spostarti (Max 9m / 30ft).`);
-      } else if (actionType === 'attack') {
-        // Animazione fendente spada 3D + Tiro D20
-        playAttackAnimation(mini);
+      if (act === 'dash') {
+        window.Ginnungagap.isDashActive = !window.Ginnungagap.isDashActive;
+        const speed = window.Ginnungagap.isDashActive ? mini.userData.speedMeters * 2 : mini.userData.speedMeters;
+        const tiles = Math.floor(speed / 1.5);
+        document.getElementById('bg3-movement-meter').textContent = `${speed}m / ${speed}m (${tiles} Caselle)`;
+        showToast('🏃 Scatto Attivato!', `Movimento raddoppiato per questo turno: ${speed}m (${tiles} caselle).`);
+
+      } else if (act === 'attack') {
+        // Colpo con fendente 3D
+        playAttackAnim(mini);
         const d20 = Math.floor(Math.random() * 20) + 1;
         const total = d20 + 5;
         const isCrit = d20 === 20;
-        showEventToast(
-          isCrit ? '🔥 COLPO CRITICO 20!' : `⚔️ Attacco: ${total}`,
-          `${mini.userData.name} sferra un fendente con la Spada Ulfberht! [D20=${d20} + Mod=5 ➔ Totale: ${total}]`
+
+        // Se attacchiamo un boss (es. Valkyria), attiva l'arbitro del DM!
+        triggerPlayerActionForArbiter(
+          `${mini.userData.name} sferra un attacco con la Spada Ulfberht contro il nemico [Tiro d20=${d20}+5 = ${total} ${isCrit?'CRITICO!':''}] infliggendo 26 danni!`
         );
-      } else if (actionType === 'spell') {
-        window.openSpellsVfxModal();
-      } else if (actionType === 'defense') {
-        cast3DSpell('odin_shield');
-      } else if (actionType === 'hp') {
-        const delta = prompt("Inserisci modifica PF (es. -8 per danno subito, +12 per cura ricevuta):", "-5");
-        if (delta !== null) {
-          const num = parseInt(delta);
-          if (!isNaN(num)) {
-            mini.userData.hp = Math.max(0, Math.min(mini.userData.maxHp, mini.userData.hp + num));
-            // Aggiorna billboard e HUD
-            mini.remove(mini.getObjectByName('billboard'));
-            const newBb = createMiniBillboard(mini.userData);
-            newBb.position.y = 2.6;
-            newBb.name = 'billboard';
-            mini.add(newBb);
-            selectMiniature(mini);
-            showEventToast('💖 Punti Ferita Aggiornati', `${mini.userData.name} ora ha ${mini.userData.hp}/${mini.userData.maxHp} PF.`);
-          }
-        }
+
+      } else if (act === 'dodge') {
+        showToast('🛡️ Schivata Eseguita', `${mini.userData.name} si focalizza sulla difesa: svantaggio ai tiri per colpire dei nemici.`);
+
+      } else if (act === 'disengage') {
+        showToast('💨 Disimpegno Attivo', `${mini.userData.name} può muoversi senza provocare attacchi d'opportunità.`);
+
+      } else if (act === 'shove') {
+        showToast('🦵 Tentativo di Spinta', `${mini.userData.name} tenta di spingere il bersaglio all'indietro di 1.5m.`);
+
+      } else if (act === 'potion') {
+        const heal = Math.floor(Math.random()*4) + Math.floor(Math.random()*4) + 4;
+        mini.userData.hp = Math.min(mini.userData.maxHp, mini.userData.hp + heal);
+        mini.remove(mini.getObjectByName('billboard'));
+        mini.add(createBillboardSprite(mini.userData));
+        selectMiniature(mini);
+        showToast('🧪 Pozione Bevuta', `${mini.userData.name} recupera +${heal} Punti Ferita!`);
+        saveGinnungagapState();
       }
     };
 
-    function playAttackAnimation(mini) {
-      const startRot = mini.rotation.y;
-      new TWEEN.Tween(mini.rotation)
-        .to({ y: startRot + 0.6 }, 100)
-        .yoyo(true)
-        .repeat(1)
-        .start();
+    window.bg3EndTurn = function() {
+      window.Ginnungagap.isDashActive = false;
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (mini) {
+        document.getElementById('bg3-movement-meter').textContent = `${mini.userData.speedMeters}m / ${mini.userData.speedMeters}m (${Math.floor(mini.userData.speedMeters/1.5)} Caselle)`;
+      }
+      showToast('⏳ Turno Terminato', 'Risorse e movimento ripristinati per il prossimo round.');
+    };
 
-      // Scintille 3D
-      const sparkGeo = new THREE.BufferGeometry();
-      const count = 30;
-      const positions = new Float32Array(count * 3);
-      for(let i=0; i<count*3; i++) positions[i] = (Math.random() - 0.5) * 1.5;
-      sparkGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const sparkMat = new THREE.PointsMaterial({ color: 0xfde047, size: 0.15 });
-      const sparks = new THREE.Points(sparkGeo, sparkMat);
-      sparks.position.copy(mini.position);
-      sparks.position.y += 1.2;
-      vfxGroup.add(sparks);
-      setTimeout(() => vfxGroup.remove(sparks), 600);
+    function playAttackAnim(mini) {
+      new TWEEN.Tween(mini.rotation).to({ y: mini.rotation.y + 0.5 }, 90).yoyo(true).repeat(1).start();
     }
 
     // ============================================================================
-    // MAGIE E PARTICELLE 3D (SIGIL SPELL VFX)
+    // ARBITRO ASSOLUTO DEL DUNGEON MASTER ("L'ULTIMA PAROLA DEL DM")
     // ============================================================================
 
-    window.cast3DSpell = function(spellId) {
-      window.closeSpellsVfxModal();
-      const mini = window.Ginnungagap.selectedMini;
-      if (!mini) return;
+    let pendingArbiterAction = null;
 
-      const origin = mini.position.clone();
-      origin.y += 1.2;
-
-      if (spellId === 'thor_lightning') {
-        // Fulmine verticale azzurro abbagliante
-        const boltGeo = new THREE.CylinderGeometry(0.2, 0.4, 25, 8);
-        const boltMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-        const bolt = new THREE.Mesh(boltGeo, boltMat);
-        bolt.position.set(origin.x + 3, 12, origin.z + 3);
-        vfxGroup.add(bolt);
-
-        showEventToast('⚡ Fulmine di Thor', `${mini.userData.name} invoca il rombo del tuono di Mjolnir! (8d6 Danni da Fulmine)`);
-        setTimeout(() => vfxGroup.remove(bolt), 250);
-
-      } else if (spellId === 'surtur_fireball') {
-        // Palla di fuoco che esplode in un anello sferico
-        const fireSphere = new THREE.Mesh(
-          new THREE.SphereGeometry(2.5, 16, 16),
-          new THREE.MeshBasicMaterial({ color: 0xf97316, wireframe: true })
-        );
-        fireSphere.position.set(origin.x + 4, 1.2, origin.z);
-        vfxGroup.add(fireSphere);
-
-        new TWEEN.Tween(fireSphere.scale)
-          .to({ x: 3, y: 3, z: 3 }, 400)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .onComplete(() => vfxGroup.remove(fireSphere))
-          .start();
-
-        showEventToast('🔥 Palla di Fuoco di Surtur', `${mini.userData.name} scatena le fiamme ardenti di Muspelheim!`);
-
-      } else if (spellId === 'odin_shield') {
-        // Cupola di forza runica dorata brillante
-        const shieldDome = new THREE.Mesh(
-          new THREE.SphereGeometry(1.8, 16, 16),
-          new THREE.MeshStandardMaterial({
-            color: 0xc9a050,
-            emissive: 0xf59e0b,
-            emissiveIntensity: 0.8,
-            transparent: true,
-            opacity: 0.55
-          })
-        );
-        shieldDome.position.copy(mini.position);
-        shieldDome.position.y += 0.9;
-        vfxGroup.add(shieldDome);
-
-        setTimeout(() => vfxGroup.remove(shieldDome), 2500);
-        showEventToast('🛡️ Scudo Runico', `Aura di protezione attiva intorno a ${mini.userData.name} (+5 CA fino al prossimo turno).`);
-
-      } else if (spellId === 'idunn_heal') {
-        // Colonne di luce verde smeraldo
-        const healGeo = new THREE.CylinderGeometry(1.2, 1.2, 6, 16, 1, true);
-        const healMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.65 });
-        const heal = new THREE.Mesh(healGeo, healMat);
-        heal.position.copy(mini.position);
-        heal.position.y += 3;
-        vfxGroup.add(heal);
-
-        mini.userData.hp = Math.min(mini.userData.maxHp, mini.userData.hp + 12);
-        mini.remove(mini.getObjectByName('billboard'));
-        const newBb = createMiniBillboard(mini.userData);
-        newBb.position.y = 2.6;
-        newBb.name = 'billboard';
-        mini.add(newBb);
-        selectMiniature(mini);
-
-        setTimeout(() => vfxGroup.remove(heal), 1200);
-        showEventToast('🌿 Rugiada di Idunn', `${mini.userData.name} recupera +12 Punti Ferita!`);
+    function triggerPlayerActionForArbiter(actionDesc) {
+      if (currentRole === 'DM') {
+        // Se è già il DM, apre subito il modale di conferma
+        openDmArbiterModal(actionDesc);
+      } else {
+        // Notifica il DM via Broadcast / Firebase
+        showToast('⚖️ In Attesa del DM', 'Azione sferrata! Il Dungeon Master sta determinando l\'esito finale...');
+        const payload = { type: 'PLAYER_PROPOSED_ACTION', desc: actionDesc, actor: currentUser };
+        try { new BroadcastChannel('yggdrasill_v3_bus').postMessage(payload); } catch(e){}
       }
+    }
+
+    function openDmArbiterModal(actionDesc) {
+      pendingArbiterAction = actionDesc;
+      document.getElementById('arbiter-action-summary').textContent = actionDesc;
+      document.getElementById('arbiter-override-story').value = "La Valkyria cade a terra sanguinante, ma solleva una pietra runica del viaggio e si teletrasporta tra le nubi fuggendo a leccarsi le ferite!";
+      document.getElementById('modal-dm-arbiter').classList.remove('hidden');
+    }
+
+    window.closeDmArbiterModal = function() {
+      document.getElementById('modal-dm-arbiter').classList.add('hidden');
+    };
+
+    window.confirmArbiterResolution = function(isApproved) {
+      window.closeDmArbiterModal();
+
+      if (isApproved) {
+        showToast('⚖️ Esito Confermato dal DM', 'Il colpo va a segno con successo totale! Il bersaglio cade sconfitto.');
+        // Se c'è un nemico in campo, rimuovilo o azzera i PF
+        const enemy = window.Ginnungagap.miniatures.find(m => m.userData.role === 'ENEMY');
+        if (enemy) {
+          enemy.userData.hp = 0;
+          enemy.remove(enemy.getObjectByName('billboard'));
+          enemy.add(createBillboardSprite(enemy.userData));
+        }
+      } else {
+        const hpRemain = parseInt(document.getElementById('arbiter-override-hp').value) || 1;
+        const narrative = document.getElementById('arbiter-override-story').value.trim();
+
+        const enemy = window.Ginnungagap.miniatures.find(m => m.userData.role === 'ENEMY');
+        if (enemy) {
+          enemy.userData.hp = hpRemain;
+          enemy.remove(enemy.getObjectByName('billboard'));
+          enemy.add(createBillboardSprite(enemy.userData));
+        }
+
+        showToast('⚡ COLPO DI SCENA DEL DM!', narrative);
+        try {
+          new BroadcastChannel('yggdrasill_v3_bus').postMessage({
+            type: 'DM_OVERRULE_EVENT',
+            narrative: narrative
+          });
+        } catch(e){}
+      }
+      saveGinnungagapState();
     };
 
     // ============================================================================
-    // FISICA DADI 3D SUL TAVOLO (D20, D12, D10, D8, D6, D4)
+    // SINCRONIZZAZIONE CAMPAGNA & MEMORIA PERSISTENTE (F5 SAFE)
     // ============================================================================
 
-    window.openDicePhysicsModal = function() {
-      document.getElementById('modal-dice-physics').classList.remove('hidden');
+    function loadCampaignState() {
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+
+      let camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
+      if (!camp && db.campaigns) {
+        camp = Object.values(db.campaigns)[0];
+      }
+
+      // Se non esiste ancora alcuna campagna, crea sessione locale di Midgard
+      if (!camp) {
+        camp = { code: currentCampaignCode, title: 'Saga dei Nove Mondi', members: {} };
+      }
+
+      // Controlla se esiste uno stato salvato di Ginnungagap
+      if (camp.ginnungagapState && Array.isArray(camp.ginnungagapState.miniatures)) {
+        // Ripristina lo stato esatto da memoria
+        camp.ginnungagapState.miniatures.forEach(mData => {
+          const mObj = createMiniature(mData);
+          minisGroup.add(mObj);
+          window.Ginnungagap.miniatures.push(mObj);
+
+          if (mObj.userData.name.toLowerCase().includes(currentUser.toLowerCase()) || mData.owner === currentUser) {
+            window.Ginnungagap.myHeroMini = mObj;
+          }
+        });
+        if (camp.ginnungagapState.worldId) loadActiveWorld(camp.ginnungagapState.worldId);
+        if (camp.ginnungagapState.weather) setWeather(camp.ginnungagapState.weather);
+      } else {
+        // Popola con gli eroi della campagna
+        const members = Object.values(camp.members || {});
+        if (members.length > 0) {
+          members.forEach((m, idx) => {
+            const mObj = createMiniature({
+              id: m.id || ('hero_' + idx),
+              name: m.name,
+              className: m.className || 'Eroe',
+              hp: m.hp || 25,
+              maxHp: m.maxHp || 25,
+              avatar: m.avatar,
+              role: 'PLAYER',
+              tileX: -3 + idx * 2,
+              tileZ: 2
+            });
+            minisGroup.add(mObj);
+            window.Ginnungagap.miniatures.push(mObj);
+
+            if (m.name.toLowerCase().includes(currentUser.toLowerCase()) || m.owner === currentUser) {
+              window.Ginnungagap.myHeroMini = mObj;
+            }
+          });
+        } else {
+          // Eroe canonico del giocatore
+          const hero = createMiniature({
+            id: 'ragnar_hero',
+            name: 'Ragnar Lodbrok',
+            className: 'Barbaro',
+            hp: 28, maxHp: 28,
+            role: 'PLAYER',
+            tileX: 0, tileZ: 1
+          });
+          minisGroup.add(hero);
+          window.Ginnungagap.miniatures.push(hero);
+          window.Ginnungagap.myHeroMini = hero;
+        }
+
+        // Genera nemico iniziale (Valkyria) per il DM
+        window.dmSpawnEnemy('valkyrie', 0, -3);
+        saveGinnungagapState();
+      }
+
+      // Seleziona il proprio eroe sulla barra BG3
+      const firstMini = window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
+      if (firstMini) selectMiniature(firstMini);
+
+      // Popola lista DM
+      populateDmPartyList(camp);
+    }
+
+    function saveGinnungagapState() {
+      try {
+        let db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}');
+        if (!db.campaigns) db.campaigns = {};
+        if (!db.campaigns[currentCampaignCode]) {
+          db.campaigns[currentCampaignCode] = { code: currentCampaignCode, title: 'Saga dei Nove Mondi', members: {} };
+        }
+
+        const statePayload = {
+          worldId: window.Ginnungagap.activeWorld,
+          weather: window.Ginnungagap.activeWeather,
+          miniatures: window.Ginnungagap.miniatures.map(m => m.userData)
+        };
+
+        db.campaigns[currentCampaignCode].ginnungagapState = statePayload;
+        localStorage.setItem('yggdrasill_v3_db', JSON.stringify(db));
+
+        // Sincronizza con Firebase se connesso
+        if (typeof firebase !== 'undefined' && firebase.apps.length) {
+          firebase.database().ref(`yggdrasill_v3_realm/campaigns/${currentCampaignCode}/ginnungagapState`).set(statePayload).catch(()=>{});
+        }
+      } catch(e) {}
+    }
+
+    // ============================================================================
+    // GENERATORE MOSTRI E ALLEATI (SOLO DM)
+    // ============================================================================
+
+    window.dmSpawnEnemy = function(mType, tx = 2, tz = -2) {
+      const eData = {
+        'valkyrie': { name: "Valkyria d'Odhinn", className: 'Boss Celestiale', hp: 75, maxHp: 75, avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150', role: 'ENEMY' },
+        'fenrir_wolf': { name: 'Lupo di Fenrir', className: 'Bestia Mitologica', hp: 32, maxHp: 32, avatar: 'https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150', role: 'ENEMY' },
+        'frost_giant': { name: 'Jotunn del Gelo', className: 'Gigante', hp: 110, maxHp: 110, avatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150', role: 'ENEMY' },
+        'draugr': { name: 'Draugr delle Cripte', className: 'Non-Morto', hp: 24, maxHp: 24, avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150', role: 'ENEMY' }
+      }[mType] || { name: 'Nemico', className: 'Mostro', hp: 20, maxHp: 20, role: 'ENEMY' };
+
+      eData.tileX = tx; eData.tileZ = tz;
+      const mObj = createMiniature(eData);
+      minisGroup.add(mObj);
+      window.Ginnungagap.miniatures.push(mObj);
+      showToast('👹 Schieramento DM', `${eData.name} è sceso in campo!`);
+      saveGinnungagapState();
     };
-    window.closeDicePhysicsModal = function() {
-      document.getElementById('modal-dice-physics').classList.add('hidden');
-    };
 
-    window.rollPhysicsDie = function(dieType) {
-      window.closeDicePhysicsModal();
-      const mod = parseInt(document.getElementById('dice-mod-val').value) || 0;
+    function populateDmPartyList(camp) {
+      const container = document.getElementById('dm-party-list');
+      if (!container) return;
+      container.innerHTML = '';
 
-      // Geometrie esatte dei poliedri platonici
-      let dieGeo;
-      if (dieType === 'd20') dieGeo = new THREE.IcosahedronGeometry(1.1, 0);
-      else if (dieType === 'd12') dieGeo = new THREE.DodecahedronGeometry(1.1, 0);
-      else if (dieType === 'd8') dieGeo = new THREE.OctahedronGeometry(1.1, 0);
-      else if (dieType === 'd6') dieGeo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
-      else if (dieType === 'd4') dieGeo = new THREE.TetrahedronGeometry(1.1, 0);
-      else dieGeo = new THREE.IcosahedronGeometry(1.1, 0);
+      const members = Object.values(camp.members || {});
+      if (members.length === 0) {
+        container.innerHTML = '<div class="text-[9px] text-slate-500">Nessun eroe registrato nel codice sala.</div>';
+        return;
+      }
 
-      const dieMat = new THREE.MeshStandardMaterial({
-        color: 0xc9a050,
-        metalness: 0.6,
-        roughness: 0.25,
-        wireframe: false
+      members.forEach(m => {
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs";
+        row.innerHTML = `
+          <span class="font-bold text-white">${m.name}</span>
+          <button onclick="window.dmFocusOrSpawnHero('${m.id}')" class="px-2 py-0.5 rounded bg-sky-950 border border-sky-400 text-[9px] text-sky-300 font-bold">
+            Posiziona
+          </button>
+        `;
+        container.appendChild(row);
       });
-      const dieMesh = new THREE.Mesh(dieGeo, dieMat);
-      dieMesh.castShadow = true;
-
-      // Spawna in alto davanti alla camera
-      const camPos = camera.position.clone();
-      const lookDir = new THREE.Vector3();
-      camera.getWorldDirection(lookDir);
-
-      dieMesh.position.copy(camPos).add(lookDir.clone().multiplyScalar(6));
-      dieMesh.position.y = Math.max(dieMesh.position.y, 14);
-      diceGroup.add(dieMesh);
-
-      // Risultato casuale autentico
-      const maxVal = parseInt(dieType.replace('d', '')) || 20;
-      const rolled = Math.floor(Math.random() * maxVal) + 1;
-      const total = rolled + mod;
-
-      // Animazione di caduta, rimbalzo sul pavimento e rotolamento con Tween
-      const targetPos = new THREE.Vector3(
-        (Math.random() - 0.5) * 6,
-        1.0,
-        (Math.random() - 0.5) * 6
-      );
-
-      new TWEEN.Tween(dieMesh.position)
-        .to(targetPos, 850)
-        .easing(TWEEN.Easing.Bounce.Out)
-        .start();
-
-      new TWEEN.Tween(dieMesh.rotation)
-        .to({
-          x: Math.PI * (4 + Math.random() * 4),
-          y: Math.PI * (4 + Math.random() * 4),
-          z: Math.PI * (4 + Math.random() * 4)
-        }, 850)
-        .onComplete(() => {
-          const isCrit = (dieType === 'd20' && rolled === 20);
-          const isFumble = (dieType === 'd20' && rolled === 1);
-          const title = isCrit ? '💥 CRITICO 20 NATURALE!' : isFumble ? '💀 FALLIMENTO CRITICO (1)' : `🎲 Tiro ${dieType.toUpperCase()}: ${total}`;
-          showEventToast(title, `Risultato: [${rolled}] ${mod >= 0 ? '+'+mod : mod} = ${total}`);
-
-          // Rimuove il dado dopo 5 secondi
-          setTimeout(() => {
-            new TWEEN.Tween(dieMesh.scale)
-              .to({ x: 0.01, y: 0.01, z: 0.01 }, 400)
-              .onComplete(() => diceGroup.remove(dieMesh))
-              .start();
-          }, 5000);
-        })
-        .start();
-    };
+    }
 
     // ============================================================================
-    // MODALITÀ TELECAMERA SIGIL (ORBIT, TATTICA, VISTA EROE, FOTO)
+    // MODALITÀ TELECAMERA SIGIL
     // ============================================================================
 
     window.setCameraMode = function(mode) {
       window.Ginnungagap.cameraMode = mode;
       ['orbit', 'tactical', 'hero', 'photo'].forEach(m => {
         const btn = document.getElementById('cam-btn-' + m);
-        if (btn) {
-          if (m === mode) {
-            btn.className = "px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1";
-          } else {
-            btn.className = "px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1";
-          }
-        }
+        if (btn) btn.className = (m === mode) ? "px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1" : "px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1";
       });
-
-      const photoOverlay = document.getElementById('sigil-photo-overlay');
-      const topBar = document.getElementById('sigil-top-bar');
 
       if (mode === 'orbit') {
-        controls.enabled = true;
-        photoOverlay.classList.add('hidden');
-        topBar.classList.remove('hidden');
-        new TWEEN.Tween(camera.position).to({ x: 0, y: 24, z: 28 }, 800).easing(TWEEN.Easing.Cubic.Out).start();
-        new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 800).start();
-
+        new TWEEN.Tween(camera.position).to({ x: 0, y: 26, z: 30 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
+        new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 700).start();
       } else if (mode === 'tactical') {
-        controls.enabled = true;
-        photoOverlay.classList.add('hidden');
-        topBar.classList.remove('hidden');
-        // Vista isometrica dall'alto ortogonale alla griglia
-        new TWEEN.Tween(camera.position).to({ x: 0, y: 38, z: 8 }, 800).easing(TWEEN.Easing.Cubic.Out).start();
-        new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 800).start();
-
+        new TWEEN.Tween(camera.position).to({ x: 0, y: 38, z: 6 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
+        new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 700).start();
       } else if (mode === 'hero') {
-        // Vista Eroe in prima/terza persona dietro la miniatura selezionata
-        const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.miniatures[0];
-        if (!mini) {
-          alert("Seleziona prima una miniatura per entrare nella sua Vista Eroe!");
-          window.setCameraMode('orbit');
-          return;
+        const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
+        if (mini) {
+          const mp = mini.position;
+          new TWEEN.Tween(camera.position).to({ x: mp.x, y: mp.y + 2.4, z: mp.z + 4.8 }, 800).start();
+          new TWEEN.Tween(controls.target).to({ x: mp.x, y: mp.y + 1.8, z: mp.z - 8 }, 800).start();
         }
-        controls.enabled = true;
-        photoOverlay.classList.add('hidden');
-        topBar.classList.remove('hidden');
-
-        const mPos = mini.position.clone();
-        new TWEEN.Tween(camera.position)
-          .to({ x: mPos.x, y: mPos.y + 2.2, z: mPos.z + 4.5 }, 1000)
-          .easing(TWEEN.Easing.Cubic.Out)
-          .start();
-        new TWEEN.Tween(controls.target)
-          .to({ x: mPos.x, y: mPos.y + 1.8, z: mPos.z - 10 }, 1000)
-          .start();
-
       } else if (mode === 'photo') {
-        // Modalità Fotografica Sigil
-        photoOverlay.classList.remove('hidden');
-        topBar.classList.add('hidden');
-        controls.enabled = true;
-        showEventToast('📸 Modalità Fotografica', 'Ruota la vista per l\'inquadratura perfetta e premi "Scatta & Scarica Foto 3D".');
-      }
-    };
-
-    window.capturePhotoScreenshot = function() {
-      renderer.render(scene, camera);
-      const dataUrl = renderer.domElement.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `Ginnungagap_${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-      showEventToast('✅ Foto Salvata!', 'L\'immagine ad alta risoluzione del campo di battaglia è stata scaricata.');
-    };
-
-    // ============================================================================
-    // NEBBIA DI GUERRA 3D (FOG OF WAR VOLUMETRICA)
-    // ============================================================================
-
-    window.toggleFogOfWar = function() {
-      window.Ginnungagap.isFogActive = !window.Ginnungagap.isFogActive;
-      const btn = document.getElementById('btn-toggle-fog');
-
-      if (window.Ginnungagap.isFogActive) {
-        btn.className = "sigil-btn px-3 py-1.5 rounded-xl bg-purple-950 border border-purple-400 text-xs font-cinzel font-bold text-purple-200 flex items-center gap-1.5";
-        generate3DFogOfWar();
-        showEventToast('🌫️ Nebbia 3D Attiva', 'Le aree non esplorate del campo di battaglia sono ora avvolte dalla nebbia.');
-      } else {
-        btn.className = "sigil-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-cinzel font-bold text-slate-300 flex items-center gap-1.5";
-        while(fogGroup.children.length > 0) fogGroup.remove(fogGroup.children[0]);
-        showEventToast('☀️ Nebbia Dissolta', 'Tutto il campo di battaglia 3D è ora completamente visibile.');
-      }
-    };
-
-    function generate3DFogOfWar() {
-      while(fogGroup.children.length > 0) fogGroup.remove(fogGroup.children[0]);
-
-      for(let x = -GRID_SIZE/2; x < GRID_SIZE/2; x += 2) {
-        for(let z = -GRID_SIZE/2; z < GRID_SIZE/2; z += 2) {
-          // Non generare nebbia proprio sopra gli eroi
-          const isNearHero = window.Ginnungagap.miniatures.some(m => {
-            return Math.hypot(m.position.x - x*TILE_SIZE, m.position.z - z*TILE_SIZE) < 8;
-          });
-          if (isNearHero) continue;
-
-          const fogBlockGeo = new THREE.BoxGeometry(TILE_SIZE * 2, 2.5, TILE_SIZE * 2);
-          const fogMat = new THREE.MeshStandardMaterial({
-            color: 0x050811,
-            roughness: 0.9,
-            transparent: true,
-            opacity: 0.88
-          });
-          const fogBlock = new THREE.Mesh(fogBlockGeo, fogMat);
-          fogBlock.position.set(x * TILE_SIZE + TILE_SIZE, 1.25, z * TILE_SIZE + TILE_SIZE);
-          fogGroup.add(fogBlock);
-        }
-      }
-    }
-
-    // ============================================================================
-    // COSTRUTTORE 3D (PROPS & ELEMENTI TATTICI)
-    // ============================================================================
-
-    window.toggle3DBuilder = function() {
-      window.Ginnungagap.isBuilderActive = !window.Ginnungagap.isBuilderActive;
-      const tray = document.getElementById('sigil-builder-tray');
-      const btn = document.getElementById('btn-toggle-builder');
-
-      if (window.Ginnungagap.isBuilderActive) {
-        tray.classList.remove('hidden');
-        btn.className = "sigil-btn px-3 py-1.5 rounded-xl bg-amber-500/30 border border-amber-400 text-xs font-cinzel font-bold text-amber-300 flex items-center gap-1.5";
-        showEventToast('🛠️ Modalità Costruttore 3D', 'Clicca sulla griglia per posizionare oggetti. Premi "R" per ruotarli.');
-      } else {
-        tray.classList.add('hidden');
-        btn.className = "sigil-btn px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-cinzel font-bold text-slate-300 flex items-center gap-1.5";
-      }
-    };
-
-    window.selectBuilderProp = function(pType) {
-      window.Ginnungagap.selectedPropType = pType;
-      showEventToast('Elemento Selezionato', `Pronto a posizionare: ${pType.toUpperCase()}`);
-    };
-
-    function spawnBuilderProp(propType, x, y, z) {
-      let mesh;
-      if (propType === 'rock') {
-        mesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.2, 1), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
-        mesh.position.set(x, 1.0, z);
-      } else if (propType === 'tree') {
-        const treeGroup = new THREE.Group();
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2.5), new THREE.MeshStandardMaterial({ color: 0x3d2817 }));
-        trunk.position.y = 1.25;
-        const foliage = new THREE.Mesh(new THREE.ConeGeometry(1.6, 4.2, 8), new THREE.MeshStandardMaterial({ color: 0x14532d }));
-        foliage.position.y = 3.8;
-        treeGroup.add(trunk); treeGroup.add(foliage);
-        treeGroup.position.set(x, 0, z);
-        mesh = treeGroup;
-      } else if (propType === 'crate') {
-        mesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.4), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 }));
-        mesh.position.set(x, 0.7, z);
-      } else if (propType === 'barrel') {
-        mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.7 }));
-        mesh.position.set(x, 0.75, z);
-      } else if (propType === 'brazier') {
-        const brGroup = new THREE.Group();
-        const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.4, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x27272a, metalness: 0.8 }));
-        bowl.position.y = 0.6;
-        const pLight = new THREE.PointLight(0xf97316, 2.0, 10);
-        pLight.position.y = 1.4;
-        brGroup.add(bowl); brGroup.add(pLight);
-        brGroup.position.set(x, 0, z);
-        mesh = brGroup;
-      } else {
-        mesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshStandardMaterial({ color: 0x64748b }));
-        mesh.position.set(x, 0.6, z);
-      }
-
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      propsGroup.add(mesh);
-      window.Ginnungagap.props.push(mesh);
-    }
-
-    // ============================================================================
-    // DIORAMA 3D MAPPE UFFICIALI (PROIEZIONE 26 MAPPE JTR SUL TAVOLO)
-    // ============================================================================
-
-    window.openMapsGalleryModal = function() {
-      const container = document.getElementById('maps-gallery-grid');
-      container.innerHTML = '';
-
-      fetch('maps_manifest.json')
-        .then(res => res.json())
-        .then(maps => {
-          maps.forEach(m => {
-            const card = document.createElement('div');
-            card.className = "sigil-panel rounded-xl overflow-hidden p-2 hover:border-amber-400 cursor-pointer transition transform hover:scale-102 flex flex-col justify-between";
-            card.onclick = () => window.projectMapOnTable(m);
-            card.innerHTML = `
-              <img src="${m.file}" class="w-full h-24 object-cover rounded-lg mb-2">
-              <div>
-                <div class="font-cinzel font-bold text-xs text-white truncate">${m.title}</div>
-                <div class="text-[9px] text-amber-300 font-semibold">${m.scale} &bull; ${m.act}</div>
-              </div>
-            `;
-            container.appendChild(card);
-          });
-          document.getElementById('modal-maps-gallery').classList.remove('hidden');
-        })
-        .catch(() => {
-          alert("Impossibile caricare il catalogo mappe.");
-        });
-    };
-
-    window.closeMapsGalleryModal = function() {
-      document.getElementById('modal-maps-gallery').classList.add('hidden');
-    };
-
-    window.projectMapOnTable = function(mapItem) {
-      window.closeMapsGalleryModal();
-      clearWorldGroup();
-
-      document.getElementById('current-world-icon').textContent = '🗺️';
-      document.getElementById('current-world-name').textContent = mapItem.title;
-      document.getElementById('label-active-realm').textContent = `Diorama: ${mapItem.title}`;
-
-      // Tavolo da gioco classico Sigil in legno d'ebano
-      const tableGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE + 4, 1.5, GRID_SIZE * TILE_SIZE + 4);
-      const tableMat = new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.7 });
-      const table = new THREE.Mesh(tableGeo, tableMat);
-      table.position.y = -0.76;
-      table.receiveShadow = true;
-      worldGroup.add(table);
-
-      // Proiezione della texture della mappa sul piano di gioco
-      const texLoader = new THREE.TextureLoader();
-      texLoader.load(mapItem.file, (tex) => {
-        tex.encoding = THREE.sRGBEncoding;
-        const boardGeo = new THREE.PlaneGeometry(GRID_SIZE * TILE_SIZE, GRID_SIZE * TILE_SIZE);
-        const boardMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 });
-        const board = new THREE.Mesh(boardGeo, boardMat);
-        board.rotation.x = -Math.PI / 2;
-        board.position.y = 0.01;
-        board.receiveShadow = true;
-        worldGroup.add(board);
-        showEventToast('🗺️ Mappa Proiettata', `${mapItem.title} è ora attiva sul tavolo tattico 3D.`);
-      });
-    };
-
-    // ============================================================================
-    // GESTIONE ATMOSFERA & ILLUMINAZIONE
-    // ============================================================================
-
-    window.setAtmosphere = function(atmKey) {
-      window.Ginnungagap.activeAtmosphere = atmKey;
-      const lightNames = {
-        'day': 'Giorno Radioso',
-        'twilight': 'Crepuscolo',
-        'night': 'Notte & Aurora',
-        'fog': 'Nebbia Mistica',
-        'ragnarok': 'Ragnarok'
-      };
-      const lightIcons = {
-        'day': '☀️',
-        'twilight': '🌅',
-        'night': '🌌',
-        'fog': '🌫️',
-        'ragnarok': '🔥'
-      };
-
-      document.getElementById('current-light-icon').textContent = lightIcons[atmKey] || '☀️';
-      document.getElementById('current-light-name').textContent = lightNames[atmKey] || 'Giorno';
-
-      if (atmKey === 'day') {
-        scene.background.setHex(0x0a0e17);
-        scene.fog.color.setHex(0x0a0e17);
-        scene.fog.density = 0.012;
-        directionalLight.color.setHex(0xfff7ed);
-        directionalLight.intensity = 1.4;
-        ambientLight.color.setHex(0xdbeafe);
-        ambientLight.intensity = 0.65;
-      } else if (atmKey === 'twilight') {
-        scene.background.setHex(0x180f1e);
-        scene.fog.color.setHex(0x180f1e);
-        scene.fog.density = 0.018;
-        directionalLight.color.setHex(0xf97316);
-        directionalLight.intensity = 1.1;
-        ambientLight.color.setHex(0x6b21a8);
-        ambientLight.intensity = 0.5;
-      } else if (atmKey === 'night') {
-        scene.background.setHex(0x020617);
-        scene.fog.color.setHex(0x020617);
-        scene.fog.density = 0.02;
-        directionalLight.color.setHex(0x38bdf8);
-        directionalLight.intensity = 0.45;
-        ambientLight.color.setHex(0x0f172a);
-        ambientLight.intensity = 0.35;
-      } else if (atmKey === 'fog') {
-        scene.background.setHex(0x1e293b);
-        scene.fog.color.setHex(0x1e293b);
-        scene.fog.density = 0.045; // Nebbia fitta
-        directionalLight.intensity = 0.5;
-        ambientLight.intensity = 0.7;
-      } else if (atmKey === 'ragnarok') {
-        scene.background.setHex(0x450a0a);
-        scene.fog.color.setHex(0x450a0a);
-        scene.fog.density = 0.025;
-        directionalLight.color.setHex(0xef4444);
-        directionalLight.intensity = 1.8;
-        ambientLight.color.setHex(0x7f1d1d);
-        ambientLight.intensity = 0.8;
+        showToast('📸 Photo Mode', 'Screenshot automatico in cattura ad alta risoluzione...');
+        setTimeout(() => {
+          renderer.render(scene, camera);
+          const a = document.createElement('a');
+          a.download = `Ginnungagap_${Date.now()}.png`;
+          a.href = renderer.domElement.toDataURL('image/png');
+          a.click();
+          window.setCameraMode('orbit');
+        }, 500);
       }
     };
 
     // ============================================================================
-    // MODALI E GESTIONE PARTY EROI & MOSTRI
+    // TOAST NOTIFICHE ED EVENTI
     // ============================================================================
 
-    window.openMiniaturesManagerModal = function() {
-      const container = document.getElementById('party-minis-list');
-      container.innerHTML = '';
-
-      window.Ginnungagap.miniatures.forEach(m => {
-        const u = m.userData;
-        const card = document.createElement('div');
-        card.className = "sigil-panel rounded-xl p-2.5 flex items-center justify-between gap-2 border border-slate-700";
-        card.innerHTML = `
-          <div class="flex items-center gap-2">
-            <img src="${u.avatar}" class="w-8 h-8 rounded-lg object-cover border border-amber-400/50">
-            <div>
-              <div class="font-cinzel font-bold text-xs text-white">${u.name}</div>
-              <div class="text-[10px] text-slate-400">Liv. ${u.level} &bull; ${u.className} &bull; ${u.hp}/${u.maxHp} PF</div>
-            </div>
-          </div>
-          <button onclick="window.focusMiniature('${u.id}')" class="px-2 py-1 rounded bg-sky-950 border border-sky-400 text-sky-300 font-bold text-[10px]">
-            Inquadra
-          </button>
-        `;
-        container.appendChild(card);
-      });
-
-      document.getElementById('modal-miniatures-manager').classList.remove('hidden');
-    };
-
-    window.closeMiniaturesManagerModal = function() {
-      document.getElementById('modal-miniatures-manager').classList.add('hidden');
-    };
-
-    window.focusMiniature = function(mId) {
-      window.closeMiniaturesManagerModal();
-      const mini = window.Ginnungagap.miniatures.find(m => m.userData.id === mId);
-      if (mini) {
-        selectMiniature(mini);
-        new TWEEN.Tween(controls.target).to(mini.position, 600).start();
-      }
-    };
-
-    window.spawnMonsterMini = function(mType) {
-      window.closeMiniaturesManagerModal();
-      const monsterData = {
-        'fenrir_wolf': { name: 'Lupo di Fenrir', className: 'Bestia', hp: 32, maxHp: 32, avatar: 'https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150', role: 'MONSTER' },
-        'frost_giant': { name: 'Jotunn del Gelo', className: 'Gigante', hp: 95, maxHp: 95, avatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150', role: 'MONSTER' },
-        'draugr_warrior': { name: 'Draugr delle Cripte', className: 'Non-Morto', hp: 24, maxHp: 24, avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150', role: 'MONSTER' },
-        'valkyrie': { name: 'Valkyria di Odino', className: 'Celestiale', hp: 58, maxHp: 58, avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150', role: 'DM' }
-      }[mType] || { name: 'Mostro', className: 'Mostro', hp: 20, maxHp: 20, role: 'MONSTER' };
-
-      const spawned = addMiniatureToScene(monsterData);
-      selectMiniature(spawned);
-      showEventToast('👹 Creatura Schierata', `${monsterData.name} è scesa sul campo di battaglia!`);
-    };
-
-    window.openSpellsVfxModal = function() {
-      document.getElementById('modal-spells-vfx').classList.remove('hidden');
-    };
-    window.closeSpellsVfxModal = function() {
-      document.getElementById('modal-spells-vfx').classList.add('hidden');
-    };
-
-    // ============================================================================
-    // TOAST NOTIFICHE EVENTI & SINCRONIZZAZIONE
-    // ============================================================================
-
-    let toastTimeout = null;
-    function showEventToast(title, body) {
-      const toast = document.getElementById('sigil-event-toast');
+    let toastTimer = null;
+    function showToast(title, body) {
+      const t = document.getElementById('sigil-event-toast');
       document.getElementById('event-toast-title').textContent = title;
       document.getElementById('event-toast-body').textContent = body;
-      toast.classList.remove('hidden');
+      t.classList.remove('hidden');
 
-      if (toastTimeout) clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 4200);
-    }
-
-    function initMultiplayerSync() {
-      const bc = new BroadcastChannel('yggdrasill_v3_bus');
-      bc.onmessage = (e) => {
-        const msg = e.data;
-        if (!msg) return;
-        if (msg.type === 'WORLD_SWITCH' && msg.worldId !== window.Ginnungagap.activeWorld) {
-          loadActiveWorld(msg.worldId);
-        } else if (msg.type === 'MINI_MOVE') {
-          const mini = window.Ginnungagap.miniatures.find(m => m.userData.id === msg.miniId);
-          if (mini && (mini.position.x !== msg.x || mini.position.z !== msg.z)) {
-            new TWEEN.Tween(mini.position).to({ x: msg.x, z: msg.z }, 300).start();
-          }
-        }
-      };
-    }
-
-    function broadcastState(payload) {
-      try {
-        const bc = new BroadcastChannel('yggdrasill_v3_bus');
-        bc.postMessage(payload);
-      } catch(e) {}
-    }
-
-    function onKeyDown(e) {
-      if (e.key === 'r' || e.key === 'R') {
-        if (window.Ginnungagap.selectedMini) {
-          window.Ginnungagap.selectedMini.rotation.y += Math.PI / 4;
-        }
-      }
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.add('hidden'), 4500);
     }
 
     function onWindowResize() {
@@ -1994,7 +1538,7 @@
     }
 
     // ============================================================================
-    // MAIN RENDER LOOP (60 FPS FLUIDI)
+    // MAIN RENDER LOOP (60 FPS FLUIDI CON PARTICELLE METEO)
     // ============================================================================
 
     function animateLoop() {
@@ -2002,13 +1546,38 @@
       TWEEN.update();
       controls.update();
 
-      // Ruota leggermente monoliti o particelle d'atmosfera
-      if (window.Ginnungagap.selectedMini) {
-        updateHudPosition();
+      // Animazione particelle meteo (Pioggia, Neve, Braci)
+      if (window.Ginnungagap.weatherParticles) {
+        const pts = window.Ginnungagap.weatherParticles;
+        const pos = pts.geometry.attributes.position.array;
+        const vels = pts.userData.velocities;
+
+        for(let i=0; i<vels.length; i++) {
+          pos[i*3+1] += vels[i].vy;
+          pos[i*3] += vels[i].vx;
+
+          if (pos[i*3+1] < 0) pos[i*3+1] = 30;
+          if (pos[i*3] > 40) pos[i*3] = -40;
+        }
+        pts.geometry.attributes.position.needsUpdate = true;
       }
 
       renderer.render(scene, camera);
     }
+
+    // Ascolto eventi BroadcastChannel per sincronizzazione DM e Player
+    try {
+      const bc = new BroadcastChannel('yggdrasill_v3_bus');
+      bc.onmessage = (e) => {
+        const msg = e.data;
+        if (!msg) return;
+        if (msg.type === 'PLAYER_PROPOSED_ACTION' && currentRole === 'DM') {
+          openDmArbiterModal(msg.desc);
+        } else if (msg.type === 'DM_OVERRULE_EVENT') {
+          showToast('⚡ COLPO DI SCENA DEL DM!', msg.narrative);
+        }
+      };
+    } catch(e) {}
 
   </script>
 </body>
