@@ -177,6 +177,24 @@
         </div>
       </div>
 
+      <!-- SELETTORE LUOGHI & LORE MAPPA (ESTRAPOLATI DAL MANUALE UFFICIALE) -->
+      <div class="relative group">
+        <button id="btn-landmarks-menu" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-emerald-500/50 text-xs font-cinzel font-bold text-emerald-300 hover:border-emerald-400 hover:bg-slate-800 transition shadow">
+          <span>📍</span>
+          <span id="top-landmarks-label">Luoghi (10)</span>
+          <svg class="w-3.5 h-3.5 text-emerald-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="dropdown-landmarks-list" class="hidden group-hover:block absolute top-full left-0 mt-1 w-80 bg-slate-950/95 border border-emerald-500/40 rounded-xl p-2 space-y-1.5 shadow-2xl z-50 max-h-96 overflow-y-auto backdrop-blur-md">
+          <div class="text-[10px] font-cinzel font-bold text-emerald-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
+            <span>Punti d'Interesse & Lore</span>
+            <span class="text-[9px] text-slate-500 font-sans">Clicca per volare</span>
+          </div>
+          <div id="landmarks-items-container" class="space-y-1">
+            <!-- Popolato dinamicamente da JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- SELETTORE TELECAMERA SIGIL (ORBIT, TATTICA, VISTA EROE, FOTO) -->
       <div class="hidden sm:flex bg-slate-900 border border-slate-800 rounded-xl p-1 items-center gap-1">
         <button id="cam-btn-orbit" onclick="window.setCameraMode('orbit')" title="Vista Spettatore 360°" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1">
@@ -515,6 +533,60 @@
             APPLICA COLPO DI SCENA DEL DM
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10b. MODALE SCHEDA TATTICA DEL LUOGO & LORE DAL MANUALE DI RAGNAROK -->
+  <div id="modal-landmark-lore" class="hidden fixed inset-0 z-50 bg-[#06090e]/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6 animate-modal-pop">
+    <div class="bg-[#0b101b] border-2 border-emerald-500 rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-[0_0_60px_rgba(16,185,129,0.5)] overflow-hidden">
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-emerald-500/30 bg-slate-950/80">
+        <div class="flex items-center gap-3">
+          <div id="landmark-modal-letter-badge" class="w-10 h-10 rounded-xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 font-cinzel font-black text-xl flex items-center justify-center shadow-md">
+            G
+          </div>
+          <div>
+            <h3 id="landmark-modal-title" class="font-cinzel-dec font-bold text-sm md:text-base text-amber-200 uppercase tracking-wider">
+              Il Gran Salone del Re
+            </h3>
+            <span id="landmark-modal-district" class="text-[10px] text-sky-400 font-medium font-cinzel">Collina Reale di Heill Hofn &bull; Sede del Potere</span>
+          </div>
+        </div>
+        <button onclick="window.closeLandmarkModal()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
+      </div>
+
+      <!-- CORPO DEL MODALE -->
+      <div class="p-5 space-y-4 overflow-y-auto text-sm">
+        <!-- Lore dal Manuale -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="text-[10px] font-cinzel font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+            <span>📜</span> Descrizione Ufficiale (dal Manuale di Ragnarok)
+          </div>
+          <p id="landmark-modal-lore" class="text-slate-300 leading-relaxed font-sans text-xs">
+            ...
+          </p>
+        </div>
+
+        <!-- Caratteristiche Tattiche & VTT Sigil -->
+        <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+          <div class="text-[10px] font-cinzel font-extrabold uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
+            <span>⚔️</span> Vantaggi Tattici & Interazione di Gioco
+          </div>
+          <p id="landmark-modal-tactical" class="text-emerald-200/90 leading-relaxed font-sans text-xs">
+            ...
+          </p>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-950/90 flex items-center justify-between">
+        <button onclick="window.zoomToActiveLandmark()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:brightness-110 text-slate-950 font-cinzel font-extrabold text-xs flex items-center gap-1.5 shadow">
+          <span>🎥</span> Vola Qui con la Telecamera
+        </button>
+        <button onclick="window.closeLandmarkModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-cinzel font-bold text-xs">
+          Chiudi
+        </button>
       </div>
     </div>
   </div>
@@ -991,7 +1063,7 @@
     };
 
     let scene, camera, renderer, controls;
-    let groundGroup, worldGroup, minisGroup, vectorGroup, fxGroup, fogGroup, structuresGroup;
+    let groundGroup, worldGroup, minisGroup, vectorGroup, fxGroup, fogGroup, structuresGroup, landmarksGroup;
     let gridHelper, dragPlane, raycaster, mouse;
     let isDraggingMini = false, dragMini = null, dragStartTile = null;
     let ambientLight, directionalLight, broadBus = null;
@@ -1045,6 +1117,7 @@
       worldGroup = new THREE.Group(); scene.add(worldGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
       structuresGroup = new THREE.Group(); scene.add(structuresGroup);
+      landmarksGroup = new THREE.Group(); scene.add(landmarksGroup);
       vectorGroup = new THREE.Group(); scene.add(vectorGroup);
       fxGroup = new THREE.Group(); scene.add(fxGroup);
       fogGroup = new THREE.Group(); scene.add(fogGroup);
@@ -1149,6 +1222,7 @@
       groundGroup.add(borderMesh);
 
       build3DStructuresForMap(mapDef.id, planeW, planeH);
+      buildLandmarkPinsForMap(mapDef.id, planeW, planeH);
 
       if (dragPlane) {
         dragPlane.scale.set(planeW / 10, planeH / 10, 1);
@@ -1229,8 +1303,544 @@
       renderMapSelectorGrid('all');
     }
 
+    
+    
+    
     // ============================================================================
-    // GENERAZIONE DINAMICA DELLE STRUTTURE ARCHITETTONICHE 3D (CASE, MOLI, TORRI)
+    // DATABASE UFFICIALE DEI PUNTI D'INTERESSE & LORE DAL MANUALE DI RAGNAROK
+    // ============================================================================
+
+    const NORSE_LANDMARKS_DATA = {
+      battle_shipyard: [
+        {
+          key: `G`,
+          title: `Il Gran Salone del Re (Mead Hall)`,
+          district: `Collina Reale di Heill Hofn`,
+          badge: `Sede del Potere`,
+          pos: { x: 8, z: -4 },
+          tactical: `Terreno sopraelevato (+2 ai tiri per colpire a distanza). Copertura totale all'interno. Ingresso fortificato difendibile.`,
+          lore: `Questo imponente e sontuoso salone sorge su una collina rocciosa nel cuore del borgo, dominando tutte le altre costruzioni. La sala principale è accessibile tramite una ripida gradinata intagliata nella viva roccia. Al centro arde il grande focolare reale con sfiatatoio aperto sul tetto, affiancato dagli alti scanni intarsiati dei Jarl e dai trofei delle spedizioni nei Fiordi.`,
+        },
+        {
+          key: `L`,
+          title: `I Moli dei Drakkar`,
+          district: `Cantiere Navale & Porto`,
+          badge: `Accesso Marittimo`,
+          pos: { x: -14, z: -18 },
+          tactical: `Terreno scivoloso su pontili di legno. Copertura parziale fornita da scafi di drakkar, gomene e pile di barili d'idromele.`,
+          lore: `La porzione settentrionale prospiciente il mare consiste in una fitta trama di moli e banchine in legno massiccio. Vi sono ormeggiati splendidi Drakkar da guerra vichinghi con prore a testa di drago, scudi policromi fissati alle murate e vele serrate, in attesa che la furia del grande inverno si plachi per salpare.`,
+        },
+        {
+          key: `A`,
+          title: `La Barricata Difensiva (15 ft)`,
+          district: `Perimetro Cittadino`,
+          badge: `Fortificazione`,
+          pos: { x: 0, z: 22 },
+          tactical: `Altezza 4.5 metri. Fornisce mezza copertura (+2 CA) o tre quarti di copertura (+5 CA) ai difensori sul camminamento di ronda.`,
+          lore: `Ad eccezione delle falesie affacciate sul mare, l'insediamento è cinto da una formidabile palizzata di tronchi d'abete e terrapieni alta 15 piedi. Entrambi i versanti sono muniti di pali appuntiti e una passerella di ronda sopraelevata pattugliata giorno e notte dai guerrieri del clan.`,
+        },
+        {
+          key: `B`,
+          title: `Torri Difensive di Guardia (30 ft)`,
+          district: `Bastioni di Cinta`,
+          badge: `Avamposto`,
+          pos: { x: -18, z: 20 },
+          tactical: `Altezza 9 metri. Vantaggio su Percezione ed elusione del terreno coperto. Munite di bracieri accesi per frecce incendiarie.`,
+          lore: `All'esterno delle mura si ergono alte torri di guardia in legno d'abete e larice. Ognuna ospita una sentinella e bracieri cerimoniali di segnalazione, pronti a incendiare i fuochi d'allarme in caso di incursione dal mare o dai valichi montani.`,
+        },
+        {
+          key: `N`,
+          title: `Il Grande Mercato di Midgardr`,
+          district: `Piazza Centrale`,
+          badge: `Commercio & Scambi`,
+          pos: { x: -6, z: 6 },
+          tactical: `Terreno ingombro di bancarelle, tende cerate e casse. Ottimo per nascondersi o tendere imboscate ai nemici.`,
+          lore: `Questa vibrante piazza accoglie mercanti giunti da ogni angolo dei Nove Mondi: spezie orientali, armature di ferro temprato, idromele speziato, zanne di tricheco e pelli d'orso bianco. Il centro pulsante dell'economia del regno.`,
+        },
+        {
+          key: `H`,
+          title: `La Chiesa della Fiamma`,
+          district: `Settore Occidentale`,
+          badge: `Luogo Sacro Straniero`,
+          pos: { x: 14, z: 12 },
+          tactical: `Struttura in pietra compatta (Resistenza al fuoco). L'altare della fiamma offre un'aura di calore benefico contro il gelo del Fimbulwinter.`,
+          lore: `Una singolare cappella eretta in pietra candida, radicalmente diversa dallo stile norreno circostante. È il primo tempio dedicato al Dio Unico della Fiamma, innalzato da esploratori e pellegrini approdati dalle terre del sud.`,
+        },
+        {
+          key: `I`,
+          title: `Le Scuderie Reali`,
+          district: `Settore Orientale`,
+          badge: `Alloggiamento Destrieri`,
+          pos: { x: 16, z: -14 },
+          tactical: `Staccionate in legno e fieno che limitano il movimento. Possibilità di liberare o cavalcare i destrieri da guerra.`,
+          lore: `Recinti coperti in tronchi che alloggiano i possenti cavalli da guerra dei capi clan e dello Jarl. Costantemente custoditi da stallieri e pattugliati da guardie armate di lancia.`,
+        },
+        {
+          key: `M`,
+          title: `Le Rocce Sacre del Veggente`,
+          district: `Falesie Occidentali`,
+          badge: `Presagi & Rune`,
+          pos: { x: -22, z: 0 },
+          tactical: `Monoliti runici sopraelevati. Chi officia una preghiera o lettura delle rune qui ottiene Vantaggio alle prove di Intuizione e Religione.`,
+          lore: `Un venerabile eremita dimora tra questi titanici massi erratici incisi di rune primordiali. Più alte delle mura cittadine, queste rocce permettono al veggente di scrutare i presagi del Fato e interpretare i disegni oscuri di Odino.`,
+        },
+        {
+          key: `D`,
+          title: `Quartiere dei Cacciatori`,
+          district: `Zona Montana`,
+          badge: `Esploratori`,
+          pos: { x: 18, z: 4 },
+          tactical: `Case munite di pelli tese e trappole perimetrali. Magazzini colmi di archi lunghi e lance.`,
+          lore: `La dimora dei più intrepidi cacciatori ed esploratori di Norvegr. Gli edifici esibiscono palchi di cervo, corna d'alce e pelli conciate, emanando l'aroma acre del cuoio e della pece.`,
+        },
+        {
+          key: `F`,
+          title: `Quartiere degli Eroi (Berserkir Hall)`,
+          district: `Adiacenze del Gran Salone`,
+          badge: `Veterani`,
+          pos: { x: -4, z: -8 },
+          tactical: `Presidiata da veterani e maestri d'arme. Rastrelliere colme di asce bipenni e scudi tondi borchiati.`,
+          lore: `Le robuste case lunghe dove alloggiano i guerrieri più valorosi e le guardie d'élite del re, veterani decorati in decine di battaglie e raid attraverso i mari burrascosi.`,
+        }
+      ],
+      battle_uppsala_temple: [
+        {
+          key: `B`,
+          title: `Il Tempio Dorato di Uppsala`,
+          district: `Sommità della Collina Sacra`,
+          badge: `Santuario Supremo`,
+          pos: { x: 0, z: -12 },
+          tactical: `Santuario a tre navate con lamine d'oro. Aura sacra: i chierici e druidi rigenerano 1 slot incantesimo pregando dinanzi agli idoli.`,
+          lore: `Il leggendario tempio sacro con colonne in legno dorato, intarsi runici e una possente catena d'oro puro che corre lungo le grondaie. Al suo interno risplendono le effigi maestose degli Asi: Odino con la lancia Gungnir, Thor con il martello Mjolnir e Freyr con la spiga d'oro.`,
+        },
+        {
+          key: `I`,
+          title: `Il Sacro Yggdrasill di Midgardr`,
+          district: `Radura del Frassino Semprevivo`,
+          badge: `Albero Cosmico`,
+          pos: { x: -14, z: 0 },
+          tactical: `Frassino gigantesco con rami maestosi. Emana particelle smeraldine. Fornisce mezza copertura e cura 2d4 PF al turno per chi vi medita.`,
+          lore: `Un albero gigantesco ed eterno che sorge sulla collina sin da prima della fondazione di Uppsala. I saggi concordano all'unanimità che l'albero sia la manifestazione terrena di Yggdrasill su Midgardr, custodito gelosamente da sacerdoti scelti.`,
+        },
+        {
+          key: `D`,
+          title: `L'Officina di Svenn Skallfoss`,
+          district: `Fucina Meridionale`,
+          badge: `Mastro Fabbro`,
+          pos: { x: 16, z: 4 },
+          tactical: `Fucina costruita su condotti nanici. Permette di riparare armature danneggiate e infondere armi con danni da fuoco aggiuntivi (+1d4).`,
+          lore: `Non tutti giungono a Uppsala per pregare: molti cercano la bottega di Svenn Skallfoss, ritenuto il miglior mastro ferraio di tutta Midgardr. Si narra che Svenn abbia scoperto un'antica fucina nanica della prima era tra le rocce della collina.`,
+        },
+        {
+          key: `F`,
+          title: `L'Altare Sacrificale di Pietra`,
+          district: `Conca Rituale`,
+          badge: `Riti di Sangue`,
+          pos: { x: 0, z: 12 },
+          tactical: `Monolite di pietra di sangue primordiale. I rituali officiati qui possono conferire la benedizione del Furore degli Dei (+2 ai tiri per colpire).`,
+          lore: `Al centro di una depressione nel terreno sorge un colossale monolite rettangolare di pietra scura risalente all'era in cui gli Dei camminavano tra i mortali. La roccia è impregnata di rosso dai sacrifici rituali, incisa con canali di drenaggio rituali.`,
+        },
+        {
+          key: `E`,
+          title: `Il Recinto delle Offerte`,
+          district: `Adiacenze dell'Altare`,
+          badge: `Doni Rituali`,
+          pos: { x: 8, z: 10 },
+          tactical: `Recinzioni in legno piene di suppellettili, tesori e doni. Terreno difficile.`,
+          lore: `Semplici recinti in tronchi d'abete che custodiscono i tributi recati dai pellegrini: bestiame consacrato, armi catturate ai nemici, monili d'argento e talismani intagliati.`,
+        },
+        {
+          key: `A`,
+          title: `La Dimora dello Jarl`,
+          district: `Complesso Residenziale`,
+          badge: `Governatore`,
+          pos: { x: -14, z: -14 },
+          tactical: `Robusta casa lunga in pietra e torba. Offre alloggio sicuro e provviste calde.`,
+          lore: `La residenza del capo villaggio e custode civile del tempio, incaricato di amministrare i tributi e mantenere la pace sacra tra i clan rivali durante i pellegrinaggi.`,
+        },
+        {
+          key: `C`,
+          title: `Accampamento dei Pellegrini`,
+          district: `Piana dei Viandanti`,
+          badge: `Tendopoli`,
+          pos: { x: 12, z: -12 },
+          tactical: `Tende di pelli e focolari fumosi. Copertura leggera per cecchini e schermaglie furtive.`,
+          lore: `L'unico settore dove i viaggiatori possono piantare le loro tende in cerca di responsi divini o guarigioni miracolose. Nessun lusso è concesso, ma la solidarietà tra i pellegrini è proverbiale.`,
+        },
+        {
+          key: `H`,
+          title: `Sede dei Corvi di Ghiaccio`,
+          district: `Santuario Occidentale`,
+          badge: `Ordine Druidico`,
+          pos: { x: -8, z: 14 },
+          tactical: `Edificio megalitico in granito. Immunità alla paura e resistenza alle basse temperature entro 6 metri dalle sue mura.`,
+          lore: `Il circolo druidico dei Corvi di Ghiaccio ha il suo quartier generale in un antico complesso di cinque edifici in pietra megalitica perfettamente preservati dal disfacimento del Fimbulwinter.`,
+        }
+      ],
+      battle_danevirke_wall: [
+        {
+          key: `A`,
+          title: `Il Grande Vallo di Danevirke`,
+          district: `Frontiera del Sud`,
+          badge: `Barriera Monumentale`,
+          pos: { x: 0, z: 0 },
+          tactical: `Muro alto 6 metri in terra, torba e pietra con palizzata di quercia. Tre quarti di copertura (+5 CA) per i difensori sopraelevati.`,
+          lore: `La più formidabile opera fortificata del Nord: un vallo monumentale che sbarra l'intera penisola separando le terre libere dai regni ostili. Camminamenti di ronda protetti da merlature in quercia e spuntoni d'arresto dominano la pianura sottostante.`,
+        },
+        {
+          key: `B`,
+          title: `Il Portone Monumentale con Saracinesca`,
+          district: `Varco Centrale`,
+          badge: `Ingresso Fortificato`,
+          pos: { x: 0, z: -2 },
+          tactical: `Portone corazzato in legno e ferro (CA 18, 120 PF). Può essere sbarrato dall'interno con travi monumentali e saracinesca.`,
+          lore: `Quattro enormi varchi carrai attraversano il vallo nei punti nevralgici. Il portone principale è manovrato da possenti verricelli e protetto da feritoie e caditoie per pece bollente.`,
+        },
+        {
+          key: `C`,
+          title: `Torri di Guardia Esterne (30 ft)`,
+          district: `Bastioni di Ronda`,
+          badge: `Segnale d'Allarme`,
+          pos: { x: -18, z: 2 },
+          tactical: `Altezza 9 metri. Dotate di pire di segnalazione pronte a infiammarsi per allertare l'intero esercito lungo la costa.`,
+          lore: `Torri di vedetta avanzate in legno d'abete su cui sono allestite pire di legna secca e pece, pronte a illuminare la notte al primo avvistamento di eserciti invasori.`,
+        },
+        {
+          key: `D`,
+          title: `Fossato Difensivo & Cavalli di Frisia`,
+          district: `Trincea Avanzata`,
+          badge: `Ostacolo Letale`,
+          pos: { x: 0, z: 8 },
+          tactical: `Terreno difficile. Chi cade nel fossato o viene spinto sui cavalli di frisia subisce 2d6 danni perforanti.`,
+          lore: `Una trincea scavata nel fango ghiacciato ai piedi del vallo, irta di pali aguzzi e spuntoni nascosti per spezzare l'impeto delle cariche di cavalleria e fanteria pesante.`,
+        },
+        {
+          key: `E`,
+          title: `Accampamento e Alloggiamenti delle Truppe`,
+          district: `Retrovia della Guarnigione`,
+          badge: `Caserma Reale`,
+          pos: { x: 14, z: -12 },
+          tactical: `Rastrelliere d'armi, carri di rifornimento e tende militari. Luogo per riposare e rifornire frecce e dardi.`,
+          lore: `Le casermette di legno e torba dove alloggiano i veterani della Regina incaricati di presidiare la frontiera più contesa di Midgardr.`,
+        }
+      ],
+      battle_mountain_pass: [
+        {
+          key: `D`,
+          title: `Il Cerchio dell'Holmgang`,
+          district: `Arena Sacra delle Vette`,
+          badge: `Duello d'Onore`,
+          pos: { x: -6, z: -2 },
+          tactical: `Cerchio delimitato da pietre runiche e corde rosse di nocciolo. Le regole del duello impediscono l'intervento esterno; chi esce dal cerchio è disonorato.`,
+          lore: `Il terreno consacrato dove si dirimono le dispute mortali tra i clan. Delimitato da pioli di nocciolo intagliati, corde intrise d'ocra rossa e pietre runiche benedette dai saggi della montagna.`,
+        },
+        {
+          key: `A`,
+          title: `La Barricata dei Ghiacci`,
+          district: `Strettoia del Passo`,
+          badge: `Chiusura Difensiva`,
+          pos: { x: 12, z: 10 },
+          tactical: `Blocchi di ghiaccio e tronchi aguzzi. Mezza copertura (+2 CA). Richiede prova di Atletica CD 14 per essere scavalcata rapidamente.`,
+          lore: `Una barriera improvvisata ma impenetrabile costruita con tronchi di pino montano e blocchi di ghiaccio compatto per arrestare l'avanzata delle fiere delle nevi.`,
+        },
+        {
+          key: `E`,
+          title: `La Baita del Capoclan delle Montagne`,
+          district: `Cresta Superiore`,
+          badge: `Rocca Alpina`,
+          pos: { x: 14, z: -10 },
+          tactical: `Rifugio fortificato addossato alla falesia. Al suo interno arde un focolare che annulla gli effetti del congelamento.`,
+          lore: `La robusta dimora in tronchi del capo clan, abbarbicata sulla nuda roccia e decorata con trofei di lupi delle nevi, crani di troll e pesanti pellicce d'alce.`,
+        },
+        {
+          key: `F`,
+          title: `I Depositi di Scorte su Palafitte`,
+          district: `Versante Protetto`,
+          badge: `Riserva Alimentare`,
+          pos: { x: -12, z: 12 },
+          tactical: `Magazzini sollevati su pali di pino a 3 metri da terra. Riparo sopraelevato e scorte di cibo essiccato.`,
+          lore: `Costruzioni sollevate su alti pali di legno per tenere la carne secca, il pesce affumicato e le pelli al sicuro dagli orsi delle caverne e dalle bestie fameliche del Fimbulwinter.`,
+        },
+        {
+          key: `G`,
+          title: `L'Osservatorio della Vetta`,
+          district: `Picco delle Montagne Bianche`,
+          badge: `Punto Panoramico`,
+          pos: { x: 0, z: -16 },
+          tactical: `Piattaforma a strapiombo sul baratro. Visuale completa su tutti i sentieri montani. Vantaggio su prove di Saggezza (Percezione).`,
+          lore: `Una piattaforma lignea sospesa sul baratro vertiginoso, dove i saggi osservano le stelle, le aurore e i presagi delle tempeste primordiali.`,
+        }
+      ],
+      battle_fenmark_ruins: [
+        {
+          key: `D`,
+          title: `La Colossale Effigie di Loki`,
+          district: `Cuore della Palude di Fenmark`,
+          badge: `Idolo del Dio dell'Inganno`,
+          pos: { x: 0, z: -4 },
+          tactical: `Statua lignea di 9 metri con braciere di fiamme verdi. Aura di illusione: conferisce svantaggio agli attacchi a distanza nemici entro 9 metri.`,
+          lore: `Una gigantesca scultura in legno di quercia palustre raffigurante il dio Loki con corna contorte e un sorriso beffardo. Alla sua base arde incessantemente un braciere di fiamme verdi spettrali venerato dai Figli dei Jötunn.`,
+        },
+        {
+          key: `A`,
+          title: `Villaggio su Palafitte di Finnbol`,
+          district: `Stagno Centrale`,
+          badge: `Insediamento Palustre`,
+          pos: { x: -12, z: 6 },
+          tactical: `Capanne sollevate su travi di legno sopra acque melmose. Camminamento su passerelle instabili.`,
+          lore: `Una serie di palafitte in tronchi e capanne di torba collegate da passerelle di legno ed argini terrosi, costruite sopra le acque scure e putride della grande palude.`,
+        },
+        {
+          key: `B`,
+          title: `La Capanna di Hrókr il Mezzo-Gigante`,
+          district: `Riva degli Incensi`,
+          badge: `Stregone Fondatore`,
+          pos: { x: 12, z: -10 },
+          tactical: `Avvolta da vapori densi. Chi entra senza maschera deve superare un TS su Costituzione CD 13 o subire allucinazioni mistiche.`,
+          lore: `La dimora del potente stregone mezzosangue fondatore del clan degli Emarginati. L'interno è saturo di vapori d'erbe e fumi sacri che aprono la mente alle visioni dei mondi spirituali.`,
+        },
+        {
+          key: `C`,
+          title: `La Capanna di Kynbani Bloodbane`,
+          district: `Argine Settentrionale`,
+          badge: `Guerriero Esiliato`,
+          pos: { x: -8, z: -14 },
+          tactical: `Rifugio isolato circondato da teschi e trappole acuminate. Terreno difeso.`,
+          lore: `La capanna solitaria di Kynbani Bergelmirson, il temuto guerriero del clan che vive appartato dalle questioni del villaggio dedicandosi alla caccia nelle gore più remote.`,
+        },
+        {
+          key: `E`,
+          title: `La Pira Verde dei Sacrifici`,
+          district: `Isolotto dei Riti`,
+          badge: `Fumo Smeraldino`,
+          pos: { x: 14, z: 8 },
+          tactical: `Braciere che produce una coltre di fumo verde opaco (Oscuramento pesante entro 4.5 metri).`,
+          lore: `Un focolare sacrificale alimentato a torba e resine palustri da cui si sprigiona un fumo verde brillante visibile a miglia di distanza tra le nebbie della palude.`,
+        },
+        {
+          key: `F`,
+          title: `La Gabbia dei Penitenti`,
+          district: `Fosso delle Acque Nere`,
+          badge: `Supplizio Palustre`,
+          pos: { x: 2, z: 14 },
+          tactical: `Gabbia di ferro sospesa a un argano di legno sopra l'acqua infestata da sanguisughe e rospi giganti.`,
+          lore: `Una gabbia di sbarre di ferro arrugginito sospesa da una trave sopra l'acqua putrida, dove gli Emarginati espongono prigionieri e traditori agli elementi della palude.`,
+        }
+      ],
+      battle_jutland_keep: [
+        {
+          key: `G`,
+          title: `Il Grande Gjallarhorn del Clan`,
+          district: `Piazza d'Armi di Siste Festning`,
+          badge: `Reliquia Sacra`,
+          pos: { x: 0, z: 0 },
+          tactical: `Riproduzione monumentale del corno di Heimdall. Suonarlo richiede un'azione e conferisce Vantaggio a tutti i tiri salvezza agli alleati per 1 minuto.`,
+          lore: `Al centro della piazza reale, dinanzi all'ingresso del palazzo, sorge il titanico corno monumentale in bronzo e avorio del clan. La leggenda narra che sia la replica del corno divino dell'Asa Heimdall e che il suo squillo risuonerà all'alba del Ragnarok.`,
+        },
+        {
+          key: `H`,
+          title: `Il Palazzo Reale in Pietra dello Jarl`,
+          district: `Rocca Interna`,
+          badge: `Fortezza di Comando`,
+          pos: { x: 0, z: -14 },
+          tactical: `Fortezza in massi di granito. Copertura totale. Presidiata da veterani e maestri d'arme in armatura a scaglie.`,
+          lore: `Un imponente palazzo eretto nei tempi antichi con la pietra estratta dalle montagne del sud, impreziosito dal lavoro di mastri nani. Un maestoso portale di quercia dà accesso alla sala d'onore dello Jarl.`,
+        },
+        {
+          key: `A`,
+          title: `Le Mura Perimetrali del Trelleborg`,
+          district: `Cinta Fortificata Circolare`,
+          badge: `Baluardo Circolare`,
+          pos: { x: 0, z: 18 },
+          tactical: `Mura alte 6 metri e larghe 3 metri in terra, pietra e torba con palizzata e camminamento.`,
+          lore: `La possente cinta fortificata circolare del Trelleborg, progettata con geometria impeccabile per resistere ad assedi prolungati e incursioni nemiche.`,
+        },
+        {
+          key: `F`,
+          title: `Il Quartiere degli Artigiani`,
+          district: `Botteghe Orientali`,
+          badge: `Forgia e Maestria`,
+          pos: { x: 14, z: 4 },
+          tactical: `Botteghe di rinomati forgiatori e armaioli. Possibilità di acquistare o riparare equipaggiamento militare di fattura superba.`,
+          lore: `Il quartiere dove operano i maestri fabbri, carpentieri e conciatori dello Jutland, rinomati in tutto il Nord per forgiare le armature più resistenti e le spade più affilate.`,
+        },
+        {
+          key: `D`,
+          title: `Le Capanne dei Rifugiati`,
+          district: `Perimetro Esterno`,
+          badge: `Soccorso Invernale`,
+          pos: { x: -14, z: 6 },
+          tactical: `Alloggiamenti di fortuna e bracieri di calore per i fuggiaschi delle terre desolate.`,
+          lore: `Capanne in legno allestite per ordine reale per accogliere i profughi in fuga dal gelo inesorabile del Fimbulwinter, costantemente sorvegliate dalle guardie.`,
+        }
+      ],
+      battle_pillars_of_gods: [
+        {
+          key: `B`,
+          title: `Le Titaniche Colonne Runiche dei Nani`,
+          district: `Navata Principale di Gnitaheith`,
+          badge: `Monoliti Ancestrali`,
+          pos: { x: -8, z: 0 },
+          tactical: `Colonne ottagonali alte 16 metri incise di rune di stasi. Copertura totale dietro i fusti. Catene d'acciaio temprato alle pareti.`,
+          lore: `Quattro titaniche colonne sostengono architravi ciclopici, capaci d'incutere riverenza e timore in chiunque varchi il portale. Avvolte da fitte catene runiche capaci d'imprigionare perfino gli Dei.`,
+        },
+        {
+          key: `D`,
+          title: `Il Trono della Stalagmite & Tesoro di Fafnir`,
+          district: `Abside Sotterranea`,
+          badge: `Tana del Drago`,
+          pos: { x: 0, z: -14 },
+          tactical: `Trono scolpito nella stalagmite circondato da un mare d'oro e reliquie (Terreno difficile). Il riflesso aureo crea bagliori accecanti.`,
+          lore: `Un maestoso trono intagliato in una colossale stalagmite domina l'intera sala. Alla sua base, un tappeto scintillante di monete d'oro, calici e tesori accumulati dal drago Fafnir sommerge il pavimento fino al petto d'un uomo.`,
+        },
+        {
+          key: `E`,
+          title: `Gramr - La Spada Mitica di Sigfrido`,
+          district: `Piedistallo Centrale`,
+          badge: `Arma del Destino`,
+          pos: { x: 0, z: -2 },
+          tactical: `La leggendaria lama spezzata e riforgiata fluttua su un piedistallo di metallo nero in un raggio di luce divina. Chi la impugna infligge danni radiosi puri contro i draghi.`,
+          lore: `Una titanica lastra di metallo nero incastonata nel suolo da cui emerge l'elsa della leggendaria spada Gramr. Lo spirito eroico di Sigfrido attende campioni degni di raccoglierla per spezzare la tirannia di Fafnir.`,
+        },
+        {
+          key: `A`,
+          title: `Il Portale d'Argento Primordiale`,
+          district: `Ingresso delle Caverne`,
+          badge: `Soglia Nanica`,
+          pos: { x: 0, z: 18 },
+          tactical: `Cancello colossale in metallo argentato montato su cardini perfetti. Può essere richiuso per isolare la sala dai rinforzi nemici.`,
+          lore: `Un maestoso portone di metallo argentato che ruota silenziosamente sui cardini millenari, svelando l'immenso salone sotterraneo con le sue volte troppo alte per essere illuminate dalle fiaccole.`,
+        }
+      ],
+      battle_muspellsheimr_lava: [
+        {
+          key: `A`,
+          title: `Il Fiume di Lava Incandescente`,
+          district: `Canyon di Muspellsheimr`,
+          badge: `Magma Primordiale`,
+          pos: { x: 0, z: 0 },
+          tactical: `Terreno letale. Chiunque tocchi o cada nella lava subisce 10d10 danni da fuoco istantanei. Calore estremo nell'aria.`,
+          lore: `La fiamma perenne di Muspellsheimr ribolle incessantemente, miscelandosi con roccia fusa e lava incandescente. La geografia di questo mondo muta al ritmo delle correnti magmatiche del grande abisso di fuoco.`,
+        },
+        {
+          key: `B`,
+          title: `Le Colonne Basaltiche di Guado`,
+          district: `Attraversamento della Gola`,
+          badge: `Selciato dei Giganti`,
+          pos: { x: -6, z: 0 },
+          tactical: `Pilastri esagonali di basalto che affiorano dal magma. Richiedono prove di Acrobazia CD 12 per saltare rapidamente da una all'altra.`,
+          lore: `Possenti formazioni esagonali di roccia basaltica vulcanica che emergono dalla superficie della lava fluente, offrendo un precario passaggio per i guerrieri più audaci.`,
+        },
+        {
+          key: `C`,
+          title: `I Monoliti Vulcanici con Rune di Fuoco`,
+          district: `Bastioni di Ossidiana`,
+          badge: `Sigilli di Surtur`,
+          pos: { x: 12, z: -8 },
+          tactical: `Guglie di ossidiana pura intagliate di rune incandescenti. Emanano un calore pulsante che respinge le creature del gelo.`,
+          lore: `Monoliti di ossidiana nera come la notte incisi con i simboli arcani dei Giganti del Fuoco, pulsanti all'unisono con il battito cardiaco del sovrano Surtur.`,
+        },
+        {
+          key: `D`,
+          title: `L'Incudine dei Giganti di Fuoco`,
+          district: `Forgia del Ragnarok`,
+          badge: `Altare del Fabbro`,
+          pos: { x: 0, z: -14 },
+          tactical: `Incudine titanica in metallo astrale ardente. I colpi d'arme vibrati qui generano onde d'urto infuocate a cono.`,
+          lore: `L'altare ardente dove i giganti di fuoco temprano le loro titaniche lame incandescenti destinate ad abbattere le mura di Asgardr alla fine dei tempi.`,
+        }
+      ],
+      battle_bandit_camp: [
+        {
+          key: `A`,
+          title: `La Palizzata a Spuntoni di Guthrum`,
+          district: `Radura degli Incursori`,
+          badge: `Trincea Brigantesca`,
+          pos: { x: 0, z: 16 },
+          tactical: `Recinto circolare di tronchi abbattuti e cavalli di frisia. Copertura +2 CA per i difensori all'interno.`,
+          lore: `Una fortificazione ad anello creata disboscando i pini della radura e piantando spuntoni aguzzi per difendersi dalle pattuglie dei guerrieri dello Jarl.`,
+        },
+        {
+          key: `C`,
+          title: `La Tenda del Capobanda Guthrum`,
+          district: `Comando del Campo`,
+          badge: `Quartier Generale`,
+          pos: { x: 0, z: -10 },
+          tactical: `Tenda foderata di pellicce pesanti contenente mappe di raid, scrigni di monete depredate e idromele speziato.`,
+          lore: `Il quartier generale di Guthrum, decorato con stendardi saccheggiati, trofei di guerra e mappe tattiche delle rotte carovaniere di Midgardr.`,
+        },
+        {
+          key: `D`,
+          title: `Il Focolare con Girarrosto`,
+          district: `Centro dell'Accampamento`,
+          badge: `Banchetto dei Guerrieri`,
+          pos: { x: 0, z: 0 },
+          tactical: `Grande fuoco circondato da pietre. Fornisce luce brillante entro 9 metri e calore vitale contro il gelo.`,
+          lore: `Il grande falò centrale dove i briganti arrostiscono carcasse di cervo e bevono idromele cantando ballate di saccheggi e battaglie.`,
+        },
+        {
+          key: `B`,
+          title: `Le Torrette di Vedetta degli Incursori`,
+          district: `Sentinelle Perimetrali`,
+          badge: `Postazione Tiratori`,
+          pos: { x: -12, z: 10 },
+          tactical: `Piattaforme rialzate con balestre pesanti e corni d'allarme.`,
+          lore: `Torrette in tronchi grezzi sopraelevate per dominare i varchi di accesso alla radura e individuare nemici in avvicinamento.`,
+        },
+        {
+          key: `E`,
+          title: `La Gabbia dei Prigionieri & Bauli del Bottino`,
+          district: `Retrovia del Bottino`,
+          badge: `Riscatto e Tesoro`,
+          pos: { x: 10, z: -6 },
+          tactical: `Gabbia rinforzata con serratura complessa (Arnesi da scasso CD 15) contenente ostaggi di nobili famiglie dei Fiordi.`,
+          lore: `Casse di legname rinforzate in ferro colme di monili, pelli pregiate e armi depredate, affiancate da una gabbia per i prigionieri in attesa di riscatto.`,
+        }
+      ],
+      battle_svitjod_camp: [
+        {
+          key: `A`,
+          title: `La Tenda del Capobranco di Svitjod`,
+          district: `Accampamento dei Clan`,
+          badge: `Sede del Chieftain`,
+          pos: { x: 0, z: -10 },
+          tactical: `Padiglione cerimoniale con zanne di lupo primordiale e scudi dipinti.`,
+          lore: `Il sontuoso padiglione in pelli d'orso del capoclan dei cacciatori delle pianure, decorato con le effigi dei lupi mitici e rune protettive.`,
+        },
+        {
+          key: `D`,
+          title: `Il Focolare dell'Assemblea dei Clan`,
+          district: `Radura del Fuoco`,
+          badge: `Consiglio di Guerra`,
+          pos: { x: 0, z: 2 },
+          tactical: `Grande focolare sacro attorno a cui si riuniscono gli anziani. Area di tregua sancita dagli Dei.`,
+          lore: `Il grande cerchio di pietre consacrate attorno a cui i guerrieri di Svitjod intonano i canti degli antenati e pianificano le battaglie contro i giganti.`,
+        },
+        {
+          key: `B`,
+          title: `Il Cerchio delle Tende dei Guerrieri`,
+          district: `Accampamento Circolare`,
+          badge: `Alloggiamento Clan`,
+          pos: { x: -10, z: 0 },
+          tactical: `Tende coniche disposte ad anello difensivo per impedire incursioni notturne di lupi.`,
+          lore: `Le tipiche tende coniche norrene in cuoio e lana cotta dei cacciatori e delle loro famiglie, disposte a cerchio difensivo.`,
+        },
+        {
+          key: `C`,
+          title: `La Pietra di Confine Runicamente Incisa`,
+          district: `Limite della Foresta`,
+          badge: `Segnacolo Sacro`,
+          pos: { x: 10, z: 8 },
+          tactical: `Monolite di granito inciso con elder Futhark. Consacra il territorio di caccia del clan.`,
+          lore: `Un monolite runico che delimita la frontiera tra le pianure di Svitjod e la fitta foresta boreale, eretto in memoria dei caduti della prima era.`,
+        }
+      ]
+    };
+
+    let activeLandmarkForModal = null;
+
+    // ============================================================================
+    // COSTRUZIONE 3D DELLE STRUTTURE ARCHITETTONICHE SECONDO I MANUALI DI RAGNAROK
     // ============================================================================
 
     function build3DStructuresForMap(mapId, planeW, planeH) {
@@ -1245,64 +1855,250 @@
         structuresGroup.remove(obj);
       }
 
-      const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2c11, roughness: 0.85 });
-      const thatchMat = new THREE.MeshStandardMaterial({ color: 0x2b180a, roughness: 0.95 });
+      // Materiali ad alta fedeltà norrena
+      const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.85 });
+      const pineWoodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+      const thatchMat = new THREE.MeshStandardMaterial({ color: 0x24170e, roughness: 0.95 });
       const stoneMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
-      const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+      const whiteStoneMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.75 });
+      const goldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3, metalness: 0.85 });
+      const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.8 });
+      const bloodstoneMat = new THREE.MeshStandardMaterial({ color: 0x4a0404, roughness: 0.8 });
+      const sailClothMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.75 });
+      const redClothMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.7 });
+      const blueClothMat = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.7 });
 
-      // 1. Longhouse Vichinga con pareti in tronchi e tetto a spiovente
-      function createLonghouse(x, z, rotY = 0, scale = 1.0) {
-        const bld = new THREE.Group();
-        bld.position.set(x, 0, z);
-        bld.rotation.y = rotY;
-        bld.scale.set(scale, scale, scale);
+      // Costruttore: Drakkar Vichingo da Guerra
+      function createDrakkarLongship(x, z, rotY = 0, scale = 1.0) {
+        const ship = new THREE.Group();
+        ship.position.set(x, 0.1, z);
+        ship.rotation.y = rotY;
+        ship.scale.set(scale, scale, scale);
 
-        const walls = new THREE.Mesh(new THREE.BoxGeometry(6.5, 3.2, 10.5), woodMat);
-        walls.position.y = 1.6;
-        walls.castShadow = true;
-        walls.receiveShadow = true;
-        bld.add(walls);
+        // Chiglia e fondo scafo
+        const keel = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 18), darkWoodMat);
+        keel.position.y = 0.25;
+        keel.castShadow = true;
+        ship.add(keel);
 
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(5.6, 3.4, 4), thatchMat);
-        roof.position.y = 4.4;
-        roof.rotation.y = Math.PI / 4;
-        roof.scale.set(1.1, 1, 1.85);
-        roof.castShadow = true;
-        bld.add(roof);
+        // Fondo interno
+        const floor = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.2, 13), pineWoodMat);
+        floor.position.y = 0.5;
+        floor.receiveShadow = true;
+        ship.add(floor);
 
-        const lantern = new THREE.PointLight(0xf59e0b, 1.8, 15);
-        lantern.position.set(0, 1.8, 5.4);
-        bld.add(lantern);
+        // Murate a fasciame inclinate (babord e tribord)
+        [-1, 1].forEach(side => {
+          const sidePlank = new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.4, 14), darkWoodMat);
+          sidePlank.position.set(side * 2.0, 0.9, 0);
+          sidePlank.rotation.z = side * -0.15;
+          sidePlank.castShadow = true;
+          ship.add(sidePlank);
 
-        structuresGroup.add(bld);
-        return bld;
+          // Panca rematori
+          for(let r = -6; r <= 6; r += 2.5) {
+            const bench = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.2, 0.6), pineWoodMat);
+            bench.position.set(side * 1.3, 0.9, r);
+            bench.castShadow = true;
+            ship.add(bench);
+          }
+
+          // Fila di scudi vichinghi policromi montati sulle murate
+          const shieldColors = [redClothMat, goldMat, blueClothMat, darkWoodMat];
+          for(let s = -7; s <= 7; s += 1.8) {
+            const shieldGroup = new THREE.Group();
+            shieldGroup.position.set(side * 2.72, 1.4, s);
+            shieldGroup.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+
+            const shieldPlate = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.65, 0.65, 0.08, 16),
+              shieldColors[Math.abs(Math.floor(s)) % shieldColors.length]
+            );
+            shieldPlate.rotation.x = Math.PI / 2;
+            shieldGroup.add(shieldPlate);
+
+            const boss = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), ironMat);
+            boss.position.z = 0.06;
+            shieldGroup.add(boss);
+
+            ship.add(shieldGroup);
+          }
+        });
+
+        // Prua incurvata verso l'alto con Testa di Drago (Dreki)
+        const bowStem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3.8, 2.8), darkWoodMat);
+        bowStem.position.set(0, 2.2, 9.8);
+        bowStem.rotation.x = 0.35;
+        ship.add(bowStem);
+
+        const dragonHead = new THREE.Group();
+        dragonHead.position.set(0, 4.4, 11.2);
+        const snout = new THREE.Mesh(new THREE.ConeGeometry(0.6, 2.0, 4), darkWoodMat);
+        snout.rotation.x = Math.PI / 2.2;
+        dragonHead.add(snout);
+
+        const horn1 = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 4), goldMat);
+        horn1.position.set(-0.35, 0.6, -0.4);
+        horn1.rotation.z = -0.4;
+        dragonHead.add(horn1);
+        const horn2 = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 4), goldMat);
+        horn2.position.set(0.35, 0.6, -0.4);
+        horn2.rotation.z = 0.4;
+        dragonHead.add(horn2);
+
+        const eyes = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+        eyes.position.set(-0.3, 0.2, 0.2);
+        dragonHead.add(eyes);
+        const eyes2 = eyes.clone();
+        eyes2.position.x = 0.3;
+        dragonHead.add(eyes2);
+        ship.add(dragonHead);
+
+        // Poppa con coda arricciata
+        const sternStem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3.4, 2.4), darkWoodMat);
+        sternStem.position.set(0, 2.0, -9.8);
+        sternStem.rotation.x = -0.35;
+        ship.add(sternStem);
+
+        const tail = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.2, 8, 16, Math.PI * 1.4), darkWoodMat);
+        tail.position.set(0, 3.6, -10.8);
+        tail.rotation.y = Math.PI / 2;
+        ship.add(tail);
+
+        // Albero di pino centrale, pennone e vela serrata
+        const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 12, 8), pineWoodMat);
+        mast.position.set(0, 6.2, 0);
+        mast.castShadow = true;
+        ship.add(mast);
+
+        const yardarm = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 8.2, 8), pineWoodMat);
+        yardarm.position.set(0, 9.8, 0);
+        yardarm.rotation.z = Math.PI / 2;
+        ship.add(yardarm);
+
+        const furledSail = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.7, 0.7), sailClothMat);
+        furledSail.position.set(0, 9.7, 0);
+        ship.add(furledSail);
+
+        // Timone laterale (styri) a poppa tribordo
+        const rudder = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.8, 0.8), darkWoodMat);
+        rudder.position.set(2.6, 0.2, -8.2);
+        rudder.rotation.x = 0.3;
+        ship.add(rudder);
+
+        structuresGroup.add(ship);
+        return ship;
       }
 
-      // 2. Molo con palafitte in legno e botti/casse di carico
-      function createDockPier(x, z, length = 14, width = 4, rotY = 0) {
+      // Costruttore: Gran Salone dei Jarl & Longhouse Vichinga
+      function createNorseMeadHall(x, z, rotY = 0, scale = 1.0, isRoyal = false) {
+        const hall = new THREE.Group();
+        hall.position.set(x, 0, z);
+        hall.rotation.y = rotY;
+        hall.scale.set(scale, scale, scale);
+
+        // Basamento in pietre a secco
+        const plinth = new THREE.Mesh(new THREE.BoxGeometry(8.6, 0.5, 14.2), stoneMat);
+        plinth.position.y = 0.25;
+        plinth.castShadow = true;
+        plinth.receiveShadow = true;
+        hall.add(plinth);
+
+        // Pareti maestre in tronchi incrociati
+        const walls = new THREE.Mesh(new THREE.BoxGeometry(7.8, 2.8, 13.2), darkWoodMat);
+        walls.position.y = 1.65;
+        walls.castShadow = true;
+        walls.receiveShadow = true;
+        hall.add(walls);
+
+        // Portico d'ingresso con architrave runico
+        const porch = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 2.2), isRoyal ? goldMat : pineWoodMat);
+        porch.position.set(0, 1.35, 7.3);
+        porch.castShadow = true;
+        hall.add(porch);
+
+        const door = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.0, 0.15), ironMat);
+        door.position.set(0, 1.25, 8.4);
+        hall.add(door);
+
+        // Tetto a spiovente scandinavo armonioso
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(6.2, 3.2, 4), thatchMat);
+        roof.position.y = 4.4;
+        roof.rotation.y = Math.PI / 4;
+        roof.scale.set(0.95, 1, 1.7);
+        roof.castShadow = true;
+        hall.add(roof);
+
+        // Teste di drago incrociate alle estremità del colmo del tetto
+        [-6.4, 6.4].forEach(rz => {
+          const apex = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.6, 4), isRoyal ? goldMat : darkWoodMat);
+          apex.position.set(0, 5.6, rz);
+          apex.rotation.x = rz > 0 ? 0.45 : -0.45;
+          hall.add(apex);
+        });
+
+        // Sfiatatoio fumi centrale sul tetto (Ljøri) con luce dorata del grande focolare
+        const smokeVent = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 2.0), darkWoodMat);
+        smokeVent.position.set(0, 5.5, 0);
+        hall.add(smokeVent);
+
+        const hearthLight = new THREE.PointLight(0xf59e0b, isRoyal ? 3.0 : 2.0, 22);
+        hearthLight.position.set(0, 4.0, 0);
+        hall.add(hearthLight);
+
+        // Lanterna esterna sul portone
+        const porchLight = new THREE.PointLight(0xff8800, 1.8, 12);
+        porchLight.position.set(0, 3.6, 11.2);
+        hall.add(porchLight);
+
+        // Decorazioni reali: stendardi e finiture dorate
+        if (isRoyal) {
+          const goldTrim = new THREE.Mesh(new THREE.BoxGeometry(10.6, 0.4, 17.6), goldMat);
+          goldTrim.position.y = 4.8;
+          hall.add(goldTrim);
+
+          // Scalinata in pietra d'accesso
+          const stairs = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.4, 2.2), stoneMat);
+          stairs.position.set(0, 0.2, 11.4);
+          hall.add(stairs);
+        }
+
+        structuresGroup.add(hall);
+        return hall;
+      }
+
+      // Costruttore: Molo con palafitte e merci da carico
+      function createDockPier3D(x, z, length = 16, width = 4.5, rotY = 0) {
         const pier = new THREE.Group();
         pier.position.set(x, 0, z);
         pier.rotation.y = rotY;
 
-        const plank = new THREE.Mesh(new THREE.BoxGeometry(width, 0.35, length), woodMat);
-        plank.position.y = 1.2;
-        plank.castShadow = true;
-        plank.receiveShadow = true;
-        pier.add(plank);
+        // Banchina in assi di quercia
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(width, 0.4, length), pineWoodMat);
+        deck.position.y = 0.6;
+        deck.receiveShadow = true;
+        deck.castShadow = true;
+        pier.add(deck);
 
-        const steps = Math.floor(length / 3);
-        for(let i = -steps/2; i <= steps/2; i++) {
-          [-width/2 + 0.35, width/2 - 0.35].forEach(px => {
-            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.4, 8), woodMat);
-            post.position.set(px, 0.6, i * 2.8);
+        // Pali di sostegno immersi nell'acqua
+        const count = Math.max(3, Math.floor(length / 3));
+        for(let i = -count/2; i <= count/2; i++) {
+          [-width/2 + 0.4, width/2 - 0.4].forEach(px => {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 2.6, 8), darkWoodMat);
+            post.position.set(px, 0.1, i * (length / count));
             post.castShadow = true;
             pier.add(post);
           });
+          // Bitte d'ormeggio
+          const bitta = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.6, 8), darkWoodMat);
+          bitta.position.set(width/2 - 0.25, 0.9, i * (length / count));
+          pier.add(bitta);
         }
 
-        for(let b = 0; b < 3; b++) {
-          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.85, 12), ironMat);
-          barrel.position.set((b % 2 === 0 ? 1 : -1) * 0.8, 1.8, (b - 1) * 2);
+        // Botti e casse di merce
+        for(let b = 0; b < 4; b++) {
+          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 0.95, 10), ironMat);
+          barrel.position.set((b % 2 === 0 ? 1 : -1) * 0.9, 1.2, (b - 1.5) * 2.2);
           barrel.castShadow = true;
           pier.add(barrel);
         }
@@ -1311,158 +2107,925 @@
         return pier;
       }
 
-      // 3. Torre di guardia vichinga con braciere infuocato
-      function createWatchtower(x, z, rotY = 0) {
+      // Costruttore: Torre di Vedetta con Braciere di Segnalazione (30 ft)
+      function createWatchtower3D(x, z, rotY = 0, height = 8.5) {
         const twr = new THREE.Group();
         twr.position.set(x, 0, z);
         twr.rotation.y = rotY;
 
-        [-1.2, 1.2].forEach(px => {
-          [-1.2, 1.2].forEach(pz => {
-            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6, 8), woodMat);
-            leg.position.set(px, 3, pz);
+        // 4 montanti angolari in tronchi con controventatura a X
+        const legDist = 1.6;
+        [-legDist, legDist].forEach(px => {
+          [-legDist, legDist].forEach(pz => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, height, 8), darkWoodMat);
+            leg.position.set(px, height / 2, pz);
             leg.castShadow = true;
             twr.add(leg);
           });
         });
 
-        const deck = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.35, 3.6), woodMat);
-        deck.position.y = 5.8;
+        // Traverse a X
+        const cross1 = new THREE.Mesh(new THREE.BoxGeometry(legDist * 2.5, 0.18, 0.18), darkWoodMat);
+        cross1.position.set(0, height * 0.45, legDist);
+        cross1.rotation.z = 0.5;
+        twr.add(cross1);
+
+        // Piattaforma di combattimento sopraelevata
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.35, 4.2), pineWoodMat);
+        deck.position.y = height * 0.85;
         deck.castShadow = true;
         twr.add(deck);
 
-        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.25, 0.4, 8), ironMat);
-        brazier.position.set(0, 6.2, 0);
+        // Parapetto merlato
+        const breast = new THREE.Mesh(new THREE.BoxGeometry(4.1, 1.1, 4.1), darkWoodMat);
+        breast.position.y = height * 0.85 + 0.6;
+        breast.castShadow = true;
+        twr.add(breast);
+
+        // Scala a pioli
+        const ladder = new THREE.Mesh(new THREE.BoxGeometry(0.6, height * 0.85, 0.15), pineWoodMat);
+        ladder.position.set(0, height * 0.42, legDist + 0.1);
+        twr.add(ladder);
+
+        // Tettuccio di copertura
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(3.6, 2.0, 4), thatchMat);
+        roof.position.y = height + 1.6;
+        roof.rotation.y = Math.PI / 4;
+        twr.add(roof);
+
+        // Braciere di ferro battuto con fuoco vivo
+        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.3, 0.4, 8), ironMat);
+        brazier.position.set(0, height * 0.85 + 1.2, 0);
         twr.add(brazier);
 
+        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff6600 }));
+        flame.position.set(0, height * 0.85 + 1.5, 0);
+        twr.add(flame);
+
         const fireLight = new THREE.PointLight(0xff6600, 2.2, 18);
-        fireLight.position.set(0, 6.6, 0);
+        fireLight.position.set(0, height * 0.85 + 1.8, 0);
         twr.add(fireLight);
 
         structuresGroup.add(twr);
         return twr;
       }
 
-      // 4. Monolite in pietra runica inciso e luminoso
-      function createRunestoneMonolith(x, z, scale = 1.0, colorHex = 0x38bdf8) {
+      // Costruttore: Palizzata di Tronchi Appuntiti con Camminamento di Ronda
+      function createPalisadeWall(startX, startZ, endX, endZ, height = 4.5) {
+        const dx = endX - startX;
+        const dz = endZ - startZ;
+        const length = Math.sqrt(dx * dx + dz * dz);
+        const angle = Math.atan2(dx, dz);
+
+        const wallGroup = new THREE.Group();
+        wallGroup.position.set((startX + endX) / 2, 0, (startZ + endZ) / 2);
+        wallGroup.rotation.y = angle;
+
+        // Tronchi verticali appuntiti
+        const count = Math.max(3, Math.floor(length / 0.65));
+        for(let i = -count/2; i <= count/2; i++) {
+          const log = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.28, height, 6), darkWoodMat);
+          log.position.set(0, height / 2, i * 0.65);
+          log.castShadow = true;
+          wallGroup.add(log);
+
+          const tip = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 6), darkWoodMat);
+          tip.position.set(0, height + 0.4, i * 0.65);
+          wallGroup.add(tip);
+        }
+
+        // Camminamento posteriore di ronda
+        const walkway = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.25, length), pineWoodMat);
+        walkway.position.set(-0.8, height * 0.55, 0);
+        walkway.castShadow = true;
+        wallGroup.add(walkway);
+
+        // Travi di sostegno
+        for(let b = -count/2; b <= count/2; b += 4) {
+          const brace = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, height * 0.75, 6), darkWoodMat);
+          brace.position.set(-0.8, height * 0.28, b * 0.65);
+          wallGroup.add(brace);
+        }
+
+        structuresGroup.add(wallGroup);
+        return wallGroup;
+      }
+
+      // Costruttore: Il Tempio Dorato di Uppsala
+      function createGoldenTempleUppsala(x, z, rotY = 0, scale = 1.0) {
+        const temple = new THREE.Group();
+        temple.position.set(x, 0, z);
+        temple.rotation.y = rotY;
+        temple.scale.set(scale, scale, scale);
+
+        // Podio a gradoni d'oro e marmo scuro
+        const base = new THREE.Mesh(new THREE.BoxGeometry(16, 1.2, 22), stoneMat);
+        base.position.y = 0.6;
+        base.receiveShadow = true;
+        temple.add(base);
+
+        // Navata centrale a tre ordini in stile Stave Temple
+        const lowerHall = new THREE.Mesh(new THREE.BoxGeometry(14, 5.0, 19), darkWoodMat);
+        lowerHall.position.y = 3.6;
+        lowerHall.castShadow = true;
+        temple.add(lowerHall);
+
+        const lowerRoof = new THREE.Mesh(new THREE.ConeGeometry(11, 4.5, 4), thatchMat);
+        lowerRoof.position.y = 7.8;
+        lowerRoof.rotation.y = Math.PI / 4;
+        lowerRoof.scale.set(1.0, 1, 1.6);
+        temple.add(lowerRoof);
+
+        // Secondo ordine rialzato
+        const midHall = new THREE.Mesh(new THREE.BoxGeometry(9.5, 4.2, 13), darkWoodMat);
+        midHall.position.y = 8.5;
+        midHall.castShadow = true;
+        temple.add(midHall);
+
+        const midRoof = new THREE.Mesh(new THREE.ConeGeometry(7.8, 3.8, 4), thatchMat);
+        midRoof.position.y = 12.0;
+        midRoof.rotation.y = Math.PI / 4;
+        midRoof.scale.set(1.0, 1, 1.5);
+        temple.add(midRoof);
+
+        // Guglia superiore dorata
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(2.5, 5.5, 4), goldMat);
+        spire.position.y = 16.0;
+        spire.rotation.y = Math.PI / 4;
+        temple.add(spire);
+
+        // Catena d'oro monumentale che corre lungo le grondaie (da Adamo di Brema / Ragnarok)
+        const chainGeo = new THREE.TorusGeometry(8.5, 0.15, 8, 24);
+        const chain = new THREE.Mesh(chainGeo, goldMat);
+        chain.position.set(0, 6.2, 0);
+        chain.rotation.x = Math.PI / 2;
+        temple.add(chain);
+
+        // Colonne d'ingresso dorate con intarsi sacri
+        [-3.8, -1.3, 1.3, 3.8].forEach(cx => {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.45, 5.2, 10), goldMat);
+          col.position.set(cx, 3.7, 10.0);
+          col.castShadow = true;
+          temple.add(col);
+        });
+
+        // Bagliore dorato divino degli idoli (Odino, Thor, Freyr)
+        const holyLight = new THREE.PointLight(0xfbbf24, 3.2, 28);
+        holyLight.position.set(0, 5.5, 0);
+        temple.add(holyLight);
+
+        structuresGroup.add(temple);
+        return temple;
+      }
+
+      // Costruttore: Il Sacro Yggdrasill (Frassino Millenario semprevivo)
+      function createSacredYggdrasill(x, z, scale = 1.0) {
+        const tree = new THREE.Group();
+        tree.position.set(x, 0, z);
+        tree.scale.set(scale, scale, scale);
+
+        // Tronco monumentale contorto con radici che penetrano il suolo
+        const trunkGeo = new THREE.CylinderGeometry(1.6, 2.8, 8, 12);
+        const trunk = new THREE.Mesh(trunkGeo, darkWoodMat);
+        trunk.position.y = 4.0;
+        trunk.castShadow = true;
+        tree.add(trunk);
+
+        // Radici affioranti
+        for(let r = 0; r < 5; r++) {
+          const ang = (r / 5) * Math.PI * 2;
+          const root = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 4.5, 8), darkWoodMat);
+          root.position.set(Math.cos(ang) * 2.8, 0.8, Math.sin(ang) * 2.8);
+          root.rotation.x = Math.sin(ang) * 0.8;
+          root.rotation.z = Math.cos(ang) * 0.8;
+          tree.add(root);
+        }
+
+        // Rami principali contorti
+        const bough1 = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.1, 5.5, 8), darkWoodMat);
+        bough1.position.set(-1.8, 7.8, 1.2);
+        bough1.rotation.z = 0.55;
+        tree.add(bough1);
+
+        const bough2 = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 1.0, 5.2, 8), darkWoodMat);
+        bough2.position.set(1.9, 8.0, -1.0);
+        bough2.rotation.z = -0.55;
+        tree.add(bough2);
+
+        // Chioma smeraldina magica a più livelli
+        const leafMat = new THREE.MeshStandardMaterial({
+          color: 0x059669,
+          roughness: 0.5,
+          emissive: 0x047857,
+          emissiveIntensity: 0.35
+        });
+
+        const canopyPositions = [
+          { x: 0, y: 11.5, z: 0, s: 5.5 },
+          { x: -3.2, y: 9.8, z: 1.8, s: 4.2 },
+          { x: 3.4, y: 10.2, z: -1.6, s: 4.0 },
+          { x: 1.4, y: 11.8, z: 2.8, s: 3.8 },
+          { x: -1.8, y: 12.0, z: -2.6, s: 3.6 }
+        ];
+
+        canopyPositions.forEach(cp => {
+          const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(cp.s, 1), leafMat);
+          foliage.position.set(cp.x, cp.y, cp.z);
+          foliage.castShadow = true;
+          tree.add(foliage);
+        });
+
+        // Bagliore smeraldino vivente
+        const treeLight = new THREE.PointLight(0x10b981, 2.8, 22);
+        treeLight.position.set(0, 8.5, 0);
+        tree.add(treeLight);
+
+        structuresGroup.add(tree);
+        return tree;
+      }
+
+      // Costruttore: Fucina di Svenn Skallfoss
+      function createSvennForge(x, z, rotY = 0) {
+        const forge = new THREE.Group();
+        forge.position.set(x, 0, z);
+        forge.rotation.y = rotY;
+
+        // Forno in pietra e camino
+        const chimney = new THREE.Mesh(new THREE.BoxGeometry(3.6, 5.2, 3.2), stoneMat);
+        chimney.position.set(0, 2.6, 0);
+        chimney.castShadow = true;
+        forge.add(chimney);
+
+        const flue = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 3.2, 8), stoneMat);
+        flue.position.set(0, 5.8, 0);
+        forge.add(flue);
+
+        // Bocca del forno con carboni ardenti
+        const coalGlow = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 1.2), new THREE.MeshBasicMaterial({ color: 0xff3300 }));
+        coalGlow.position.set(0, 1.5, 1.2);
+        forge.add(coalGlow);
+
+        const fLight = new THREE.PointLight(0xff5500, 2.4, 16);
+        fLight.position.set(0, 1.8, 1.8);
+        forge.add(fLight);
+
+        // Incudine titanica su ceppo di quercia
+        const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 1.1, 10), darkWoodMat);
+        stump.position.set(2.4, 0.55, 1.5);
+        stump.castShadow = true;
+        forge.add(stump);
+
+        const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 1.6), ironMat);
+        anvil.position.set(2.4, 1.35, 1.5);
+        anvil.castShadow = true;
+        forge.add(anvil);
+
+        // Tinozza d'acqua per la tempra
+        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.65, 0.9, 10), darkWoodMat);
+        tub.position.set(-2.2, 0.45, 1.4);
+        forge.add(tub);
+
+        structuresGroup.add(forge);
+        return forge;
+      }
+
+      // Costruttore: Colossale Effigie di Loki (Fenmark)
+      function createLokiEffigy3D(x, z, rotY = 0) {
+        const idol = new THREE.Group();
+        idol.position.set(x, 0, z);
+        idol.rotation.y = rotY;
+
+        // Fusto totemico intagliato
+        const totem = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.4, 8.5, 10), darkWoodMat);
+        totem.position.y = 4.25;
+        totem.castShadow = true;
+        idol.add(totem);
+
+        // Maschera cornuta di Loki
+        const mask = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.2, 1.6), darkWoodMat);
+        mask.position.set(0, 7.2, 0.4);
+        idol.add(mask);
+
+        // Corna ricurve
+        const hornL = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 8, 16, Math.PI * 0.8), darkWoodMat);
+        hornL.position.set(-1.1, 8.2, 0.3);
+        hornL.rotation.z = 0.6;
+        idol.add(hornL);
+
+        const hornR = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 8, 16, Math.PI * 0.8), darkWoodMat);
+        hornR.position.set(1.1, 8.2, 0.3);
+        hornR.rotation.z = -0.6;
+        idol.add(hornR);
+
+        // Braciere rituale di fiamme verdi spettrali
+        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 0.8, 0.8, 8), stoneMat);
+        brazier.position.set(0, 0.4, 2.2);
+        idol.add(brazier);
+
+        const witchfire = new THREE.Mesh(
+          new THREE.SphereGeometry(0.65, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0x10b981 })
+        );
+        witchfire.position.set(0, 1.1, 2.2);
+        idol.add(witchfire);
+
+        const wfLight = new THREE.PointLight(0x10b981, 3.2, 18);
+        wfLight.position.set(0, 1.8, 2.2);
+        idol.add(wfLight);
+
+        structuresGroup.add(idol);
+        return idol;
+      }
+
+      // Costruttore: Capanna su Palafitte (Finnbol)
+      function createStiltHut3D(x, z, rotY = 0, scale = 1.0) {
+        const hut = new THREE.Group();
+        hut.position.set(x, 0, z);
+        hut.rotation.y = rotY;
+        hut.scale.set(scale, scale, scale);
+
+        // 4 Pali di sostegno immersi nella palude
+        [-2.0, 2.0].forEach(px => {
+          [-2.4, 2.4].forEach(pz => {
+            const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 3.2, 8), darkWoodMat);
+            stilt.position.set(px, 1.6, pz);
+            stilt.castShadow = true;
+            hut.add(stilt);
+          });
+        });
+
+        // Piattaforma e capanna in torba
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.3, 6.0), pineWoodMat);
+        deck.position.y = 3.2;
+        deck.castShadow = true;
+        hut.add(deck);
+
+        const hutBody = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.6, 5.2), darkWoodMat);
+        hutBody.position.y = 4.6;
+        hutBody.castShadow = true;
+        hut.add(hutBody);
+
+        const hutRoof = new THREE.Mesh(new THREE.ConeGeometry(3.8, 2.4, 4), thatchMat);
+        hutRoof.position.y = 6.8;
+        hutRoof.rotation.y = Math.PI / 4;
+        hutRoof.scale.set(1.0, 1, 1.4);
+        hut.add(hutRoof);
+
+        structuresGroup.add(hut);
+        return hut;
+      }
+
+      // Costruttore: Altare Sacrificale di Pietra
+      function createBloodstoneAltar(x, z) {
+        const altar = new THREE.Group();
+        altar.position.set(x, 0, z);
+
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.0, 2.6), bloodstoneMat);
+        slab.position.y = 0.5;
+        slab.castShadow = true;
+        altar.add(slab);
+
+        const runicGlow = new THREE.PointLight(0xd97706, 1.6, 10);
+        runicGlow.position.set(0, 1.4, 0);
+        altar.add(runicGlow);
+
+        [-1.8, 1.8].forEach(bx => {
+          const braz = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.25, 0.9, 8), ironMat);
+          braz.position.set(bx, 0.45, 0);
+          altar.add(braz);
+        });
+
+        structuresGroup.add(altar);
+        return altar;
+      }
+
+      // Costruttore: Cerchio dell'Holmgang (Siste Klintr)
+      function createHolmgangCircle(x, z, radius = 5.0) {
+        const ring = new THREE.Group();
+        ring.position.set(x, 0.1, z);
+
+        // Corda rossa di nocciolo
+        const rope = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.12, 8, 32), redClothMat);
+        rope.rotation.x = Math.PI / 2;
+        ring.add(rope);
+
+        // Pioli e pietre runiche di confine
+        for(let i = 0; i < 8; i++) {
+          const ang = (i / 8) * Math.PI * 2;
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 1.4, 6), pineWoodMat);
+          post.position.set(Math.cos(ang) * radius, 0.7, Math.sin(ang) * radius);
+          ring.add(post);
+
+          if (i % 2 === 0) {
+            const rStone = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.8, 0.4), stoneMat);
+            rStone.position.set(Math.cos(ang) * (radius + 0.9), 0.9, Math.sin(ang) * (radius + 0.9));
+            ring.add(rStone);
+          }
+        }
+
+        structuresGroup.add(ring);
+        return ring;
+      }
+
+      // Costruttore: Monolite Runico Primordiale
+      function createRunicMonolith(x, z, scale = 1.0, colorHex = 0x38bdf8) {
         const stone = new THREE.Group();
         stone.position.set(x, 0, z);
         stone.scale.set(scale, scale, scale);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 3.6, 0.45), stoneMat);
-        pillar.position.y = 1.8;
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4.2, 0.6), stoneMat);
+        pillar.position.y = 2.1;
         pillar.castShadow = true;
         stone.add(pillar);
 
         const runePlate = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.6, 2.2),
+          new THREE.PlaneGeometry(0.7, 2.6),
           new THREE.MeshBasicMaterial({ color: colorHex, side: THREE.DoubleSide })
         );
-        runePlate.position.set(0, 1.8, 0.24);
+        runePlate.position.set(0, 2.1, 0.32);
         stone.add(runePlate);
 
-        const rLight = new THREE.PointLight(colorHex, 1.5, 8);
-        rLight.position.set(0, 2.0, 0.6);
+        const rLight = new THREE.PointLight(colorHex, 1.8, 10);
+        rLight.position.set(0, 2.2, 0.8);
         stone.add(rLight);
 
         structuresGroup.add(stone);
         return stone;
       }
 
-      // 5. Tenda da campo norrena
-      function createVikingTent(x, z, rotY = 0) {
-        const tent = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.2, 3), thatchMat);
-        tent.position.set(x, 1.1, z);
-        tent.rotation.y = rotY;
-        tent.scale.set(1.4, 1, 1.8);
-        tent.castShadow = true;
-        structuresGroup.add(tent);
-        return tent;
-      }
+      // Costruttore: Bancarella del Grande Mercato
+      function createMarketStall(x, z, rotY = 0) {
+        const stall = new THREE.Group();
+        stall.position.set(x, 0, z);
+        stall.rotation.y = rotY;
 
-      // 6. Falò con pietre cerchiate
-      function createCampfire(x, z) {
-        const fire = new THREE.Group();
-        fire.position.set(x, 0, z);
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.18, 8, 16), stoneMat);
-        ring.rotation.x = Math.PI / 2;
-        ring.position.y = 0.1;
-        fire.add(ring);
+        // Bancone in legno
+        const table = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.1, 1.8), pineWoodMat);
+        table.position.y = 0.55;
+        table.castShadow = true;
+        stall.add(table);
 
-        const fLight = new THREE.PointLight(0xff7700, 2.0, 12);
-        fLight.position.set(0, 0.8, 0);
-        fire.add(fLight);
-        structuresGroup.add(fire);
-        return fire;
-      }
-
-      // 7. Rovine in pietra antica e architrave
-      function createStoneRuins(x, z) {
-        const ruins = new THREE.Group();
-        ruins.position.set(x, 0, z);
-        [-1.5, 1.5].forEach(px => {
-          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 2.8, 8), stoneMat);
-          col.position.set(px, 1.4, 0);
-          col.castShadow = true;
-          ruins.add(col);
+        // 4 Pali e tendone a righe
+        [-1.6, 1.6].forEach(px => {
+          [-0.8, 0.8].forEach(pz => {
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.8, 6), pineWoodMat);
+            pole.position.set(px, 1.4, pz);
+            stall.add(pole);
+          });
         });
-        const beam = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.5, 0.8), stoneMat);
-        beam.position.set(0, 3.0, 0);
-        beam.castShadow = true;
-        ruins.add(beam);
-        structuresGroup.add(ruins);
-        return ruins;
+
+        const canopy = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.15, 2.4), (Math.abs(x) % 2 === 0) ? redClothMat : blueClothMat);
+        canopy.position.y = 2.8;
+        canopy.rotation.x = 0.15;
+        stall.add(canopy);
+
+        structuresGroup.add(stall);
+        return stall;
       }
 
-      // Schieramento strutture tematiche per ciascuna mappa
+      // ========================================================================
+      // SCHIERAMENTO COMPLETO PER CIASCUNA DELLE 11 MAPPE DA BATTAGLIA
+      // ========================================================================
+
       if (mapId === 'battle_shipyard') {
-        createDockPier(-planeW * 0.28, planeH * 0.15, 18, 4.5, 0.2);
-        createDockPier(-planeW * 0.12, planeH * 0.35, 12, 3.5, -0.1);
-        createLonghouse(planeW * 0.25, -planeH * 0.15, -0.4, 1.2);
-        createWatchtower(-planeW * 0.36, -planeH * 0.35);
-        createCampfire(planeW * 0.15, planeH * 0.2);
-        createRunestoneMonolith(planeW * 0.35, planeH * 0.25, 1.1, 0x38bdf8);
-      } else if (mapId === 'battle_bandit_camp') {
-        createLonghouse(0, -planeH * 0.24, 0, 1.3);
-        createWatchtower(-planeW * 0.3, -planeH * 0.25);
-        createWatchtower(planeW * 0.3, -planeH * 0.25);
-        createVikingTent(-8, 4, 0.4);
-        createVikingTent(8, 4, -0.4);
-        createCampfire(0, 0);
-        createRunestoneMonolith(-10, -5, 1.0, 0xef4444);
-      } else if (mapId === 'battle_mountain_pass') {
-        createWatchtower(planeW * 0.25, -planeH * 0.25);
-        createStoneRuins(-planeW * 0.1, 0);
-        createStoneRuins(planeW * 0.15, 6);
-        createRunestoneMonolith(-planeW * 0.25, -planeH * 0.1, 1.3, 0x38bdf8);
-        createCampfire(planeW * 0.1, -planeH * 0.1);
-      } else if (mapId === 'battle_svitjod_camp') {
-        createLonghouse(0, -planeH * 0.2, 0, 1.2);
-        createWatchtower(-planeW * 0.3, -planeH * 0.25);
-        createVikingTent(-10, -2, 0.3);
-        createVikingTent(10, -2, -0.3);
-        createCampfire(0, 2);
-        createRunestoneMonolith(8, 6, 1.2, 0x10b981);
+        // 1. Bacino d'acqua marino a nord
+        const seaGeo = new THREE.PlaneGeometry(planeW, planeH * 0.35);
+        const seaMat = new THREE.MeshStandardMaterial({
+          color: 0x0a2540,
+          roughness: 0.1,
+          metalness: 0.8,
+          transparent: true,
+          opacity: 0.92
+        });
+        const sea = new THREE.Mesh(seaGeo, seaMat);
+        sea.rotation.x = -Math.PI / 2;
+        sea.position.set(0, 0.05, -planeH * 0.32);
+        structuresGroup.add(sea);
+
+        // 2. Moli dei Drakkar (L)
+        createDockPier3D(-16, -18, 18, 4.5, 0.1);
+        createDockPier3D(6, -22, 16, 4.2, -0.15);
+        createDockPier3D(24, -20, 14, 3.8, 0.2);
+
+        // 3. Due Splendidi Drakkar Vichinghi ormeggiati ai moli
+        createDrakkarLongship(-14, -22, 0.1, 1.15);
+        createDrakkarLongship(8, -26, -0.15, 1.1);
+
+        // 4. Gran Salone del Re (G) sulla collina centrale
+        createNorseMeadHall(8, -6, -0.25, 1.0, true);
+
+        // 5. Barricata difensiva di cinta (A) a sud, est e ovest
+        createPalisadeWall(-planeW * 0.42, 14, -planeW * 0.42, planeH * 0.42, 4.5);
+        createPalisadeWall(-planeW * 0.42, planeH * 0.42, planeW * 0.42, planeH * 0.42, 4.5);
+        createPalisadeWall(planeW * 0.42, planeH * 0.42, planeW * 0.42, 14, 4.5);
+
+        // 6. Torri difensive di guardia (B)
+        createWatchtower3D(-18, 20, 0.2, 9.0);
+        createWatchtower3D(18, 20, -0.2, 9.0);
+        createWatchtower3D(-planeW * 0.4, 12, 0.4, 9.0);
+        createWatchtower3D(planeW * 0.4, 12, -0.4, 9.0);
+
+        // 7. Il Grande Mercato (N)
+        createMarketStall(-8, 6, 0.2);
+        createMarketStall(-4, 6, -0.1);
+        createMarketStall(-6, 10, 0.4);
+
+        // 8. Chiesa della Fiamma (H) in pietra bianca
+        const church = new THREE.Group();
+        church.position.set(14, 0, 12);
+        const chBody = new THREE.Mesh(new THREE.BoxGeometry(6.2, 4.2, 8.4), whiteStoneMat);
+        chBody.position.y = 2.1;
+        church.add(chBody);
+        const chRoof = new THREE.Mesh(new THREE.ConeGeometry(5.2, 3.8, 4), goldMat);
+        chRoof.position.y = 5.8;
+        chRoof.rotation.y = Math.PI / 4;
+        church.add(chRoof);
+        const flameHoly = new THREE.PointLight(0xf59e0b, 2.5, 15);
+        flameHoly.position.set(0, 3.2, 4.6);
+        church.add(flameHoly);
+        structuresGroup.add(church);
+
+        // 9. Scuderie (I), Cacciatori (D) ed Eroi (F)
+        createNorseMeadHall(18, 4, 0.4, 1.05);
+        createNorseMeadHall(-6, -8, -0.2, 1.15);
+        createRunicMonolith(-22, 0, 1.3, 0x38bdf8);
+
       } else if (mapId === 'battle_uppsala_temple') {
-        createLonghouse(0, -planeH * 0.15, 0, 1.7);
-        createRunestoneMonolith(-8, -6, 1.4, 0xf59e0b);
-        createRunestoneMonolith(8, -6, 1.4, 0xf59e0b);
-        createRunestoneMonolith(-8, 6, 1.4, 0xf59e0b);
-        createRunestoneMonolith(8, 6, 1.4, 0xf59e0b);
-        createStoneRuins(0, 4);
+        // 1. Tempio Dorato di Uppsala (B)
+        createGoldenTempleUppsala(0, -12, 0, 1.25);
+
+        // 2. Il Sacro Yggdrasill (I)
+        createSacredYggdrasill(-14, 0, 1.2);
+
+        // 3. Fucina di Svenn Skallfoss (D)
+        createSvennForge(16, 4, -0.3);
+
+        // 4. Altare Sacrificale (F) e Recinto Offerte (E)
+        createBloodstoneAltar(0, 12);
+
+        // 5. Capanne dei sacerdoti e dimora Jarl (A, H)
+        createNorseMeadHall(-14, -14, 0.3, 1.15);
+        createRunicMonolith(14, -12, 1.2, 0xf59e0b);
+        createRunicMonolith(-14, 12, 1.2, 0x10b981);
+
+      } else if (mapId === 'battle_danevirke_wall') {
+        // 1. Monumentale Vallo di Danevirke (A) che taglia la mappa a metà
+        const rampart = new THREE.Mesh(new THREE.BoxGeometry(planeW * 0.95, 2.2, 7.5), stoneMat);
+        rampart.position.set(0, 1.1, 0);
+        rampart.castShadow = true;
+        structuresGroup.add(rampart);
+
+        createPalisadeWall(-planeW * 0.46, 0, planeW * 0.46, 0, 5.0);
+
+        // 2. Portone monumentale centrale con saracinesca (B)
+        const gateL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 7.5, 4.5), darkWoodMat);
+        gateL.position.set(-3.2, 3.75, 0);
+        structuresGroup.add(gateL);
+        const gateR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 7.5, 4.5), darkWoodMat);
+        gateR.position.set(3.2, 3.75, 0);
+        structuresGroup.add(gateR);
+
+        const arch = new THREE.Mesh(new THREE.BoxGeometry(9.5, 1.6, 4.2), darkWoodMat);
+        arch.position.set(0, 7.6, 0);
+        structuresGroup.add(arch);
+
+        // 3. Torri di guardia (C) con pire d'allarme
+        createWatchtower3D(-18, 2, 0, 8.5);
+        createWatchtower3D(18, 2, 0, 8.5);
+
+        // 4. Baraccamenti guarnigione (E)
+        createNorseMeadHall(14, -12, 0.2, 1.1);
+
+      } else if (mapId === 'battle_mountain_pass') {
+        // 1. Cerchio dell'Holmgang (D)
+        createHolmgangCircle(-6, -2, 5.5);
+
+        // 2. Barricata dei passi ghiacciati (A)
+        createPalisadeWall(6, 10, 18, 10, 4.2);
+
+        // 3. Baita del Capoclan (E)
+        createNorseMeadHall(14, -10, -0.4, 1.15);
+
+        // 4. Depositi e Torre d'osservazione (G, F)
+        createWatchtower3D(0, -16, 0, 9.5);
+        createRunicMonolith(-12, 8, 1.3, 0x38bdf8);
+
       } else if (mapId === 'battle_fenmark_ruins') {
-        createStoneRuins(-8, -5);
-        createStoneRuins(6, -2);
-        createStoneRuins(-4, 7);
-        createDockPier(0, 0, 16, 2.5, 0.3);
-        createRunestoneMonolith(5, 5, 1.2, 0x10b981);
+        // 1. Acqua paludosa verde scura
+        const swamp = new THREE.Mesh(
+          new THREE.PlaneGeometry(planeW, planeH),
+          new THREE.MeshStandardMaterial({ color: 0x142818, roughness: 0.2, metalness: 0.4, transparent: true, opacity: 0.88 })
+        );
+        swamp.rotation.x = -Math.PI / 2;
+        swamp.position.y = 0.05;
+        structuresGroup.add(swamp);
+
+        // 2. Colossale Effigie di Loki (D)
+        createLokiEffigy3D(0, -4, 0);
+
+        // 3. Capanne su palafitte (A, B, C)
+        createStiltHut3D(-12, 6, 0.2, 1.1);
+        createStiltHut3D(12, -10, -0.3, 1.05);
+        createStiltHut3D(-8, -14, 0.4, 1.0);
+
+        // 4. Passerelle di legno sospese
+        createDockPier3D(-6, 2, 14, 2.4, 0.5);
+        createDockPier3D(6, -4, 12, 2.2, -0.4);
+
+      } else if (mapId === 'battle_jutland_keep') {
+        // 1. Il Grande Gjallarhorn del clan (G)
+        const hornGroup = new THREE.Group();
+        hornGroup.position.set(0, 0, 0);
+
+        const dais = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.8, 0.9, 16), stoneMat);
+        dais.position.y = 0.45;
+        hornGroup.add(dais);
+
+        const hornBody = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.45, 8, 20, Math.PI * 0.9), goldMat);
+        hornBody.position.set(0, 2.2, 0);
+        hornBody.rotation.z = Math.PI / 4;
+        hornGroup.add(hornBody);
+
+        structuresGroup.add(hornGroup);
+
+        // 2. Palazzo Reale dello Jarl (H)
+        createNorseMeadHall(0, -14, 0, 1.4, true);
+
+        // 3. Mura circolari e torri (A, C)
+        createWatchtower3D(-16, 8, 0.3, 8.5);
+        createWatchtower3D(16, 8, -0.3, 8.5);
+        createNorseMeadHall(14, 4, 0.3, 1.05);
+
+      } else if (mapId === 'battle_pillars_of_gods') {
+        // 1. Colonne Runiche Titaniche di Gnitaheith (B)
+        [-8, 8].forEach(cx => {
+          [-14, -6, 2, 10].forEach(cz => {
+            const col = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.6, 16, 8), stoneMat);
+            col.position.set(cx, 8, cz);
+            col.castShadow = true;
+            structuresGroup.add(col);
+
+            const rGlow = new THREE.PointLight(0x38bdf8, 1.8, 12);
+            rGlow.position.set(cx, 5, cz);
+            structuresGroup.add(rGlow);
+          });
+        });
+
+        // 2. Trono di Stalagmite e Tesoro di Fafnir (D)
+        const throne = new THREE.Mesh(new THREE.ConeGeometry(3.5, 6.0, 6), darkWoodMat);
+        throne.position.set(0, 3.0, -14);
+        structuresGroup.add(throne);
+
+        // Mucchio di monete e tesori d'oro (Oro lucido)
+        const goldHoard = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 5.0, 0.8, 16), goldMat);
+        goldHoard.position.set(0, 0.4, -14);
+        structuresGroup.add(goldHoard);
+
+        // 3. Gramr - La Spada Mitica (E)
+        const swordAltar = new THREE.Group();
+        swordAltar.position.set(0, 0, -2);
+        const sPed = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 1.6), ironMat);
+        sPed.position.y = 0.9;
+        swordAltar.add(sPed);
+
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.4), goldMat);
+        blade.position.set(0, 3.0, 0);
+        swordAltar.add(blade);
+
+        const sLight = new THREE.PointLight(0xfbbf24, 3.2, 18);
+        sLight.position.set(0, 3.5, 0);
+        swordAltar.add(sLight);
+
+        structuresGroup.add(swordAltar);
+
+      } else if (mapId === 'battle_muspellsheimr_lava') {
+        // 1. Fiume di Lava Incandescente (A)
+        const lava = new THREE.Mesh(
+          new THREE.PlaneGeometry(planeW, 14),
+          new THREE.MeshStandardMaterial({
+            color: 0xff3700,
+            emissive: 0xff2200,
+            emissiveIntensity: 0.95,
+            roughness: 0.3
+          })
+        );
+        lava.rotation.x = -Math.PI / 2;
+        lava.position.set(0, 0.05, 0);
+        structuresGroup.add(lava);
+
+        // 2. Colonne basaltiche di guado (B)
+        [-12, -7, -2, 3, 8, 13].forEach((bx, idx) => {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.3, 1.8, 6), stoneMat);
+          col.position.set(bx, 0.9, (idx % 2 === 0 ? 2 : -2));
+          structuresGroup.add(col);
+        });
+
+        // 3. Monoliti vulcanici con rune di fuoco (C)
+        createRunicMonolith(14, -8, 1.4, 0xff3300);
+        createRunicMonolith(-14, 8, 1.4, 0xff3300);
+
+        // 4. Incudine di Surtur (D)
+        const surturAnvil = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.6, 3.0), ironMat);
+        surturAnvil.position.set(0, 0.8, -12);
+        structuresGroup.add(surturAnvil);
+
+        const lavaLight = new THREE.PointLight(0xff5500, 3.5, 25);
+        lavaLight.position.set(0, 2.5, 0);
+        structuresGroup.add(lavaLight);
+
+      } else if (mapId === 'battle_bandit_camp') {
+        // Accampamento di Guthrum
+        createNorseMeadHall(0, -10, 0, 1.25);
+        createWatchtower3D(-12, 10, 0.2, 8.5);
+        createWatchtower3D(12, 10, -0.2, 8.5);
+        createPalisadeWall(-planeW * 0.35, 14, planeW * 0.35, 14, 4.2);
+        createRunicMonolith(-10, -4, 1.1, 0xef4444);
+
+      } else if (mapId === 'battle_svitjod_camp') {
+        // Radura dei Clan di Svitjod
+        createNorseMeadHall(0, -10, 0, 1.2);
+        createWatchtower3D(-14, 6, 0.2, 8.5);
+        createRunicMonolith(10, 8, 1.2, 0x10b981);
+
       } else {
-        createLonghouse(planeW * 0.3, -planeH * 0.25, -0.3, 1.1);
-        createWatchtower(-planeW * 0.3, -planeH * 0.3);
-        createCampfire(0, -planeH * 0.15);
-        createRunestoneMonolith(-planeW * 0.25, planeH * 0.25, 1.2, 0xf59e0b);
+        // Mappe Regionali / Cosmiche: arricchite con monoliti runici cardinali
+        createRunicMonolith(-planeW * 0.3, -planeH * 0.3, 1.3, 0xf59e0b);
+        createRunicMonolith(planeW * 0.3, -planeH * 0.3, 1.3, 0x38bdf8);
+        createRunicMonolith(-planeW * 0.3, planeH * 0.3, 1.3, 0x10b981);
+        createRunicMonolith(planeW * 0.3, planeH * 0.3, 1.3, 0xef4444);
       }
     }
+
+    // ============================================================================
+    // SISTEMA DEI SEGNAPOSTO 3D & HUD PUNTI D'INTERESSE (LORE CARD DAL MANUALE)
+    // ============================================================================
+
+    function createLandmarkLetterTexture(letter, colorHex = '#f59e0b') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#06090e';
+      ctx.beginPath();
+      ctx.arc(64, 64, 58, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      ctx.fillStyle = colorHex;
+      ctx.font = 'bold 64px "Cinzel", "Cinzel Decorative", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(letter, 64, 68);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function buildLandmarkPinsForMap(mapId, planeW, planeH) {
+      if (!landmarksGroup) return;
+
+      while(landmarksGroup.children.length > 0) {
+        const obj = landmarksGroup.children[0];
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+          else obj.material.dispose();
+        }
+        landmarksGroup.remove(obj);
+      }
+
+      const landmarks = NORSE_LANDMARKS_DATA[mapId] || [];
+      const labelCount = document.getElementById('top-landmarks-label');
+      if (labelCount) {
+        labelCount.textContent = `Luoghi (${landmarks.length})`;
+      }
+
+      // Popola il menu a tendina nell'Header
+      const itemsContainer = document.getElementById('landmarks-items-container');
+      if (itemsContainer) {
+        itemsContainer.innerHTML = '';
+        if (landmarks.length === 0) {
+          itemsContainer.innerHTML = `<div class="text-[10px] text-slate-500 italic p-2">Nessun punto d'interesse specifico per questa mappa.</div>`;
+        } else {
+          landmarks.forEach(lm => {
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-emerald-500/20 text-slate-200 flex items-center justify-between transition group";
+            btn.onclick = () => window.flyToLandmark(lm.key);
+            btn.innerHTML = `
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-5 h-5 rounded-md bg-amber-500/20 border border-amber-400/50 text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0">
+                  ${lm.key}
+                </span>
+                <span class="font-cinzel text-[11px] font-semibold truncate group-hover:text-emerald-300">${lm.title}</span>
+              </div>
+              <span class="text-[9px] text-slate-500 font-mono shrink-0 ml-1">📍</span>
+            `;
+            itemsContainer.appendChild(btn);
+          });
+        }
+      }
+
+      // Costruisci i Segnaposto 3D interattivi
+      landmarks.forEach((lm, idx) => {
+        const pin = new THREE.Group();
+        pin.position.set(lm.pos.x, 0, lm.pos.z);
+        pin.userData = {
+          landmark: lm,
+          baseY: 0,
+          phase: idx * 0.8
+        };
+
+        // Asta verticale bronzea
+        const pole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.08, 4.2, 8),
+          new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.3, metalness: 0.8 })
+        );
+        pole.position.y = 2.1;
+        pole.castShadow = true;
+        pin.add(pole);
+
+        // Medaglione con lettera runica
+        const tex = createLandmarkLetterTexture(lm.key, '#f59e0b');
+        const badgeMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const badgeFront = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), badgeMat);
+        badgeFront.position.set(0, 4.4, 0.02);
+        pin.add(badgeFront);
+
+        const badgeBack = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), badgeMat);
+        badgeBack.position.set(0, 4.4, -0.02);
+        badgeBack.rotation.y = Math.PI;
+        pin.add(badgeBack);
+
+        // Anello luminoso
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.85, 0.06, 8, 24),
+          new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+        );
+        ring.position.y = 4.4;
+        pin.add(ring);
+
+        // Volume d'interazione invisibile (hit box cliccabile)
+        const hitBox = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.8, 1.8, 5.2, 8),
+          new THREE.MeshBasicMaterial({ visible: false })
+        );
+        hitBox.position.y = 2.6;
+        pin.add(hitBox);
+
+        landmarksGroup.add(pin);
+      });
+    }
+
+    window.openLandmarkModal = function(landmark) {
+      if (!landmark) return;
+      activeLandmarkForModal = landmark;
+
+      document.getElementById('landmark-modal-letter-badge').textContent = landmark.key;
+      document.getElementById('landmark-modal-title').textContent = landmark.title;
+      document.getElementById('landmark-modal-district').textContent = `${landmark.district} • ${landmark.badge}`;
+      document.getElementById('landmark-modal-lore').textContent = landmark.lore;
+      document.getElementById('landmark-modal-tactical').textContent = landmark.tactical;
+
+      const modal = document.getElementById('modal-landmark-lore');
+      if (modal) modal.classList.remove('hidden');
+    };
+
+    window.closeLandmarkModal = function() {
+      const modal = document.getElementById('modal-landmark-lore');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.zoomToActiveLandmark = function() {
+      if (!activeLandmarkForModal) return;
+      window.flyToLandmark(activeLandmarkForModal.key);
+      window.closeLandmarkModal();
+    };
+
+    window.flyToLandmark = function(key) {
+      const landmarks = NORSE_LANDMARKS_DATA[window.Ginnungagap.activeMapId] || [];
+      const lm = landmarks.find(item => item.key === key);
+      if (!lm) return;
+
+      activeLandmarkForModal = lm;
+
+      new TWEEN.Tween(camera.position)
+        .to({ x: lm.pos.x, y: 16, z: lm.pos.z + 14 }, 750)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      new TWEEN.Tween(controls.target)
+        .to({ x: lm.pos.x, y: 1, z: lm.pos.z }, 750)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      window.openLandmarkModal(lm);
+    };
+
 
     // ============================================================================
     // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
@@ -2817,6 +4380,18 @@
           controls.enabled = false;
           isDraggingMini = true;
         }
+      } else {
+        if (landmarksGroup && landmarksGroup.children.length > 0) {
+          const lmHits = raycaster.intersectObjects(landmarksGroup.children, true);
+          if (lmHits.length > 0) {
+            let lmRoot = lmHits[0].object;
+            while (lmRoot.parent && lmRoot.parent !== landmarksGroup) lmRoot = lmRoot.parent;
+            if (lmRoot && lmRoot.userData && lmRoot.userData.landmark) {
+              window.openLandmarkModal(lmRoot.userData.landmark);
+              return;
+            }
+          }
+        }
       }
     }
 
@@ -3376,6 +4951,16 @@
       requestAnimationFrame(animateLoop);
       TWEEN.update();
       controls.update();
+
+      if (landmarksGroup && landmarksGroup.children.length > 0) {
+        const time = Date.now() * 0.002;
+        landmarksGroup.children.forEach(pin => {
+          if (pin.userData && pin.userData.baseY !== undefined) {
+            pin.position.y = pin.userData.baseY + Math.sin(time + pin.userData.phase) * 0.25;
+            pin.rotation.y += 0.008;
+          }
+        });
+      }
 
       if (window.Ginnungagap.weatherParticles) {
         const pts = window.Ginnungagap.weatherParticles;
