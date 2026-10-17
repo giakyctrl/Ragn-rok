@@ -20,6 +20,16 @@
   <!-- Three.js (r128), OrbitControls e Tween.js per grafica 3D e animazioni fluide -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="assets/vendor/GLTFLoader.js"></script>
+  <script src="assets/vendor/OBJLoader.js"></script>
+  <script>
+    if (!window.THREE || !window.THREE.GLTFLoader) {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"><\/script>');
+    }
+    if (!window.THREE || !window.THREE.OBJLoader) {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"><\/script>');
+    }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
   <!-- Dati canonici di Journey to Ragnarok -->
@@ -624,38 +634,112 @@
     </div>
   </div>
 
-  <!-- 11b. MODALE PERSONALIZZAZIONE MINIATURA 3D (PRE-MAP POPUP CON ANTEPRIMA 3D A DESTRA) -->
+  <!-- 11b. MODALE PERSONALIZZAZIONE MINIATURA 3D (HERO FORGE STUDIO & GINNUNGAGAP FUCINA) -->
   <div id="modal-miniature-customizer" class="hidden fixed inset-0 z-50 bg-[#06090e]/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
-    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
+    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-5xl w-full max-h-[94vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
       <!-- HEADER FUCINA -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/30 bg-slate-950/80">
+      <div class="flex items-center justify-between px-6 py-3.5 border-b border-amber-500/30 bg-slate-950/80">
         <div class="flex items-center gap-3">
-          <span class="text-2xl text-amber-400">🎨</span>
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-red-600 to-amber-700 flex items-center justify-center text-lg shadow-lg shadow-amber-500/20">
+            ⚔️
+          </div>
           <div>
-            <h3 class="font-cinzel-dec font-black text-sm md:text-base text-amber-300 uppercase tracking-wider">
-              Fucina Miniature 3D di Ginnungagap
-            </h3>
-            <span class="text-[10px] text-slate-400">Personalizza la tua miniatura prima di scendere sul campo di battaglia</span>
+            <div class="flex items-center gap-2">
+              <h3 class="font-cinzel-dec font-black text-sm md:text-base text-amber-300 uppercase tracking-wider">
+                Fucina Miniature 3D & Hero Forge Studio
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold uppercase tracking-wide shadow-sm">
+                HERO FORGE INTEGRATED
+              </span>
+            </div>
+            <span class="text-[10px] text-slate-400">Forgia l'eroe con Hero Forge Studio oppure scegli un archetipo leggendario di Journey to Ragnarok</span>
           </div>
         </div>
-        <button id="btn-close-customizer" onclick="window.closeMiniatureCustomizer()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
+        <button id="btn-close-customizer" onclick="window.closeMiniatureCustomizer()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1 transition">&times;</button>
       </div>
 
       <!-- CORPO FUCINA A DUE COLONNE (OPZIONI A SINISTRA, ANTEPRIMA 3D A DESTRA) -->
-      <div class="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#080d17]">
-        <!-- COLONNA SINISTRA: SELEZIONE MODELLO, AURA E PIEDISTALLO (7 COLONNE SU 12) -->
-        <div class="md:col-span-7 space-y-4">
-          <!-- 1. SCELTA MODELLO 3D FIGURINA -->
+      <div class="flex-1 overflow-hidden p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#080d17]">
+        <!-- COLONNA SINISTRA: HERO FORGE HUB, ARCHETIPI, AURA E PIEDISTALLO (7 COLONNE SU 12 CON SCROLL) -->
+        <div class="md:col-span-7 space-y-4 overflow-y-auto max-h-[76vh] pr-2 custom-scrollbar">
+          
+          <!-- SEZIONE HERO FORGE STUDIO & IMPORTER 3D -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/40 shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🎨</span>
+                <span class="text-xs font-cinzel font-bold text-amber-300 uppercase tracking-wider">1. Hero Forge Studio & Import 3D</span>
+              </div>
+              <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold">
+                .GLB / .GLTF / .OBJ
+              </span>
+            </div>
+
+            <!-- Pulsante Hero Forge Studio Ufficiale -->
+            <div class="flex flex-col sm:flex-row gap-2">
+              <a href="https://www.heroforge.com/" target="_blank" rel="noopener noreferrer" 
+                 class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-700 via-amber-600 to-amber-500 text-slate-950 font-cinzel font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-98 transition">
+                <span>🎨</span> APRI STUDIO HERO FORGE (heroforge.com) ↗
+              </a>
+              <button type="button" onclick="window.loadHeroForgeSample()" 
+                      class="py-2.5 px-3 rounded-xl bg-slate-900 border border-amber-500/40 text-amber-300 font-cinzel font-bold text-xs hover:bg-slate-800 transition">
+                ⚡ Miniatura Demo
+              </button>
+            </div>
+
+            <!-- Drag & Drop Dropzone -->
+            <div id="heroforge-dropzone" onclick="document.getElementById('heroforge-file-input').click()"
+                 class="border-2 border-dashed border-amber-500/40 hover:border-amber-400 rounded-xl p-3 text-center cursor-pointer transition bg-slate-950/70 hover:bg-amber-500/5 group">
+              <input type="file" id="heroforge-file-input" accept=".glb,.gltf,.obj" class="hidden" onchange="window.handleHeroForgeFileSelect(event)">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl group-hover:scale-110 transition transform">📦</span>
+                <span class="text-xs font-bold text-amber-300">Trascina qui il file 3D esportato da Hero Forge (.GLB, .GLTF, .OBJ)</span>
+                <span class="text-[10px] text-slate-400">oppure <span class="text-sky-400 underline font-medium">clicca per sfogliare i file del PC</span></span>
+                <div id="heroforge-file-status" class="hidden mt-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500 text-[10px] text-emerald-300 font-mono">
+                  ✓ File caricato con successo
+                </div>
+              </div>
+            </div>
+
+            <!-- Controlli Scala e Offset Y per modello personalizzato -->
+            <div id="heroforge-model-controls" class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800">
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Scala Miniatura:</span>
+                  <span id="heroforge-scale-val" class="font-mono text-amber-300">1.0x</span>
+                </div>
+                <input type="range" id="heroforge-scale-slider" min="0.5" max="2.5" step="0.05" value="1.0"
+                       oninput="window.updateHeroForgeScale(this.value)"
+                       class="w-full accent-amber-500 h-1 bg-slate-800 rounded">
+              </div>
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Altezza / Elevazione Y:</span>
+                  <span id="heroforge-offset-val" class="font-mono text-amber-300">0.00</span>
+                </div>
+                <input type="range" id="heroforge-offset-slider" min="-0.4" max="0.6" step="0.02" value="0.0"
+                       oninput="window.updateHeroForgeOffset(this.value)"
+                       class="w-full accent-amber-500 h-1 bg-slate-800 rounded">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. SCELTA ARCHETIPO PREDEFINITO HERO FORGE -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">1. Scegli Modello Scolpito 3D:</label>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">
+                2. Oppure Scegli un Archetipo Rapido Hero Forge:
+              </label>
+              <span class="text-[9px] text-slate-400">8 Eroi & Nemici Scolpiti</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button type="button" onclick="window.selectMiniatureModel('berserker')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition" data-model="berserker">
                 <div class="font-cinzel font-bold text-xs text-amber-300">🪓 Berserker</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Spada & Scudo rotondo</span>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Spada & Scudo</span>
               </button>
               <button type="button" onclick="window.selectMiniatureModel('shieldmaiden')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="shieldmaiden">
                 <div class="font-cinzel font-bold text-xs text-sky-300">🛡️ Shieldmaiden</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Grande Scudo & Lancia</span>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Scudo & Lancia</span>
               </button>
               <button type="button" onclick="window.selectMiniatureModel('runemaster')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="runemaster">
                 <div class="font-cinzel font-bold text-xs text-purple-300">⚡ Runemaster</div>
@@ -664,6 +748,10 @@
               <button type="button" onclick="window.selectMiniatureModel('valkyrie')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="valkyrie">
                 <div class="font-cinzel font-bold text-xs text-amber-200">🪽 Valkyria</div>
                 <span class="text-[9px] text-slate-400 block mt-0.5">Ali dorate & Lancia</span>
+              </button>
+              <button type="button" onclick="window.selectMiniatureModel('jarl')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="jarl">
+                <div class="font-cinzel font-bold text-xs text-yellow-300">👑 Jarl Condottiero</div>
+                <span class="text-[9px] text-slate-400 block mt-0.5">Corona & Pelliccia</span>
               </button>
               <button type="button" onclick="window.selectMiniatureModel('wolf')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="wolf">
                 <div class="font-cinzel font-bold text-xs text-red-300">🐺 Fenrir Wolf</div>
@@ -680,9 +768,9 @@
             </div>
           </div>
 
-          <!-- 2. SCELTA AURA ANELLO DI FAZIONE -->
+          <!-- 3. SCELTA AURA ANELLO DI FAZIONE -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">2. Colore Anello Runico della Fazione:</label>
+            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Colore Anello Runico della Fazione:</label>
             <div class="grid grid-cols-5 gap-2 text-center">
               <button type="button" onclick="window.selectRingColor('amber', 0xf59e0b, '#f59e0b')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt" data-color="amber">
                 <span class="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
@@ -707,9 +795,9 @@
             </div>
           </div>
 
-          <!-- 3. MATERIALE DEL PIEDISTALLO -->
+          <!-- 4. MATERIALE DEL PIEDISTALLO -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Materiale Piedistallo Bisellato:</label>
+            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">4. Materiale Piedistallo Bisellato:</label>
             <div class="grid grid-cols-4 gap-2 text-center">
               <button type="button" onclick="window.selectPedestalMaterial('ardesia')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt" data-pedestal="ardesia">
                 <span class="text-sm">🪨</span>
@@ -732,20 +820,23 @@
         </div>
 
         <!-- COLONNA DESTRA: ANTEPRIMA 3D LIVE A DESTRA (5 COLONNE SU 12) -->
-        <div class="md:col-span-5 flex flex-col justify-between bg-slate-950 p-4 rounded-2xl border border-amber-500/40 shadow-2xl space-y-3">
+        <div class="md:col-span-5 flex flex-col justify-between bg-slate-950 p-4 rounded-2xl border border-amber-500/40 shadow-2xl space-y-2 h-full max-h-[76vh]">
           <div>
             <div class="flex items-center justify-between border-b border-amber-500/20 pb-1.5 mb-2">
               <h4 class="font-cinzel font-black text-xs text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                 <span>🛡️</span> ANTEPRIMA 3D LIVE
               </h4>
-              <span class="text-[9px] text-sky-400 font-mono animate-pulse">Rotazione Live</span>
+              <span class="text-[9px] text-sky-400 font-mono animate-pulse">Orbitale 360° Live</span>
             </div>
 
             <!-- Canvas 3D Three.js Turntable -->
-            <div class="relative w-full h-56 rounded-xl overflow-hidden border border-amber-400/30 bg-[#06090f] shadow-inner flex items-center justify-center">
+            <div class="relative w-full h-48 md:h-52 rounded-xl overflow-hidden border border-amber-400/30 bg-[#06090f] shadow-inner flex items-center justify-center cursor-grab active:cursor-grabbing">
               <canvas id="mini-preview-canvas" class="w-full h-full block"></canvas>
-              <div class="absolute bottom-1 right-2 pointer-events-none text-[8px] font-mono text-slate-500 bg-black/60 px-1 rounded">
-                Ginnungagap 3D Mini
+              <div class="absolute bottom-1.5 left-2 pointer-events-none text-[8px] font-mono text-slate-400 bg-black/60 px-1.5 py-0.5 rounded border border-slate-800">
+                Trascina per ruotare &bull; Rotella zoom
+              </div>
+              <div id="custom-preview-source-badge" class="absolute top-2 right-2 pointer-events-none text-[8px] font-mono text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded uppercase font-bold">
+                Hero Forge
               </div>
             </div>
 
@@ -760,7 +851,8 @@
               </p>
               <div class="flex items-center gap-2 pt-1 text-[10px] text-slate-400">
                 <span>Base: <strong id="custom-preview-pedestal" class="text-sky-300">Ardesia</strong></span> &bull;
-                <span>Aura: <strong id="custom-preview-aura" class="text-amber-400">Ambra</strong></span>
+                <span>Aura: <strong id="custom-preview-aura" class="text-amber-400">Ambra</strong></span> &bull;
+                <span>Scala: <strong id="custom-preview-scale-tag" class="text-emerald-400">1.0x</strong></span>
               </div>
             </div>
           </div>
@@ -3028,29 +3120,233 @@
 
 
     // ============================================================================
-    // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
+    // FUCINA DELLE MINIATURE 3D & HERO FORGE STUDIO INTEGRATION
     // ============================================================================
 
-    // ============================================================================
-    // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
-    // ============================================================================
-
-    let currentCustomModel = 'berserker';
+    let currentCustomModel = 'berserker'; // 'berserker', 'shieldmaiden', ..., 'jarl', or 'heroforge'
     let currentCustomRingColor = { key: 'amber', hexVal: 0xf59e0b, hexStr: '#f59e0b' };
     let currentCustomPedestal = 'ardesia';
+    let currentHeroForgeScene = null;
+    let currentHeroForgeFileName = '';
+    let currentModelScale = 1.0;
+    let currentModelOffsetY = 0.0;
 
     let previewRenderer = null;
     let previewScene = null;
     let previewCamera = null;
+    let previewControls = null;
     let previewMiniGroup = null;
+
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
+    }
+
+    function base64ToArrayBuffer(base64) {
+      const binary_string = window.atob(base64);
+      const len = binary_string.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function processLoadedHeroForgeScene(scene, fileName, saveToLocal = true) {
+      if (!scene) return;
+
+      const box = new THREE.Box3().setFromObject(scene);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      const maxDim = Math.max(size.y, 0.001);
+      const targetHeight = 1.85;
+      const autoScale = targetHeight / maxDim;
+
+      scene.scale.set(autoScale, autoScale, autoScale);
+      scene.position.x = -center.x * autoScale;
+      scene.position.z = -center.z * autoScale;
+      scene.position.y = -box.min.y * autoScale;
+
+      scene.traverse(node => {
+        if (node.isMesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+          if (node.material) {
+            node.material.side = THREE.DoubleSide;
+          }
+        }
+      });
+
+      const wrapper = new THREE.Group();
+      wrapper.add(scene);
+
+      currentHeroForgeScene = wrapper;
+      currentHeroForgeFileName = fileName || 'Hero Forge Custom';
+      currentCustomModel = 'heroforge';
+
+      const stEl = document.getElementById('heroforge-file-status');
+      if (stEl) {
+        stEl.textContent = `✓ Caricato: ${currentHeroForgeFileName}`;
+        stEl.classList.remove('hidden');
+      }
+
+      const badge = document.getElementById('custom-preview-source-badge');
+      if (badge) {
+        badge.textContent = 'HERO FORGE 3D';
+        badge.className = 'absolute top-2 right-2 pointer-events-none text-[8px] font-mono text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-1.5 py-0.5 rounded uppercase font-bold';
+      }
+
+      document.querySelectorAll('.mini-model-opt').forEach(b => {
+        b.className = 'mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition';
+      });
+
+      updateCustomizerPreview();
+      showToast('🎨 Hero Forge 3D Pronto', `Miniatura caricata con successo e posizionata sul piedistallo!`);
+    }
+
+    window.handleHeroForgeFileSelect = function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) window.loadHeroForgeFile(file);
+    };
+
+    window.loadHeroForgeFile = function(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const reader = new FileReader();
+
+      if (ext === 'glb' || ext === 'gltf') {
+        reader.onload = function(evt) {
+          const buffer = evt.target.result;
+          if (!window.THREE || !window.THREE.GLTFLoader) {
+            showToast('⚠️ Errore Loader', 'GLTFLoader non pronto. Riprova tra un istante.');
+            return;
+          }
+          const loader = new THREE.GLTFLoader();
+          loader.parse(buffer, '', function(gltf) {
+            processLoadedHeroForgeScene(gltf.scene, file.name, true);
+            try {
+              if (buffer.byteLength < 4500000) {
+                const b64 = arrayBufferToBase64(buffer);
+                localStorage.setItem('ginnunga_heroforge_model', b64);
+                localStorage.setItem('ginnunga_heroforge_ext', ext);
+                localStorage.setItem('ginnunga_heroforge_name', file.name);
+              }
+            } catch(e) {
+              console.warn('Hero Forge buffer saved in session only:', e);
+            }
+          }, function(err) {
+            console.error('GLTF parse error:', err);
+            showToast('❌ Errore GLTF', 'Impossibile leggere il file 3D di Hero Forge: ' + (err.message || 'Errore di parsing'));
+          });
+        };
+        reader.readAsArrayBuffer(file);
+
+      } else if (ext === 'obj') {
+        reader.onload = function(evt) {
+          const text = evt.target.result;
+          if (!window.THREE || !window.THREE.OBJLoader) {
+            showToast('⚠️ Errore Loader', 'OBJLoader non pronto.');
+            return;
+          }
+          const loader = new THREE.OBJLoader();
+          try {
+            const obj = loader.parse(text);
+            processLoadedHeroForgeScene(obj, file.name, true);
+          } catch(err) {
+            showToast('❌ Errore OBJ', 'Impossibile leggere il file OBJ: ' + (err.message || ''));
+          }
+        };
+        reader.readAsText(file);
+
+      } else {
+        showToast('⚠️ Formato Non Supportato', 'Carica un file .glb, .gltf o .obj esportato da Hero Forge.');
+      }
+    };
+
+    window.loadHeroForgeSample = function() {
+      const sample = buildSculptedFigure('jarl');
+      const wrapper = new THREE.Group();
+      wrapper.add(sample);
+      processLoadedHeroForgeScene(wrapper, 'Hero Forge Viking Champion (Demo)', false);
+    };
+
+    window.updateHeroForgeScale = function(val) {
+      currentModelScale = parseFloat(val) || 1.0;
+      const el = document.getElementById('heroforge-scale-val');
+      if (el) el.textContent = currentModelScale.toFixed(2) + 'x';
+      const tag = document.getElementById('custom-preview-scale-tag');
+      if (tag) tag.textContent = currentModelScale.toFixed(2) + 'x';
+      updateCustomizerPreview();
+    };
+
+    window.updateHeroForgeOffset = function(val) {
+      currentModelOffsetY = parseFloat(val) || 0.0;
+      const el = document.getElementById('heroforge-offset-val');
+      if (el) el.textContent = (currentModelOffsetY >= 0 ? '+' : '') + currentModelOffsetY.toFixed(2);
+      updateCustomizerPreview();
+    };
+
+    function initHeroForgeDropzone() {
+      const dz = document.getElementById('heroforge-dropzone');
+      if (!dz || dz.dataset.initDone) return;
+      dz.dataset.initDone = 'true';
+
+      ['dragenter', 'dragover'].forEach(evtName => {
+        dz.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.add('border-amber-400', 'bg-amber-500/10');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evtName => {
+        dz.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.remove('border-amber-400', 'bg-amber-500/10');
+        });
+      });
+
+      dz.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+          window.loadHeroForgeFile(dt.files[0]);
+        }
+      });
+    }
+
+    function tryRestoreSavedHeroForgeModel() {
+      if (currentHeroForgeScene) return;
+      try {
+        const b64 = localStorage.getItem('ginnunga_heroforge_model');
+        const ext = localStorage.getItem('ginnunga_heroforge_ext') || 'glb';
+        const name = localStorage.getItem('ginnunga_heroforge_name') || 'heroforge_saved.glb';
+        if (b64 && window.THREE && window.THREE.GLTFLoader && (ext === 'glb' || ext === 'gltf')) {
+          const buffer = base64ToArrayBuffer(b64);
+          const loader = new THREE.GLTFLoader();
+          loader.parse(buffer, '', function(gltf) {
+            processLoadedHeroForgeScene(gltf.scene, name, false);
+          });
+        }
+      } catch(e) {
+        console.warn('Failed restoring Hero Forge model from storage:', e);
+      }
+    }
 
     function initMiniaturePreviewEngine() {
       const canvas = document.getElementById('mini-preview-canvas');
       if (!canvas) return;
 
+      initHeroForgeDropzone();
+
       const rect = canvas.getBoundingClientRect();
       const width = rect.width || 340;
-      const height = rect.height || 224;
+      const height = rect.height || 256;
 
       if (!previewRenderer) {
         previewScene = new THREE.Scene();
@@ -3064,6 +3360,17 @@
         previewRenderer.setSize(width, height);
         previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         previewRenderer.shadowMap.enabled = true;
+
+        if (window.THREE && window.THREE.OrbitControls) {
+          previewControls = new THREE.OrbitControls(previewCamera, canvas);
+          previewControls.enableDamping = true;
+          previewControls.dampingFactor = 0.08;
+          previewControls.autoRotate = true;
+          previewControls.autoRotateSpeed = 1.8;
+          previewControls.minDistance = 1.5;
+          previewControls.maxDistance = 8.0;
+          previewControls.maxPolarAngle = Math.PI / 2 + 0.1;
+        }
 
         const amb = new THREE.AmbientLight(0xdbeafe, 1.3);
         previewScene.add(amb);
@@ -3081,7 +3388,9 @@
 
         function animatePreview() {
           requestAnimationFrame(animatePreview);
-          if (previewMiniGroup) {
+          if (previewControls) {
+            previewControls.update();
+          } else if (previewMiniGroup) {
             previewMiniGroup.rotation.y += 0.016;
           }
           if (previewRenderer && previewScene && previewCamera) {
@@ -3108,6 +3417,7 @@
 
       setTimeout(() => {
         initMiniaturePreviewEngine();
+        tryRestoreSavedHeroForgeModel();
         updateCustomizerPreview();
       }, 80);
     };
@@ -3126,6 +3436,13 @@
           b.className = "mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition";
         }
       });
+
+      const badge = document.getElementById('custom-preview-source-badge');
+      if (badge) {
+        badge.textContent = 'ARCHETIPO 3D';
+        badge.className = 'absolute top-2 right-2 pointer-events-none text-[8px] font-mono text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded uppercase font-bold';
+      }
+
       updateCustomizerPreview();
     };
 
@@ -3159,18 +3476,22 @@
         shieldmaiden: "Guerriera con grande scudo vichingo decorato e lancia da combattimento.",
         runemaster: "Saggio delle rune con mantello cerimoniale e bastone incantato.",
         valkyrie: "Boss celestiale di Odino con ali d'oro spiegate e lancia runica scintillante.",
+        jarl: "Signore della guerra e condottiero norreno con manto di pelliccia regale, corona runica e spada Ulfberht cerimoniale.",
         wolf: "Lupo primordiale di Fenrir con criniera oscura e occhi scarlatti ferali.",
         giant: "Colosso Jotunn delle vette ghiacciate armato di clava runica massiccia.",
-        draugr: "Guerriero non-morto risorto dai tumuli con lama antica arrugginita."
+        draugr: "Guerriero non-morto risorto dai tumuli con lama antica arrugginita.",
+        heroforge: `Miniatura 3D scolpita e importata da Hero Forge Studio [${currentHeroForgeFileName || 'Custom'}]`
       };
       const nameMap = {
         berserker: "Berserker Vichingo",
         shieldmaiden: "Shieldmaiden con Lancia",
         runemaster: "Maestro delle Rune",
         valkyrie: "Valkyria di Odino",
+        jarl: "Jarl Condottiero",
         wolf: "Lupo di Fenrir",
         giant: "Jotunn del Freddo",
-        draugr: "Draugr Risorto"
+        draugr: "Draugr Risorto",
+        heroforge: "Hero Forge 3D"
       };
 
       const ch = getHeroCharacterRecord();
@@ -3187,8 +3508,9 @@
       if (pPed) pPed.textContent = currentCustomPedestal.toUpperCase();
       const pAura = document.getElementById('custom-preview-aura');
       if (pAura) pAura.textContent = currentCustomRingColor.key.toUpperCase();
+      const pScaleTag = document.getElementById('custom-preview-scale-tag');
+      if (pScaleTag) pScaleTag.textContent = currentModelScale.toFixed(2) + 'x';
 
-      // Aggiorna anteprima 3D sul canvas
       if (previewMiniGroup) {
         while (previewMiniGroup.children.length > 0) {
           const c = previewMiniGroup.children[0];
@@ -3205,8 +3527,17 @@
         const tDisc = createTokenDiscMesh(heroAvatar, baseRad);
         previewMiniGroup.add(tDisc);
 
-        const fMesh = buildSculptedFigure(currentCustomModel);
-        previewMiniGroup.add(fMesh);
+        if (currentCustomModel === 'heroforge' && currentHeroForgeScene) {
+          const cloned = currentHeroForgeScene.clone(true);
+          cloned.scale.multiplyScalar(currentModelScale);
+          cloned.position.y = 0.24 + currentModelOffsetY;
+          previewMiniGroup.add(cloned);
+        } else {
+          const fMesh = buildSculptedFigure(currentCustomModel);
+          fMesh.scale.multiplyScalar(currentModelScale);
+          fMesh.position.y += currentModelOffsetY;
+          previewMiniGroup.add(fMesh);
+        }
       }
     }
 
@@ -3250,6 +3581,9 @@
           tileX: tileX,
           tileZ: tileZ,
           modelType: currentCustomModel,
+          heroForgeScene: currentHeroForgeScene,
+          modelScale: currentModelScale,
+          modelOffsetY: currentModelOffsetY,
           ringColor: currentCustomRingColor.hexVal,
           pedestalMaterial: currentCustomPedestal
         });
@@ -3273,6 +3607,9 @@
           tileX: 0,
           tileZ: 1,
           modelType: currentCustomModel,
+          heroForgeScene: currentHeroForgeScene,
+          modelScale: currentModelScale,
+          modelOffsetY: currentModelOffsetY,
           ringColor: currentCustomRingColor.hexVal,
           pedestalMaterial: currentCustomPedestal
         });
@@ -3514,6 +3851,61 @@
         rustySword.position.set(0.55, 1.05, 0.15);
         figGroup.add(rustySword);
 
+      } else if (modelType === 'jarl') {
+        [-0.18, 0.18].forEach(x => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x271e16, roughness: 0.8 }));
+          leg.position.set(x, 0.32, 0);
+          figGroup.add(leg);
+        });
+        const jTorso = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.38, 0.3, 0.85, 10),
+          new THREE.MeshStandardMaterial({ color: 0x991b1b, metalness: 0.4, roughness: 0.5 })
+        );
+        jTorso.position.y = 0.95;
+        figGroup.add(jTorso);
+
+        const furMantle = new THREE.Mesh(
+          new THREE.TorusGeometry(0.42, 0.14, 8, 16),
+          new THREE.MeshStandardMaterial({ color: 0x44403c, roughness: 0.95 })
+        );
+        furMantle.rotation.x = Math.PI / 2;
+        furMantle.position.y = 1.35;
+        figGroup.add(furMantle);
+
+        const cloak = new THREE.Mesh(
+          new THREE.BoxGeometry(0.78, 1.2, 0.12),
+          new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.8 })
+        );
+        cloak.position.set(0, 0.8, -0.3);
+        cloak.rotation.x = 0.1;
+        figGroup.add(cloak);
+
+        const jHead = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), new THREE.MeshStandardMaterial({ color: 0xfbd38d }));
+        jHead.position.y = 1.48;
+        figGroup.add(jHead);
+
+        const crown = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.28, 0.28, 0.12, 8),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 })
+        );
+        crown.position.y = 1.68;
+        figGroup.add(crown);
+
+        const sword = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 1.4, 0.04),
+          new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.95, roughness: 0.15 })
+        );
+        sword.position.set(0.65, 1.35, 0.2);
+        sword.rotation.z = -0.2;
+        figGroup.add(sword);
+
+        const goldHilt = new THREE.Mesh(
+          new THREE.BoxGeometry(0.36, 0.08, 0.08),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 })
+        );
+        goldHilt.position.set(0.65, 0.72, 0.2);
+        figGroup.add(goldHilt);
+
       } else {
         // berserker (default)
         [-0.18, 0.18].forEach(x => {
@@ -3591,6 +3983,8 @@
         initiative: data.initiative || 10,
         conditions: data.conditions || [],
         modelType: data.modelType || 'berserker',
+        modelScale: data.modelScale || 1.0,
+        modelOffsetY: data.modelOffsetY || 0.0,
         ringColor: data.ringColor,
         pedestalMaterial: data.pedestalMaterial || 'ardesia'
       };
@@ -3614,9 +4008,24 @@
       const tokenDisc = createTokenDiscMesh(mini.userData.avatar, baseRadius);
       mini.add(tokenDisc);
 
-      // 4. Figura scolpita 3D
-      const figGroup = buildSculptedFigure(modelType);
-      mini.add(figGroup);
+      // 4. Figura scolpita 3D o Hero Forge 3D
+      if (modelType === 'heroforge' && (data.heroForgeScene || currentHeroForgeScene)) {
+        const src = data.heroForgeScene || currentHeroForgeScene;
+        const cloned = src.clone(true);
+        const sc = data.modelScale || currentModelScale || 1.0;
+        cloned.scale.multiplyScalar(sc);
+        cloned.position.y = 0.24 + (data.modelOffsetY || currentModelOffsetY || 0.0);
+        mini.add(cloned);
+      } else {
+        const figGroup = buildSculptedFigure(modelType);
+        if (data.modelScale && data.modelScale !== 1.0) {
+          figGroup.scale.multiplyScalar(data.modelScale);
+        }
+        if (data.modelOffsetY) {
+          figGroup.position.y += data.modelOffsetY;
+        }
+        mini.add(figGroup);
+      }
 
       // 5. Billboard fluttuante
       const bb = createBillboardSprite(mini.userData);
