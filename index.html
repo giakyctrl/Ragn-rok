@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140'><path d='M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126' fill='none' stroke='%2338bdf8' stroke-width='12'/></svg>">
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
 </head>
 <body class="relative">
 
@@ -240,6 +240,9 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <a href="mappa.html" target="_blank" title="Entra in Ginnungagap (Tavolo Virtuale 3D dei Nove Mondi)" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-sky-500/25 border border-amber-400/60 hover:border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] flex items-center gap-1.5 transition shadow">
+            <span>ᚷ</span> <span class="hidden sm:inline">Ginnungagap 3D</span>
+          </a>
           <button type="button" id="btn-exit-dm-campaign" onclick="window.exitDmCampaignWorkspace()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-[10px] text-sky-300">ESCI CAMPAGNA</button>
           <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 px-2.5 py-1 rounded-lg transition">Esci</button>
         </div>
@@ -421,8 +424,8 @@
             <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
           </div>
           <div class="flex items-center gap-2">
-            <a id="dm-map-link" href="mappa.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/30 transition shadow">
-              <svg class="w-4 h-4 text-amber-400 inline mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> MAPPA TATTICA
+            <a id="dm-map-link" href="mappa.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/40 transition shadow-lg">
+              <span class="text-sm">ᚷ</span> GINNUNGAGAP (VTT 3D)
             </a>
             <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
               <span class="text-[8px] text-slate-400 uppercase block">Codice Sala</span>
@@ -835,11 +838,11 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
-  <script src="data.js?v=25"></script>
-  <script src="rules.js?v=25"></script>
-  <script src="forge.js?v=25"></script>
-  <script src="app.js?v=25"></script>
-  <script src="dm.js?v=25"></script>
+  <script src="data.js?v=26"></script>
+  <script src="rules.js?v=26"></script>
+  <script src="forge.js?v=26"></script>
+  <script src="app.js?v=26"></script>
+  <script src="dm.js?v=26"></script>
 
   <!-- MODALE DETTAGLIO CLAN DI MIDGARDR -->
   <div id="clan-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeClanDetailModal()">

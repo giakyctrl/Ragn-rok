@@ -2689,8 +2689,7 @@ window.renderAllViews = function() {
               <div class="flex items-center gap-2">
                 <a href="mappa.html?camp=${encodeURIComponent(camp.code)}&role=PLAYER" target="_blank"
                    class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-                  MAPPA TATTICA
+                  <span class="text-sm">ᚷ</span> GINNUNGAGAP (VTT 3D)
                 </a>
                 <span class="text-[10px] text-slate-400 font-mono">${membersEntries.length} Eroi</span>
               </div>
