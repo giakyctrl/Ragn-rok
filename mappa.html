@@ -153,24 +153,12 @@
     <!-- SELETTORI CENTRALI: TUTTE LE 26 MAPPE UFFICIALI DAL PDF, METEO DINAMICO & TELECAMERE -->
     <div class="flex items-center gap-2">
       
-      <!-- MENU COMPLETO DELLE 26 MAPPE UFFICIALI (PDF JOURNEY TO RAGNAROK) -->
-      <div class="relative group">
-        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400 transition shadow">
-          <span id="top-world-icon">⚓</span>
-          <span id="top-world-name" class="max-w-[150px] md:max-w-[200px] truncate">Cantiere Navale & Porto</span>
-          <svg class="w-3.5 h-3.5 text-amber-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-
-        <div id="maps-dropdown-container" class="hidden group-hover:block absolute top-full left-0 mt-1 w-80 max-h-96 overflow-y-auto bg-slate-950/98 border border-amber-500/50 rounded-2xl p-2 space-y-2 shadow-2xl z-50 backdrop-blur-xl">
-          <div class="text-[9px] font-cinzel font-bold text-amber-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
-            <span>Mappe Ufficiali (26 Mappe dal PDF)</span>
-            <span class="text-slate-500 text-[8px]">Alta Risoluzione</span>
-          </div>
-          <div id="maps-list-by-acts" class="space-y-1 text-xs">
-            <!-- Popolato dinamicamente da MAPS_MANIFEST -->
-          </div>
-        </div>
-      </div>
+      <!-- SELETTORE MAPPE UFFICIALI (APRE IL MODALE OPACO NON TRASPARENTE) -->
+      <button onclick="window.openMapSelectorModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/50 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400 hover:bg-slate-800 transition shadow">
+        <span id="top-world-icon">🗺️</span>
+        <span id="top-world-name" class="max-w-[150px] md:max-w-[200px] truncate">Cantiere Navale & Porto</span>
+        <svg class="w-3.5 h-3.5 text-amber-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
 
       <!-- SELETTORE METEO DINAMICO & VISIVO -->
       <div class="relative group">
@@ -178,7 +166,7 @@
           <span id="top-weather-icon">☀️</span>
           <span id="top-weather-name">Sereno</span>
         </button>
-        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-56 bg-slate-950/95 border border-sky-500/40 rounded-xl p-1.5 space-y-1 shadow-2xl z-50 backdrop-blur-md">
+        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-56 bg-slate-950 border border-sky-500/40 rounded-xl p-1.5 space-y-1 shadow-2xl z-50">
           <div class="text-[9px] font-cinzel font-bold text-sky-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Condizioni Meteo Dinamiche</div>
           <button onclick="window.setWeather('clear')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">☀️ Sole dei Fiordi (Sereno)</button>
           <button onclick="window.setWeather('blizzard')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">❄️ Bufera Fimbulwinter (Neve)</button>
@@ -207,22 +195,19 @@
 
     </div>
 
-    <!-- STRUMENTI GENERALI: TOGGLE DIALOGO LIVE, DADI 3D, SCHEDA PERSONAGGIO -->
+    <!-- STRUMENTI GENERALI: PERSONALIZZAZIONE MINIATURA, SCHEDA EROE OVERLAY, RITORNO A YGGDRASILL -->
     <div class="flex items-center gap-2">
-      <!-- Pulsante Console Combattimento & Dialogo Live con Badge -->
-      <button onclick="window.toggleDialogueConsole()" class="relative px-3 py-1.5 rounded-xl bg-slate-900 border border-sky-400/50 text-sky-300 hover:border-sky-300 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow">
-        <span>💬</span> <span class="hidden md:inline">Dialogo & Feed</span>
-        <span id="unread-combat-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white font-mono text-[9px] font-bold flex items-center justify-center">1</span>
+      <!-- Pulsante Fucina Miniatura -->
+      <button type="button" onclick="window.openMiniatureCustomizer()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-cinzel font-extrabold text-xs shadow hover:brightness-110 flex items-center gap-1.5">
+        <span>🎨</span> <span class="hidden sm:inline">Miniatura</span>
       </button>
 
-      <button onclick="window.openDicePhysicsModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-cinzel font-extrabold text-xs shadow hover:brightness-110 flex items-center gap-1.5">
-        <span>🎲</span> <span class="hidden md:inline">Dadi 3D</span>
-      </button>
-
+      <!-- Pulsante Scheda Eroe Overlay BG3 -->
       <button type="button" onclick="window.toggleHeroSheetOverlayBG3()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-500/30 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow">
         <span>📜</span> <span class="hidden sm:inline">Scheda Eroe</span>
       </button>
 
+      <!-- Ritorno a Yggdrasill -->
       <button type="button" onclick="window.returnToYggdrasill()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1.5 transition">
         <span>↩️</span> <span class="hidden sm:inline">Yggdrasill</span>
       </button>
@@ -243,9 +228,6 @@
 
     <!-- Controlli Turno & Ritiro Iniziativa -->
     <div class="flex items-center gap-2">
-      <button onclick="window.rollPartyInitiative()" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/40 hover:border-amber-400 text-amber-300 text-[10px] font-cinzel font-bold flex items-center gap-1">
-        <span>🎲</span> Tira Iniziativa
-      </button>
       <button onclick="window.bg3NextTurn()" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 text-[10px] font-cinzel font-extrabold shadow flex items-center gap-1 hover:brightness-110">
         <span>Passa Turno ➔</span>
       </button>
@@ -330,61 +312,6 @@
     <span>⚖️</span> Pannello DM
   </button>
 
-  <!-- 6. CONSOLE DI DIALOGO & COMBATTIMENTO LIVE (FEED & COMUNICAZIONE DM <-> PLAYER) -->
-  <aside id="dialogue-combat-console" class="dialogue-console absolute top-28 right-4 z-40 w-88 md:w-96 rounded-2xl flex flex-col shadow-2xl transition-all duration-300" style="height: 480px;">
-    <!-- HEADER CONSOLE -->
-    <div class="p-3 border-b border-amber-500/30 flex items-center justify-between bg-slate-950/70 rounded-t-2xl">
-      <div class="flex items-center gap-2">
-        <span class="text-amber-400 text-sm">⚔️</span>
-        <div>
-          <h3 class="font-cinzel font-bold text-xs text-amber-300">Dialogo & Feed Combattimento</h3>
-          <span class="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sincronizzato in Tempo Reale
-          </span>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <button onclick="window.clearDialogueFeed()" title="Pulisci Feed" class="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-slate-800">
-          🧹
-        </button>
-        <button onclick="window.toggleDialogueConsole()" class="text-slate-400 hover:text-white text-base leading-none px-1">&times;</button>
-      </div>
-    </div>
-
-    <!-- SELETTORE TAB: COMBAT LOG / CHAT DIALOGO -->
-    <div class="flex border-b border-slate-800 bg-slate-950/40 text-[10px] font-cinzel font-bold">
-      <button id="tab-btn-combat-log" onclick="window.switchConsoleTab('combat')" class="flex-1 py-1.5 border-b-2 border-amber-400 text-amber-300 text-center">
-        Log Azioni & Attacchi
-      </button>
-      <button id="tab-btn-chat" onclick="window.switchConsoleTab('chat')" class="flex-1 py-1.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 text-center">
-        Chat DM & Party
-      </button>
-    </div>
-
-    <!-- AREA FEED COMBATTIMENTO -->
-    <div id="console-combat-feed" class="flex-1 overflow-y-auto p-2.5 space-y-2 text-xs">
-      <!-- Generato in tempo reale -->
-      <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 text-[11px] leading-relaxed">
-        <span class="text-amber-400 font-cinzel font-bold block mb-0.5">ᚱ Benvenuto in Ginnungagap</span>
-        La sessione è attiva. Le azioni, i tiri per colpire vs CA, le reazioni e i decreti del DM appariranno qui istantaneamente.
-      </div>
-    </div>
-
-    <!-- AREA CHAT SESSIONE -->
-    <div id="console-chat-feed" class="hidden flex-1 overflow-y-auto p-2.5 space-y-2 text-xs">
-      <!-- Generato per messaggi DM e Giocatori -->
-    </div>
-
-    <!-- INPUT INVIO MESSAGGIO DIALOGO -->
-    <div class="p-2 border-t border-slate-800 bg-slate-950/90 rounded-b-2xl">
-      <form onsubmit="window.sendChatMessage(event)" class="flex items-center gap-1.5">
-        <input type="text" id="chat-input-text" placeholder="Scrivi al DM o al party..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400">
-        <button type="submit" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-cinzel font-bold text-xs">
-          Invia
-        </button>
-      </form>
-    </div>
-  </aside>
 
   <!-- 7. UI ALLA BALDUR'S GATE III (BG3 BOTTOM ACTION BAR PER GIOCATORI & EROI) -->
   <div id="bg3-bottom-bar" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-40 w-[96%] max-w-5xl bg3-hud rounded-3xl p-3 border border-amber-500/40 flex items-center justify-between gap-4 shadow-2xl">
@@ -472,10 +399,11 @@
           <span class="text-[7px] font-cinzel font-bold text-amber-400 uppercase">Rune</span>
         </button>
 
-        <!-- 7. Pozione di Guarigione (Azione Bonus) -->
-        <button onclick="window.bg3Action('potion')" title="Bevi Pozione di Guarigione (2d4+2 PF)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 7. Pozione di Guarigione (Azione Bonus con verifica inventario) -->
+        <button id="bg3-slot-potion" onclick="window.bg3Action('potion')" title="Bevi Pozione di Guarigione (2d4+2 PF)" class="bg3-slot relative w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <span class="text-base text-pink-400 group-hover:scale-110 transition">🧪</span>
           <span class="text-[7px] font-cinzel font-bold text-pink-300 uppercase">Pozione</span>
+          <span id="bg3-potion-count" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white font-mono text-[8px] font-black px-1.5 py-0.2 rounded-full border border-pink-400 shadow">0</span>
         </button>
 
         <!-- 8. Reazione: Parata con Scudo Vichingo / Scudo Runico -->
@@ -591,27 +519,171 @@
     </div>
   </div>
 
-  <!-- 11. MODALE LANCIO DADI 3D CON FISICA -->
-  <div id="modal-dice-physics" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-950 border border-amber-400 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase">Lancio Dadi 3D Fisici</h3>
-        <button onclick="document.getElementById('modal-dice-physics').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+  <!-- 11. MODALE SELETTORE MAPPE OPACO E SOLIDO (26 MAPPE UFFICIALI NORDICHE) -->
+  <div id="modal-map-selector" class="hidden fixed inset-0 z-50 bg-[#06090e]/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
+      <!-- HEADER MODALE MAPPE -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/30 bg-slate-950/80">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl text-amber-400">🗺️</span>
+          <div>
+            <h3 class="font-cinzel-dec font-black text-sm md:text-base text-amber-300 uppercase tracking-wider">
+              26 Mappe Ufficiali di Ginnungagap
+            </h3>
+            <span class="text-[10px] text-slate-400">Cartografia Ufficiale da "Journey to Ragnarok" &bull; Seleziona per caricare nel 3D</span>
+          </div>
+        </div>
+        <button onclick="window.closeMapSelectorModal()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
       </div>
-      <div class="grid grid-cols-3 gap-3">
-        <button onclick="window.rollPhysicsDie('d20')" class="p-3 rounded-2xl bg-slate-900 border border-amber-500/40 hover:border-amber-400 font-cinzel font-black text-lg text-amber-300">d20</button>
-        <button onclick="window.rollPhysicsDie('d12')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-sky-400 font-cinzel font-black text-lg text-sky-300">d12</button>
-        <button onclick="window.rollPhysicsDie('d10')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-emerald-400 font-cinzel font-black text-lg text-emerald-300">d10</button>
-        <button onclick="window.rollPhysicsDie('d8')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-amber-400 font-cinzel font-black text-lg text-amber-200">d8</button>
-        <button onclick="window.rollPhysicsDie('d6')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-purple-400 font-cinzel font-black text-lg text-purple-300">d6</button>
-        <button onclick="window.rollPhysicsDie('d4')" class="p-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-pink-400 font-cinzel font-black text-lg text-pink-300">d4</button>
+
+      <!-- FILTRI PER ATTO -->
+      <div class="flex items-center gap-1.5 px-6 py-2.5 border-b border-slate-800 bg-slate-900/60 overflow-x-auto">
+        <button onclick="window.filterMapSelectorByAct('all')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-amber-500 text-slate-950 shadow" data-act="all">Tutte (26)</button>
+        <button onclick="window.filterMapSelectorByAct('Atto 0')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto 0">Atto 0: Cosmologia</button>
+        <button onclick="window.filterMapSelectorByAct('Atto I')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto I">Atto I: Norvegr</button>
+        <button onclick="window.filterMapSelectorByAct('Atto II')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto II">Atto II: Svitjod & Jutland</button>
+        <button onclick="window.filterMapSelectorByAct('Atto Finale')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto Finale">Atto Finale: Ragnarok</button>
       </div>
-      <div class="flex items-center gap-2 pt-2">
-        <label class="text-xs text-slate-400">Modificatore Caratteristica:</label>
-        <input type="number" id="dice-mod-val" value="0" class="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1 text-center font-bold text-white text-xs">
+
+      <!-- GRIGLIA SCHEDE MAPPE -->
+      <div id="map-selector-grid" class="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-[#080d17]">
+        <!-- Popolato dinamicamente da JS con rendering solido e copertine -->
       </div>
     </div>
   </div>
+
+  <!-- 11b. MODALE PERSONALIZZAZIONE MINIATURA 3D (PRE-MAP POPUP & FUCINA) -->
+  <div id="modal-miniature-customizer" class="hidden fixed inset-0 z-50 bg-[#06090e]/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
+      <!-- HEADER FUCINA -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/30 bg-slate-950/80">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl text-amber-400">🎨</span>
+          <div>
+            <h3 class="font-cinzel-dec font-black text-sm md:text-base text-amber-300 uppercase tracking-wider">
+              Fucina Miniature 3D di Ginnungagap
+            </h3>
+            <span class="text-[10px] text-slate-400">Personalizza la tua miniatura prima di scendere sul campo di battaglia</span>
+          </div>
+        </div>
+        <button onclick="window.closeMiniatureCustomizer()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
+      </div>
+
+      <!-- CORPO FUCINA -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-[#080d17]">
+        <!-- ANTEPRIMA MINIATURA LIVE -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 flex items-center gap-4 shadow-inner">
+          <div class="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-400 flex items-center justify-center bg-slate-900 shadow-lg flex-shrink-0">
+            <img id="custom-preview-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-full h-full object-cover">
+            <div id="custom-preview-ring" class="absolute inset-0 rounded-2xl border-4 border-amber-400 pointer-events-none shadow-[0_0_15px_rgba(245,158,11,0.8)]"></div>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <h4 id="custom-preview-name" class="font-cinzel font-black text-sm text-white">Ragnar Lodbrok</h4>
+              <span id="custom-preview-tag" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase border border-amber-500/30">Modello: Berserker</span>
+            </div>
+            <p id="custom-preview-desc" class="text-[11px] text-slate-300 mt-1 leading-snug">
+              Guerriero d'assalto con ascia da battaglia e mantello di lupo.
+            </p>
+            <div class="flex items-center gap-2 mt-2 text-[10px]">
+              <span class="text-slate-400">Piedistallo: <strong id="custom-preview-pedestal" class="text-sky-300">Ardesia Runica</strong></span> &bull;
+              <span class="text-slate-400">Aura: <strong id="custom-preview-aura" class="text-amber-400">Ambra di Freya</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. SCELTA MODELLO 3D FIGURINA -->
+        <div class="space-y-2">
+          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">1. Scegli Modello Scolpito 3D:</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button type="button" onclick="window.selectMiniatureModel('berserker')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition" data-model="berserker">
+              <div class="font-cinzel font-bold text-xs text-amber-300">🪓 Berserker</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Spada Ulfberht & Scudo rotondo</span>
+            </button>
+            <button type="button" onclick="window.selectMiniatureModel('shieldmaiden')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="shieldmaiden">
+              <div class="font-cinzel font-bold text-xs text-sky-300">🛡️ Shieldmaiden</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Grande Scudo & Lancia lunga</span>
+            </button>
+            <button type="button" onclick="window.selectMiniatureModel('runemaster')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="runemaster">
+              <div class="font-cinzel font-bold text-xs text-purple-300">⚡ Runemaster</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Cappuccio & Bastone delle Rune</span>
+            </button>
+            <button type="button" onclick="window.selectMiniatureModel('valkyrie')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="valkyrie">
+              <div class="font-cinzel font-bold text-xs text-amber-200">🪽 Valkyria</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Ali dorate & Lancia di luce</span>
+            </button>
+            <button type="button" onclick="window.selectMiniatureModel('wolf')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="wolf">
+              <div class="font-cinzel font-bold text-xs text-red-300">🐺 Fenrir Wolf</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Lupo predatore quadrupede</span>
+            </button>
+            <button type="button" onclick="window.selectMiniatureModel('giant')" class="mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="giant">
+              <div class="font-cinzel font-bold text-xs text-cyan-300">❄️ Jotunn Giant</div>
+              <span class="text-[9px] text-slate-400 block mt-0.5">Colosso di ghiaccio & clava</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. SCELTA AURA ANELLO DI FAZIONE -->
+        <div class="space-y-2">
+          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">2. Colore Anello Runico della Fazione:</label>
+          <div class="grid grid-cols-5 gap-2 text-center">
+            <button type="button" onclick="window.selectRingColor('amber', 0xf59e0b, '#f59e0b')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt" data-color="amber">
+              <span class="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+              <span class="text-[9px] font-bold text-amber-300">Ambra</span>
+            </button>
+            <button type="button" onclick="window.selectRingColor('frost', 0x38bdf8, '#38bdf8')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 flex flex-col items-center gap-1 ring-color-opt" data-color="frost">
+              <span class="w-4 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
+              <span class="text-[9px] font-bold text-sky-300">Gelo</span>
+            </button>
+            <button type="button" onclick="window.selectRingColor('emerald', 0x10b981, '#10b981')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-400 flex flex-col items-center gap-1 ring-color-opt" data-color="emerald">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+              <span class="text-[9px] font-bold text-emerald-300">Smeraldo</span>
+            </button>
+            <button type="button" onclick="window.selectRingColor('blood', 0xef4444, '#ef4444')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-400 flex flex-col items-center gap-1 ring-color-opt" data-color="blood">
+              <span class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
+              <span class="text-[9px] font-bold text-red-300">Sangue</span>
+            </button>
+            <button type="button" onclick="window.selectRingColor('rune', 0xa855f7, '#a855f7')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-purple-400 flex flex-col items-center gap-1 ring-color-opt" data-color="rune">
+              <span class="w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
+              <span class="text-[9px] font-bold text-purple-300">Runa</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. MATERIALE DEL PIEDISTALLO -->
+        <div class="space-y-2">
+          <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Materiale Piedistallo Bisellato:</label>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <button type="button" onclick="window.selectPedestalMaterial('ardesia')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt" data-pedestal="ardesia">
+              <span class="text-sm">🪨</span>
+              <span class="text-[9px] font-bold text-white block mt-0.5">Ardesia</span>
+            </button>
+            <button type="button" onclick="window.selectPedestalMaterial('ossidiana')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="ossidiana">
+              <span class="text-sm">💎</span>
+              <span class="text-[9px] font-bold text-slate-300 block mt-0.5">Ossidiana</span>
+            </button>
+            <button type="button" onclick="window.selectPedestalMaterial('ghiaccio')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 pedestal-opt" data-pedestal="ghiaccio">
+              <span class="text-sm">🧊</span>
+              <span class="text-[9px] font-bold text-sky-200 block mt-0.5">Ghiaccio</span>
+            </button>
+            <button type="button" onclick="window.selectPedestalMaterial('bronzo')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="bronzo">
+              <span class="text-sm">🪙</span>
+              <span class="text-[9px] font-bold text-amber-200 block mt-0.5">Bronzo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER CON PULSANTE SCHIERAMENTO -->
+      <div class="p-4 border-t border-amber-500/30 bg-slate-950 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">Tutto pronto per Ginnungagap</span>
+        <button onclick="window.confirmMiniatureCustomization()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow-xl hover:brightness-110 flex items-center gap-2">
+          <span>⚔️ SCHIERA MINIATURA NEL MONDO 3D</span> ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- 12. MODALE INCANTESIMI & RUNE 3D NORRENE -->
   <div id="modal-spells-vfx" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -646,80 +718,186 @@
     </div>
   </div>
 
-  <!-- 13. MODALE SCHEDA PERSONAGGIO OVERLAY BG3 (ACCESSIBILE DIRETTAMENTE DAL 3D) -->
-  <div id="modal-hero-sheet-bg3" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-950/98 border-2 border-amber-400 rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-5 space-y-4 shadow-[0_0_50px_rgba(201,160,80,0.5)]">
-      <!-- HEADER SCHEDA BG3 -->
-      <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
-        <div class="flex items-center gap-3">
-          <img id="bg3-overlay-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-12 h-12 rounded-xl object-cover border-2 border-amber-400 shadow">
+  <!-- 13. MODALE SCHEDA PERSONAGGIO OVERLAY BG3 (REWORK COMPLETO CON 4 SLOT ARMATURA, ARMI, CONSUMABILI & ZAINO) -->
+  <div id="modal-hero-sheet-bg3" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+    <div class="bg-[#0b101b] border-2 border-amber-500 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-[0_0_60px_rgba(201,160,80,0.6)] overflow-hidden">
+      <!-- HEADER SCHEDA EROE BG3 -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/30 bg-slate-950/80">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <img id="bg3-overlay-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-md">
+            <span id="bg3-overlay-level-badge" class="absolute -bottom-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-md font-mono">Lv.3</span>
+          </div>
           <div>
-            <h3 id="bg3-overlay-name" class="font-cinzel font-black text-base text-white">Ragnar Lodbrok</h3>
-            <span id="bg3-overlay-sub" class="text-[10px] text-amber-300 font-bold uppercase">Barbaro Liv. 3 &bull; Guerrieri dell'Orso</span>
+            <div class="flex items-center gap-2">
+              <h3 id="bg3-overlay-name" class="font-cinzel font-black text-base text-white">Ragnar Lodbrok</h3>
+              <span id="bg3-overlay-clan-tag" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase border border-amber-500/30">Guerrieri dell'Orso</span>
+            </div>
+            <p id="bg3-overlay-sub" class="text-[11px] text-slate-400 font-medium">Barbaro dei Nove Mondi &bull; Background: Guerriero del Clan</p>
           </div>
         </div>
-        <button onclick="window.toggleHeroSheetOverlayBG3()" class="text-slate-400 hover:text-white text-xl font-bold px-2 py-1">&times;</button>
+        <button onclick="window.toggleHeroSheetOverlayBG3()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 py-1">&times;</button>
       </div>
 
-      <!-- CARATTERISTICHE 5E -->
-      <div class="grid grid-cols-6 gap-1.5 text-center">
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">FOR</span>
-          <span id="bg3-stat-for" class="font-cinzel font-bold text-sm text-white">16</span>
-          <span class="text-[8px] text-emerald-400 block font-mono">+3</span>
+      <!-- CORPO SCHEDA CON TABS O SCROLLING BG3 -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#080d17]">
+        <!-- 1. CARATTERISTICHE 5E -->
+        <div class="grid grid-cols-6 gap-2 text-center">
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">FOR</span>
+            <span id="bg3-stat-for" class="font-cinzel font-black text-sm text-white">16</span>
+            <span class="text-[9px] text-emerald-400 block font-mono font-bold">+3</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">DES</span>
+            <span id="bg3-stat-des" class="font-cinzel font-black text-sm text-white">14</span>
+            <span class="text-[9px] text-emerald-400 block font-mono font-bold">+2</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">COS</span>
+            <span id="bg3-stat-cos" class="font-cinzel font-black text-sm text-white">16</span>
+            <span class="text-[9px] text-emerald-400 block font-mono font-bold">+3</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">INT</span>
+            <span id="bg3-stat-int" class="font-cinzel font-black text-sm text-white">10</span>
+            <span class="text-[9px] text-slate-400 block font-mono font-bold">+0</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">SAG</span>
+            <span id="bg3-stat-sag" class="font-cinzel font-black text-sm text-white">12</span>
+            <span class="text-[9px] text-emerald-400 block font-mono font-bold">+1</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">CAR</span>
+            <span id="bg3-stat-car" class="font-cinzel font-black text-sm text-white">10</span>
+            <span class="text-[9px] text-slate-400 block font-mono font-bold">+0</span>
+          </div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">DES</span>
-          <span id="bg3-stat-des" class="font-cinzel font-bold text-sm text-white">14</span>
-          <span class="text-[8px] text-emerald-400 block font-mono">+2</span>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">COS</span>
-          <span id="bg3-stat-cos" class="font-cinzel font-bold text-sm text-white">16</span>
-          <span class="text-[8px] text-emerald-400 block font-mono">+3</span>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">INT</span>
-          <span id="bg3-stat-int" class="font-cinzel font-bold text-sm text-white">10</span>
-          <span class="text-[8px] text-slate-400 block font-mono">+0</span>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">SAG</span>
-          <span id="bg3-stat-sag" class="font-cinzel font-bold text-sm text-white">12</span>
-          <span class="text-[8px] text-emerald-400 block font-mono">+1</span>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-          <span class="text-[8px] text-slate-400 uppercase font-bold block">CAR</span>
-          <span id="bg3-stat-car" class="font-cinzel font-bold text-sm text-white">10</span>
-          <span class="text-[8px] text-slate-400 block font-mono">+0</span>
-        </div>
-      </div>
 
-      <!-- STATUS, MONETE & COMBAT STATS -->
-      <div class="grid grid-cols-3 gap-2 text-xs">
-        <div class="bg-slate-900 border border-emerald-500/30 p-2.5 rounded-xl flex items-center justify-between">
-          <span class="text-slate-400">Punti Ferita</span>
-          <span id="bg3-overlay-hp" class="font-mono font-bold text-emerald-400">28/28 PF</span>
+        <!-- 2. STATUS VITALE, CA, VELOCITÀ & MONETE D'ORO NORDICHE -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div class="bg-slate-900 border border-emerald-500/30 p-2.5 rounded-xl flex items-center justify-between">
+            <span class="text-slate-400">Punti Ferita</span>
+            <span id="bg3-overlay-hp" class="font-mono font-bold text-emerald-400">28/28 PF</span>
+          </div>
+          <div class="bg-slate-900 border border-amber-500/40 p-2.5 rounded-xl flex items-center justify-between">
+            <span class="text-slate-400">Classe Armatura</span>
+            <span id="bg3-overlay-ac" class="font-mono font-bold text-amber-300">16 CA</span>
+          </div>
+          <div class="bg-slate-900 border border-sky-500/30 p-2.5 rounded-xl flex items-center justify-between">
+            <span class="text-slate-400">Velocità Base</span>
+            <span id="bg3-overlay-speed" class="font-mono font-bold text-sky-300">9.0m (6 Cas.)</span>
+          </div>
+          <div class="bg-slate-900 border border-amber-400/50 p-2.5 rounded-xl flex items-center justify-between">
+            <span class="text-slate-400">Monete d'Oro</span>
+            <div class="flex items-center gap-1.5">
+              <span id="bg3-overlay-gold" class="font-mono font-bold text-amber-300">🪙 1,000</span>
+              <button onclick="window.promptAdjustGold()" title="Modifica Monete d'Oro" class="text-[10px] text-slate-400 hover:text-amber-300">✏️</button>
+            </div>
+          </div>
         </div>
-        <div class="bg-slate-900 border border-amber-500/30 p-2.5 rounded-xl flex items-center justify-between">
-          <span class="text-slate-400">Classe Armatura</span>
-          <span id="bg3-overlay-ac" class="font-mono font-bold text-amber-300">16 CA</span>
-        </div>
-        <div class="bg-slate-900 border border-amber-500/40 p-2.5 rounded-xl flex items-center justify-between">
-          <span class="text-slate-400">Monete d'Oro</span>
-          <span id="bg3-overlay-gold" class="font-mono font-bold text-amber-300 flex items-center gap-1">🪙 1,000</span>
-        </div>
-      </div>
 
-      <!-- EQUIPAGGIAMENTO E CARTE DELL'EROE -->
-      <div class="space-y-1.5 border-t border-slate-800 pt-3">
-        <span class="font-cinzel font-bold text-[10px] text-sky-400 uppercase tracking-wider block">Equipaggiamento Attivo & Carte:</span>
-        <div id="bg3-overlay-cards" class="grid grid-cols-2 gap-2 text-xs">
-          <!-- Popolato dinamicamente da DB locale -->
+        <!-- 3. SLOTS EQUIPAGGIAMENTO ATTIVO ALLA BALDUR'S GATE III (4 PEZZI ARMATURA + 2 MANI) -->
+        <div class="space-y-2 border-t border-slate-800 pt-3">
+          <div class="flex justify-between items-center">
+            <span class="font-cinzel font-bold text-[11px] text-amber-400 uppercase tracking-wider">
+              🛡️ Equipaggiamento Indossato (4 Slot Armatura & Mani):
+            </span>
+            <span class="text-[9px] text-slate-500">I bonus aggiornano CA e Attacco in tempo reale</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- SLOT 1: ELMO -->
+            <div id="slot-card-elmo" class="bg-slate-900 border border-slate-700 p-2 rounded-xl flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-base">🪖</div>
+              <div class="overflow-hidden">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Elmo (Testa)</span>
+                <span id="slot-name-elmo" class="font-cinzel font-bold text-[10px] text-slate-300 truncate block">Elmo Gjermundbu</span>
+              </div>
+            </div>
+
+            <!-- SLOT 2: BUSTO / CORAZZA -->
+            <div id="slot-card-busto" class="bg-slate-900 border border-amber-500/50 p-2 rounded-xl flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-slate-950 border border-amber-500/40 flex items-center justify-center text-base">🛡️</div>
+              <div class="overflow-hidden">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Busto (Corazza)</span>
+                <span id="slot-name-busto" class="font-cinzel font-bold text-[10px] text-amber-300 truncate block">Cotta di Maglia</span>
+              </div>
+            </div>
+
+            <!-- SLOT 3: GAMBE -->
+            <div id="slot-card-gambe" class="bg-slate-900 border border-slate-700 p-2 rounded-xl flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-base">👖</div>
+              <div class="overflow-hidden">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Gambe (Cosciali)</span>
+                <span id="slot-name-gambe" class="font-cinzel font-bold text-[10px] text-slate-300 truncate block">Pantaloni in Lana & Cuoio</span>
+              </div>
+            </div>
+
+            <!-- SLOT 4: PIEDI -->
+            <div id="slot-card-piedi" class="bg-slate-900 border border-slate-700 p-2 rounded-xl flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-base">🥾</div>
+              <div class="overflow-hidden">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Piedi (Stivali)</span>
+                <span id="slot-name-piedi" class="font-cinzel font-bold text-[10px] text-slate-300 truncate block">Stivali da Marcia Norreni</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLOTS MANI: ARMA & SCUDO -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+            <!-- MANO PRINCIPALE -->
+            <div id="slot-card-arma" class="bg-slate-900 border border-amber-500/50 p-2.5 rounded-xl flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-950 border border-amber-500/40 flex items-center justify-center text-xl">⚔️</div>
+              <div class="overflow-hidden flex-1">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Mano Principale (Arma)</span>
+                <span id="slot-name-arma" class="font-cinzel font-bold text-xs text-amber-300 truncate block">Spada Ulfberht Runica</span>
+                <span id="slot-desc-arma" class="text-[9px] text-slate-400 block font-mono">Danno: 1d8+3 Tagliente &bull; Bonus Attacco: +5</span>
+              </div>
+            </div>
+
+            <!-- MANO SECONDARIA -->
+            <div id="slot-card-scudo" class="bg-slate-900 border border-sky-500/50 p-2.5 rounded-xl flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-950 border border-sky-500/40 flex items-center justify-center text-xl">🛡️</div>
+              <div class="overflow-hidden flex-1">
+                <span class="text-[8px] text-slate-400 uppercase font-bold block">Mano Secondaria (Scudo / Secondaria)</span>
+                <span id="slot-name-scudo" class="font-cinzel font-bold text-xs text-sky-300 truncate block">Scudo Tondo con Umbone</span>
+                <span id="slot-desc-scudo" class="text-[9px] text-slate-400 block font-mono">+2 CA &bull; Parata Reattiva</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. CONSUMABILI: POZIONI DI GUARIGIONE ED ERBE MEDICINALI -->
+        <div class="space-y-2 border-t border-slate-800 pt-3">
+          <div class="flex justify-between items-center">
+            <span class="font-cinzel font-bold text-[11px] text-pink-400 uppercase tracking-wider">
+              🧪 Pozioni di Guarigione & Erbe nell'Inventario:
+            </span>
+            <span id="bg3-potions-summary" class="text-[10px] font-mono text-pink-300 font-bold">2 Pozioni disponibili</span>
+          </div>
+          <div id="bg3-potions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <!-- Popolato dinamicamente da JS -->
+          </div>
+        </div>
+
+        <!-- 5. INVENTARIO COMPLETO DELLE CARTE & EQUIPAGGIAMENTO -->
+        <div class="space-y-2 border-t border-slate-800 pt-3">
+          <div class="flex justify-between items-center">
+            <span class="font-cinzel font-bold text-[11px] text-sky-400 uppercase tracking-wider">
+              🎒 Zaino Completo & Carte Possedute:
+            </span>
+            <span class="text-[9px] text-slate-500">Clicca su una carta per equipaggiarla nello slot corrispondente</span>
+          </div>
+          <div id="bg3-overlay-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <!-- Popolato dinamicamente da DB locale -->
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 
   <!-- TOAST NOTIFICHE EVENTI -->
   <div id="sigil-event-toast" class="hidden fixed bottom-28 left-6 z-50 bg-slate-950/95 border border-amber-500/50 rounded-2xl px-4 py-3 shadow-2xl backdrop-blur-md max-w-sm animate-fade-in flex items-start gap-3">
@@ -796,7 +974,7 @@
     };
 
     let scene, camera, renderer, controls;
-    let groundGroup, worldGroup, minisGroup, vectorGroup, fxGroup, fogGroup;
+    let groundGroup, worldGroup, minisGroup, vectorGroup, fxGroup, fogGroup, structuresGroup;
     let gridHelper, dragPlane, raycaster, mouse;
     let isDraggingMini = false, dragMini = null, dragStartTile = null;
     let ambientLight, directionalLight, broadBus = null;
@@ -849,6 +1027,7 @@
       groundGroup = new THREE.Group(); scene.add(groundGroup);
       worldGroup = new THREE.Group(); scene.add(worldGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
+      structuresGroup = new THREE.Group(); scene.add(structuresGroup);
       vectorGroup = new THREE.Group(); scene.add(vectorGroup);
       fxGroup = new THREE.Group(); scene.add(fxGroup);
       fogGroup = new THREE.Group(); scene.add(fogGroup);
@@ -880,107 +1059,448 @@
     // CARICAMENTO MAPPE DAL PDF IN ALTA RISOLUZIONE SUL TERRENO
     // ============================================================================
 
-    function populateMapsDropdown() {
-      const container = document.getElementById('maps-list-by-acts');
-      if (!container) return;
-      container.innerHTML = '';
+    // ============================================================================
+    // SELETTORE MAPPE UFFICIALI OPACO (26 MAPPE) & COSTRUZIONE STRUTTURE 3D
+    // ============================================================================
 
-      // Raggruppa le mappe per Atto
-      const acts = {};
-      MAPS_MANIFEST.forEach(m => {
-        if (!acts[m.act]) acts[m.act] = [];
-        acts[m.act].push(m);
-      });
+    function renderMapSelectorGrid(filterAct = 'all') {
+      const grid = document.getElementById('map-selector-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
 
-      Object.keys(acts).forEach(actName => {
-        const actDiv = document.createElement('div');
-        actDiv.className = 'pt-1.5 pb-0.5';
-        actDiv.innerHTML = `<div class="text-[9px] font-cinzel font-bold text-amber-500 uppercase tracking-wider mb-1 px-1 border-b border-slate-800">${actName}</div>`;
-        
-        const listDiv = document.createElement('div');
-        listDiv.className = 'space-y-0.5';
+      const filtered = (filterAct === 'all') 
+        ? MAPS_MANIFEST 
+        : MAPS_MANIFEST.filter(m => m.act === filterAct);
 
-        acts[actName].forEach(mapItem => {
-          const btn = document.createElement('button');
-          btn.className = "w-full text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center justify-between transition";
-          btn.innerHTML = `
-            <span class="truncate pr-1">${mapItem.title}</span>
-            <span class="text-[9px] text-slate-500">${mapItem.cellsW}x${mapItem.cellsH}</span>
-          `;
-          btn.onclick = () => {
-            loadBattleMap(mapItem.id, true);
-          };
-          listDiv.appendChild(btn);
-        });
-
-        actDiv.appendChild(listDiv);
-        container.appendChild(actDiv);
+      filtered.forEach(m => {
+        const card = document.createElement('div');
+        const isCurrent = (window.Ginnungagap.activeMapId === m.id);
+        card.className = `bg-slate-950 border ${isCurrent ? 'border-amber-400 bg-amber-950/20' : 'border-slate-800 hover:border-amber-400/80'} rounded-2xl p-3 flex flex-col justify-between transition-all duration-200 group shadow-lg`;
+        card.innerHTML = `
+          <div>
+            <div class="relative w-full h-32 rounded-xl overflow-hidden border border-slate-700 mb-2.5 bg-slate-900">
+              <img src="${m.file}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+              <span class="absolute top-2 left-2 text-[9px] font-cinzel font-bold px-2 py-0.5 rounded-md bg-slate-950/90 text-amber-300 border border-amber-500/40">${m.act}</span>
+              <span class="absolute bottom-2 right-2 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/80 text-sky-300">${m.cellsW}×${m.cellsH} Cas.</span>
+            </div>
+            <h4 class="font-cinzel font-black text-xs text-white group-hover:text-amber-300 transition truncate">${m.title}</h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">Campi tattici e architetture 3D norrene</p>
+          </div>
+          <button onclick="window.selectMapFromModal('${m.id}')" class="mt-3 w-full py-2 rounded-xl font-cinzel font-bold text-[11px] transition ${isCurrent ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-amber-400'}">
+            ${isCurrent ? '✓ Mappa Attiva' : 'Carica nel Mondo 3D ➔'}
+          </button>
+        `;
+        grid.appendChild(card);
       });
     }
 
-    function loadBattleMap(mapId, broadcast = false) {
-      const mapDef = MAPS_MANIFEST.find(m => m.id === mapId) || MAPS_MANIFEST[3];
-      window.Ginnungagap.activeMapId = mapDef.id;
+    window.openMapSelectorModal = function() {
+      document.getElementById('modal-map-selector').classList.remove('hidden');
+      renderMapSelectorGrid('all');
+    };
 
-      document.getElementById('top-world-name').textContent = mapDef.title;
-      document.getElementById('label-active-realm').textContent = mapDef.title;
+    window.closeMapSelectorModal = function() {
+      document.getElementById('modal-map-selector').classList.add('hidden');
+    };
 
-      // Pulisce il terreno precedente
-      while(groundGroup.children.length > 0) {
-        const obj = groundGroup.children[0];
+    window.filterMapSelectorByAct = function(act) {
+      document.querySelectorAll('.map-act-tab').forEach(b => {
+        if (b.dataset.act === act) {
+          b.className = "map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-amber-500 text-slate-950 shadow";
+        } else {
+          b.className = "map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white";
+        }
+      });
+      renderMapSelectorGrid(act);
+    };
+
+    window.selectMapFromModal = function(mapId) {
+      window.closeMapSelectorModal();
+      loadBattleMap(mapId, true);
+    };
+
+    function populateMapsDropdown() {
+      renderMapSelectorGrid('all');
+    }
+
+    // ============================================================================
+    // GENERAZIONE DINAMICA DELLE STRUTTURE ARCHITETTONICHE 3D (CASE, MOLI, TORRI)
+    // ============================================================================
+
+    function build3DStructuresForMap(mapId, planeW, planeH) {
+      if (!structuresGroup) return;
+      while(structuresGroup.children.length > 0) {
+        const obj = structuresGroup.children[0];
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
-          if (obj.material.map) obj.material.map.dispose();
-          obj.material.dispose();
+          if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+          else obj.material.dispose();
         }
-        groundGroup.remove(obj);
+        structuresGroup.remove(obj);
       }
 
-      // Calcola dimensioni del piano 3D in base ai quadrati del battlemap
-      const planeW = mapDef.cellsW * TILE_SIZE;
-      const planeH = mapDef.cellsH * TILE_SIZE;
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2c11, roughness: 0.85 });
+      const thatchMat = new THREE.MeshStandardMaterial({ color: 0x2b180a, roughness: 0.95 });
+      const stoneMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
+      const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
 
-      const groundGeo = new THREE.PlaneGeometry(planeW, planeH, 32, 32);
-      const groundMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        roughness: 0.82,
-        metalness: 0.12,
-        side: THREE.DoubleSide
-      });
+      // 1. Longhouse Vichinga con pareti in tronchi e tetto a spiovente
+      function createLonghouse(x, z, rotY = 0, scale = 1.0) {
+        const bld = new THREE.Group();
+        bld.position.set(x, 0, z);
+        bld.rotation.y = rotY;
+        bld.scale.set(scale, scale, scale);
 
-      // Caricamento texture ad altissima fedeltà estratta dal PDF
-      const texLoader = new THREE.TextureLoader();
-      texLoader.load(mapDef.file, (tex) => {
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        tex.anisotropy = 16;
-        groundMat.map = tex;
-        groundMat.needsUpdate = true;
-      });
+        const walls = new THREE.Mesh(new THREE.BoxGeometry(6.5, 3.2, 10.5), woodMat);
+        walls.position.y = 1.6;
+        walls.castShadow = true;
+        walls.receiveShadow = true;
+        bld.add(walls);
 
-      const groundMesh = new THREE.Mesh(groundGeo, groundMat);
-      groundMesh.rotation.x = -Math.PI / 2;
-      groundMesh.receiveShadow = true;
-      groundGroup.add(groundMesh);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(5.6, 3.4, 4), thatchMat);
+        roof.position.y = 4.4;
+        roof.rotation.y = Math.PI / 4;
+        roof.scale.set(1.1, 1, 1.85);
+        roof.castShadow = true;
+        bld.add(roof);
 
-      // Sovrapposizione Griglia Tattica Sigil allineata al millimetro
-      if (gridHelper) scene.remove(gridHelper);
-      const maxDim = Math.max(planeW, planeH);
-      const gridDivisions = Math.max(mapDef.cellsW, mapDef.cellsH);
-      gridHelper = new THREE.GridHelper(maxDim, gridDivisions, 0xc9a050, 0x334155);
-      gridHelper.position.y = 0.02;
-      scene.add(gridHelper);
+        const lantern = new THREE.PointLight(0xf59e0b, 1.8, 15);
+        lantern.position.set(0, 1.8, 5.4);
+        bld.add(lantern);
 
-      // Centra la telecamera sulla nuova mappa
-      controls.target.set(0, 0, 0);
+        structuresGroup.add(bld);
+        return bld;
+      }
 
-      logCombatEvent('MAPPA', `Caricata la mappa ufficiale: [${mapDef.title}] (${mapDef.act})`);
+      // 2. Molo con palafitte in legno e botti/casse di carico
+      function createDockPier(x, z, length = 14, width = 4, rotY = 0) {
+        const pier = new THREE.Group();
+        pier.position.set(x, 0, z);
+        pier.rotation.y = rotY;
 
-      if (broadcast) {
-        broadcastEvent({ type: 'MAP_CHANGED', mapId: mapDef.id, title: mapDef.title });
-        saveGinnungagapState();
+        const plank = new THREE.Mesh(new THREE.BoxGeometry(width, 0.35, length), woodMat);
+        plank.position.y = 1.2;
+        plank.castShadow = true;
+        plank.receiveShadow = true;
+        pier.add(plank);
+
+        const steps = Math.floor(length / 3);
+        for(let i = -steps/2; i <= steps/2; i++) {
+          [-width/2 + 0.35, width/2 - 0.35].forEach(px => {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.4, 8), woodMat);
+            post.position.set(px, 0.6, i * 2.8);
+            post.castShadow = true;
+            pier.add(post);
+          });
+        }
+
+        for(let b = 0; b < 3; b++) {
+          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.85, 12), ironMat);
+          barrel.position.set((b % 2 === 0 ? 1 : -1) * 0.8, 1.8, (b - 1) * 2);
+          barrel.castShadow = true;
+          pier.add(barrel);
+        }
+
+        structuresGroup.add(pier);
+        return pier;
+      }
+
+      // 3. Torre di guardia vichinga con braciere infuocato
+      function createWatchtower(x, z, rotY = 0) {
+        const twr = new THREE.Group();
+        twr.position.set(x, 0, z);
+        twr.rotation.y = rotY;
+
+        [-1.2, 1.2].forEach(px => {
+          [-1.2, 1.2].forEach(pz => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6, 8), woodMat);
+            leg.position.set(px, 3, pz);
+            leg.castShadow = true;
+            twr.add(leg);
+          });
+        });
+
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.35, 3.6), woodMat);
+        deck.position.y = 5.8;
+        deck.castShadow = true;
+        twr.add(deck);
+
+        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.25, 0.4, 8), ironMat);
+        brazier.position.set(0, 6.2, 0);
+        twr.add(brazier);
+
+        const fireLight = new THREE.PointLight(0xff6600, 2.2, 18);
+        fireLight.position.set(0, 6.6, 0);
+        twr.add(fireLight);
+
+        structuresGroup.add(twr);
+        return twr;
+      }
+
+      // 4. Monolite in pietra runica inciso e luminoso
+      function createRunestoneMonolith(x, z, scale = 1.0, colorHex = 0x38bdf8) {
+        const stone = new THREE.Group();
+        stone.position.set(x, 0, z);
+        stone.scale.set(scale, scale, scale);
+
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 3.6, 0.45), stoneMat);
+        pillar.position.y = 1.8;
+        pillar.castShadow = true;
+        stone.add(pillar);
+
+        const runePlate = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.6, 2.2),
+          new THREE.MeshBasicMaterial({ color: colorHex, side: THREE.DoubleSide })
+        );
+        runePlate.position.set(0, 1.8, 0.24);
+        stone.add(runePlate);
+
+        const rLight = new THREE.PointLight(colorHex, 1.5, 8);
+        rLight.position.set(0, 2.0, 0.6);
+        stone.add(rLight);
+
+        structuresGroup.add(stone);
+        return stone;
+      }
+
+      // 5. Tenda da campo norrena
+      function createVikingTent(x, z, rotY = 0) {
+        const tent = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.2, 3), thatchMat);
+        tent.position.set(x, 1.1, z);
+        tent.rotation.y = rotY;
+        tent.scale.set(1.4, 1, 1.8);
+        tent.castShadow = true;
+        structuresGroup.add(tent);
+        return tent;
+      }
+
+      // 6. Falò con pietre cerchiate
+      function createCampfire(x, z) {
+        const fire = new THREE.Group();
+        fire.position.set(x, 0, z);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.18, 8, 16), stoneMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.1;
+        fire.add(ring);
+
+        const fLight = new THREE.PointLight(0xff7700, 2.0, 12);
+        fLight.position.set(0, 0.8, 0);
+        fire.add(fLight);
+        structuresGroup.add(fire);
+        return fire;
+      }
+
+      // 7. Rovine in pietra antica e architrave
+      function createStoneRuins(x, z) {
+        const ruins = new THREE.Group();
+        ruins.position.set(x, 0, z);
+        [-1.5, 1.5].forEach(px => {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 2.8, 8), stoneMat);
+          col.position.set(px, 1.4, 0);
+          col.castShadow = true;
+          ruins.add(col);
+        });
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.5, 0.8), stoneMat);
+        beam.position.set(0, 3.0, 0);
+        beam.castShadow = true;
+        ruins.add(beam);
+        structuresGroup.add(ruins);
+        return ruins;
+      }
+
+      // Schieramento strutture tematiche per ciascuna mappa
+      if (mapId === 'battle_shipyard') {
+        createDockPier(-planeW * 0.28, planeH * 0.15, 18, 4.5, 0.2);
+        createDockPier(-planeW * 0.12, planeH * 0.35, 12, 3.5, -0.1);
+        createLonghouse(planeW * 0.25, -planeH * 0.15, -0.4, 1.2);
+        createWatchtower(-planeW * 0.36, -planeH * 0.35);
+        createCampfire(planeW * 0.15, planeH * 0.2);
+        createRunestoneMonolith(planeW * 0.35, planeH * 0.25, 1.1, 0x38bdf8);
+      } else if (mapId === 'battle_bandit_camp') {
+        createLonghouse(0, -planeH * 0.24, 0, 1.3);
+        createWatchtower(-planeW * 0.3, -planeH * 0.25);
+        createWatchtower(planeW * 0.3, -planeH * 0.25);
+        createVikingTent(-8, 4, 0.4);
+        createVikingTent(8, 4, -0.4);
+        createCampfire(0, 0);
+        createRunestoneMonolith(-10, -5, 1.0, 0xef4444);
+      } else if (mapId === 'battle_mountain_pass') {
+        createWatchtower(planeW * 0.25, -planeH * 0.25);
+        createStoneRuins(-planeW * 0.1, 0);
+        createStoneRuins(planeW * 0.15, 6);
+        createRunestoneMonolith(-planeW * 0.25, -planeH * 0.1, 1.3, 0x38bdf8);
+        createCampfire(planeW * 0.1, -planeH * 0.1);
+      } else if (mapId === 'battle_svitjod_camp') {
+        createLonghouse(0, -planeH * 0.2, 0, 1.2);
+        createWatchtower(-planeW * 0.3, -planeH * 0.25);
+        createVikingTent(-10, -2, 0.3);
+        createVikingTent(10, -2, -0.3);
+        createCampfire(0, 2);
+        createRunestoneMonolith(8, 6, 1.2, 0x10b981);
+      } else if (mapId === 'battle_uppsala_temple') {
+        createLonghouse(0, -planeH * 0.15, 0, 1.7);
+        createRunestoneMonolith(-8, -6, 1.4, 0xf59e0b);
+        createRunestoneMonolith(8, -6, 1.4, 0xf59e0b);
+        createRunestoneMonolith(-8, 6, 1.4, 0xf59e0b);
+        createRunestoneMonolith(8, 6, 1.4, 0xf59e0b);
+        createStoneRuins(0, 4);
+      } else if (mapId === 'battle_fenmark_ruins') {
+        createStoneRuins(-8, -5);
+        createStoneRuins(6, -2);
+        createStoneRuins(-4, 7);
+        createDockPier(0, 0, 16, 2.5, 0.3);
+        createRunestoneMonolith(5, 5, 1.2, 0x10b981);
+      } else {
+        createLonghouse(planeW * 0.3, -planeH * 0.25, -0.3, 1.1);
+        createWatchtower(-planeW * 0.3, -planeH * 0.3);
+        createCampfire(0, -planeH * 0.15);
+        createRunestoneMonolith(-planeW * 0.25, planeH * 0.25, 1.2, 0xf59e0b);
       }
     }
+
+    // ============================================================================
+    // FUCINA DELLE MINIATURE 3D (PERSONALIZZAZIONE MODELLI, AURE & PIEDISTALLI)
+    // ============================================================================
+
+    let currentCustomModel = 'berserker';
+    let currentCustomRingColor = { key: 'amber', hexVal: 0xf59e0b, hexStr: '#f59e0b' };
+    let currentCustomPedestal = 'ardesia';
+
+    window.openMiniatureCustomizer = function() {
+      const modal = document.getElementById('modal-miniature-customizer');
+      if (modal) modal.classList.remove('hidden');
+      updateCustomizerPreview();
+    };
+
+    window.closeMiniatureCustomizer = function() {
+      const modal = document.getElementById('modal-miniature-customizer');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.selectMiniatureModel = function(modelKey) {
+      currentCustomModel = modelKey;
+      document.querySelectorAll('.mini-model-opt').forEach(b => {
+        if (b.dataset.model === modelKey) {
+          b.className = "mini-model-opt p-2.5 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition";
+        } else {
+          b.className = "mini-model-opt p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition";
+        }
+      });
+      updateCustomizerPreview();
+    };
+
+    window.selectRingColor = function(key, hexVal, hexStr) {
+      currentCustomRingColor = { key, hexVal, hexStr };
+      document.querySelectorAll('.ring-color-opt').forEach(b => {
+        if (b.dataset.color === key) {
+          b.className = "p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt";
+        } else {
+          b.className = "p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-slate-500 flex flex-col items-center gap-1 ring-color-opt";
+        }
+      });
+      updateCustomizerPreview();
+    };
+
+    window.selectPedestalMaterial = function(matKey) {
+      currentCustomPedestal = matKey;
+      document.querySelectorAll('.pedestal-opt').forEach(b => {
+        if (b.dataset.pedestal === matKey) {
+          b.className = "p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt";
+        } else {
+          b.className = "p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt";
+        }
+      });
+      updateCustomizerPreview();
+    };
+
+    function updateCustomizerPreview() {
+      const descMap = {
+        berserker: "Guerriero vichingo con spada Ulfberht forgiata, elmo Gjermundbu e scudo tondo.",
+        shieldmaiden: "Guerriera con grande scudo vichingo decorato e lancia da combattimento.",
+        runemaster: "Saggio delle rune con mantello cerimoniale e bastone incantato.",
+        valkyrie: "Boss celestiale di Odino con ali d'oro spiegate e lancia runica scintillante.",
+        wolf: "Lupo primordiale di Fenrir con criniera oscura e occhi scarlatti ferali.",
+        giant: "Colosso Jotunn delle vette ghiacciate armato di clava runica massiccia.",
+        draugr: "Guerriero non-morto risorto dai tumuli con lama antica arrugginita."
+      };
+      const nameMap = {
+        berserker: "Berserker Vichingo",
+        shieldmaiden: "Shieldmaiden con Lancia",
+        runemaster: "Maestro delle Rune",
+        valkyrie: "Valkyria di Odino",
+        wolf: "Lupo di Fenrir",
+        giant: "Jotunn del Freddo",
+        draugr: "Draugr Risorto"
+      };
+
+      const ch = getHeroCharacterRecord();
+      const heroName = (ch && ch.name) || currentUser || 'Ragnar Lodbrok';
+      const heroAvatar = (ch && ch.avatar) || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150';
+
+      const pName = document.getElementById('custom-preview-name');
+      if (pName) pName.textContent = heroName;
+      const pAvatar = document.getElementById('custom-preview-avatar');
+      if (pAvatar) pAvatar.src = heroAvatar;
+      const pTag = document.getElementById('custom-preview-tag');
+      if (pTag) pTag.textContent = `Modello: ${nameMap[currentCustomModel] || currentCustomModel}`;
+      const pDesc = document.getElementById('custom-preview-desc');
+      if (pDesc) pDesc.textContent = descMap[currentCustomModel] || "";
+      const pPed = document.getElementById('custom-preview-pedestal');
+      if (pPed) pPed.textContent = currentCustomPedestal.toUpperCase();
+      const pAura = document.getElementById('custom-preview-aura');
+      if (pAura) pAura.textContent = currentCustomRingColor.key.toUpperCase();
+
+      const pRing = document.getElementById('custom-preview-ring');
+      if (pRing) {
+        pRing.style.borderColor = currentCustomRingColor.hexStr;
+        pRing.style.boxShadow = `0 0 15px ${currentCustomRingColor.hexStr}`;
+      }
+    }
+
+    window.confirmMiniatureCustomization = function() {
+      window.closeMiniatureCustomizer();
+      sessionStorage.setItem('ginnunga_customized_' + currentUser, 'true');
+
+      const myMini = window.Ginnungagap.myHeroMini;
+      if (myMini) {
+        const u = myMini.userData;
+        const tileX = u.tileX;
+        const tileZ = u.tileZ;
+        const oldId = u.id;
+        const hp = u.hp;
+        const maxHp = u.maxHp;
+        const ac = u.ac;
+
+        minisGroup.remove(myMini);
+        const idx = window.Ginnungagap.miniatures.indexOf(myMini);
+        if (idx !== -1) window.Ginnungagap.miniatures.splice(idx, 1);
+
+        const newMini = createMiniature({
+          id: oldId,
+          name: u.name,
+          className: u.className,
+          hp: hp,
+          maxHp: maxHp,
+          ac: ac,
+          role: u.role,
+          avatar: u.avatar,
+          tileX: tileX,
+          tileZ: tileZ,
+          modelType: currentCustomModel,
+          ringColor: currentCustomRingColor.hexVal,
+          pedestalMaterial: currentCustomPedestal
+        });
+
+        minisGroup.add(newMini);
+        window.Ginnungagap.miniatures.push(newMini);
+        window.Ginnungagap.myHeroMini = newMini;
+        selectMiniature(newMini);
+        saveGinnungagapState();
+
+        showToast('✨ Miniatura Schierata', `Miniatura forgiata come [${currentCustomModel}] con anello ${currentCustomRingColor.key}!`);
+        logCombatEvent('MINIATURA', `${currentUser} ha schierato la propria miniatura: [${currentCustomModel}].`);
+      }
+    };
 
     // ============================================================================
     // MINIATURE 3D AD ALTA DEFINIZIONE (BASI BISELLATE, RITRATTO E FIGURE SCOLPITE)
@@ -1010,25 +1530,44 @@
         conditions: data.conditions || []
       };
 
-      const isBossValkyrie = mini.userData.name.toLowerCase().includes('valkyr');
-      const isWolf = mini.userData.name.toLowerCase().includes('lupo') || mini.userData.name.toLowerCase().includes('fenrir');
-      const isGiant = mini.userData.name.toLowerCase().includes('gigante') || mini.userData.name.toLowerCase().includes('jotunn');
+      const modelType = data.modelType || 'berserker';
+      const isBossValkyrie = modelType === 'valkyrie' || mini.userData.name.toLowerCase().includes('valkyr');
+      const isWolf = modelType === 'wolf' || mini.userData.name.toLowerCase().includes('lupo') || mini.userData.name.toLowerCase().includes('fenrir');
+      const isGiant = modelType === 'giant' || mini.userData.name.toLowerCase().includes('gigante') || mini.userData.name.toLowerCase().includes('jotunn');
+      const isShieldmaiden = modelType === 'shieldmaiden';
+      const isRunemaster = modelType === 'runemaster';
+      const isDraugr = modelType === 'draugr';
 
-      // 1. BASE BISELLATA IN PIETRA / METALLO SCURO
+      // 1. BASE BISELLATA IN PIETRA, OSSIDIANA, GHIACCIO O BRONZO
       const baseRadius = isGiant ? 1.6 : 0.88;
+      let baseMat;
+      const ped = data.pedestalMaterial || 'ardesia';
+      if (ped === 'ossidiana') {
+        baseMat = new THREE.MeshStandardMaterial({ color: 0x070b14, roughness: 0.08, metalness: 0.95 });
+      } else if (ped === 'ghiaccio') {
+        baseMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, transparent: true, opacity: 0.8 });
+      } else if (ped === 'bronzo') {
+        baseMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.25, metalness: 0.85 });
+      } else {
+        baseMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.45, metalness: 0.4 });
+      }
+
       const baseMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(baseRadius * 0.95, baseRadius, 0.22, 32),
-        new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.35, metalness: 0.5 })
+        baseMat
       );
       baseMesh.position.y = 0.11;
       baseMesh.castShadow = true;
       mini.add(baseMesh);
 
-      // Anello Runicamente Inciso di Fazione (Giocatore = Azzurro, DM = Oro, Nemico = Cremisi)
-      const ringCol = mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8);
+      // Anello Runicamente Inciso di Fazione (o personalizzato nella Fucina)
+      const ringCol = (data.ringColor !== undefined)
+        ? data.ringColor
+        : (mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8));
+
       const factionRing = new THREE.Mesh(
         new THREE.TorusGeometry(baseRadius * 0.98, 0.05, 12, 36),
-        new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.75 })
+        new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.85 })
       );
       factionRing.rotation.x = Math.PI / 2;
       factionRing.position.y = 0.22;
@@ -1074,9 +1613,8 @@
 
       if (isBossValkyrie) {
         // --- VALKYRIA D'ODHINN (BOSS CELESTIALE CON ALI D'ORO E LANCIA RUNICA) ---
-        figGroup.position.y = 0.55; // Galleggiamento a mezz'aria
+        figGroup.position.y = 0.55;
 
-        // Corazza Dorata Celestiale
         const vTorso = new THREE.Mesh(
           new THREE.CylinderGeometry(0.35, 0.26, 1.15, 12),
           new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 })
@@ -1085,7 +1623,6 @@
         vTorso.castShadow = true;
         figGroup.add(vTorso);
 
-        // Elmo Alato con Ali d'Argento
         const vHead = new THREE.Mesh(
           new THREE.SphereGeometry(0.28, 16, 16),
           new THREE.MeshStandardMaterial({ color: 0xfef08a, metalness: 0.7 })
@@ -1094,7 +1631,6 @@
         vHead.castShadow = true;
         figGroup.add(vHead);
 
-        // Grandi Ali d'Oro Spiegate
         const wingMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.35, side: THREE.DoubleSide });
         [-1, 1].forEach(side => {
           const wing = new THREE.Mesh(new THREE.ConeGeometry(0.65, 2.2, 5), wingMat);
@@ -1105,7 +1641,6 @@
           figGroup.add(wing);
         });
 
-        // Lancia di Luce Runica
         const spearShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.8, 8), new THREE.MeshStandardMaterial({ color: 0xb45309 }));
         spearShaft.position.set(0.65, 1.2, 0.2);
         spearShaft.rotation.x = 0.25;
@@ -1115,12 +1650,9 @@
         spearTip.position.set(0.65, 2.5, 0.5);
         figGroup.add(spearTip);
 
-        // Luce di gloria celestiale
         const vLight = new THREE.PointLight(0xfef08a, 1.5, 8);
         vLight.position.set(0, 1.5, 0.5);
         figGroup.add(vLight);
-
-        // Animazione hovering bobbing
         new TWEEN.Tween(figGroup.position).to({ y: 0.75 }, 1200).yoyo(true).repeat(Infinity).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
       } else if (isWolf) {
@@ -1135,7 +1667,6 @@
         wHead.rotation.x = Math.PI / 2;
         figGroup.add(wHead);
 
-        // Occhi Rossi Ferali
         [-0.14, 0.14].forEach(x => {
           const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
           eye.position.set(x, 0.8, 1.05);
@@ -1153,9 +1684,83 @@
         gClub.position.set(0.85, 1.2, 0.3);
         figGroup.add(gClub);
 
+      } else if (isShieldmaiden) {
+        // --- GUERRIERA CON SCUDO E LANCIA (SHIELDMAIDEN) ---
+        [-0.16, 0.16].forEach(x => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
+          leg.position.set(x, 0.32, 0);
+          figGroup.add(leg);
+        });
+        const vTorso = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.24, 0.82, 10), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6, roughness: 0.4 }));
+        vTorso.position.y = 0.92;
+        figGroup.add(vTorso);
+
+        const vHead = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.8 }));
+        vHead.position.y = 1.45;
+        figGroup.add(vHead);
+
+        const shieldDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.08, 24), new THREE.MeshStandardMaterial({ color: 0x0369a1, roughness: 0.5 }));
+        shieldDisc.rotation.z = Math.PI / 2;
+        shieldDisc.position.set(-0.65, 0.95, 0.2);
+        figGroup.add(shieldDisc);
+
+        const spear = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.6, 8), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+        spear.position.set(0.6, 1.25, 0.15);
+        spear.rotation.x = 0.2;
+        figGroup.add(spear);
+        const spearTip = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9 }));
+        spearTip.position.set(0.6, 2.45, 0.4);
+        figGroup.add(spearTip);
+
+      } else if (isRunemaster) {
+        // --- MAESTRO DELLE RUNE (INCANTATORE CON CAPPUCCIO E BASTONE) ---
+        const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.55, 1.35, 12), new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.9 }));
+        robe.position.y = 0.72;
+        figGroup.add(robe);
+
+        const cowl = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 14), new THREE.MeshStandardMaterial({ color: 0x312e81 }));
+        cowl.position.y = 1.46;
+        figGroup.add(cowl);
+
+        const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.4, 8), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+        staff.position.set(0.6, 1.2, 0.1);
+        figGroup.add(staff);
+
+        const orb = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0xa855f7, emissiveIntensity: 1.2 }));
+        orb.position.set(0.6, 2.35, 0.1);
+        figGroup.add(orb);
+
+        const staffLight = new THREE.PointLight(0xa855f7, 1.6, 8);
+        staffLight.position.set(0.6, 2.35, 0.1);
+        figGroup.add(staffLight);
+
+      } else if (isDraugr) {
+        // --- DRAUGR DELLE CRIPTE (NON-MORTO RISORTO) ---
+        [-0.16, 0.16].forEach(x => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.65, 6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+          leg.position.set(x, 0.32, 0);
+          figGroup.add(leg);
+        });
+        const dTorso = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.8, 8), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.95 }));
+        dTorso.position.y = 0.92;
+        figGroup.add(dTorso);
+
+        const dHead = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 12), new THREE.MeshStandardMaterial({ color: 0x64748b }));
+        dHead.position.y = 1.45;
+        figGroup.add(dHead);
+
+        [-0.09, 0.09].forEach(x => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+          eye.position.set(x, 1.48, 0.22);
+          figGroup.add(eye);
+        });
+
+        const rustySword = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 0.04), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 }));
+        rustySword.position.set(0.55, 1.05, 0.15);
+        figGroup.add(rustySword);
+
       } else {
-        // --- EROE / GUERRIERO VICHINGO STANDARD (RAGNAR, BJORN, GIOCATORI) ---
-        // Gambe e Stivali con Bende in Cuoio
+        // --- BERSERKER VICHINGO STANDARD (RAGNAR, GUERRIERI) ---
         [-0.18, 0.18].forEach(x => {
           const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x37271c, roughness: 0.8 }));
           leg.position.set(x, 0.32, 0);
@@ -1163,7 +1768,6 @@
           figGroup.add(leg);
         });
 
-        // Busto con Cotteria di Maglia e Cinghie Incrociate
         const vTorso = new THREE.Mesh(
           new THREE.CylinderGeometry(0.38, 0.3, 0.85, 10),
           new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.6 })
@@ -1172,15 +1776,13 @@
         vTorso.castShadow = true;
         figGroup.add(vTorso);
 
-        // Mantello di Lana Battuta al Vento
         const cloakGeo = new THREE.BoxGeometry(0.72, 1.1, 0.12);
-        const cloakMat = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.85 }); // Rosso cremisi clan
+        const cloakMat = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.85 });
         const cloak = new THREE.Mesh(cloakGeo, cloakMat);
         cloak.position.set(0, 0.85, -0.28);
         cloak.rotation.x = 0.12;
         figGroup.add(cloak);
 
-        // Testa con Elmo Norreno a Occhiali Gjermundbu & Paranaso
         const vHead = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
         vHead.position.y = 1.48;
         vHead.castShadow = true;
@@ -1194,7 +1796,6 @@
         spectacleGuard.position.set(0, 1.48, 0.22);
         figGroup.add(spectacleGuard);
 
-        // Scudo Rotondo Vichingo sul Braccio Sinistro
         const shieldDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.08, 24), new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.8 }));
         shieldDisc.rotation.z = Math.PI / 2;
         shieldDisc.position.set(-0.62, 0.95, 0.2);
@@ -1204,13 +1805,11 @@
         shieldBoss.position.set(-0.67, 0.95, 0.2);
         figGroup.add(shieldBoss);
 
-        // Spada Forgiata Ulfberht con Rune Incise sul Braccio Destro
         const swordBlade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.35, 0.04), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 }));
         swordBlade.position.set(0.65, 1.15, 0.15);
         swordBlade.castShadow = true;
         figGroup.add(swordBlade);
 
-        // Fregio runico luminoso sulla lama
         const runeGlow = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.9, 0.05), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
         runeGlow.position.set(0.65, 1.15, 0.15);
         figGroup.add(runeGlow);
@@ -1405,9 +2004,30 @@
       // VFX Slashing Arc
       spawnSlashFx(targetMini.position);
 
-      // Tiro per Colpire d20 + Bonus Attacco (+5 standard di livello 1-3)
+      // Calcolo dinamico arma e bonus attacco dalla scheda eroe
+      let atkBonus = 5;
+      let weaponName = 'Spada Ulfberht';
+      let weaponDice = 8;
+      let weaponDmgBonus = 3;
+
+      const chRec = (typeof getHeroCharacterRecord === 'function') ? getHeroCharacterRecord() : null;
+      if (attackerMini === window.Ginnungagap.myHeroMini && chRec) {
+        const forMod = (chRec.stats && chRec.stats.for) ? Math.floor((chRec.stats.for - 10) / 2) : 3;
+        const prof = (chRec.level) ? Math.floor((chRec.level - 1) / 4) + 2 : 2;
+        const eqArma = (chRec.cards || []).find(c => c.equipped && (c.slot === 'arma' || (c.type||'').toLowerCase() === 'arma'));
+        if (eqArma) {
+          weaponName = eqArma.name;
+          const dmgMatch = (eqArma.damage || '').match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+          if (dmgMatch) {
+            weaponDice = parseInt(dmgMatch[2]) || 8;
+            weaponDmgBonus = dmgMatch[3] ? parseInt(dmgMatch[3]) : forMod;
+          }
+        }
+        atkBonus = forMod + prof;
+      }
+
+      // Tiro per Colpire d20 + Bonus Attacco
       const d20 = Math.floor(Math.random() * 20) + 1;
-      const atkBonus = 5;
       const totalAttack = d20 + atkBonus;
       const isCrit = d20 === 20;
       const isFumble = d20 === 1;
@@ -1418,8 +2038,8 @@
       if (!isHit) {
         // MANCATO
         spawnFloatingCombatText(targetMini.position, 'MANCATO', '#94a3b8');
-        logCombatEvent('ATTACCO', `${a.name} attacca ${t.name} con la Spada Ulfberht: 🎲 d20 (${d20}) + ${atkBonus} = ${totalAttack} vs CA ${targetAC} ➔ ❌ MANCATO!`);
-        showToast('🛡️ Colpo Deflesso', `L'attacco (${totalAttack} vs CA ${targetAC}) è stato respinto dalla difesa!`);
+        logCombatEvent('ATTACCO', `${a.name} attacca ${t.name} con [${weaponName}]: 🎲 d20 (${d20}) + ${atkBonus} = ${totalAttack} vs CA ${targetAC} ➔ ❌ MANCATO!`);
+        showToast('🛡️ Colpo Deflesso', `L'attacco con ${weaponName} (${totalAttack} vs CA ${targetAC}) è stato respinto dalla difesa!`);
         broadcastEvent({
           type: 'COMBAT_ATTACK_RESOLVED',
           attacker: a.name, target: t.name, hit: false, roll: totalAttack, ac: targetAC
@@ -1427,14 +2047,14 @@
         return;
       }
 
-      // COLPITO: Calcola Danni (1d8+3 o 2d8+3 se Critico)
-      const die1 = Math.floor(Math.random() * 8) + 1;
-      const die2 = isCrit ? (Math.floor(Math.random() * 8) + 1) : 0;
-      const totalDamage = die1 + die2 + 3;
+      // COLPITO: Calcola Danni dall'Arma (die1 o doppio se Critico)
+      const die1 = Math.floor(Math.random() * weaponDice) + 1;
+      const die2 = isCrit ? (Math.floor(Math.random() * weaponDice) + 1) : 0;
+      const totalDamage = die1 + die2 + weaponDmgBonus;
 
       // Notifica e Log Iniziale
       const critStr = isCrit ? ' ⭐ COLPO CRITICO!' : '';
-      logCombatEvent('COLPITO', `${a.name} colpisce ${t.name}! 🎲 Tiro: ${totalAttack} vs CA ${targetAC}.${critStr} Danni inflitti: ${totalDamage} PF!`);
+      logCombatEvent('COLPITO', `${a.name} colpisce ${t.name} con [${weaponName}]! 🎲 Tiro: ${totalAttack} vs CA ${targetAC}.${critStr} Danni inflitti: [d${weaponDice}: ${die1}${isCrit ? '+'+die2 : ''}] + ${weaponDmgBonus} = ${totalDamage} PF!`);
 
       // SE IL BERSAGLIO È UN BOSS O IL DANNO È LETALE: VERIFICA ARBITRO DEL DM!
       const isBoss = t.name.toLowerCase().includes('valkyr') || t.hp - totalDamage <= 0;
@@ -2053,11 +2673,34 @@
         logCombatEvent('AZIONE', `${mini.userData.name} attiva [Disimpegno].`);
 
       } else if (act === 'potion') {
+        const ch = (typeof getHeroCharacterRecord === 'function') ? getHeroCharacterRecord() : null;
+        const cards = (ch && ch.cards) ? ch.cards : [];
+        const isPotion = c => {
+          const n = (c.name || '').toLowerCase();
+          const t = (c.type || '').toLowerCase();
+          return n.includes('pozion') || n.includes('erb') || t.includes('pozion') || t.includes('consum');
+        };
+        const pIdx = cards.findIndex(isPotion);
+
+        if (pIdx === -1) {
+          showToast('⚠️ Nessuna Pozione', 'Non possiedi alcuna pozione di guarigione o erba nell\'inventario!');
+          return;
+        }
+
+        const consumed = cards.splice(pIdx, 1)[0];
         const heal = Math.floor(Math.random()*4) + Math.floor(Math.random()*4) + 4;
         mini.userData.hp = Math.min(mini.userData.maxHp, mini.userData.hp + heal);
+        if (ch) {
+          ch.hp = mini.userData.hp;
+          saveHeroCharacterRecord(ch);
+        }
+
         refreshMiniatureBillboard(mini);
-        showToast('🧪 Pozione Bevuta', `${mini.userData.name} recupera +${heal} PF!`);
-        logCombatEvent('POZIONE', `${mini.userData.name} beve una Pozione di Guarigione: recuperati +${heal} PF (Attuali: ${mini.userData.hp}/${mini.userData.maxHp}).`);
+        selectMiniature(mini);
+        if (typeof window.updateInventoryAndEquipmentUI === 'function') window.updateInventoryAndEquipmentUI();
+
+        showToast('🧪 Pozione Consumata', `${mini.userData.name} beve [${consumed.name}]: recuperati +${heal} PF!`);
+        logCombatEvent('POZIONE', `${mini.userData.name} consuma [${consumed.name}]: recuperati +${heal} PF (PF Attuali: ${mini.userData.hp}/${mini.userData.maxHp}).`);
         spawnFloatingCombatText(mini.position, `+${heal} PF`, '#10b981');
         saveGinnungagapState();
       }
@@ -2249,6 +2892,18 @@
       window.Ginnungagap.initiativeQueue = [...window.Ginnungagap.miniatures];
       updateInitiativeBar();
       populateDmPartyList(camp);
+
+      // Inizializza equipaggiamento, CA e controllo pozioni da scheda eroe
+      if (typeof window.updateInventoryAndEquipmentUI === 'function') {
+        window.updateInventoryAndEquipmentUI();
+      }
+
+      // Popup personalizzazione miniatura prima di entrare nel vivo della battaglia
+      if (!sessionStorage.getItem('ginnunga_customized_' + currentUser)) {
+        setTimeout(() => {
+          if (typeof window.openMiniatureCustomizer === 'function') window.openMiniatureCustomizer();
+        }, 600);
+      }
     }
 
     function saveGinnungagapState() {
@@ -2410,19 +3065,7 @@
       logCombatEvent('NEBBIA', 'Il DM ha calato la nebbia di guerra volumetrica.');
     };
 
-    window.openDicePhysicsModal = function() {
-      document.getElementById('modal-dice-physics').classList.remove('hidden');
-    };
-
-    window.rollPhysicsDie = function(dieType) {
-      const max = parseInt(dieType.replace('d', '')) || 20;
-      const mod = parseInt(document.getElementById('dice-mod-val').value) || 0;
-      const roll = Math.floor(Math.random() * max) + 1;
-      const total = roll + mod;
-      showToast('🎲 Lancio Dado 3D', `${dieType.toUpperCase()}: Risultato ${roll} ${mod !== 0 ? (mod>0?'+':'')+mod : ''} = ${total}!`);
-      logCombatEvent('DADO', `${currentUser} ha tirato ${dieType.toUpperCase()}: [${roll}] + mod (${mod}) = ${total}`);
-      broadcastEvent({ type: 'DICE_ROLLED', roller: currentUser, die: dieType, roll: roll, total: total });
-    };
+    // Rimossa funzione dadi 3d su richiesta utente
 
     // ============================================================================
     // MODALITÀ TELECAMERA SIGIL
@@ -2525,12 +3168,210 @@
       }
     };
 
+    function getHeroCharacterRecord() {
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+      let userObj = (db.users && currentUser) ? db.users[currentUser] : null;
+      let ch = (userObj && userObj.characters && userObj.characters[0]) ? userObj.characters[0] : null;
+      if (!ch && db.campaigns && db.campaigns[currentCampaignCode] && db.campaigns[currentCampaignCode].members) {
+        ch = db.campaigns[currentCampaignCode].members[currentUser];
+      }
+      if (!ch && db.campaigns) {
+        for (const c of Object.values(db.campaigns)) {
+          if (c.members && c.members[currentUser]) { ch = c.members[currentUser]; break; }
+        }
+      }
+      return ch;
+    }
+
+    function saveHeroCharacterRecord(ch) {
+      try {
+        let db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}');
+        if (db.users && currentUser && db.users[currentUser] && db.users[currentUser].characters) {
+          db.users[currentUser].characters[0] = ch;
+        }
+        if (db.campaigns && db.campaigns[currentCampaignCode] && db.campaigns[currentCampaignCode].members && db.campaigns[currentCampaignCode].members[currentUser]) {
+          db.campaigns[currentCampaignCode].members[currentUser] = ch;
+        }
+        localStorage.setItem('yggdrasill_v3_db', JSON.stringify(db));
+        if (typeof firebase !== 'undefined' && firebase.apps.length) {
+          firebase.database().ref(`yggdrasill_v3_realm/campaigns/${currentCampaignCode}/members/${currentUser}`).set(ch).catch(()=>{});
+        }
+      } catch(e) {}
+    }
+
+    window.updateInventoryAndEquipmentUI = function() {
+      const ch = getHeroCharacterRecord();
+      const mini = window.Ginnungagap.myHeroMini || window.Ginnungagap.selectedMini;
+      const cards = (ch && Array.isArray(ch.cards)) ? ch.cards : [
+        { id: 'c1', name: 'Spada Ulfberht Runica', type: 'Arma', slot: 'arma', damage: '1d8+3 Tagliente', equipped: true },
+        { id: 'c2', name: 'Scudo Tondo con Umbone', type: 'Armatura', slot: 'scudo', acBonus: 2, equipped: true },
+        { id: 'c3', name: 'Cotta di Maglia dei Fiordi', type: 'Armatura', slot: 'busto', baseAc: 14, equipped: true },
+        { id: 'c4', name: 'Elmo Gjermundbu', type: 'Armatura', slot: 'elmo', acBonus: 1, equipped: true },
+        { id: 'c5', name: 'Stivali da Marcia Norreni', type: 'Equipaggiamento', slot: 'piedi', equipped: true },
+        { id: 'c6', name: 'Pantaloni in Lana & Cuoio', type: 'Equipaggiamento', slot: 'gambe', equipped: true },
+        { id: 'c7', name: 'Pozione di Guarigione Minore', type: 'Consumabile', heal: '2d4+2' },
+        { id: 'c8', name: 'Erba Medicinale dei Fiordi', type: 'Consumabile', heal: '1d8+2' }
+      ];
+
+      // 1. POZIONI DI GUARIGIONE & ERBE MEDICINALI (CONTROLLO INVENTARIO)
+      const isPotion = c => {
+        const n = (c.name || '').toLowerCase();
+        const t = (c.type || '').toLowerCase();
+        return n.includes('pozion') || n.includes('erb') || t.includes('pozion') || t.includes('consum');
+      };
+      const potionCards = cards.filter(isPotion);
+      const potionCount = potionCards.length;
+
+      const btnPotion = document.getElementById('bg3-slot-potion');
+      const badgePotion = document.getElementById('bg3-potion-count');
+
+      if (btnPotion) {
+        if (potionCount === 0) {
+          btnPotion.className = "bg3-slot relative w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group bg3-slot-disabled opacity-35 cursor-not-allowed pointer-events-none filter grayscale border-slate-700";
+          btnPotion.title = "Nessuna Pozione di Guarigione o Erba Medicinale nell'Inventario!";
+          if (badgePotion) {
+            badgePotion.classList.remove('hidden');
+            badgePotion.textContent = "0";
+            badgePotion.className = "absolute -top-1.5 -right-1.5 bg-slate-700 text-slate-300 font-mono text-[8px] font-black px-1.5 py-0.2 rounded-full border border-slate-600 shadow";
+          }
+        } else {
+          btnPotion.className = "bg3-slot relative w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-pink-500/60 shadow-[0_0_12px_rgba(236,72,153,0.35)]";
+          btnPotion.title = `Bevi Pozione o Erba Medicinale (${potionCount} disponibili)`;
+          if (badgePotion) {
+            badgePotion.classList.remove('hidden');
+            badgePotion.textContent = `x${potionCount}`;
+            badgePotion.className = "absolute -top-1.5 -right-1.5 bg-pink-600 text-white font-mono text-[8px] font-black px-1.5 py-0.2 rounded-full border border-pink-400 shadow";
+          }
+        }
+      }
+
+      // 2. CALCOLO CA (CLASSE ARMATURA) DA CARTE EQUIPAGGIATE
+      let computedAc = 10;
+      const desMod = (ch && ch.stats && ch.stats.des) ? Math.floor((ch.stats.des - 10) / 2) : 2;
+      const forMod = (ch && ch.stats && ch.stats.for) ? Math.floor((ch.stats.for - 10) / 2) : 3;
+
+      const eqBusto = cards.find(c => c.equipped && (c.slot === 'busto' || ((c.type||'').toLowerCase() === 'armatura' && !(c.name||'').toLowerCase().includes('scudo'))));
+      const eqScudo = cards.find(c => c.equipped && (c.slot === 'scudo' || (c.name||'').toLowerCase().includes('scudo')));
+      const eqElmo = cards.find(c => c.equipped && (c.slot === 'elmo' || (c.name||'').toLowerCase().includes('elmo')));
+      const eqGambe = cards.find(c => c.equipped && (c.slot === 'gambe' || (c.name||'').toLowerCase().includes('coscial') || (c.name||'').toLowerCase().includes('pantalon')));
+      const eqPiedi = cards.find(c => c.equipped && (c.slot === 'piedi' || (c.name||'').toLowerCase().includes('stival')));
+      const eqArma = cards.find(c => c.equipped && (c.slot === 'arma' || (c.type||'').toLowerCase() === 'arma' || (c.name||'').toLowerCase().includes('spada') || (c.name||'').toLowerCase().includes('ascia')));
+
+      if (eqBusto) {
+        computedAc = (eqBusto.baseAc || 14) + Math.min(2, Math.max(0, desMod));
+      } else {
+        computedAc = 10 + desMod;
+      }
+      if (eqScudo) computedAc += (eqScudo.acBonus || 2);
+      if (eqElmo && eqElmo.acBonus) computedAc += eqElmo.acBonus;
+
+      if (mini) mini.userData.ac = computedAc;
+      const acEl = document.getElementById('bg3-ac-val');
+      if (acEl) acEl.textContent = computedAc;
+      const overlayAcEl = document.getElementById('bg3-overlay-ac');
+      if (overlayAcEl) overlayAcEl.textContent = `${computedAc} CA`;
+
+      // Aggiorna etichette slot armatura nella scheda eroe
+      const setSlot = (idName, card, fallbackName) => {
+        const el = document.getElementById(idName);
+        if (el) el.textContent = card ? card.name : fallbackName;
+      };
+      setSlot('slot-name-elmo', eqElmo, '[Vuoto - Nessun Elmo]');
+      setSlot('slot-name-busto', eqBusto, '[Armatura Base]');
+      setSlot('slot-name-gambe', eqGambe, '[Vestiti Semplici]');
+      setSlot('slot-name-piedi', eqPiedi, '[A Piedi Nudi]');
+      setSlot('slot-name-arma', eqArma, 'Pugno Vichingo');
+      setSlot('slot-name-scudo', eqScudo, '[Mano Libera]');
+
+      const armaDesc = document.getElementById('slot-desc-arma');
+      if (armaDesc) {
+        const dmg = eqArma ? (eqArma.damage || '1d8+3') : '1d4+FOR';
+        armaDesc.textContent = `Danno: ${dmg} • Bonus Attacco: +${forMod + 2}`;
+      }
+
+      // Riepilogo pozioni nel modale
+      const potSummary = document.getElementById('bg3-potions-summary');
+      if (potSummary) potSummary.textContent = `${potionCount} ${potionCount === 1 ? 'Pozione disponibile' : 'Pozioni disponibili'}`;
+
+      const potList = document.getElementById('bg3-potions-list');
+      if (potList) {
+        if (potionCards.length === 0) {
+          potList.innerHTML = `<div class="col-span-2 text-center text-slate-500 py-2 italic text-xs">Nessuna pozione o erba medicinale nell'inventario. Trovale nelle casse o dal mercante!</div>`;
+        } else {
+          potList.innerHTML = potionCards.map((p, pIdx) => `
+            <div class="bg-slate-900 border border-pink-500/30 p-2 rounded-xl flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🧪</span>
+                <div>
+                  <span class="font-cinzel font-bold text-pink-300 block text-xs">${p.name}</span>
+                  <span class="text-[9px] text-slate-400 font-mono">Ripristina ${p.heal || '2d4+2'} PF</span>
+                </div>
+              </div>
+              <button onclick="window.bg3Action('potion')" class="px-2.5 py-1 rounded-lg bg-pink-600/30 border border-pink-500 text-pink-200 hover:bg-pink-600 font-cinzel font-bold text-[10px] transition">
+                Bevi Subito
+              </button>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Zaino completo con equipaggia / riponi
+      const cardsContainer = document.getElementById('bg3-overlay-cards');
+      if (cardsContainer) {
+        cardsContainer.innerHTML = cards.map((c, idx) => {
+          const isEq = !!c.equipped;
+          return `
+            <div class="bg-slate-900 border ${isEq ? 'border-amber-400 bg-amber-950/20' : 'border-slate-800'} p-2 rounded-xl flex items-center justify-between">
+              <div class="overflow-hidden pr-2">
+                <span class="font-cinzel font-bold ${isEq ? 'text-amber-300' : 'text-slate-200'} block text-[11px] truncate">${c.name}</span>
+                <span class="text-[9px] text-slate-400 uppercase font-semibold">${c.type || 'Oggetto'} ${c.damage ? '• '+c.damage : ''} ${c.acBonus ? '• +'+c.acBonus+' CA' : ''}</span>
+              </div>
+              <button onclick="window.toggleEquipCard(${idx})" class="px-2 py-1 rounded-lg text-[9px] font-cinzel font-bold transition flex-shrink-0 ${isEq ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300'}">
+                ${isEq ? '✓ Indossato' : 'Equipaggia'}
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+    };
+
+    window.toggleEquipCard = function(cardIdx) {
+      const ch = getHeroCharacterRecord();
+      if (!ch || !ch.cards || !ch.cards[cardIdx]) return;
+      const c = ch.cards[cardIdx];
+      c.equipped = !c.equipped;
+
+      if (c.equipped && c.slot) {
+        ch.cards.forEach((other, oIdx) => {
+          if (oIdx !== cardIdx && other.slot === c.slot) other.equipped = false;
+        });
+      }
+
+      saveHeroCharacterRecord(ch);
+      window.updateInventoryAndEquipmentUI();
+      showToast('🛡️ Equipaggiamento Aggiornato', `${c.name} ${c.equipped ? 'è stato equipaggiato!' : 'è stato riposto nello zaino.'}`);
+    };
+
+    window.promptAdjustGold = function() {
+      const ch = getHeroCharacterRecord();
+      const currentGold = (ch && ch.gold !== undefined) ? ch.gold : 1000;
+      const val = prompt("Modifica Monete d'Oro dell'Eroe:", currentGold);
+      if (val !== null && !isNaN(parseInt(val))) {
+        if (ch) {
+          ch.gold = parseInt(val);
+          saveHeroCharacterRecord(ch);
+          window.refreshHeroOverlayData();
+          showToast('🪙 Monete d\'Oro', `Tesoro aggiornato a ${ch.gold.toLocaleString()} Monete d'Oro.`);
+        }
+      }
+    };
+
     window.refreshHeroOverlayData = function() {
       let db = {};
       try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
       const myHero = window.Ginnungagap.myHeroMini ? window.Ginnungagap.myHeroMini.userData : null;
-      let userObj = (db.users && currentUser) ? db.users[currentUser] : null;
-      let ch = (userObj && userObj.characters) ? userObj.characters[0] : null;
+      const ch = getHeroCharacterRecord();
 
       const name = (myHero && myHero.name) || (ch && ch.name) || currentUser || 'Ragnar Lodbrok';
       const avatar = (myHero && myHero.avatar) || (ch && ch.avatar) || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150';
@@ -2561,21 +3402,7 @@
         });
       }
 
-      const cardsContainer = document.getElementById('bg3-overlay-cards');
-      if (cardsContainer) {
-        const cards = (ch && ch.cards) || [
-          { name: 'Spada Ulfberht Runica', type: 'Arma', damage: '1d8+3 Tagliente' },
-          { name: 'Scudo Tondo con Umbone', type: 'Armatura', damage: '+2 CA' },
-          { name: 'Cotta di Maglia dei Fiordi', type: 'Armatura', damage: '14 + DES (Max 2)' },
-          { name: 'Runa del Tuono di Thor', type: 'Runa', damage: '3d8 Tuono' }
-        ];
-        cardsContainer.innerHTML = cards.map(c => `
-          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
-            <span class="font-cinzel font-bold text-amber-300 block text-[11px] truncate">${c.name}</span>
-            <span class="text-[9px] text-slate-400 uppercase font-semibold">${c.type} • ${c.damage || c.value || ''}</span>
-          </div>
-        `).join('');
-      }
+      window.updateInventoryAndEquipmentUI();
     };
 
     // Esportazioni globali su window per interazioni DOM, moduli e sincronizzazione
