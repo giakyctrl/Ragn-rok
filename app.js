@@ -2687,10 +2687,10 @@ window.renderAllViews = function() {
                 <h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4>
               </div>
               <div class="flex items-center gap-2">
-                <a href="mappa.html?camp=${encodeURIComponent(camp.code)}&role=PLAYER" target="_blank"
-                   class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                  <span class="text-sm">ᚷ</span> GINNUNGAGAP (VTT 3D)
-                </a>
+                <button type="button" onclick="window.openEmbeddedGinnungagap('${camp.code}', 'PLAYER')"
+                        class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
+                  <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+                </button>
                 <span class="text-[10px] text-slate-400 font-mono">${membersEntries.length} Eroi</span>
               </div>
             </div>
@@ -3311,12 +3311,38 @@ window.buyMarketItem = function(marketId) {
   alert(`⚔️ Acquisto completato con successo nel Kaupang di Midgard!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
 };
 
-window.openGinnungagap = function() {
-  const activeCamp = window.activeDmWorkspaceCode || sessionStorage.getItem('yggdrasill_active_dm_camp') || Object.keys(window.dbState.campaigns || {})[0] || 'MIDGARD-VALHALLA';
-  const role = window.isCurrentUserAdmin() ? 'DM' : 'PLAYER';
-  const url = `mappa.html?camp=${encodeURIComponent(activeCamp)}&user=${encodeURIComponent(window.currentUser || '')}&role=${role}`;
-  window.open(url, '_blank');
+window.openEmbeddedGinnungagap = function(campCode, role) {
+  const code = campCode || window.activeDmWorkspaceCode || 'MIDGARD-VALHALLA';
+  const r = role || (window.isCurrentUserAdmin() ? 'DM' : 'PLAYER');
+  const user = window.currentUser || 'Ragnar';
+  const screen = document.getElementById('screen-ginnungagap');
+  const frame = document.getElementById('ginnungagap-iframe');
+  if (screen && frame) {
+    frame.src = `mappa.html?camp=${encodeURIComponent(code)}&role=${encodeURIComponent(r)}&user=${encodeURIComponent(user)}`;
+    screen.classList.remove('hidden');
+  }
 };
+
+window.closeEmbeddedGinnungagap = function() {
+  const screen = document.getElementById('screen-ginnungagap');
+  const frame = document.getElementById('ginnungagap-iframe');
+  if (screen) screen.classList.add('hidden');
+  if (frame) frame.src = 'about:blank';
+  window.renderAllViews();
+};
+
+window.enterActiveGinnungagap = function(prefRole) {
+  let campCode = window.activeDmWorkspaceCode;
+  if (!campCode && window.dbState && window.dbState.campaigns) {
+    const joined = Object.values(window.dbState.campaigns).find(c => c.members && c.members[window.currentUser]);
+    if (joined) campCode = joined.code;
+    else campCode = Object.keys(window.dbState.campaigns)[0] || 'MIDGARD-VALHALLA';
+  }
+  const role = prefRole || (window.isCurrentUserAdmin() ? 'DM' : 'PLAYER');
+  window.openEmbeddedGinnungagap(campCode, role);
+};
+
+window.openGinnungagap = window.enterActiveGinnungagap;
 
 window.initCloudConnection();
 if (window.currentUser && window.dbState.users && window.dbState.users[window.currentUser]) {

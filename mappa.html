@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
   <!-- Dati canonici di Journey to Ragnarok -->
-  <script src="data.js?v=26"></script>
+  <script src="data.js?v=27"></script>
 
   <style>
     :root {
@@ -60,6 +60,7 @@
       background: var(--bg3-slot-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
     .bg3-slot:hover {
       border-color: var(--gold-bright);
@@ -75,13 +76,47 @@
       transition: all 0.2s ease;
     }
     .bg3-turn-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(245, 208, 118, 0.8);
+      transform: scale(1.06);
+      box-shadow: 0 0 24px rgba(245, 208, 118, 0.8), inset 0 1px 4px rgba(255, 255, 255, 0.6);
     }
 
-    /* Modalità Fotografica Letterbox */
-    .letterbox-bar {
-      height: 80px; background: #000000; width: 100%; position: absolute; z-index: 60;
+    /* Modalità Targeting Reticle */
+    .targeting-cursor {
+      cursor: crosshair !important;
+    }
+
+    /* Barra Iniziativa BG3 */
+    .initiative-bar {
+      background: linear-gradient(180deg, rgba(7, 11, 19, 0.95) 0%, rgba(13, 19, 32, 0.9) 100%);
+      border-bottom: 1px solid rgba(201, 160, 80, 0.3);
+      backdrop-filter: blur(12px);
+    }
+    .initiative-card {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .initiative-card.active-turn {
+      border-color: #f59e0b !important;
+      transform: scale(1.08);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+    }
+
+    /* Console di Dialogo & Combattimento Live */
+    .dialogue-console {
+      background: linear-gradient(180deg, rgba(9, 14, 23, 0.97) 0%, rgba(4, 7, 12, 0.98) 100%);
+      border: 1px solid rgba(201, 160, 80, 0.4);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(16px);
+    }
+
+    /* Banner Cinematografico DM */
+    @keyframes bannerSlideIn {
+      0% { transform: translate(-50%, -100%); opacity: 0; }
+      15% { transform: translate(-50%, 0); opacity: 1; }
+      85% { transform: translate(-50%, 0); opacity: 1; }
+      100% { transform: translate(-50%, -100%); opacity: 0; }
+    }
+    .cinematic-banner {
+      animation: bannerSlideIn 7s ease forwards;
     }
 
     ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -96,50 +131,44 @@
   <div id="webgl-container" class="absolute inset-0 z-0"></div>
 
   <!-- 2. BARRA SUPERIORE (REGNO, METEO, CAMERA & STATO SESSIONE) -->
-  <header id="ginnunga-top-bar" class="absolute top-0 left-0 right-0 h-14 bg-slate-950/90 backdrop-blur-md z-40 flex items-center justify-between px-4 border-b border-amber-500/30 shadow-2xl">
+  <header id="ginnunga-top-bar" class="absolute top-0 left-0 right-0 h-14 bg-slate-950/95 backdrop-blur-md z-40 flex items-center justify-between px-3 md:px-4 border-b border-amber-500/30 shadow-2xl">
     
     <!-- BRAND & RUOLO -->
     <div class="flex items-center gap-3">
       <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/30 via-slate-900 to-sky-950 border border-amber-400 flex items-center justify-center shadow-lg">
-        <span class="font-cinzel font-black text-amber-300 text-lg">ᚷ</span>
+        <span class="font-cinzel font-black text-amber-300 text-lg">ᚱ</span>
       </div>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="font-cinzel-dec font-black text-sm tracking-widest text-amber-300">GINNUNGAGAP</h1>
           <span id="badge-user-role" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold uppercase tracking-wider">DUNGEON MASTER</span>
         </div>
-        <p class="text-[10px] text-slate-400 font-medium">Campagna: <span id="label-camp-code" class="text-sky-300 font-bold">CARICAMENTO...</span> &bull; <span id="label-active-realm" class="text-amber-200">Porto di Midgard</span></p>
+        <p class="text-[10px] text-slate-400 font-medium truncate max-w-xs md:max-w-md">
+          Campagna: <span id="label-camp-code" class="text-sky-300 font-bold">...</span> &bull; 
+          <span id="label-active-realm" class="text-amber-200">Porto & Cantiere Navale</span>
+        </p>
       </div>
     </div>
 
-    <!-- SELETTORI CENTRALI: MONDI 3D, METEO DINAMICO & TELECAMERE -->
+    <!-- SELETTORI CENTRALI: TUTTE LE 26 MAPPE UFFICIALI DAL PDF, METEO DINAMICO & TELECAMERE -->
     <div class="flex items-center gap-2">
       
-      <!-- MENU MONDI 3D -->
+      <!-- MENU COMPLETO DELLE 26 MAPPE UFFICIALI (PDF JOURNEY TO RAGNAROK) -->
       <div class="relative group">
-        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400 transition">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-xs font-cinzel font-bold text-amber-200 hover:border-amber-400 transition shadow">
           <span id="top-world-icon">⚓</span>
-          <span id="top-world-name">Porto di Midgard</span>
+          <span id="top-world-name" class="max-w-[150px] md:max-w-[200px] truncate">Cantiere Navale & Porto</span>
           <svg class="w-3.5 h-3.5 text-amber-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
 
-        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-64 bg-slate-950/95 border border-amber-500/40 rounded-xl p-1.5 space-y-1 shadow-2xl z-50 backdrop-blur-md">
-          <div class="text-[9px] font-cinzel font-bold text-amber-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Mondi 3D di Ginnungagap</div>
-          <button onclick="window.switch3DWorld('midgard_shipyard')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
-            <span>⚓</span> Midgardr: Porto &amp; Cantiere Navale
-          </button>
-          <button onclick="window.switch3DWorld('yggdrasill_temple')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
-            <span>🌳</span> Yggdrasill: Tempio delle Rune
-          </button>
-          <button onclick="window.switch3DWorld('niflheim_glacier')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
-            <span>❄️</span> Niflheim: Falesie del Gelo Eterno
-          </button>
-          <button onclick="window.switch3DWorld('muspelheim_forge')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
-            <span>🌋</span> Muspelheim: Forgia Lavica di Surtur
-          </button>
-          <button onclick="window.switch3DWorld('valhalla_hall')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center gap-2 transition">
-            <span>🛡️</span> Valhalla: Salone degli Einherjar
-          </button>
+        <div id="maps-dropdown-container" class="hidden group-hover:block absolute top-full left-0 mt-1 w-80 max-h-96 overflow-y-auto bg-slate-950/98 border border-amber-500/50 rounded-2xl p-2 space-y-2 shadow-2xl z-50 backdrop-blur-xl">
+          <div class="text-[9px] font-cinzel font-bold text-amber-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
+            <span>Mappe Ufficiali (26 Mappe dal PDF)</span>
+            <span class="text-slate-500 text-[8px]">Alta Risoluzione</span>
+          </div>
+          <div id="maps-list-by-acts" class="space-y-1 text-xs">
+            <!-- Popolato dinamicamente da MAPS_MANIFEST -->
+          </div>
         </div>
       </div>
 
@@ -153,15 +182,15 @@
           <div class="text-[9px] font-cinzel font-bold text-sky-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">Condizioni Meteo Dinamiche</div>
           <button onclick="window.setWeather('clear')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">☀️ Sole dei Fiordi (Sereno)</button>
           <button onclick="window.setWeather('blizzard')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">❄️ Bufera Fimbulwinter (Neve)</button>
-          <button onclick="window.setWeather('rain')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌧️ Pioggia Torrenziale &amp; Tuoni</button>
+          <button onclick="window.setWeather('rain')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌧️ Pioggia Torrenziale & Tuoni</button>
           <button onclick="window.setWeather('mist')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌫️ Fitta Nebbia dei Fiordi</button>
-          <button onclick="window.setWeather('aurora')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌌 Notte &amp; Aurora Boreale</button>
-          <button onclick="window.setWeather('embers')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🔥 Cenere &amp; Braci di Muspelheim</button>
+          <button onclick="window.setWeather('aurora')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🌌 Notte & Aurora Boreale</button>
+          <button onclick="window.setWeather('embers')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-sky-500/20 text-slate-200 flex items-center gap-2">🔥 Cenere & Braci di Muspelheim</button>
         </div>
       </div>
 
       <!-- SELETTORE TELECAMERA SIGIL (ORBIT, TATTICA, VISTA EROE, FOTO) -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-1 flex items-center gap-1">
+      <div class="hidden sm:flex bg-slate-900 border border-slate-800 rounded-xl p-1 items-center gap-1">
         <button id="cam-btn-orbit" onclick="window.setCameraMode('orbit')" title="Vista Spettatore 360°" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1">
           <span>🎥</span> <span class="hidden md:inline">Orbit</span>
         </button>
@@ -169,7 +198,7 @@
           <span>📐</span> <span class="hidden md:inline">Tattica</span>
         </button>
         <button id="cam-btn-hero" onclick="window.setCameraMode('hero')" title="Vista Eroe in Prima Persona" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
-          <span>👁️</span> <span class="hidden md:inline">Vista Eroe</span>
+          <span>👁️</span> <span class="hidden md:inline">Eroe</span>
         </button>
         <button id="cam-btn-photo" onclick="window.setCameraMode('photo')" title="Modalità Fotografica Cinematografica" class="px-2.5 py-1 rounded-lg text-xs font-cinzel font-bold text-slate-400 hover:text-white flex items-center gap-1">
           <span>📸</span> <span class="hidden md:inline">Foto</span>
@@ -178,56 +207,95 @@
 
     </div>
 
-    <!-- STRUMENTI GENERALI / CHIUSURA -->
+    <!-- STRUMENTI GENERALI: TOGGLE DIALOGO LIVE, DADI 3D, SCHEDA PERSONAGGIO -->
     <div class="flex items-center gap-2">
-      <!-- Badge Effetto Meteo Tattico -->
-      <div id="weather-tactical-badge" class="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-950/80 border border-sky-400/40 text-[10px] text-sky-300 font-semibold">
-        <span>ℹ️</span> <span id="weather-tactical-desc">Visibilità e movimento ottimali</span>
-      </div>
-
-      <button onclick="window.openDicePhysicsModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-cinzel font-extrabold text-xs shadow hover:brightness-110 flex items-center gap-1.5">
-        <span>🎲</span> Dadi 3D
+      <!-- Pulsante Console Combattimento & Dialogo Live con Badge -->
+      <button onclick="window.toggleDialogueConsole()" class="relative px-3 py-1.5 rounded-xl bg-slate-900 border border-sky-400/50 text-sky-300 hover:border-sky-300 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow">
+        <span>💬</span> <span class="hidden md:inline">Dialogo & Feed</span>
+        <span id="unread-combat-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white font-mono text-[9px] font-bold flex items-center justify-center">1</span>
       </button>
 
-      <a href="index.html" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1">
-        <span>↩️</span> <span class="hidden sm:inline">Scheda</span>
-      </a>
+      <button onclick="window.openDicePhysicsModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-cinzel font-extrabold text-xs shadow hover:brightness-110 flex items-center gap-1.5">
+        <span>🎲</span> <span class="hidden md:inline">Dadi 3D</span>
+      </button>
+
+      <button type="button" onclick="window.toggleHeroSheetOverlayBG3()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-500/30 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow">
+        <span>📜</span> <span class="hidden sm:inline">Scheda Eroe</span>
+      </button>
+
+      <button type="button" onclick="window.returnToYggdrasill()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1.5 transition">
+        <span>↩️</span> <span class="hidden sm:inline">Yggdrasill</span>
+      </button>
     </div>
 
   </header>
 
-  <!-- 3. PANNELLO ORGANIZZATORE DUNGEON MASTER (SOLO DM) -->
-  <aside id="dm-organizer-panel" class="hidden absolute top-16 left-4 z-40 w-80 bg-slate-950/95 border border-amber-500/40 rounded-2xl p-4 space-y-4 shadow-2xl backdrop-blur-md">
+  <!-- 3. BARRA INIZIATIVA STILE BALDUR'S GATE III (IN ALTO SOTTO L'HEADER) -->
+  <section id="bg3-initiative-tracker" class="initiative-bar absolute top-14 left-0 right-0 h-12 z-30 flex items-center justify-between px-4 border-b border-amber-500/20 shadow-md">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] font-cinzel font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+        <span>⚔️</span> <span class="hidden sm:inline">Iniziativa:</span>
+      </span>
+      <div id="initiative-queue-list" class="flex items-center gap-2 overflow-x-auto py-1 max-w-2xl">
+        <!-- Schede di iniziativa caricate dinamicamente -->
+      </div>
+    </div>
+
+    <!-- Controlli Turno & Ritiro Iniziativa -->
+    <div class="flex items-center gap-2">
+      <button onclick="window.rollPartyInitiative()" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/40 hover:border-amber-400 text-amber-300 text-[10px] font-cinzel font-bold flex items-center gap-1">
+        <span>🎲</span> Tira Iniziativa
+      </button>
+      <button onclick="window.bg3NextTurn()" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 text-[10px] font-cinzel font-extrabold shadow flex items-center gap-1 hover:brightness-110">
+        <span>Passa Turno ➔</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- 4. BANNER NOTIFICA MODALITÀ PUNTAMENTO (ATTIVA QUANDO SI CLICCA ATTACCO) -->
+  <div id="targeting-mode-banner" class="hidden absolute top-28 left-1/2 transform -translate-x-1/2 z-40 bg-red-950/95 border-2 border-red-500 rounded-2xl px-6 py-2 shadow-2xl flex items-center gap-4 animate-bounce">
+    <span class="text-xl">🎯</span>
+    <div>
+      <div class="font-cinzel font-black text-xs text-red-200 uppercase tracking-wider">Modalità Bersaglio Attiva (Baldur's Gate 3)</div>
+      <div class="text-[10px] text-slate-300">Clicca su una miniatura nemica o alleata per sferrare l'azione. Premi <span class="font-bold text-white">ESC</span> per annullare.</div>
+    </div>
+    <button onclick="window.cancelTargetingMode()" class="px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 hover:text-white text-xs font-bold">
+      Annulla
+    </button>
+  </div>
+
+  <!-- 5. PANNELLO ORGANIZZATORE DUNGEON MASTER (SOLO DM) -->
+  <aside id="dm-organizer-panel" class="hidden absolute top-28 left-4 z-40 w-80 bg-slate-950/95 border border-amber-500/40 rounded-2xl p-4 space-y-4 shadow-2xl backdrop-blur-md">
     <div class="flex justify-between items-center border-b border-slate-800 pb-2">
       <div class="flex items-center gap-2">
         <span class="text-base text-amber-400">⚖️</span>
         <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Centro Comando DM</h3>
       </div>
-      <button onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="text-slate-400 hover:text-white text-xs">&times;</button>
+      <button onclick="document.getElementById('dm-organizer-panel').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs">&times;</button>
     </div>
 
     <!-- SCHIERAMENTO NEMICI E BOSS -->
     <div class="space-y-2">
       <div class="flex justify-between items-center">
-        <span class="font-cinzel text-[11px] font-bold text-red-400 uppercase">Schiera Nemici &amp; Boss:</span>
-        <span class="text-[9px] text-slate-500">Trascina o clicca</span>
+        <span class="font-cinzel text-[11px] font-bold text-red-400 uppercase">Schiera Nemici & Boss:</span>
+        <span class="text-[9px] text-slate-500">Clicca per schierare</span>
       </div>
       <div class="grid grid-cols-2 gap-2">
         <button onclick="window.dmSpawnEnemy('valkyrie')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
           <div class="font-cinzel font-bold text-xs text-red-200">🪽 Valkyria</div>
-          <span class="text-[9px] text-slate-400">Boss &bull; 75 PF &bull; Volo</span>
+          <span class="text-[9px] text-slate-400">Boss &bull; 75 PF &bull; CA 16</span>
         </button>
         <button onclick="window.dmSpawnEnemy('fenrir_wolf')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
           <div class="font-cinzel font-bold text-xs text-red-200">🐺 Lupo Fenrir</div>
-          <span class="text-[9px] text-slate-400">Bestia &bull; 32 PF &bull; Rapido</span>
+          <span class="text-[9px] text-slate-400">Bestia &bull; 32 PF &bull; CA 13</span>
         </button>
         <button onclick="window.dmSpawnEnemy('frost_giant')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
           <div class="font-cinzel font-bold text-xs text-red-200">❄️ Gigante Gelo</div>
-          <span class="text-[9px] text-slate-400">Jotunn &bull; 110 PF &bull; Grande</span>
+          <span class="text-[9px] text-slate-400">Jotunn &bull; 110 PF &bull; CA 15</span>
         </button>
         <button onclick="window.dmSpawnEnemy('draugr')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
           <div class="font-cinzel font-bold text-xs text-red-200">💀 Draugr</div>
-          <span class="text-[9px] text-slate-400">Non-Morto &bull; 24 PF</span>
+          <span class="text-[9px] text-slate-400">Non-Morto &bull; 24 PF &bull; CA 12</span>
         </button>
       </div>
     </div>
@@ -257,12 +325,68 @@
     </div>
   </aside>
 
-  <!-- PULSANTE APRI PANNELLO DM (SEMINASCOSTO IN ALTO A SINISTRA) -->
-  <button id="btn-open-dm-panel" onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="hidden absolute top-16 left-4 z-30 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs shadow-xl flex items-center gap-1.5">
+  <!-- PULSANTE APRI PANNELLO DM -->
+  <button id="btn-open-dm-panel" onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="hidden absolute top-28 left-4 z-30 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs shadow-xl flex items-center gap-1.5">
     <span>⚖️</span> Pannello DM
   </button>
 
-  <!-- 4. UI ALLA BALDUR'S GATE III (BG3 BOTTOM ACTION BAR PER GIOCATORI & EROI) -->
+  <!-- 6. CONSOLE DI DIALOGO & COMBATTIMENTO LIVE (FEED & COMUNICAZIONE DM <-> PLAYER) -->
+  <aside id="dialogue-combat-console" class="dialogue-console absolute top-28 right-4 z-40 w-88 md:w-96 rounded-2xl flex flex-col shadow-2xl transition-all duration-300" style="height: 480px;">
+    <!-- HEADER CONSOLE -->
+    <div class="p-3 border-b border-amber-500/30 flex items-center justify-between bg-slate-950/70 rounded-t-2xl">
+      <div class="flex items-center gap-2">
+        <span class="text-amber-400 text-sm">⚔️</span>
+        <div>
+          <h3 class="font-cinzel font-bold text-xs text-amber-300">Dialogo & Feed Combattimento</h3>
+          <span class="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sincronizzato in Tempo Reale
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="window.clearDialogueFeed()" title="Pulisci Feed" class="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-slate-800">
+          🧹
+        </button>
+        <button onclick="window.toggleDialogueConsole()" class="text-slate-400 hover:text-white text-base leading-none px-1">&times;</button>
+      </div>
+    </div>
+
+    <!-- SELETTORE TAB: COMBAT LOG / CHAT DIALOGO -->
+    <div class="flex border-b border-slate-800 bg-slate-950/40 text-[10px] font-cinzel font-bold">
+      <button id="tab-btn-combat-log" onclick="window.switchConsoleTab('combat')" class="flex-1 py-1.5 border-b-2 border-amber-400 text-amber-300 text-center">
+        Log Azioni & Attacchi
+      </button>
+      <button id="tab-btn-chat" onclick="window.switchConsoleTab('chat')" class="flex-1 py-1.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 text-center">
+        Chat DM & Party
+      </button>
+    </div>
+
+    <!-- AREA FEED COMBATTIMENTO -->
+    <div id="console-combat-feed" class="flex-1 overflow-y-auto p-2.5 space-y-2 text-xs">
+      <!-- Generato in tempo reale -->
+      <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 text-[11px] leading-relaxed">
+        <span class="text-amber-400 font-cinzel font-bold block mb-0.5">ᚱ Benvenuto in Ginnungagap</span>
+        La sessione è attiva. Le azioni, i tiri per colpire vs CA, le reazioni e i decreti del DM appariranno qui istantaneamente.
+      </div>
+    </div>
+
+    <!-- AREA CHAT SESSIONE -->
+    <div id="console-chat-feed" class="hidden flex-1 overflow-y-auto p-2.5 space-y-2 text-xs">
+      <!-- Generato per messaggi DM e Giocatori -->
+    </div>
+
+    <!-- INPUT INVIO MESSAGGIO DIALOGO -->
+    <div class="p-2 border-t border-slate-800 bg-slate-950/90 rounded-b-2xl">
+      <form onsubmit="window.sendChatMessage(event)" class="flex items-center gap-1.5">
+        <input type="text" id="chat-input-text" placeholder="Scrivi al DM o al party..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400">
+        <button type="submit" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-cinzel font-bold text-xs">
+          Invia
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- 7. UI ALLA BALDUR'S GATE III (BG3 BOTTOM ACTION BAR PER GIOCATORI & EROI) -->
   <div id="bg3-bottom-bar" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-40 w-[96%] max-w-5xl bg3-hud rounded-3xl p-3 border border-amber-500/40 flex items-center justify-between gap-4 shadow-2xl">
     
     <!-- SEZIONE SINISTRA: RITRATTO EROE, STATISTICHE & MISURATORE MOVIMENTO CIRCOLARE -->
@@ -309,10 +433,10 @@
 
       <!-- SLOTS AZIONI ALLA BG3 -->
       <div class="flex items-center gap-1.5 overflow-x-auto p-1 max-w-full">
-        <!-- 1. Attacco Principale -->
-        <button onclick="window.bg3Action('attack')" title="Attacco con Arma Equipaggiata" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 1. Attacco Principale con Selezione Bersaglio -->
+        <button onclick="window.startTargetingAttack()" title="Attacco BG3: Seleziona bersaglio, tiro per colpire d20 vs CA bersaglio e calcolo danni" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-amber-500/50">
           <span class="text-base group-hover:scale-110 transition">⚔️</span>
-          <span class="text-[7px] font-cinzel font-bold text-slate-300 uppercase">Colpo</span>
+          <span class="text-[7px] font-cinzel font-bold text-amber-300 uppercase">Colpo</span>
         </button>
 
         <!-- 2. Scatto (Dash) - Raddoppia Movimento -->
@@ -334,7 +458,7 @@
         </button>
 
         <!-- 5. Spinta (Shove) -->
-        <button onclick="window.bg3Action('shove')" title="Spinta (Spingi un nemico all'indietro)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <button onclick="window.startTargetingShove()" title="Spinta BG3: Prova contrapposta di Atletica per respingere il bersaglio" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <span class="text-base text-orange-400 group-hover:scale-110 transition">🦵</span>
           <span class="text-[7px] font-cinzel font-bold text-orange-300 uppercase">Spinta</span>
         </button>
@@ -353,6 +477,12 @@
           <span class="text-base text-pink-400 group-hover:scale-110 transition">🧪</span>
           <span class="text-[7px] font-cinzel font-bold text-pink-300 uppercase">Pozione</span>
         </button>
+
+        <!-- 8. Reazione: Parata con Scudo Vichingo / Scudo Runico -->
+        <button onclick="window.triggerParryReaction()" title="Attiva Reazione Parata con Scudo (+2 CA) o Scudo Runico (+5 CA)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-sky-500/40">
+          <span class="text-base text-sky-300 group-hover:scale-110 transition">🛡️</span>
+          <span class="text-[7px] font-cinzel font-bold text-sky-300 uppercase">Parata</span>
+        </button>
       </div>
     </div>
 
@@ -366,7 +496,46 @@
 
   </div>
 
-  <!-- 5. MODALE ARBITRO ASSOLUTO DM: "L'ULTIMA PAROLA DEL DM" (OVERRULE & REVOCA) -->
+  <!-- 8. BANNER CINEMATOGRAFICO DECRETO & COLPO DI SCENA DEL DUNGEON MASTER -->
+  <div id="cinematic-dm-banner" class="hidden cinematic-banner fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-2xl w-[90%] bg-slate-950/98 border-2 border-amber-400 rounded-3xl p-4 shadow-[0_0_60px_rgba(201,160,80,0.8)] backdrop-blur-xl">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl flex-shrink-0">
+        👑
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-cinzel font-black text-amber-400 uppercase tracking-widest">DECRETO SUPREMO DEL DUNGEON MASTER</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">COLPO DI SCENA</span>
+        </div>
+        <p id="cinematic-banner-text" class="text-sm font-medium text-slate-100 mt-1 leading-relaxed">
+          La Valkyria cade a terra sanguinante, ma solleva una pietra marchiata dalla runa del viaggio per fuggire a leccarsi le ferite!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. POPUP REAZIONE IMMEDIATA (SCUDO RUNICO / PARATA) -->
+  <div id="modal-reaction-prompt" class="hidden fixed bottom-32 left-1/2 transform -translate-x-1/2 z-50 bg-slate-950 border-2 border-sky-400 rounded-2xl p-4 shadow-[0_0_30px_rgba(56,189,248,0.5)] max-w-md w-[92%] backdrop-blur-md animate-modal-pop">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">⚡</span>
+        <div>
+          <h4 class="font-cinzel font-bold text-xs text-sky-300 uppercase">Opportunità di Reazione (BG3)</h4>
+          <p id="reaction-prompt-desc" class="text-xs text-slate-200 mt-0.5">Il nemico ha sferrato un colpo a segno! Vuoi attivare <span class="text-sky-300 font-bold">Scudo Runico (+5 CA)</span> per deviare l'attacco?</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center justify-end gap-2 mt-3">
+      <button onclick="window.resolveReactionChoice(false)" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">
+        Subisci Colpo
+      </button>
+      <button onclick="window.resolveReactionChoice(true)" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-cinzel font-bold text-xs shadow">
+        Attiva Scudo Runico (+5 CA)
+      </button>
+    </div>
+  </div>
+
+  <!-- 10. MODALE ARBITRO ASSOLUTO DM: "L'ULTIMA PAROLA DEL DM" (OVERRULE & REVOCA) -->
   <div id="modal-dm-arbiter" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-950 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-[0_0_50px_rgba(201,160,80,0.6)] animate-modal-pop">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
@@ -406,13 +575,13 @@
             <span>⚡</span> Revoca / Modifica Esito (Colpo di Scena DM)
           </div>
           <p class="text-[10px] text-slate-300">
-            Il boss non muore! Lasciala a 1 PF e fai scattare una narrazione personalizzata o un evento divino.
+            Il boss non muore! Lasciala ad 1 PF e fai scattare una narrazione personalizzata o una fuga divina.
           </p>
           <div class="flex items-center gap-2">
             <label class="text-[10px] text-slate-400 font-bold">PF Rimanenti:</label>
             <input type="number" id="arbiter-override-hp" value="1" min="1" class="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1 text-center font-bold text-xs text-amber-300">
           </div>
-          <textarea id="arbiter-override-story" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white" placeholder="La Valkyria cade a terra ma spezza una pietra runica del viaggio fuggendo tra le nubi per curarsi le ferite..."></textarea>
+          <textarea id="arbiter-override-story" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white" placeholder="La Valkyria cade a terra sanguinante, ma solleva una pietra marchiata dalla runa del viaggio per fuggire a leccarsi le ferite..."></textarea>
           
           <button onclick="window.confirmArbiterResolution(false)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow-lg hover:brightness-110">
             APPLICA COLPO DI SCENA DEL DM
@@ -422,7 +591,7 @@
     </div>
   </div>
 
-  <!-- 6. MODALE LANCIO DADI 3D CON FISICA -->
+  <!-- 11. MODALE LANCIO DADI 3D CON FISICA -->
   <div id="modal-dice-physics" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-950 border border-amber-400 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -444,177 +613,258 @@
     </div>
   </div>
 
-  <!-- 7. MODALE SPETTACOLARI MAGIE 3D -->
+  <!-- 12. MODALE INCANTESIMI & RUNE 3D NORRENE -->
   <div id="modal-spells-vfx" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-950 border border-amber-400 rounded-3xl max-w-md w-full p-6 space-y-3 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase">Magie &amp; Rune 3D</h3>
-        <button onclick="document.getElementById('modal-spells-vfx').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+        <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase">Rune & Incantesimi Norreni (BG3)</h3>
+        <button onclick="document.getElementById('modal-spells-vfx').classList.add('hidden')" class="text-slate-400 hover:text-white">&times;</button>
       </div>
       <div class="space-y-2">
-        <button onclick="window.cast3DSpell('thor_lightning')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-sky-500/40 hover:border-sky-400 flex items-center gap-3 text-left">
+        <button onclick="window.castRuneSpell('thunder')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-sky-500/40 hover:border-sky-400 text-left transition flex items-center gap-3">
           <span class="text-2xl">⚡</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-sky-300">Fulmine di Thor</div>
-            <span class="text-[10px] text-slate-400">Scarica folgorante dal cielo con impatto e scuotimento.</span>
+            <div class="font-cinzel font-bold text-xs text-sky-300">Runa del Tuono di Thor</div>
+            <span class="text-[9px] text-slate-400">Raggio 9m &bull; 3d8 Danno da Tuono &bull; Azione</span>
           </div>
         </button>
-        <button onclick="window.cast3DSpell('surtur_fireball')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-red-500/40 hover:border-red-400 flex items-center gap-3 text-left">
-          <span class="text-2xl">🔥</span>
-          <div>
-            <div class="font-cinzel font-bold text-xs text-red-300">Palla di Fuoco di Surtur</div>
-            <span class="text-[10px] text-slate-400">Dardo infuocato con esplosione sferica 3D e braci ardenti.</span>
-          </div>
-        </button>
-        <button onclick="window.cast3DSpell('niflheim_frost')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3 text-left">
+        <button onclick="window.castRuneSpell('frost')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 text-left transition flex items-center gap-3">
           <span class="text-2xl">❄️</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-cyan-300">Runa Isa del Gelo</div>
-            <span class="text-[10px] text-slate-400">Spuntoni di ghiaccio eruttano dal suolo congelando il nemico.</span>
+            <div class="font-cinzel font-bold text-xs text-cyan-300">Gelo Primordiale di Niflheim</div>
+            <span class="text-[9px] text-slate-400">Raggio 18m &bull; 2d8 Danno Freddo &bull; Rallenta movimento</span>
           </div>
         </button>
-        <button onclick="window.cast3DSpell('idunn_heal')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3 text-left">
+        <button onclick="window.castRuneSpell('heal')" class="w-full p-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left transition flex items-center gap-3">
           <span class="text-2xl">🌿</span>
           <div>
-            <div class="font-cinzel font-bold text-xs text-emerald-300">Rugiada di Idunn</div>
-            <span class="text-[10px] text-slate-400">Colonne di luce smeraldo curano +12 Punti Ferita.</span>
+            <div class="font-cinzel font-bold text-xs text-emerald-300">Respiro Rigenerante di Freya</div>
+            <span class="text-[9px] text-slate-400">Raggio Contatto &bull; Cura 1d8+3 PF ad alleato</span>
           </div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 8. BANNER NOTIFICA EVENTI IN ALTO AL CENTRO -->
-  <div id="sigil-event-toast" class="hidden absolute top-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-950/95 border-2 border-amber-400 rounded-2xl px-6 py-2.5 shadow-[0_0_35px_rgba(201,160,80,0.6)] flex items-center gap-3 transition-all">
-    <div id="event-toast-icon" class="text-2xl">⚖️</div>
-    <div>
-      <div id="event-toast-title" class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">EVENTO</div>
-      <div id="event-toast-body" class="text-xs text-slate-200 font-medium"></div>
+  <!-- 13. MODALE SCHEDA PERSONAGGIO OVERLAY BG3 (ACCESSIBILE DIRETTAMENTE DAL 3D) -->
+  <div id="modal-hero-sheet-bg3" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-950/98 border-2 border-amber-400 rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-5 space-y-4 shadow-[0_0_50px_rgba(201,160,80,0.5)]">
+      <!-- HEADER SCHEDA BG3 -->
+      <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
+        <div class="flex items-center gap-3">
+          <img id="bg3-overlay-avatar" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150" class="w-12 h-12 rounded-xl object-cover border-2 border-amber-400 shadow">
+          <div>
+            <h3 id="bg3-overlay-name" class="font-cinzel font-black text-base text-white">Ragnar Lodbrok</h3>
+            <span id="bg3-overlay-sub" class="text-[10px] text-amber-300 font-bold uppercase">Barbaro Liv. 3 &bull; Guerrieri dell'Orso</span>
+          </div>
+        </div>
+        <button onclick="window.toggleHeroSheetOverlayBG3()" class="text-slate-400 hover:text-white text-xl font-bold px-2 py-1">&times;</button>
+      </div>
+
+      <!-- CARATTERISTICHE 5E -->
+      <div class="grid grid-cols-6 gap-1.5 text-center">
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">FOR</span>
+          <span id="bg3-stat-for" class="font-cinzel font-bold text-sm text-white">16</span>
+          <span class="text-[8px] text-emerald-400 block font-mono">+3</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">DES</span>
+          <span id="bg3-stat-des" class="font-cinzel font-bold text-sm text-white">14</span>
+          <span class="text-[8px] text-emerald-400 block font-mono">+2</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">COS</span>
+          <span id="bg3-stat-cos" class="font-cinzel font-bold text-sm text-white">16</span>
+          <span class="text-[8px] text-emerald-400 block font-mono">+3</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">INT</span>
+          <span id="bg3-stat-int" class="font-cinzel font-bold text-sm text-white">10</span>
+          <span class="text-[8px] text-slate-400 block font-mono">+0</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">SAG</span>
+          <span id="bg3-stat-sag" class="font-cinzel font-bold text-sm text-white">12</span>
+          <span class="text-[8px] text-emerald-400 block font-mono">+1</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <span class="text-[8px] text-slate-400 uppercase font-bold block">CAR</span>
+          <span id="bg3-stat-car" class="font-cinzel font-bold text-sm text-white">10</span>
+          <span class="text-[8px] text-slate-400 block font-mono">+0</span>
+        </div>
+      </div>
+
+      <!-- STATUS, MONETE & COMBAT STATS -->
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <div class="bg-slate-900 border border-emerald-500/30 p-2.5 rounded-xl flex items-center justify-between">
+          <span class="text-slate-400">Punti Ferita</span>
+          <span id="bg3-overlay-hp" class="font-mono font-bold text-emerald-400">28/28 PF</span>
+        </div>
+        <div class="bg-slate-900 border border-amber-500/30 p-2.5 rounded-xl flex items-center justify-between">
+          <span class="text-slate-400">Classe Armatura</span>
+          <span id="bg3-overlay-ac" class="font-mono font-bold text-amber-300">16 CA</span>
+        </div>
+        <div class="bg-slate-900 border border-amber-500/40 p-2.5 rounded-xl flex items-center justify-between">
+          <span class="text-slate-400">Monete d'Oro</span>
+          <span id="bg3-overlay-gold" class="font-mono font-bold text-amber-300 flex items-center gap-1">🪙 1,000</span>
+        </div>
+      </div>
+
+      <!-- EQUIPAGGIAMENTO E CARTE DELL'EROE -->
+      <div class="space-y-1.5 border-t border-slate-800 pt-3">
+        <span class="font-cinzel font-bold text-[10px] text-sky-400 uppercase tracking-wider block">Equipaggiamento Attivo & Carte:</span>
+        <div id="bg3-overlay-cards" class="grid grid-cols-2 gap-2 text-xs">
+          <!-- Popolato dinamicamente da DB locale -->
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- SCRIPT MOTORE 3D GINNUNGAGAP (THREE.JS r128) -->
+  <!-- TOAST NOTIFICHE EVENTI -->
+  <div id="sigil-event-toast" class="hidden fixed bottom-28 left-6 z-50 bg-slate-950/95 border border-amber-500/50 rounded-2xl px-4 py-3 shadow-2xl backdrop-blur-md max-w-sm animate-fade-in flex items-start gap-3">
+    <span class="text-lg text-amber-400">ᚱ</span>
+    <div>
+      <h4 id="event-toast-title" class="font-cinzel font-bold text-xs text-amber-300">Notifica</h4>
+      <p id="event-toast-body" class="text-[11px] text-slate-300 mt-0.5 leading-snug">Testo notifica</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- SCRIPT ENGINE THREE.JS, 26 MAPPE UFFICIALI & BG3 COMBAT SYSTEM -->
+  <!-- ========================================================================== -->
   <script>
     // ============================================================================
-    // GINNUNGAGAP V2 - MOTORE 3D VTT AVANZATO (SIGIL & BALDUR'S GATE 3)
+    // 26 MAPPE UFFICIALI DAL PDF "JOURNEY TO RAGNAROK"
     // ============================================================================
+    const MAPS_MANIFEST = [
+      { id: "yggdrasill_9worlds", title: "I Nove Mondi (Yggdrasill)", act: "Atto 0", file: "assets/maps/yggdrasill_9worlds.jpg", width: 902, height: 1165, cellsW: 30, cellsH: 38 },
+      { id: "midgardr_full", title: "Midgardr: Terre del Nord", act: "Atto I", file: "assets/maps/midgardr_full.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
+      { id: "norvegr_regional", title: "Norvegr: Costa dei Fiordi", act: "Atto I", file: "assets/maps/norvegr_regional.jpg", width: 902, height: 578, cellsW: 30, cellsH: 20 },
+      { id: "battle_shipyard", title: "Cantiere Navale & Porto", act: "Atto I", file: "assets/maps/battle_shipyard.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
+      { id: "snowy_mountains_regional", title: "Le Montagne Innevate", act: "Atto I", file: "assets/maps/snowy_mountains_regional.jpg", width: 902, height: 579, cellsW: 30, cellsH: 20 },
+      { id: "battle_bandit_camp", title: "Accampamento di Guthrum", act: "Atto I", file: "assets/maps/battle_bandit_camp.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
+      { id: "battle_mountain_pass", title: "Il Sentiero tra i Ghiacci", act: "Atto I", file: "assets/maps/battle_mountain_pass.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
+      { id: "svitjod_regional", title: "Svitjod: Pianure e Foreste", act: "Atto II", file: "assets/maps/svitjod_regional.jpg", width: 902, height: 579, cellsW: 30, cellsH: 20 },
+      { id: "battle_svitjod_camp", title: "Radura dei Clan di Svitjod", act: "Atto II", file: "assets/maps/battle_svitjod_camp.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
+      { id: "battle_uppsala_temple", title: "Tempio Sacro di Uppsala", act: "Atto II", file: "assets/maps/battle_uppsala_temple.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
+      { id: "fenmark_swamp_regional", title: "Fenmark: La Grande Palude", act: "Atto II", file: "assets/maps/fenmark_swamp_regional.jpg", width: 902, height: 580, cellsW: 30, cellsH: 20 },
+      { id: "battle_fenmark_ruins", title: "Rovine nella Palude di Fenmark", act: "Atto II", file: "assets/maps/battle_fenmark_ruins.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
+      { id: "jutland_regional", title: "Jutland: Penisola dei Re", act: "Atto II", file: "assets/maps/jutland_regional.jpg", width: 902, height: 579, cellsW: 30, cellsH: 20 },
+      { id: "battle_danevirke_wall", title: "Il Vallo di Danevirke", act: "Atto II", file: "assets/maps/battle_danevirke_wall.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
+      { id: "battle_jutland_keep", title: "Insediamento Fortificato dello Jarl", act: "Atto II", file: "assets/maps/battle_jutland_keep.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
+      { id: "niflheimr_realm", title: "Niflheimr: Fiumi Gjoll e Gelo Primordiale", act: "Atto III", file: "assets/maps/niflheimr_realm.jpg", width: 902, height: 1166, cellsW: 30, cellsH: 38 },
+      { id: "helheimr_realm", title: "Helheimr: Regno dei Morti", act: "Atto III", file: "assets/maps/helheimr_realm.jpg", width: 902, height: 1164, cellsW: 30, cellsH: 38 },
+      { id: "asgardr_realm", title: "Asgardr: Dimora degli Dei", act: "Atto IV", file: "assets/maps/asgardr_realm.jpg", width: 902, height: 1164, cellsW: 30, cellsH: 38 },
+      { id: "svartalfheimr_realm", title: "Svartalfheimr: Miniere dei Nani", act: "Atto IV", file: "assets/maps/svartalfheimr_realm.jpg", width: 902, height: 1166, cellsW: 30, cellsH: 38 },
+      { id: "battle_svartalfheimr_city", title: "Svartalfheimr: Città Sotterranea", act: "Atto IV", file: "assets/maps/battle_svartalfheimr_city.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
+      { id: "battle_pillars_of_gods", title: "Sala delle Colonne Runiche", act: "Atto IV", file: "assets/maps/battle_pillars_of_gods.jpg", width: 902, height: 1165, cellsW: 32, cellsH: 42 },
+      { id: "ljosalfheimr_realm", title: "Ljosalfheimr: Regno degli Elfi di Luce", act: "Atto V", file: "assets/maps/ljosalfheimr_realm.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
+      { id: "vanaheimr_realm", title: "Vanaheimr: Terre dei Saggi Vani", act: "Atto V", file: "assets/maps/vanaheimr_realm.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
+      { id: "jotunheimr_realm", title: "Jotunheimr: Terra dei Giganti del Gelo", act: "Atto V", file: "assets/maps/jotunheimr_realm.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
+      { id: "muspellsheimr_realm", title: "Muspellsheimr: Mare di Fiamme e Lava", act: "Atto Finale", file: "assets/maps/muspellsheimr_realm.jpg", width: 902, height: 1164, cellsW: 30, cellsH: 38 },
+      { id: "battle_muspellsheimr_lava", title: "Il Fiume di Lava & Sigilli di Surtur", act: "Atto Finale", file: "assets/maps/battle_muspellsheimr_lava.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 }
+    ];
 
-    // Parametri di Sessione e Ruolo
+    // Parametri URL e Identità Sessione
     const urlParams = new URLSearchParams(window.location.search);
-    const currentCampaignCode = urlParams.get('camp') || sessionStorage.getItem('yggdrasill_active_dm_camp') || 'MIDGARD-VALHALLA';
-    const currentUser = urlParams.get('user') || localStorage.getItem('yggdrasill_v3_user') || 'giocatore';
-    const currentRole = urlParams.get('role') || (currentUser === 'admin' ? 'DM' : 'PLAYER');
+    const currentCampaignCode = urlParams.get('camp') || 'MIDGARD-VALHALLA';
+    const currentUser = urlParams.get('user') || 'Ragnar Lodbrok';
+    const currentRole = (urlParams.get('role') || 'PLAYER').toUpperCase();
 
-    // Dimensioni Griglia: 1 Casella = 2.0 unità 3D = 1.5 metri (5 piedi)
-    const GRID_SIZE = 32;
+    // Costanti Griglia Tattica
     const TILE_SIZE = 2.0;
 
-    // Stato Globale
+    // Stato Globale Ginnungagap
     window.Ginnungagap = {
       campaignCode: currentCampaignCode,
       currentUser: currentUser,
       currentRole: currentRole,
-      activeWorld: 'midgard_shipyard',
+      activeMapId: 'battle_shipyard',
       activeWeather: 'clear',
       cameraMode: 'orbit',
       isDashActive: false,
+      targetingMode: null, // 'attack' o 'shove'
       selectedMini: null,
       myHeroMini: null,
       miniatures: [],
+      initiativeQueue: [],
+      currentTurnIndex: 0,
+      turnResources: { action: true, bonus: true, reaction: true },
       weatherParticles: null,
-      softFogGroup: null,
-      movementPathLine: null,
-      movementTileHighlights: []
+      pendingReaction: null
     };
 
     let scene, camera, renderer, controls;
-    let worldGroup, minisGroup, fogGroup, vfxGroup, diceGroup, vectorGroup;
-    let directionalLight, ambientLight;
-    let raycaster, mouse, dragPlane;
-    let isDraggingMini = false;
-    let dragMini = null;
-    let dragStartTile = null;
+    let groundGroup, worldGroup, minisGroup, vectorGroup, fxGroup, fogGroup;
+    let gridHelper, dragPlane, raycaster, mouse;
+    let isDraggingMini = false, dragMini = null, dragStartTile = null;
+    let ambientLight, directionalLight, broadBus = null;
+
+    // ============================================================================
+    // INIZIALIZZAZIONE THREE.JS & AMBIENTE 3D
+    // ============================================================================
 
     window.addEventListener('DOMContentLoaded', () => {
       initThreeEngine();
+      setupBroadcastChannel();
+      populateMapsDropdown();
       initUIByRole();
-      loadActiveWorld('midgard_shipyard');
       loadCampaignState();
-      setWeather('clear');
       animateLoop();
 
       window.addEventListener('resize', onWindowResize);
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cancelTargetingMode();
+      });
     });
 
-    function initUIByRole() {
-      document.getElementById('label-camp-code').textContent = currentCampaignCode;
-      const roleBadge = document.getElementById('badge-user-role');
-
-      if (currentRole === 'DM') {
-        roleBadge.textContent = 'DUNGEON MASTER';
-        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-extrabold uppercase';
-        document.getElementById('btn-open-dm-panel').classList.remove('hidden');
-        document.getElementById('dm-organizer-panel').classList.remove('hidden');
-      } else {
-        roleBadge.textContent = 'GIOCATORE';
-        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-400 text-sky-300 font-extrabold uppercase';
-      }
-    }
-
-    // ============================================================================
-    // INIZIALIZZAZIONE SCENA THREE.JS
-    // ============================================================================
     function initThreeEngine() {
       const container = document.getElementById('webgl-container');
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x070a11);
-      scene.fog = new THREE.FogExp2(0x070a11, 0.012);
+      scene.background = new THREE.Color(0x06090e);
+      scene.fog = new THREE.FogExp2(0x0a101d, 0.008);
 
-      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 26, 30);
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 500);
+      camera.position.set(0, 28, 32);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.toneMappingExposure = 1.1;
       container.appendChild(renderer.domElement);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.maxPolarAngle = Math.PI / 2 - 0.04;
-      controls.minDistance = 4;
-      controls.maxDistance = 110;
+      controls.dampingFactor = 0.08;
+      controls.maxPolarAngle = Math.PI / 2.05;
+      controls.minDistance = 6;
+      controls.maxDistance = 120;
       controls.target.set(0, 0, 0);
 
+      groundGroup = new THREE.Group(); scene.add(groundGroup);
       worldGroup = new THREE.Group(); scene.add(worldGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
-      fogGroup = new THREE.Group(); scene.add(fogGroup);
-      vfxGroup = new THREE.Group(); scene.add(vfxGroup);
-      diceGroup = new THREE.Group(); scene.add(diceGroup);
       vectorGroup = new THREE.Group(); scene.add(vectorGroup);
+      fxGroup = new THREE.Group(); scene.add(fxGroup);
+      fogGroup = new THREE.Group(); scene.add(fogGroup);
 
-      ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
+      ambientLight = new THREE.AmbientLight(0xdbeafe, 0.85);
       scene.add(ambientLight);
 
-      directionalLight = new THREE.DirectionalLight(0xfff7ed, 1.4);
-      directionalLight.position.set(25, 45, 20);
+      directionalLight = new THREE.DirectionalLight(0xfff7ed, 1.5);
+      directionalLight.position.set(20, 45, 18);
       directionalLight.castShadow = true;
       directionalLight.shadow.mapSize.width = 2048;
       directionalLight.shadow.mapSize.height = 2048;
-      directionalLight.shadow.bias = -0.0005;
+      directionalLight.shadow.bias = -0.0004;
       scene.add(directionalLight);
 
-      // GRIGLIA TATTICA SIGIL
-      const gridHelper = new THREE.GridHelper(GRID_SIZE * TILE_SIZE, GRID_SIZE, 0xc9a050, 0x334155);
-      gridHelper.position.y = 0.02;
-      scene.add(gridHelper);
-
-      dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshBasicMaterial({ visible: false }));
+      dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshBasicMaterial({ visible: false }));
       dragPlane.rotation.x = -Math.PI / 2;
       scene.add(dragPlane);
 
@@ -627,397 +877,350 @@
     }
 
     // ============================================================================
-    // EDIFICI NORRENI 3D E MONDI AD ALTA DEFINIZIONE
+    // CARICAMENTO MAPPE DAL PDF IN ALTA RISOLUZIONE SUL TERRENO
     // ============================================================================
 
-    function clearWorld() {
-      while(worldGroup.children.length > 0) worldGroup.remove(worldGroup.children[0]);
+    function populateMapsDropdown() {
+      const container = document.getElementById('maps-list-by-acts');
+      if (!container) return;
+      container.innerHTML = '';
+
+      // Raggruppa le mappe per Atto
+      const acts = {};
+      MAPS_MANIFEST.forEach(m => {
+        if (!acts[m.act]) acts[m.act] = [];
+        acts[m.act].push(m);
+      });
+
+      Object.keys(acts).forEach(actName => {
+        const actDiv = document.createElement('div');
+        actDiv.className = 'pt-1.5 pb-0.5';
+        actDiv.innerHTML = `<div class="text-[9px] font-cinzel font-bold text-amber-500 uppercase tracking-wider mb-1 px-1 border-b border-slate-800">${actName}</div>`;
+        
+        const listDiv = document.createElement('div');
+        listDiv.className = 'space-y-0.5';
+
+        acts[actName].forEach(mapItem => {
+          const btn = document.createElement('button');
+          btn.className = "w-full text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 flex items-center justify-between transition";
+          btn.innerHTML = `
+            <span class="truncate pr-1">${mapItem.title}</span>
+            <span class="text-[9px] text-slate-500">${mapItem.cellsW}x${mapItem.cellsH}</span>
+          `;
+          btn.onclick = () => {
+            loadBattleMap(mapItem.id, true);
+          };
+          listDiv.appendChild(btn);
+        });
+
+        actDiv.appendChild(listDiv);
+        container.appendChild(actDiv);
+      });
     }
 
-    function loadActiveWorld(worldId) {
-      window.Ginnungagap.activeWorld = worldId;
-      clearWorld();
+    function loadBattleMap(mapId, broadcast = false) {
+      const mapDef = MAPS_MANIFEST.find(m => m.id === mapId) || MAPS_MANIFEST[3];
+      window.Ginnungagap.activeMapId = mapDef.id;
 
-      const names = {
-        'midgard_shipyard': 'Porto & Cantiere Navale',
-        'yggdrasill_temple': 'Tempio delle Rune',
-        'niflheim_glacier': 'Falesie del Gelo',
-        'muspelheim_forge': 'Forgia Lavica di Surtur',
-        'valhalla_hall': 'Salone degli Einherjar'
-      };
-      const icons = { 'midgard_shipyard':'⚓', 'yggdrasill_temple':'🌳', 'niflheim_glacier':'❄️', 'muspelheim_forge':'🌋', 'valhalla_hall':'🛡️' };
+      document.getElementById('top-world-name').textContent = mapDef.title;
+      document.getElementById('label-active-realm').textContent = mapDef.title;
 
-      document.getElementById('top-world-name').textContent = names[worldId] || 'Porto di Midgard';
-      document.getElementById('top-world-icon').textContent = icons[worldId] || '⚓';
-      document.getElementById('label-active-realm').textContent = names[worldId] || 'Porto di Midgard';
-
-      if (worldId === 'midgard_shipyard') buildDetailedMidgardPorto();
-      else if (worldId === 'yggdrasill_temple') buildDetailedYggdrasill();
-      else if (worldId === 'niflheim_glacier') buildDetailedNiflheim();
-      else if (worldId === 'muspelheim_forge') buildDetailedMuspelheim();
-      else if (worldId === 'valhalla_hall') buildDetailedValhalla();
-    }
-
-    window.switch3DWorld = function(wId) {
-      loadActiveWorld(wId);
-      saveGinnungagapState();
-    };
-
-    // PORTO & CANTIERE NAVALE DI MIDGARD (Casa Lunga Vichinga, Torre di Guardia, Moli, Drakkar)
-    function buildDetailedMidgardPorto() {
-      // Pavimento banchina in legno
-      const pierGeo = new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1.2, GRID_SIZE * TILE_SIZE * 0.65);
-      const pierMat = new THREE.MeshStandardMaterial({ color: 0x453120, roughness: 0.9 });
-      const pier = new THREE.Mesh(pierGeo, pierMat);
-      pier.position.set(0, -0.6, -6);
-      pier.receiveShadow = true;
-      worldGroup.add(pier);
-
-      // Oceano con riflessi d'acqua
-      const oceanGeo = new THREE.PlaneGeometry(160, 160);
-      const oceanMat = new THREE.MeshStandardMaterial({ color: 0x073b5c, roughness: 0.2, metalness: 0.8, transparent: true, opacity: 0.9 });
-      const ocean = new THREE.Mesh(oceanGeo, oceanMat);
-      ocean.rotation.x = -Math.PI / 2;
-      ocean.position.set(0, -1.05, 34);
-      worldGroup.add(ocean);
-
-      // 1. EDIFICIO NORRENO: CASA LUNGA VICHINGA (Longhouse)
-      buildNorseLonghouse(-16, 0, -14, 0);
-
-      // 2. EDIFICIO NORRENO: TORRE DI GUARDIA IN PIETRA
-      buildWatchtower(20, 0, -16);
-
-      // 3. GRU NAVALE IN LEGNO PER CARICHI
-      buildHarbourCrane(12, 0, 12);
-
-      // 4. DUE DRAKKAR VICHINGHI D'ALTO MARE
-      buildDrakkar(-14, -0.4, 22, 0.08);
-      buildDrakkar(15, -0.4, 24, -0.12);
-    }
-
-    // Costruzione Casa Lunga Vichinga 3D
-    function buildNorseLonghouse(x, y, z, rot) {
-      const house = new THREE.Group();
-      house.position.set(x, y, z);
-      house.rotation.y = rot;
-
-      // Mura in assi di legno orizzontali
-      const wallsGeo = new THREE.BoxGeometry(10, 4.5, 6.5);
-      const wallsMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.85 });
-      const walls = new THREE.Mesh(wallsGeo, wallsMat);
-      walls.position.y = 2.25;
-      walls.castShadow = true;
-      house.add(walls);
-
-      // Tetto spiovente in paglia/erba verde norrena
-      const roofGeo = new THREE.ConeGeometry(5.2, 3.8, 4);
-      const roofMat = new THREE.MeshStandardMaterial({ color: 0x2e3a23, roughness: 0.9 });
-      const roof = new THREE.Mesh(roofGeo, roofMat);
-      roof.rotation.y = Math.PI / 4;
-      roof.position.y = 5.8;
-      roof.scale.set(1.4, 1, 1.8);
-      roof.castShadow = true;
-      house.add(roof);
-
-      // Porta in legno con cardini
-      const door = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.8, 0.2), new THREE.MeshStandardMaterial({ color: 0x1f140c }));
-      door.position.set(0, 1.4, 3.3);
-      house.add(door);
-
-      // Torcia all'ingresso
-      const tLight = new THREE.PointLight(0xf59e0b, 2.0, 10);
-      tLight.position.set(1.4, 2.8, 3.5);
-      house.add(tLight);
-
-      worldGroup.add(house);
-    }
-
-    // Costruzione Torre di Guardia Costiera in Pietra
-    function buildWatchtower(x, y, z) {
-      const tower = new THREE.Group();
-      tower.position.set(x, y, z);
-
-      // Fusto in pietra squadrata
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 11, 8), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 }));
-      base.position.y = 5.5;
-      base.castShadow = true;
-      tower.add(base);
-
-      // Piattaforma merlata superiore
-      const plat = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.0, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x475569 }));
-      plat.position.y = 11.4;
-      plat.castShadow = true;
-      tower.add(plat);
-
-      // Braciere di vedetta acceso
-      const bLight = new THREE.PointLight(0xf97316, 2.8, 16);
-      bLight.position.set(0, 13, 0);
-      tower.add(bLight);
-
-      worldGroup.add(tower);
-    }
-
-    // Gru in legno per carico/scarico navale
-    function buildHarbourCrane(x, y, z) {
-      const crane = new THREE.Group();
-      crane.position.set(x, y, z);
-
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 7, 6), new THREE.MeshStandardMaterial({ color: 0x3b2716 }));
-      post.position.y = 3.5;
-      post.castShadow = true;
-      crane.add(post);
-
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 5), new THREE.MeshStandardMaterial({ color: 0x3b2716 }));
-      arm.position.set(0, 6.8, 1.8);
-      arm.rotation.x = 0.2;
-      arm.castShadow = true;
-      crane.add(arm);
-
-      // Barile sospeso
-      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.3, 10), new THREE.MeshStandardMaterial({ color: 0x54371e }));
-      barrel.position.set(0, 4.0, 3.8);
-      barrel.castShadow = true;
-      crane.add(barrel);
-
-      worldGroup.add(crane);
-    }
-
-    // Drakkar Vichingo dettagliato
-    function buildDrakkar(x, y, z, rot) {
-      const drak = new THREE.Group();
-      drak.position.set(x, y, z);
-      drak.rotation.y = rot;
-
-      const hull = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.5, 1.8, 17, 8, 1, false, 0, Math.PI),
-        new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 })
-      );
-      hull.rotation.z = Math.PI / 2;
-      hull.rotation.y = Math.PI / 2;
-      hull.castShadow = true;
-      drak.add(hull);
-
-      // Prua del Drago intagliata
-      const prow = new THREE.Mesh(new THREE.ConeGeometry(0.9, 3.8, 6), new THREE.MeshStandardMaterial({ color: 0x1f130a }));
-      prow.position.set(0, 2.5, 9);
-      prow.rotation.x = 0.45;
-      drak.add(prow);
-
-      // Scudi rotondi
-      for(let s = -6; s <= 6; s += 2.2) {
-        const sGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.12, 16);
-        const sMat = new THREE.MeshStandardMaterial({ color: (Math.abs(s)%4===0)?0xc9a050:0xef4444 });
-        const sl = new THREE.Mesh(sGeo, sMat);
-        sl.rotation.z = Math.PI/2; sl.position.set(-2.2, 0.4, s);
-        drak.add(sl);
-        const sr = new THREE.Mesh(sGeo, sMat);
-        sr.rotation.z = Math.PI/2; sr.position.set(2.2, 0.4, s);
-        drak.add(sr);
-      }
-
-      worldGroup.add(drak);
-    }
-
-    function buildDetailedYggdrasill() {
-      const floor = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 1, 32), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 }));
-      floor.position.y = -0.5; floor.receiveShadow = true; worldGroup.add(floor);
-
-      for(let r = 0; r < 5; r++) {
-        const ang = (r / 5) * Math.PI * 2;
-        const curve = new THREE.CubicBezierCurve3(
-          new THREE.Vector3(Math.cos(ang)*26, -0.5, Math.sin(ang)*26),
-          new THREE.Vector3(Math.cos(ang)*16, 14, Math.sin(ang)*16),
-          new THREE.Vector3(Math.cos(ang+0.8)*8, 18, Math.sin(ang+0.8)*8),
-          new THREE.Vector3(0, 24, 0)
-        );
-        const root = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 1.2, 8, false), new THREE.MeshStandardMaterial({ color: 0x3b2219 }));
-        root.castShadow = true; worldGroup.add(root);
-      }
-    }
-
-    function buildDetailedNiflheim() {
-      const ice = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.5, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x0c4a6e, roughness: 0.25, metalness: 0.4 }));
-      ice.position.y = -0.75; ice.receiveShadow = true; worldGroup.add(ice);
-
-      for(let i=0; i<20; i++) {
-        const h = 4 + Math.random()*5;
-        const spire = new THREE.Mesh(new THREE.ConeGeometry(1.0, h, 6), new THREE.MeshStandardMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.85 }));
-        const a = Math.random()*Math.PI*2; const d = 16 + Math.random()*12;
-        spire.position.set(Math.cos(a)*d, h/2, Math.sin(a)*d);
-        spire.castShadow = true; worldGroup.add(spire);
-      }
-    }
-
-    function buildDetailedMuspelheim() {
-      const lava = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.2, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.9 }));
-      lava.position.y = -0.6; worldGroup.add(lava);
-
-      const river = new THREE.Mesh(new THREE.PlaneGeometry(6, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xf97316, emissiveIntensity: 1.4 }));
-      river.rotation.x = -Math.PI/2; river.position.y = 0.05; worldGroup.add(river);
-    }
-
-    function buildDetailedValhalla() {
-      const hall = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE*TILE_SIZE, 1.2, GRID_SIZE*TILE_SIZE), new THREE.MeshStandardMaterial({ color: 0x5c3d24, roughness: 0.8 }));
-      hall.position.y = -0.6; worldGroup.add(hall);
-
-      const hearth = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.6, 16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-      hearth.position.y = 0.3; worldGroup.add(hearth);
-      const fLight = new THREE.PointLight(0xf59e0b, 3.2, 26);
-      fLight.position.set(0, 2, 0); worldGroup.add(fLight);
-    }
-
-    // ============================================================================
-    // MOTORE METEO DINAMICO & VISIBILE
-    // ============================================================================
-
-    window.setWeather = function(wKey) {
-      window.Ginnungagap.activeWeather = wKey;
-      if (window.Ginnungagap.weatherParticles) {
-        scene.remove(window.Ginnungagap.weatherParticles);
-        window.Ginnungagap.weatherParticles = null;
-      }
-
-      const wData = {
-        'clear': { name: 'Sole Radioso', icon: '☀️', desc: 'Visibilità e movimento ottimali (Nessuna penalità)' },
-        'blizzard': { name: 'Bufera di Neve', icon: '❄️', desc: 'Fimbulwinter: Terreno Innevato (-1.5m Movimento, Visibilità 18m)' },
-        'rain': { name: 'Pioggia & Tuoni', icon: '🌧️', desc: 'Terreno Scivoloso (Svantaggio a prove acrobatiche)' },
-        'mist': { name: 'Fitta Nebbia', icon: '🌫️', desc: 'Occultamento: Tiri per colpire a distanza hanno svantaggio' },
-        'aurora': { name: 'Aurora Boreale', icon: '🌌', desc: 'Benedizione degli Dei: +1 ai Tiri Salvezza per il Party' },
-        'embers': { name: 'Cenere & Braci', icon: '🔥', desc: 'Calore di Muspelheim: Prove di Costituzione contro affaticamento' }
-      }[wKey] || { name: 'Sereno', icon: '☀️', desc: 'Ottimale' };
-
-      document.getElementById('top-weather-name').textContent = wData.name;
-      document.getElementById('top-weather-icon').textContent = wData.icon;
-      document.getElementById('weather-tactical-desc').textContent = wData.desc;
-
-      // Creazione particelle meteo
-      if (wKey === 'blizzard' || wKey === 'rain' || wKey === 'embers') {
-        const count = wKey === 'rain' ? 2000 : 1200;
-        const pGeo = new THREE.BufferGeometry();
-        const positions = new Float32Array(count * 3);
-        const velocities = [];
-
-        for(let i=0; i<count; i++) {
-          positions[i*3] = (Math.random() - 0.5) * 80;
-          positions[i*3+1] = Math.random() * 35;
-          positions[i*3+2] = (Math.random() - 0.5) * 80;
-          velocities.push({
-            vy: wKey === 'rain' ? -(0.8 + Math.random()*0.5) : -(0.15 + Math.random()*0.1),
-            vx: wKey === 'blizzard' ? (0.2 + Math.random()*0.15) : 0
-          });
+      // Pulisce il terreno precedente
+      while(groundGroup.children.length > 0) {
+        const obj = groundGroup.children[0];
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (obj.material.map) obj.material.map.dispose();
+          obj.material.dispose();
         }
-        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const pColor = wKey === 'blizzard' ? 0xffffff : wKey === 'rain' ? 0x93c5fd : 0xf97316;
-        const pSize = wKey === 'blizzard' ? 0.35 : wKey === 'rain' ? 0.2 : 0.4;
-        const pMat = new THREE.PointsMaterial({ color: pColor, size: pSize, transparent: true, opacity: 0.8 });
-
-        const pMesh = new THREE.Points(pGeo, pMat);
-        pMesh.userData = { velocities: velocities, type: wKey };
-        scene.add(pMesh);
-        window.Ginnungagap.weatherParticles = pMesh;
+        groundGroup.remove(obj);
       }
 
-      showToast(wData.icon + ' Condizione Meteo: ' + wData.name, wData.desc);
-      saveGinnungagapState();
-    };
+      // Calcola dimensioni del piano 3D in base ai quadrati del battlemap
+      const planeW = mapDef.cellsW * TILE_SIZE;
+      const planeH = mapDef.cellsH * TILE_SIZE;
 
-    // ============================================================================
-    // NEBBIA DI GUERRA MORBIDA (FOG OF WAR NON A CUBI)
-    // ============================================================================
+      const groundGeo = new THREE.PlaneGeometry(planeW, planeH, 32, 32);
+      const groundMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.82,
+        metalness: 0.12,
+        side: THREE.DoubleSide
+      });
 
-    window.toggleSoftFog = function(active) {
-      while(fogGroup.children.length > 0) fogGroup.remove(fogGroup.children[0]);
-      if (!active) {
-        showToast('☀️ Nebbia Dissolta', 'Il campo di battaglia è ora visibile a tutti.');
-        return;
+      // Caricamento texture ad altissima fedeltà estratta dal PDF
+      const texLoader = new THREE.TextureLoader();
+      texLoader.load(mapDef.file, (tex) => {
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.anisotropy = 16;
+        groundMat.map = tex;
+        groundMat.needsUpdate = true;
+      });
+
+      const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+      groundMesh.rotation.x = -Math.PI / 2;
+      groundMesh.receiveShadow = true;
+      groundGroup.add(groundMesh);
+
+      // Sovrapposizione Griglia Tattica Sigil allineata al millimetro
+      if (gridHelper) scene.remove(gridHelper);
+      const maxDim = Math.max(planeW, planeH);
+      const gridDivisions = Math.max(mapDef.cellsW, mapDef.cellsH);
+      gridHelper = new THREE.GridHelper(maxDim, gridDivisions, 0xc9a050, 0x334155);
+      gridHelper.position.y = 0.02;
+      scene.add(gridHelper);
+
+      // Centra la telecamera sulla nuova mappa
+      controls.target.set(0, 0, 0);
+
+      logCombatEvent('MAPPA', `Caricata la mappa ufficiale: [${mapDef.title}] (${mapDef.act})`);
+
+      if (broadcast) {
+        broadcastEvent({ type: 'MAP_CHANGED', mapId: mapDef.id, title: mapDef.title });
+        saveGinnungagapState();
       }
-
-      // Velo continuo di nebbia scura soffusa a dischi stratificati
-      for(let x = -GRID_SIZE/2; x < GRID_SIZE/2; x += 3) {
-        for(let z = -GRID_SIZE/2; z < GRID_SIZE/2; z += 3) {
-          const disc = new THREE.Mesh(
-            new THREE.CylinderGeometry(4.2, 4.2, 1.5, 16),
-            new THREE.MeshStandardMaterial({
-              color: 0x050811,
-              transparent: true,
-              opacity: 0.92,
-              roughness: 0.95
-            })
-          );
-          disc.position.set(x * TILE_SIZE, 0.8, z * TILE_SIZE);
-          fogGroup.add(disc);
-        }
-      }
-      showToast('🌫️ Nebbia di Guerra Attiva', 'Le aree non esplorate sono avvolte dalla nebbia mistica.');
-    };
+    }
 
     // ============================================================================
-    // SISTEMA MINIATURE & SNAP AL CENTRO ESATTO DEI QUADRATI
+    // MINIATURE 3D AD ALTA DEFINIZIONE (BASI BISELLATE, RITRATTO E FIGURE SCOLPITE)
     // ============================================================================
 
-    // Formule esatte per centrare sempre all'interno del quadrato
-    function tileToWorldX(tx) { return tx * TILE_SIZE + TILE_SIZE / 2; }
-    function tileToWorldZ(tz) { return tz * TILE_SIZE + TILE_SIZE / 2; }
+    function tileToWorldX(tx) { return (tx + 0.5) * TILE_SIZE; }
+    function tileToWorldZ(tz) { return (tz + 0.5) * TILE_SIZE; }
     function worldToTileX(wx) { return Math.floor(wx / TILE_SIZE); }
     function worldToTileZ(wz) { return Math.floor(wz / TILE_SIZE); }
 
     function createMiniature(data) {
       const mini = new THREE.Group();
       mini.userData = {
-        id: data.id || ('mini_' + Date.now()),
+        id: data.id || ('mini_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
         name: data.name || 'Guerriero',
         className: data.className || 'Barbaro',
         level: data.level || 1,
-        hp: data.hp || 25,
-        maxHp: data.maxHp || 25,
-        speedMeters: data.speedMeters || 9.0, // 9.0m = 6 caselle
-        role: data.role || 'PLAYER',
+        hp: data.hp !== undefined ? data.hp : 28,
+        maxHp: data.maxHp !== undefined ? data.maxHp : 28,
+        ac: data.ac || 15,
+        speedMeters: data.speedMeters || 9.0, // 9m = 6 caselle
+        role: data.role || 'PLAYER', // 'PLAYER', 'DM', 'ENEMY'
         avatar: data.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
         tileX: data.tileX !== undefined ? data.tileX : 0,
-        tileZ: data.tileZ !== undefined ? data.tileZ : 0
+        tileZ: data.tileZ !== undefined ? data.tileZ : 0,
+        initiative: data.initiative || 10,
+        conditions: data.conditions || []
       };
 
-      // 1. BASE IN PIETRA BISELLATA
-      const base = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.85, 0.95, 0.3, 32),
-        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
-      );
-      base.position.y = 0.15;
-      base.castShadow = true;
-      mini.add(base);
+      const isBossValkyrie = mini.userData.name.toLowerCase().includes('valkyr');
+      const isWolf = mini.userData.name.toLowerCase().includes('lupo') || mini.userData.name.toLowerCase().includes('fenrir');
+      const isGiant = mini.userData.name.toLowerCase().includes('gigante') || mini.userData.name.toLowerCase().includes('jotunn');
 
-      // Anello di Fazione (Player = Azzurro, DM = Oro, Nemico = Rosso)
+      // 1. BASE BISELLATA IN PIETRA / METALLO SCURO
+      const baseRadius = isGiant ? 1.6 : 0.88;
+      const baseMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(baseRadius * 0.95, baseRadius, 0.22, 32),
+        new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.35, metalness: 0.5 })
+      );
+      baseMesh.position.y = 0.11;
+      baseMesh.castShadow = true;
+      mini.add(baseMesh);
+
+      // Anello Runicamente Inciso di Fazione (Giocatore = Azzurro, DM = Oro, Nemico = Cremisi)
       const ringCol = mini.userData.role === 'DM' ? 0xf59e0b : (mini.userData.role === 'ENEMY' ? 0xef4444 : 0x38bdf8);
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.88, 0.05, 8, 32),
-        new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.6 })
+      const factionRing = new THREE.Mesh(
+        new THREE.TorusGeometry(baseRadius * 0.98, 0.05, 12, 36),
+        new THREE.MeshStandardMaterial({ color: ringCol, emissive: ringCol, emissiveIntensity: 0.75 })
       );
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = 0.28;
-      mini.add(ring);
+      factionRing.rotation.x = Math.PI / 2;
+      factionRing.position.y = 0.22;
+      mini.add(factionRing);
 
-      // 2. FIGURA MINIATURA 3D
-      const body = new THREE.Group();
-      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.3, 1.1, 8), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.4 }));
-      torso.position.y = 0.95;
-      torso.castShadow = true;
-      body.add(torso);
+      // Medaglione Superiore con Ritratto Eroe / Mostro
+      const tokenCanvas = document.createElement('canvas');
+      tokenCanvas.width = 128; tokenCanvas.height = 128;
+      const tCtx = tokenCanvas.getContext('2d');
+      tCtx.fillStyle = '#0f172a';
+      tCtx.fillRect(0, 0, 128, 128);
+      
+      const tokenImg = new Image();
+      tokenImg.crossOrigin = "anonymous";
+      tokenImg.src = mini.userData.avatar;
+      tokenImg.onload = () => {
+        tCtx.save();
+        tCtx.beginPath();
+        tCtx.arc(64, 64, 58, 0, Math.PI * 2);
+        tCtx.clip();
+        tCtx.drawImage(tokenImg, 0, 0, 128, 128);
+        tCtx.restore();
+        tCtx.strokeStyle = '#c9a050';
+        tCtx.lineWidth = 6;
+        tCtx.beginPath();
+        tCtx.arc(64, 64, 58, 0, Math.PI * 2);
+        tCtx.stroke();
+        tokenTex.needsUpdate = true;
+      };
 
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
-      head.position.y = 1.68;
-      head.castShadow = true;
-      body.add(head);
+      const tokenTex = new THREE.CanvasTexture(tokenCanvas);
+      const tokenDisc = new THREE.Mesh(
+        new THREE.CircleGeometry(baseRadius * 0.92, 32),
+        new THREE.MeshBasicMaterial({ map: tokenTex, side: THREE.DoubleSide })
+      );
+      tokenDisc.rotation.x = -Math.PI / 2;
+      tokenDisc.position.y = 0.23;
+      mini.add(tokenDisc);
 
-      const weapon = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 0.08), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 }));
-      weapon.position.set(0.65, 1.2, 0.2);
-      weapon.castShadow = true;
-      body.add(weapon);
-      mini.add(body);
+      // 2. MODELLO 3D FIGURINA SCOLPITA
+      const figGroup = new THREE.Group();
+      figGroup.position.y = 0.24;
 
-      // 3. CARTELLINO FLUTTUANTE BILLBOARD (Nome & PF)
+      if (isBossValkyrie) {
+        // --- VALKYRIA D'ODHINN (BOSS CELESTIALE CON ALI D'ORO E LANCIA RUNICA) ---
+        figGroup.position.y = 0.55; // Galleggiamento a mezz'aria
+
+        // Corazza Dorata Celestiale
+        const vTorso = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.35, 0.26, 1.15, 12),
+          new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 })
+        );
+        vTorso.position.y = 0.75;
+        vTorso.castShadow = true;
+        figGroup.add(vTorso);
+
+        // Elmo Alato con Ali d'Argento
+        const vHead = new THREE.Mesh(
+          new THREE.SphereGeometry(0.28, 16, 16),
+          new THREE.MeshStandardMaterial({ color: 0xfef08a, metalness: 0.7 })
+        );
+        vHead.position.y = 1.45;
+        vHead.castShadow = true;
+        figGroup.add(vHead);
+
+        // Grandi Ali d'Oro Spiegate
+        const wingMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.35, side: THREE.DoubleSide });
+        [-1, 1].forEach(side => {
+          const wing = new THREE.Mesh(new THREE.ConeGeometry(0.65, 2.2, 5), wingMat);
+          wing.position.set(side * 0.75, 1.25, -0.35);
+          wing.rotation.z = side * 0.8;
+          wing.rotation.x = -0.3;
+          wing.scale.set(1.4, 1, 0.2);
+          figGroup.add(wing);
+        });
+
+        // Lancia di Luce Runica
+        const spearShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.8, 8), new THREE.MeshStandardMaterial({ color: 0xb45309 }));
+        spearShaft.position.set(0.65, 1.2, 0.2);
+        spearShaft.rotation.x = 0.25;
+        figGroup.add(spearShaft);
+
+        const spearTip = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 1.0 }));
+        spearTip.position.set(0.65, 2.5, 0.5);
+        figGroup.add(spearTip);
+
+        // Luce di gloria celestiale
+        const vLight = new THREE.PointLight(0xfef08a, 1.5, 8);
+        vLight.position.set(0, 1.5, 0.5);
+        figGroup.add(vLight);
+
+        // Animazione hovering bobbing
+        new TWEEN.Tween(figGroup.position).to({ y: 0.75 }, 1200).yoyo(true).repeat(Infinity).easing(TWEEN.Easing.Sinusoidal.InOut).start();
+
+      } else if (isWolf) {
+        // --- LUPO DI FENRIR (PREDATORE QUADRUPEDE CON CRINIERA E ZANNE) ---
+        const wBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.6, 1.5), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 }));
+        wBody.position.y = 0.5;
+        wBody.castShadow = true;
+        figGroup.add(wBody);
+
+        const wHead = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.7, 6), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+        wHead.position.set(0, 0.65, 0.95);
+        wHead.rotation.x = Math.PI / 2;
+        figGroup.add(wHead);
+
+        // Occhi Rossi Ferali
+        [-0.14, 0.14].forEach(x => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+          eye.position.set(x, 0.8, 1.05);
+          figGroup.add(eye);
+        });
+
+      } else if (isGiant) {
+        // --- GIGANTE DEL GELO (JOTUNN CON CLAVA RUNICA) ---
+        figGroup.scale.set(1.8, 1.8, 1.8);
+        const gTorso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.3, 0.55), new THREE.MeshStandardMaterial({ color: 0x67e8f9, roughness: 0.7 }));
+        gTorso.position.y = 0.9;
+        figGroup.add(gTorso);
+
+        const gClub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.35, 2.2, 8), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 }));
+        gClub.position.set(0.85, 1.2, 0.3);
+        figGroup.add(gClub);
+
+      } else {
+        // --- EROE / GUERRIERO VICHINGO STANDARD (RAGNAR, BJORN, GIOCATORI) ---
+        // Gambe e Stivali con Bende in Cuoio
+        [-0.18, 0.18].forEach(x => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.65, 8), new THREE.MeshStandardMaterial({ color: 0x37271c, roughness: 0.8 }));
+          leg.position.set(x, 0.32, 0);
+          leg.castShadow = true;
+          figGroup.add(leg);
+        });
+
+        // Busto con Cotteria di Maglia e Cinghie Incrociate
+        const vTorso = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.38, 0.3, 0.85, 10),
+          new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.6 })
+        );
+        vTorso.position.y = 0.95;
+        vTorso.castShadow = true;
+        figGroup.add(vTorso);
+
+        // Mantello di Lana Battuta al Vento
+        const cloakGeo = new THREE.BoxGeometry(0.72, 1.1, 0.12);
+        const cloakMat = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.85 }); // Rosso cremisi clan
+        const cloak = new THREE.Mesh(cloakGeo, cloakMat);
+        cloak.position.set(0, 0.85, -0.28);
+        cloak.rotation.x = 0.12;
+        figGroup.add(cloak);
+
+        // Testa con Elmo Norreno a Occhiali Gjermundbu & Paranaso
+        const vHead = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+        vHead.position.y = 1.48;
+        vHead.castShadow = true;
+        figGroup.add(vHead);
+
+        const vHelm = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.42, 10), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7 }));
+        vHelm.position.y = 1.72;
+        figGroup.add(vHelm);
+
+        const spectacleGuard = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.12), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 }));
+        spectacleGuard.position.set(0, 1.48, 0.22);
+        figGroup.add(spectacleGuard);
+
+        // Scudo Rotondo Vichingo sul Braccio Sinistro
+        const shieldDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.08, 24), new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.8 }));
+        shieldDisc.rotation.z = Math.PI / 2;
+        shieldDisc.position.set(-0.62, 0.95, 0.2);
+        figGroup.add(shieldDisc);
+
+        const shieldBoss = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8 }));
+        shieldBoss.position.set(-0.67, 0.95, 0.2);
+        figGroup.add(shieldBoss);
+
+        // Spada Forgiata Ulfberht con Rune Incise sul Braccio Destro
+        const swordBlade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.35, 0.04), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 }));
+        swordBlade.position.set(0.65, 1.15, 0.15);
+        swordBlade.castShadow = true;
+        figGroup.add(swordBlade);
+
+        // Fregio runico luminoso sulla lama
+        const runeGlow = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.9, 0.05), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+        runeGlow.position.set(0.65, 1.15, 0.15);
+        figGroup.add(runeGlow);
+      }
+
+      mini.add(figGroup);
+
+      // 3. CARTELLINO FLUTTUANTE BILLBOARD (NOME, CLASSE & BARRA PF)
       const bb = createBillboardSprite(mini.userData);
-      bb.position.y = 2.5;
+      bb.position.y = isGiant ? 4.2 : 2.5;
       bb.name = 'billboard';
       mini.add(bb);
 
@@ -1028,26 +1231,75 @@
 
     function createBillboardSprite(uData) {
       const cvs = document.createElement('canvas');
-      cvs.width = 256; cvs.height = 80;
+      cvs.width = 512; cvs.height = 140;
       const ctx = cvs.getContext('2d');
 
-      ctx.fillStyle = 'rgba(8, 12, 20, 0.85)';
-      ctx.beginPath(); ctx.roundRect(8, 8, 240, 64, 14); ctx.fill();
-      ctx.strokeStyle = '#c9a050'; ctx.lineWidth = 2.5; ctx.stroke();
+      // Sfondo in pergamena scura con bordo dorato
+      ctx.fillStyle = 'rgba(7, 11, 20, 0.92)';
+      ctx.beginPath();
+      ctx.roundRect(12, 12, 488, 116, 20);
+      ctx.fill();
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Cinzel, serif'; ctx.textAlign = 'center';
-      ctx.fillText(uData.name, 128, 36);
+      ctx.strokeStyle = '#c9a050';
+      ctx.lineWidth = 4;
+      ctx.stroke();
 
+      // Nome Personaggio in Cinzel
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(uData.name, 256, 52);
+
+      // Badge Ruolo / Classe & CA
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`${uData.className} • CA ${uData.ac || 15}`, 256, 78);
+
+      // Barra Punti Ferita con Gradiente
       const pct = Math.max(0, Math.min(1, uData.hp / uData.maxHp));
-      ctx.fillStyle = '#3f0c0c';
-      ctx.beginPath(); ctx.roundRect(24, 46, 208, 14, 6); ctx.fill();
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(40, 92, 432, 22, 10);
+      ctx.fill();
 
-      ctx.fillStyle = pct > 0.5 ? '#10b981' : pct > 0.25 ? '#eab308' : '#ef4444';
-      ctx.beginPath(); ctx.roundRect(24, 46, 208 * pct, 14, 6); ctx.fill();
+      const hpGrad = ctx.createLinearGradient(40, 0, 472, 0);
+      if (pct > 0.5) {
+        hpGrad.addColorStop(0, '#10b981'); hpGrad.addColorStop(1, '#059669');
+      } else if (pct > 0.25) {
+        hpGrad.addColorStop(0, '#f59e0b'); hpGrad.addColorStop(1, '#d97706');
+      } else {
+        hpGrad.addColorStop(0, '#ef4444'); hpGrad.addColorStop(1, '#b91c1c');
+      }
+
+      ctx.fillStyle = hpGrad;
+      ctx.beginPath();
+      ctx.roundRect(40, 92, Math.max(12, 432 * pct), 22, 10);
+      ctx.fill();
+
+      // Testo numerico PF
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`${uData.hp}/${uData.maxHp} PF`, 256, 109);
 
       const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs), transparent: true }));
-      spr.scale.set(2.8, 0.9, 1);
+      spr.scale.set(3.4, 0.95, 1);
       return spr;
+    }
+
+    function refreshMiniatureBillboard(mini) {
+      if (!mini) return;
+      const old = mini.getObjectByName('billboard');
+      if (old) mini.remove(old);
+      const isGiant = mini.userData.name.toLowerCase().includes('gigante');
+      const bb = createBillboardSprite(mini.userData);
+      bb.position.y = isGiant ? 4.2 : 2.5;
+      bb.name = 'billboard';
+      mini.add(bb);
+
+      // Se è selezionato nella barra BG3, aggiorna anche la HUD
+      if (window.Ginnungagap.selectedMini === mini) {
+        selectMiniature(mini);
+      }
     }
 
     // ============================================================================
@@ -1055,7 +1307,6 @@
     // ============================================================================
 
     function updateMovementVector(startTx, startTz, curTx, curTz, maxTiles) {
-      // Pulisce il vettore precedente
       while(vectorGroup.children.length > 0) vectorGroup.remove(vectorGroup.children[0]);
 
       const dx = Math.abs(curTx - startTx);
@@ -1063,34 +1314,27 @@
       const tilesMoved = Math.max(dx, dz);
       const pct = Math.min(1.0, tilesMoved / maxTiles);
 
-      // Colore del vettore e della griglia calcolato in base alla percentuale
-      let vColor = 0x22c55e; // Verde (0 - 25%)
+      let vColor = 0x22c55e;
       let cssColor = 'text-emerald-400';
       if (pct > 0.75) {
-        vColor = 0xef4444; // Rosso (75 - 100%)
-        cssColor = 'text-red-400';
+        vColor = 0xef4444; cssColor = 'text-red-400';
       } else if (pct > 0.25) {
-        vColor = 0xeab308; // Giallo (25 - 75%)
-        cssColor = 'text-amber-300';
+        vColor = 0xeab308; cssColor = 'text-amber-300';
       }
 
-      // Linea 3D del vettore di spostamento
       const startPos = new THREE.Vector3(tileToWorldX(startTx), 0.1, tileToWorldZ(startTz));
       const endPos = new THREE.Vector3(tileToWorldX(curTx), 0.1, tileToWorldZ(curTz));
 
       const lineGeo = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
       const lineMat = new THREE.LineBasicMaterial({ color: vColor, linewidth: 4 });
-      const line = new THREE.Line(lineGeo, lineMat);
-      vectorGroup.add(line);
+      vectorGroup.add(new THREE.Line(lineGeo, lineMat));
 
-      // Freccia/indicatore al termine del vettore
       const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.2, 8), new THREE.MeshBasicMaterial({ color: vColor }));
       arrow.position.copy(endPos);
       arrow.rotation.x = Math.PI / 2;
       arrow.lookAt(startPos);
       vectorGroup.add(arrow);
 
-      // Evidenziazione della casella di destinazione al centro
       const quad = new THREE.Mesh(
         new THREE.PlaneGeometry(TILE_SIZE * 0.95, TILE_SIZE * 0.95),
         new THREE.MeshBasicMaterial({ color: vColor, transparent: true, opacity: 0.45, side: THREE.DoubleSide })
@@ -1099,7 +1343,6 @@
       quad.position.set(tileToWorldX(curTx), 0.05, tileToWorldZ(curTz));
       vectorGroup.add(quad);
 
-      // Aggiorna il misuratore metrico nella UI BG3
       const metersSpent = (tilesMoved * 1.5).toFixed(1);
       const maxMeters = (maxTiles * 1.5).toFixed(1);
       const meterEl = document.getElementById('bg3-movement-meter');
@@ -1112,7 +1355,564 @@
     }
 
     // ============================================================================
-    // INTERAZIONI MOUSE & MOVIMENTO TRASCINABILE
+    // SISTEMA DI PUNTAMENTO & COMBATTIMENTO BALDUR'S GATE III
+    // ============================================================================
+
+    window.startTargetingAttack = function() {
+      const actor = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!actor) { showToast('⚠️ Nessun Eroe Selezionato', 'Seleziona prima la tua miniatura!'); return; }
+
+      window.Ginnungagap.targetingMode = 'attack';
+      document.body.classList.add('targeting-cursor');
+      document.getElementById('targeting-mode-banner').classList.remove('hidden');
+      showToast('🎯 Modalità Attacco Attiva', 'Clicca sulla miniatura nemica che desideri colpire!');
+    };
+
+    window.startTargetingShove = function() {
+      const actor = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!actor) { showToast('⚠️ Nessun Eroe', 'Seleziona prima la tua miniatura!'); return; }
+
+      window.Ginnungagap.targetingMode = 'shove';
+      document.body.classList.add('targeting-cursor');
+      document.getElementById('targeting-mode-banner').classList.remove('hidden');
+      showToast('🦵 Modalità Spinta', 'Clicca su un nemico per spingerlo indietro!');
+    };
+
+    window.cancelTargetingMode = function() {
+      window.Ginnungagap.targetingMode = null;
+      document.body.classList.remove('targeting-cursor');
+      document.getElementById('targeting-mode-banner').classList.add('hidden');
+    };
+
+    function executeCombatAttack(attackerMini, targetMini) {
+      cancelTargetingMode();
+
+      const a = attackerMini.userData;
+      const t = targetMini.userData;
+
+      // Calcola distanza in metri e caselle
+      const dx = Math.abs(t.tileX - a.tileX);
+      const dz = Math.abs(t.tileZ - a.tileZ);
+      const distTiles = Math.max(dx, dz);
+      const distMeters = (distTiles * 1.5).toFixed(1);
+
+      // Animazione Fendente 3D verso il bersaglio
+      attackerMini.lookAt(targetMini.position);
+      new TWEEN.Tween(attackerMini.position)
+        .to({ x: attackerMini.position.x + (targetMini.position.x - attackerMini.position.x)*0.3, z: attackerMini.position.z + (targetMini.position.z - attackerMini.position.z)*0.3 }, 110)
+        .yoyo(true).repeat(1).start();
+
+      // VFX Slashing Arc
+      spawnSlashFx(targetMini.position);
+
+      // Tiro per Colpire d20 + Bonus Attacco (+5 standard di livello 1-3)
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const atkBonus = 5;
+      const totalAttack = d20 + atkBonus;
+      const isCrit = d20 === 20;
+      const isFumble = d20 === 1;
+
+      const targetAC = t.ac || 15;
+      const isHit = !isFumble && (isCrit || totalAttack >= targetAC);
+
+      if (!isHit) {
+        // MANCATO
+        spawnFloatingCombatText(targetMini.position, 'MANCATO', '#94a3b8');
+        logCombatEvent('ATTACCO', `${a.name} attacca ${t.name} con la Spada Ulfberht: 🎲 d20 (${d20}) + ${atkBonus} = ${totalAttack} vs CA ${targetAC} ➔ ❌ MANCATO!`);
+        showToast('🛡️ Colpo Deflesso', `L'attacco (${totalAttack} vs CA ${targetAC}) è stato respinto dalla difesa!`);
+        broadcastEvent({
+          type: 'COMBAT_ATTACK_RESOLVED',
+          attacker: a.name, target: t.name, hit: false, roll: totalAttack, ac: targetAC
+        });
+        return;
+      }
+
+      // COLPITO: Calcola Danni (1d8+3 o 2d8+3 se Critico)
+      const die1 = Math.floor(Math.random() * 8) + 1;
+      const die2 = isCrit ? (Math.floor(Math.random() * 8) + 1) : 0;
+      const totalDamage = die1 + die2 + 3;
+
+      // Notifica e Log Iniziale
+      const critStr = isCrit ? ' ⭐ COLPO CRITICO!' : '';
+      logCombatEvent('COLPITO', `${a.name} colpisce ${t.name}! 🎲 Tiro: ${totalAttack} vs CA ${targetAC}.${critStr} Danni inflitti: ${totalDamage} PF!`);
+
+      // SE IL BERSAGLIO È UN BOSS O IL DANNO È LETALE: VERIFICA ARBITRO DEL DM!
+      const isBoss = t.name.toLowerCase().includes('valkyr') || t.hp - totalDamage <= 0;
+
+      if (isBoss) {
+        // Notifica il DM per l'Ultima Parola
+        if (currentRole === 'DM') {
+          openDmArbiterModal(`${a.name} ha sferrato un colpo letale contro ${t.name}! Danno potenziale: ${totalDamage} PF (PF attuali: ${t.hp}).`, targetMini, totalDamage);
+        } else {
+          showToast('⚖️ Arbitro del DM Attivo', 'Colpo critico sferrato! Il Dungeon Master sta deliberando l\'esito finale...');
+          broadcastEvent({
+            type: 'PROPOSED_LETHAL_ACTION',
+            attackerName: a.name,
+            targetId: t.id,
+            targetName: t.name,
+            damage: totalDamage,
+            currentHp: t.hp,
+            desc: `${a.name} ha sferrato un colpo decisivo su ${t.name} infliggendo ${totalDamage} danni!`
+          });
+        }
+      } else {
+        // Danno regolare applicato
+        applyDamageToMiniature(targetMini, totalDamage, isCrit);
+      }
+    }
+
+    function applyDamageToMiniature(targetMini, damage, isCrit = false) {
+      const t = targetMini.userData;
+      t.hp = Math.max(0, t.hp - damage);
+      refreshMiniatureBillboard(targetMini);
+
+      // Testo Fluttuante 3D
+      const text = isCrit ? `CRITICO! -${damage} PF` : `-${damage} PF`;
+      spawnFloatingCombatText(targetMini.position, text, isCrit ? '#f59e0b' : '#ef4444');
+
+      logCombatEvent('DANNO', `${t.name} subisce -${damage} PF! (PF rimanenti: ${t.hp}/${t.maxHp})`);
+      saveGinnungagapState();
+
+      broadcastEvent({
+        type: 'MINI_HP_UPDATED',
+        miniId: t.id,
+        newHp: t.hp,
+        damageDealt: damage
+      });
+    }
+
+    // Effetto Visivo 3D del Fendente
+    function spawnSlashFx(pos) {
+      const slashGeo = new THREE.RingGeometry(0.6, 1.4, 16, 1, 0, Math.PI * 0.85);
+      const slashMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+      const slash = new THREE.Mesh(slashGeo, slashMat);
+      slash.position.set(pos.x, pos.y + 1.2, pos.z);
+      slash.rotation.x = Math.PI / 2;
+      fxGroup.add(slash);
+
+      new TWEEN.Tween(slash.scale).to({ x: 1.8, y: 1.8 }, 180).start();
+      new TWEEN.Tween(slashMat).to({ opacity: 0 }, 220).onComplete(() => {
+        fxGroup.remove(slash);
+      }).start();
+    }
+
+    // Testo di Combattimento 3D Fluttuante
+    function spawnFloatingCombatText(pos, text, colorHex) {
+      const cvs = document.createElement('canvas');
+      cvs.width = 256; cvs.height = 64;
+      const ctx = cvs.getContext('2d');
+      ctx.fillStyle = colorHex;
+      ctx.font = 'bold 32px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000000';
+      ctx.shadowBlur = 6;
+      ctx.fillText(text, 128, 44);
+
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs), transparent: true }));
+      spr.position.set(pos.x, pos.y + 2.8, pos.z);
+      spr.scale.set(2.4, 0.6, 1);
+      fxGroup.add(spr);
+
+      new TWEEN.Tween(spr.position).to({ y: spr.position.y + 1.6 }, 900).easing(TWEEN.Easing.Cubic.Out).start();
+      new TWEEN.Tween(spr.material).to({ opacity: 0 }, 900).onComplete(() => {
+        fxGroup.remove(spr);
+      }).start();
+    }
+
+    // ============================================================================
+    // GESTIONE REAZIONE PARATA & SCUDO RUNICO
+    // ============================================================================
+
+    window.triggerParryReaction = function() {
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!mini) return;
+
+      mini.userData.ac = (mini.userData.ac || 15) + 2;
+      refreshMiniatureBillboard(mini);
+      showToast('🛡️ Parata Attivata', `${mini.userData.name} imbraccia lo Scudo Vichingo: +2 CA (CA attuale: ${mini.userData.ac})!`);
+      logCombatEvent('REAZIONE', `${mini.userData.name} attiva la Reazione: [Parata con Scudo Vichingo] +2 CA!`);
+      broadcastEvent({ type: 'REACTION_PARRY', miniId: mini.userData.id, newAc: mini.userData.ac });
+    };
+
+    window.resolveReactionChoice = function(useRunicShield) {
+      document.getElementById('modal-reaction-prompt').classList.add('hidden');
+      if (useRunicShield && window.Ginnungagap.pendingReaction) {
+        const t = window.Ginnungagap.pendingReaction.target;
+        t.userData.ac = (t.userData.ac || 15) + 5;
+        refreshMiniatureBillboard(t);
+        showToast('⚡ Scudo Runico Attivo', `${t.userData.name} evoca uno Scudo Runico (+5 CA)! Il colpo nemico viene deflesso!`);
+        logCombatEvent('REAZIONE', `${t.userData.name} lancia [Scudo Runico] (+5 CA)! L'attacco nemico manca il bersaglio!`);
+        broadcastEvent({ type: 'RUNIC_SHIELD_ACTIVATED', miniId: t.userData.id });
+      }
+    };
+
+    // ============================================================================
+    // ARBITRO SUPREMO DEL DUNGEON MASTER ("L'ULTIMA PAROLA")
+    // ============================================================================
+
+    let currentArbiterTarget = null;
+    let currentArbiterPendingDmg = 0;
+
+    function openDmArbiterModal(desc, targetMini, dmg) {
+      currentArbiterTarget = targetMini;
+      currentArbiterPendingDmg = dmg;
+      document.getElementById('arbiter-action-summary').textContent = desc;
+      document.getElementById('arbiter-override-hp').value = 1;
+      document.getElementById('arbiter-override-story').value = "La Valkyria cade a terra sanguinante, ma solleva una pietra marchiata dalla runa del viaggio per fuggire a leccarsi le ferite!";
+      document.getElementById('modal-dm-arbiter').classList.remove('hidden');
+    }
+
+    window.closeDmArbiterModal = function() {
+      document.getElementById('modal-dm-arbiter').classList.add('hidden');
+    };
+
+    window.confirmArbiterResolution = function(isApproved) {
+      window.closeDmArbiterModal();
+
+      if (!currentArbiterTarget) {
+        currentArbiterTarget = window.Ginnungagap.miniatures.find(m => m.userData.role === 'ENEMY');
+      }
+
+      if (isApproved) {
+        // Applica danno letale pieno
+        if (currentArbiterTarget) {
+          applyDamageToMiniature(currentArbiterTarget, currentArbiterPendingDmg || 28);
+        }
+        showToast('✅ Esito Confermato', 'Il DM ha approvato il colpo letale. Il nemico è stato sconfitto!');
+        logCombatEvent('DECRETO DM', `Il Dungeon Master approva l'esito: il nemico cade sconfitto!`);
+      } else {
+        // Colpo di scena del DM: salva il boss ad 1 PF con narrazione
+        const hpRem = parseInt(document.getElementById('arbiter-override-hp').value) || 1;
+        const story = document.getElementById('arbiter-override-story').value.trim() || document.getElementById('arbiter-override-story').placeholder || 'La Valkyria cade a terra sanguinante, ma solleva una pietra marchiata dalla runa del viaggio per fuggire a leccarsi le ferite!';
+
+        if (currentArbiterTarget) {
+          currentArbiterTarget.userData.hp = hpRem;
+          refreshMiniatureBillboard(currentArbiterTarget);
+        }
+
+        logCombatEvent('COLPO DI SCENA DM', `[DECRETO DM] ${story} (PF impostati a ${hpRem})`);
+        showCinematicBanner(story);
+
+        broadcastEvent({
+          type: 'DM_OVERRULE_EVENT',
+          narrative: story,
+          targetId: currentArbiterTarget ? currentArbiterTarget.userData.id : null,
+          remainingHp: hpRem
+        });
+      }
+      saveGinnungagapState();
+    };
+
+    function showCinematicBanner(text) {
+      const banner = document.getElementById('cinematic-dm-banner');
+      document.getElementById('cinematic-banner-text').textContent = text;
+      banner.classList.remove('hidden');
+      setTimeout(() => banner.classList.add('hidden'), 7000);
+    }
+
+    // ============================================================================
+    // CONSOLE COMBATTIMENTO & DIALOGO LIVE TRA DM E GIOCATORE
+    // ============================================================================
+
+    window.toggleDialogueConsole = function() {
+      const consoleEl = document.getElementById('dialogue-combat-console');
+      consoleEl.classList.toggle('hidden');
+      const badge = document.getElementById('unread-combat-badge');
+      if (!consoleEl.classList.contains('hidden')) {
+        badge.classList.add('hidden');
+        badge.textContent = '0';
+      }
+    };
+
+    window.switchConsoleTab = function(tab) {
+      const cFeed = document.getElementById('console-combat-feed');
+      const chatFeed = document.getElementById('console-chat-feed');
+      const cBtn = document.getElementById('tab-btn-combat-log');
+      const chatBtn = document.getElementById('tab-btn-chat');
+
+      if (tab === 'combat') {
+        cFeed.classList.remove('hidden');
+        chatFeed.classList.add('hidden');
+        cBtn.className = "flex-1 py-1.5 border-b-2 border-amber-400 text-amber-300 text-center";
+        chatBtn.className = "flex-1 py-1.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 text-center";
+      } else {
+        cFeed.classList.add('hidden');
+        chatFeed.classList.remove('hidden');
+        cBtn.className = "flex-1 py-1.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 text-center";
+        chatBtn.className = "flex-1 py-1.5 border-b-2 border-amber-400 text-amber-300 text-center";
+      }
+    };
+
+    function logCombatEvent(badge, text) {
+      const feed = document.getElementById('console-combat-feed');
+      if (!feed) return;
+
+      const d = new Date();
+      const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+
+      let borderClass = 'border-slate-800 bg-slate-900/80';
+      let badgeClass = 'bg-sky-500/20 text-sky-300 border-sky-400/40';
+
+      if (badge.includes('COLPITO') || badge.includes('DANNO')) {
+        borderClass = 'border-red-500/40 bg-red-950/30';
+        badgeClass = 'bg-red-500/20 text-red-300 border-red-400/40';
+      } else if (badge.includes('DM') || badge.includes('COLPO DI SCENA')) {
+        borderClass = 'border-amber-400/60 bg-amber-950/40';
+        badgeClass = 'bg-amber-500/30 text-amber-200 border-amber-400';
+      } else if (badge.includes('REAZIONE')) {
+        borderClass = 'border-purple-500/40 bg-purple-950/30';
+        badgeClass = 'bg-purple-500/20 text-purple-300 border-purple-400/40';
+      }
+
+      const card = document.createElement('div');
+      card.className = `p-2 rounded-xl border ${borderClass} space-y-1 transition`;
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[9px] px-1.5 py-0.2 rounded border font-cinzel font-bold uppercase ${badgeClass}">${badge}</span>
+          <span class="text-[9px] font-mono text-slate-500">${timeStr}</span>
+        </div>
+        <p class="text-[11px] text-slate-200 leading-snug">${text}</p>
+      `;
+      feed.appendChild(card);
+      feed.scrollTop = feed.scrollHeight;
+
+      // Aggiorna contatore non letti se console è chiusa
+      const consoleEl = document.getElementById('dialogue-combat-console');
+      if (consoleEl.classList.contains('hidden')) {
+        const badgeEl = document.getElementById('unread-combat-badge');
+        badgeEl.classList.remove('hidden');
+        badgeEl.textContent = (parseInt(badgeEl.textContent || '0') + 1).toString();
+      }
+    }
+
+    window.sendChatMessage = function(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input-text');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const isDm = currentRole === 'DM';
+      appendChatMessage(currentUser, currentRole, text, true);
+      broadcastEvent({
+        type: 'CHAT_MESSAGE',
+        sender: currentUser,
+        role: currentRole,
+        text: text
+      });
+    };
+
+    function appendChatMessage(sender, role, text, isSelf = false) {
+      const feed = document.getElementById('console-chat-feed');
+      if (!feed) return;
+
+      const isDm = role === 'DM';
+      const bubble = document.createElement('div');
+      bubble.className = `p-2 rounded-xl border ${isDm ? 'border-amber-500/40 bg-amber-950/30' : 'border-slate-800 bg-slate-900/90'} space-y-0.5`;
+      bubble.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-cinzel font-bold text-[10px] ${isDm ? 'text-amber-300' : 'text-sky-300'} flex items-center gap-1">
+            ${isDm ? '👑' : '⚔️'} ${sender}
+          </span>
+          <span class="text-[8px] text-slate-500 uppercase font-bold">${role}</span>
+        </div>
+        <p class="text-[11px] text-slate-200 leading-snug">${text}</p>
+      `;
+      feed.appendChild(bubble);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    window.clearDialogueFeed = function() {
+      document.getElementById('console-combat-feed').innerHTML = '';
+      document.getElementById('console-chat-feed').innerHTML = '';
+    };
+
+    let lastPulseTime = 0;
+    const processedMsgIds = new Set();
+
+    function setupBroadcastChannel() {
+      try {
+        broadBus = new BroadcastChannel('yggdrasill_v3_bus');
+        broadBus.onmessage = (event) => {
+          handleIncomingSyncMessage(event.data);
+        };
+      } catch(e) {}
+
+      // Fallback cross-window con storage event
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'yggdrasill_v3_sync_pulse') {
+          try {
+            const data = JSON.parse(e.newValue);
+            handleIncomingSyncMessage(data);
+          } catch(err){}
+        }
+      });
+
+      // Polling di sicurezza heartbeat per garantire ricezione istantanea anche tra schede separate
+      setInterval(() => {
+        try {
+          const raw = localStorage.getItem('yggdrasill_v3_sync_pulse');
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data && data.timestamp && data.timestamp > lastPulseTime && data.senderName !== currentUser) {
+              lastPulseTime = data.timestamp;
+              handleIncomingSyncMessage(data);
+            }
+          }
+        } catch(e){}
+      }, 250);
+    }
+
+    window.broadcastEvent = function(payload) {
+      if (!payload) return;
+      try {
+        payload.msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        payload.timestamp = Date.now();
+        payload.senderRole = currentRole;
+        payload.senderName = currentUser;
+        lastPulseTime = payload.timestamp;
+
+        if (broadBus) {
+          try { broadBus.postMessage(payload); } catch(e){}
+        }
+        try {
+          localStorage.setItem('yggdrasill_v3_sync_pulse', JSON.stringify(payload));
+        } catch(e){}
+
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+          try {
+            firebase.database().ref(`yggdrasill_v3_realm/campaigns/${currentCampaignCode}/events`).push(payload);
+          } catch(e){}
+        }
+      } catch(err) {}
+    };
+    const broadcastEvent = window.broadcastEvent;
+
+    window.handleIncomingSyncMessage = function(msg) {
+      if (!msg || msg.senderName === currentUser) return;
+      if (msg.msgId) {
+        if (processedMsgIds.has(msg.msgId)) return;
+        processedMsgIds.add(msg.msgId);
+        if (processedMsgIds.size > 200) {
+          const arr = Array.from(processedMsgIds);
+          arr.slice(0, 100).forEach(id => processedMsgIds.delete(id));
+        }
+      }
+
+      if (msg.type === 'MINI_MOVED') {
+        const mini = window.Ginnungagap.miniatures.find(m => m.userData.id === msg.miniId);
+        if (mini) {
+          mini.userData.tileX = msg.tileX;
+          mini.userData.tileZ = msg.tileZ;
+          new TWEEN.Tween(mini.position)
+            .to({ x: tileToWorldX(msg.tileX), z: tileToWorldZ(msg.tileZ) }, 300)
+            .start();
+        }
+
+      } else if (msg.type === 'MAP_CHANGED') {
+        loadBattleMap(msg.mapId, false);
+        showToast('🗺️ Nuova Mappa Schierata', `Il Dungeon Master ha caricato: ${msg.title}`);
+
+      } else if (msg.type === 'WEATHER_CHANGED') {
+        setWeather(msg.weather, false);
+
+      } else if (msg.type === 'CHAT_MESSAGE') {
+        appendChatMessage(msg.sender, msg.role, msg.text, false);
+
+      } else if (msg.type === 'COMBAT_ATTACK_RESOLVED') {
+        logCombatEvent('ATTACCO ESTERNO', `${msg.attacker} ha attaccato ${msg.target}: ${msg.hit ? 'COLPITO!' : 'Mancato.'}`);
+
+      } else if (msg.type === 'MINI_HP_UPDATED') {
+        const mini = window.Ginnungagap.miniatures.find(m => m.userData.id === msg.miniId);
+        if (mini) {
+          mini.userData.hp = msg.newHp;
+          refreshMiniatureBillboard(mini);
+        }
+
+      } else if (msg.type === 'PROPOSED_LETHAL_ACTION' && currentRole === 'DM') {
+        // Sul dispositivo del DM compare subito il modale di approvazione / colpo di scena!
+        const targetMini = window.Ginnungagap.miniatures.find(m => m.userData.id === msg.targetId);
+        openDmArbiterModal(msg.desc, targetMini, msg.damage);
+
+      } else if (msg.type === 'DM_OVERRULE_EVENT') {
+        showCinematicBanner(msg.narrative);
+        logCombatEvent('COLPO DI SCENA DM', `[DECRETO DM] ${msg.narrative}`);
+        if (msg.targetId) {
+          const mini = window.Ginnungagap.miniatures.find(m => m.userData.id === msg.targetId);
+          if (mini) {
+            mini.userData.hp = msg.remainingHp;
+            refreshMiniatureBillboard(mini);
+          }
+        }
+
+      } else if (msg.type === 'SPAWN_MINI') {
+        const mObj = createMiniature(msg.miniData);
+        minisGroup.add(mObj);
+        window.Ginnungagap.miniatures.push(mObj);
+        updateInitiativeBar();
+      }
+    }
+
+    // ============================================================================
+    // BARRA INIZIATIVA DINAMICA BG3
+    // ============================================================================
+
+    function updateInitiativeBar() {
+      const container = document.getElementById('initiative-queue-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      window.Ginnungagap.initiativeQueue.forEach((mini, idx) => {
+        const u = mini.userData;
+        const isActive = idx === window.Ginnungagap.currentTurnIndex;
+        const card = document.createElement('div');
+        card.className = `initiative-card flex items-center gap-1.5 p-1 rounded-xl border ${isActive ? 'active-turn bg-amber-950/60 border-amber-400' : 'bg-slate-900 border-slate-800'} cursor-pointer flex-shrink-0`;
+        card.innerHTML = `
+          <img src="${u.avatar}" class="w-7 h-7 rounded-lg object-cover border border-amber-400/50">
+          <div class="pr-1 text-left">
+            <div class="font-cinzel font-bold text-[9px] text-white truncate max-w-[80px]">${u.name}</div>
+            <div class="text-[8px] font-mono text-emerald-400">${u.hp}/${u.maxHp} PF</div>
+          </div>
+        `;
+        card.onclick = () => selectMiniature(mini);
+        container.appendChild(card);
+      });
+    }
+
+    window.rollPartyInitiative = function() {
+      window.Ginnungagap.miniatures.forEach(m => {
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const dexMod = 2;
+        m.userData.initiative = d20 + dexMod;
+      });
+
+      window.Ginnungagap.initiativeQueue = [...window.Ginnungagap.miniatures].sort((a, b) => b.userData.initiative - a.userData.initiative);
+      window.Ginnungagap.currentTurnIndex = 0;
+      updateInitiativeBar();
+
+      const first = window.Ginnungagap.initiativeQueue[0];
+      if (first) {
+        selectMiniature(first);
+        showToast('⚔️ Iniziativa Tirata!', `Turno di apertura: [${first.userData.name}] (Iniziativa ${first.userData.initiative})!`);
+        logCombatEvent('INIZIATIVA', `Ordine di combattimento stabilito. Turno di: ${first.userData.name}`);
+      }
+    };
+
+    window.bg3NextTurn = function() {
+      if (window.Ginnungagap.initiativeQueue.length === 0) return;
+      window.Ginnungagap.currentTurnIndex = (window.Ginnungagap.currentTurnIndex + 1) % window.Ginnungagap.initiativeQueue.length;
+      updateInitiativeBar();
+
+      const currentMini = window.Ginnungagap.initiativeQueue[window.Ginnungagap.currentTurnIndex];
+      if (currentMini) {
+        selectMiniature(currentMini);
+        showToast('⏳ Nuovo Turno', `È il turno di: [${currentMini.userData.name}]`);
+        logCombatEvent('TURNO', `Inizio turno: ${currentMini.userData.name}`);
+      }
+    };
+
+    // ============================================================================
+    // INTERAZIONI MOUSE, TRASCINAMENTO & PUNTAMENTO BERSAGLIO
     // ============================================================================
 
     function onPointerDown(e) {
@@ -1128,9 +1928,27 @@
         while(root.parent && root.parent !== minisGroup) root = root.parent;
 
         if (root && root.userData && root.userData.id) {
-          // I giocatori possono muovere solo il loro eroe, il DM può muovere tutto
+          // SE SIAMO IN MODALITÀ ATTACCO O SPINTA
+          if (window.Ginnungagap.targetingMode === 'attack') {
+            const attacker = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+            if (attacker === root) {
+              showToast('⚠️ Bersaglio Non Valido', 'Non puoi attaccare te stesso!');
+              return;
+            }
+            executeCombatAttack(attacker, root);
+            return;
+          }
+
+          if (window.Ginnungagap.targetingMode === 'shove') {
+            cancelTargetingMode();
+            showToast('🦵 Spinta Eseguita', `Tentativo di spingere [${root.userData.name}] indietro di 1.5m!`);
+            logCombatEvent('SPINTA', `${currentUser} spinge ${root.userData.name}!`);
+            return;
+          }
+
+          // Movimento miniatura
           if (currentRole === 'PLAYER' && window.Ginnungagap.myHeroMini && root !== window.Ginnungagap.myHeroMini) {
-            showToast('⚠️ Controllo Limitato', 'Puoi muovere solo la miniatura del tuo Eroe!');
+            selectMiniature(root); // Il giocatore può ispezionare le statistiche del bersaglio
             return;
           }
 
@@ -1154,7 +1972,6 @@
           let tx = worldToTileX(hits[0].point.x);
           let tz = worldToTileZ(hits[0].point.z);
 
-          // Limite Massimo di Spostamento (in base a speedMeters e Scatto)
           const maxSpeed = window.Ginnungagap.isDashActive ? dragMini.userData.speedMeters * 2 : dragMini.userData.speedMeters;
           const maxTiles = Math.floor(maxSpeed / 1.5);
 
@@ -1162,20 +1979,17 @@
           const dz = tz - dragStartTile.tz;
           const dist = Math.max(Math.abs(dx), Math.abs(dz));
 
-          // Clampa lo spostamento al massimo consentito per il turno
           if (dist > maxTiles) {
             const ratio = maxTiles / dist;
             tx = Math.round(dragStartTile.tx + dx * ratio);
             tz = Math.round(dragStartTile.tz + dz * ratio);
           }
 
-          // Posiziona al centro esatto
           dragMini.position.x = tileToWorldX(tx);
           dragMini.position.z = tileToWorldZ(tz);
           dragMini.userData.tileX = tx;
           dragMini.userData.tileZ = tz;
 
-          // Aggiorna Vettore Dinamico Tricolore
           updateMovementVector(dragStartTile.tx, dragStartTile.tz, tx, tz, maxTiles);
         }
       }
@@ -1187,6 +2001,14 @@
         isDraggingMini = false;
         clearMovementVector();
         saveGinnungagapState();
+
+        broadcastEvent({
+          type: 'MINI_MOVED',
+          miniId: dragMini.userData.id,
+          tileX: dragMini.userData.tileX,
+          tileZ: dragMini.userData.tileZ
+        });
+
         dragMini = null;
         dragStartTile = null;
       }
@@ -1197,8 +2019,9 @@
       const u = mini.userData;
 
       document.getElementById('bg3-hero-name').textContent = u.name;
-      document.getElementById('bg3-hero-class').textContent = u.className;
+      document.getElementById('bg3-hero-class').textContent = `${u.className} • Livello ${u.level || 1}`;
       document.getElementById('bg3-portrait').src = u.avatar;
+      document.getElementById('bg3-ac-val').textContent = u.ac || 15;
       
       const pct = Math.max(0, Math.min(1, u.hp / u.maxHp));
       document.getElementById('bg3-hp-bar').style.width = (pct * 100) + '%';
@@ -1206,7 +2029,7 @@
     }
 
     // ============================================================================
-    // AZIONI BALDUR'S GATE III (HOTBAR INFERIORE)
+    // AZIONI BG3 STANDARD & INCANTESIMI
     // ============================================================================
 
     window.bg3Action = function(act) {
@@ -1218,36 +2041,24 @@
         const speed = window.Ginnungagap.isDashActive ? mini.userData.speedMeters * 2 : mini.userData.speedMeters;
         const tiles = Math.floor(speed / 1.5);
         document.getElementById('bg3-movement-meter').textContent = `${speed}m / ${speed}m (${tiles} Caselle)`;
-        showToast('🏃 Scatto Attivato!', `Movimento raddoppiato per questo turno: ${speed}m (${tiles} caselle).`);
-
-      } else if (act === 'attack') {
-        // Colpo con fendente 3D
-        playAttackAnim(mini);
-        const d20 = Math.floor(Math.random() * 20) + 1;
-        const total = d20 + 5;
-        const isCrit = d20 === 20;
-
-        // Se attacchiamo un boss (es. Valkyria), attiva l'arbitro del DM!
-        triggerPlayerActionForArbiter(
-          `${mini.userData.name} sferra un attacco con la Spada Ulfberht contro il nemico [Tiro d20=${d20}+5 = ${total} ${isCrit?'CRITICO!':''}] infliggendo 26 danni!`
-        );
+        showToast('🏃 Scatto Attivato!', `Movimento raddoppiato: ${speed}m (${tiles} caselle).`);
+        logCombatEvent('AZIONE', `${mini.userData.name} attiva [Scatto]: movimento raddoppiato a ${speed}m!`);
 
       } else if (act === 'dodge') {
-        showToast('🛡️ Schivata Eseguita', `${mini.userData.name} si focalizza sulla difesa: svantaggio ai tiri per colpire dei nemici.`);
+        showToast('🛡️ Schivata Attiva', `${mini.userData.name} adotta una guardia difensiva: svantaggio ai tiri per colpire avversari.`);
+        logCombatEvent('AZIONE', `${mini.userData.name} esegue [Schivata].`);
 
       } else if (act === 'disengage') {
-        showToast('💨 Disimpegno Attivo', `${mini.userData.name} può muoversi senza provocare attacchi d'opportunità.`);
-
-      } else if (act === 'shove') {
-        showToast('🦵 Tentativo di Spinta', `${mini.userData.name} tenta di spingere il bersaglio all'indietro di 1.5m.`);
+        showToast('💨 Disimpegno', `${mini.userData.name} si disimpegna: nessun attacco d'opportunità per questo turno.`);
+        logCombatEvent('AZIONE', `${mini.userData.name} attiva [Disimpegno].`);
 
       } else if (act === 'potion') {
         const heal = Math.floor(Math.random()*4) + Math.floor(Math.random()*4) + 4;
         mini.userData.hp = Math.min(mini.userData.maxHp, mini.userData.hp + heal);
-        mini.remove(mini.getObjectByName('billboard'));
-        mini.add(createBillboardSprite(mini.userData));
-        selectMiniature(mini);
-        showToast('🧪 Pozione Bevuta', `${mini.userData.name} recupera +${heal} Punti Ferita!`);
+        refreshMiniatureBillboard(mini);
+        showToast('🧪 Pozione Bevuta', `${mini.userData.name} recupera +${heal} PF!`);
+        logCombatEvent('POZIONE', `${mini.userData.name} beve una Pozione di Guarigione: recuperati +${heal} PF (Attuali: ${mini.userData.hp}/${mini.userData.maxHp}).`);
+        spawnFloatingCombatText(mini.position, `+${heal} PF`, '#10b981');
         saveGinnungagapState();
       }
     };
@@ -1259,96 +2070,121 @@
         document.getElementById('bg3-movement-meter').textContent = `${mini.userData.speedMeters}m / ${mini.userData.speedMeters}m (${Math.floor(mini.userData.speedMeters/1.5)} Caselle)`;
       }
       showToast('⏳ Turno Terminato', 'Risorse e movimento ripristinati per il prossimo round.');
+      window.bg3NextTurn();
     };
 
-    function playAttackAnim(mini) {
-      new TWEEN.Tween(mini.rotation).to({ y: mini.rotation.y + 0.5 }, 90).yoyo(true).repeat(1).start();
-    }
+    window.openSpellsVfxModal = function() {
+      document.getElementById('modal-spells-vfx').classList.remove('hidden');
+    };
 
-    // ============================================================================
-    // ARBITRO ASSOLUTO DEL DUNGEON MASTER ("L'ULTIMA PAROLA DEL DM")
-    // ============================================================================
+    window.castRuneSpell = function(spellType) {
+      document.getElementById('modal-spells-vfx').classList.add('hidden');
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!mini) return;
 
-    let pendingArbiterAction = null;
-
-    function triggerPlayerActionForArbiter(actionDesc) {
-      if (currentRole === 'DM') {
-        // Se è già il DM, apre subito il modale di conferma
-        openDmArbiterModal(actionDesc);
-      } else {
-        // Notifica il DM via Broadcast / Firebase
-        showToast('⚖️ In Attesa del DM', 'Azione sferrata! Il Dungeon Master sta determinando l\'esito finale...');
-        const payload = { type: 'PLAYER_PROPOSED_ACTION', desc: actionDesc, actor: currentUser };
-        try { new BroadcastChannel('yggdrasill_v3_bus').postMessage(payload); } catch(e){}
+      if (spellType === 'thunder') {
+        showToast('⚡ Runa del Tuono', 'Thor sprigiona il boato dei cieli! 3d8 danni da tuono.');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} invoca la [Runa del Tuono di Thor]! ⚡`);
+      } else if (spellType === 'frost') {
+        showToast('❄️ Gelo di Niflheim', 'Runa del Gelo scagliata! I nemici nell\'area sono rallentati.');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} scaglia il [Gelo Primordiale di Niflheim]! ❄️`);
+      } else if (spellType === 'heal') {
+        showToast('🌿 Respiro di Freya', 'Luce benevola risana le ferite del compagno!');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} canalizza il [Respiro Rigenerante di Freya]! 🌿`);
       }
-    }
-
-    function openDmArbiterModal(actionDesc) {
-      pendingArbiterAction = actionDesc;
-      document.getElementById('arbiter-action-summary').textContent = actionDesc;
-      document.getElementById('arbiter-override-story').value = "La Valkyria cade a terra sanguinante, ma solleva una pietra runica del viaggio e si teletrasporta tra le nubi fuggendo a leccarsi le ferite!";
-      document.getElementById('modal-dm-arbiter').classList.remove('hidden');
-    }
-
-    window.closeDmArbiterModal = function() {
-      document.getElementById('modal-dm-arbiter').classList.add('hidden');
     };
 
-    window.confirmArbiterResolution = function(isApproved) {
-      window.closeDmArbiterModal();
+    // ============================================================================
+    // METEO DINAMICO & PARTICELLE NORRENE
+    // ============================================================================
 
-      if (isApproved) {
-        showToast('⚖️ Esito Confermato dal DM', 'Il colpo va a segno con successo totale! Il bersaglio cade sconfitto.');
-        // Se c'è un nemico in campo, rimuovilo o azzera i PF
-        const enemy = window.Ginnungagap.miniatures.find(m => m.userData.role === 'ENEMY');
-        if (enemy) {
-          enemy.userData.hp = 0;
-          enemy.remove(enemy.getObjectByName('billboard'));
-          enemy.add(createBillboardSprite(enemy.userData));
-        }
-      } else {
-        const hpRemain = parseInt(document.getElementById('arbiter-override-hp').value) || 1;
-        const narrative = document.getElementById('arbiter-override-story').value.trim();
+    window.setWeather = function(type, broadcast = true) {
+      window.Ginnungagap.activeWeather = type;
 
-        const enemy = window.Ginnungagap.miniatures.find(m => m.userData.role === 'ENEMY');
-        if (enemy) {
-          enemy.userData.hp = hpRemain;
-          enemy.remove(enemy.getObjectByName('billboard'));
-          enemy.add(createBillboardSprite(enemy.userData));
-        }
+      const wData = {
+        'clear': { name: 'Sole dei Fiordi', icon: '☀️', fogDense: 0.008, lightCol: 0xfff7ed, desc: 'Visibilità e movimento ottimali' },
+        'blizzard': { name: 'Bufera Fimbulwinter', icon: '❄️', fogDense: 0.024, lightCol: 0x93c5fd, desc: 'Terreno difficile e visibilità ridotta' },
+        'rain': { name: 'Pioggia & Tuoni', icon: '🌧️', fogDense: 0.018, lightCol: 0x64748b, desc: 'Rocce scivolose e fulmini sui fiordi' },
+        'mist': { name: 'Fitta Nebbia dei Fiordi', icon: '🌫️', fogDense: 0.035, lightCol: 0xcbd5e1, desc: 'Attacchi a distanza con svantaggio oltre 6m' },
+        'aurora': { name: 'Aurora Boreale', icon: '🌌', fogDense: 0.012, lightCol: 0x38bdf8, desc: 'Benedizione degli Einherjar sulle prove magiche' },
+        'embers': { name: 'Cenere di Muspelheim', icon: '🔥', fogDense: 0.02, lightCol: 0xf97316, desc: 'Calore ardente: svantaggio alle armature pesanti' }
+      }[type] || { name: 'Sereno', icon: '☀️', fogDense: 0.008, lightCol: 0xfff7ed, desc: 'Ottimale' };
 
-        showToast('⚡ COLPO DI SCENA DEL DM!', narrative);
-        try {
-          new BroadcastChannel('yggdrasill_v3_bus').postMessage({
-            type: 'DM_OVERRULE_EVENT',
-            narrative: narrative
+      const wIcon = document.getElementById('top-weather-icon'); if (wIcon) wIcon.textContent = wData.icon;
+      const wName = document.getElementById('top-weather-name'); if (wName) wName.textContent = wData.name;
+      const wDesc = document.getElementById('weather-tactical-desc'); if (wDesc) wDesc.textContent = wData.desc;
+
+      scene.fog.density = wData.fogDense;
+      directionalLight.color.setHex(wData.lightCol);
+
+      // Particelle
+      if (window.Ginnungagap.weatherParticles) {
+        scene.remove(window.Ginnungagap.weatherParticles);
+        window.Ginnungagap.weatherParticles = null;
+      }
+
+      if (type === 'blizzard' || type === 'rain' || type === 'embers') {
+        const count = type === 'blizzard' ? 1800 : 1200;
+        const pGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const velocities = [];
+
+        for(let i=0; i<count; i++) {
+          positions[i*3] = (Math.random() - 0.5) * 80;
+          positions[i*3+1] = Math.random() * 30;
+          positions[i*3+2] = (Math.random() - 0.5) * 80;
+          velocities.push({
+            vx: (Math.random() - 0.5) * (type === 'blizzard' ? 0.35 : 0.05),
+            vy: -(Math.random() * 0.4 + (type === 'rain' ? 0.8 : 0.2))
           });
-        } catch(e){}
+        }
+        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const pCol = type === 'blizzard' ? 0xffffff : (type === 'rain' ? 0x60a5fa : 0xf97316);
+        const pMat = new THREE.PointsMaterial({ color: pCol, size: type === 'blizzard' ? 0.45 : 0.35, transparent: true, opacity: 0.85 });
+        const pMesh = new THREE.Points(pGeo, pMat);
+        pMesh.userData.velocities = velocities;
+        scene.add(pMesh);
+        window.Ginnungagap.weatherParticles = pMesh;
       }
-      saveGinnungagapState();
+
+      if (broadcast) {
+        broadcastEvent({ type: 'WEATHER_CHANGED', weather: type });
+        saveGinnungagapState();
+      }
     };
 
     // ============================================================================
-    // SINCRONIZZAZIONE CAMPAGNA & MEMORIA PERSISTENTE (F5 SAFE)
+    // SINCRONIZZAZIONE STATO LOCALE & SCHIERAMENTO PARTY CAMPAGNA
     // ============================================================================
+
+    function initUIByRole() {
+      document.getElementById('label-camp-code').textContent = currentCampaignCode;
+      const roleBadge = document.getElementById('badge-user-role');
+
+      if (currentRole === 'DM') {
+        roleBadge.textContent = 'DUNGEON MASTER';
+        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-extrabold uppercase tracking-wider';
+        document.getElementById('btn-open-dm-panel').classList.remove('hidden');
+        document.getElementById('dm-organizer-panel').classList.remove('hidden');
+      } else {
+        roleBadge.textContent = 'GIOCATORE';
+        roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-400 text-sky-300 font-extrabold uppercase tracking-wider';
+      }
+    }
 
     function loadCampaignState() {
       let db = {};
       try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
 
       let camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
-      if (!camp && db.campaigns) {
-        camp = Object.values(db.campaigns)[0];
-      }
+      if (!camp && db.campaigns) camp = Object.values(db.campaigns)[0];
+      if (!camp) camp = { code: currentCampaignCode, title: 'Saga dei Nove Mondi', members: {} };
 
-      // Se non esiste ancora alcuna campagna, crea sessione locale di Midgard
-      if (!camp) {
-        camp = { code: currentCampaignCode, title: 'Saga dei Nove Mondi', members: {} };
-      }
+      // Se esiste uno stato salvato di Ginnungagap
+      if (camp.ginnungagapState && Array.isArray(camp.ginnungagapState.miniatures) && camp.ginnungagapState.miniatures.length > 0) {
+        loadBattleMap(camp.ginnungagapState.activeMapId || 'battle_shipyard', false);
+        setWeather(camp.ginnungagapState.activeWeather || 'clear', false);
 
-      // Controlla se esiste uno stato salvato di Ginnungagap
-      if (camp.ginnungagapState && Array.isArray(camp.ginnungagapState.miniatures)) {
-        // Ripristina lo stato esatto da memoria
         camp.ginnungagapState.miniatures.forEach(mData => {
           const mObj = createMiniature(mData);
           minisGroup.add(mObj);
@@ -1358,39 +2194,41 @@
             window.Ginnungagap.myHeroMini = mObj;
           }
         });
-        if (camp.ginnungagapState.worldId) loadActiveWorld(camp.ginnungagapState.worldId);
-        if (camp.ginnungagapState.weather) setWeather(camp.ginnungagapState.weather);
+
       } else {
-        // Popola con gli eroi della campagna
+        // Inizializza mappa canonica (Cantiere Navale & Porto)
+        loadBattleMap('battle_shipyard', false);
+        setWeather('clear', false);
+
+        // Schiera party reale della campagna se presente
         const members = Object.values(camp.members || {});
         if (members.length > 0) {
           members.forEach((m, idx) => {
             const mObj = createMiniature({
               id: m.id || ('hero_' + idx),
               name: m.name,
-              className: m.className || 'Eroe',
-              hp: m.hp || 25,
-              maxHp: m.maxHp || 25,
-              avatar: m.avatar,
+              className: m.className || 'Barbaro',
+              hp: m.hp || 28, maxHp: m.maxHp || 28, ac: m.ac || 15,
+              speedMeters: m.speedMeters || 9.0,
               role: 'PLAYER',
-              tileX: -3 + idx * 2,
-              tileZ: 2
+              avatar: m.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+              tileX: -2 + idx, tileZ: 2
             });
             minisGroup.add(mObj);
             window.Ginnungagap.miniatures.push(mObj);
-
-            if (m.name.toLowerCase().includes(currentUser.toLowerCase()) || m.owner === currentUser) {
+            if (m.name.toLowerCase().includes(currentUser.toLowerCase())) {
               window.Ginnungagap.myHeroMini = mObj;
             }
           });
         } else {
-          // Eroe canonico del giocatore
+          // Eroe canonico per il giocatore
           const hero = createMiniature({
             id: 'ragnar_hero',
             name: 'Ragnar Lodbrok',
             className: 'Barbaro',
-            hp: 28, maxHp: 28,
+            hp: 28, maxHp: 28, ac: 15,
             role: 'PLAYER',
+            avatar: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
             tileX: 0, tileZ: 1
           });
           minisGroup.add(hero);
@@ -1398,16 +2236,18 @@
           window.Ginnungagap.myHeroMini = hero;
         }
 
-        // Genera nemico iniziale (Valkyria) per il DM
-        window.dmSpawnEnemy('valkyrie', 0, -3);
+        // Schiera la Boss Valkyria
+        window.dmSpawnEnemy('valkyrie', 0, -4);
         saveGinnungagapState();
       }
 
-      // Seleziona il proprio eroe sulla barra BG3
-      const firstMini = window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
-      if (firstMini) selectMiniature(firstMini);
+      // Seleziona la propria miniatura nella HUD
+      const activeMini = window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
+      if (activeMini) selectMiniature(activeMini);
 
-      // Popola lista DM
+      // Inizializza coda iniziativa
+      window.Ginnungagap.initiativeQueue = [...window.Ginnungagap.miniatures];
+      updateInitiativeBar();
       populateDmPartyList(camp);
     }
 
@@ -1420,39 +2260,43 @@
         }
 
         const statePayload = {
-          worldId: window.Ginnungagap.activeWorld,
-          weather: window.Ginnungagap.activeWeather,
+          activeMapId: window.Ginnungagap.activeMapId,
+          activeWeather: window.Ginnungagap.activeWeather,
           miniatures: window.Ginnungagap.miniatures.map(m => m.userData)
         };
 
         db.campaigns[currentCampaignCode].ginnungagapState = statePayload;
         localStorage.setItem('yggdrasill_v3_db', JSON.stringify(db));
 
-        // Sincronizza con Firebase se connesso
         if (typeof firebase !== 'undefined' && firebase.apps.length) {
           firebase.database().ref(`yggdrasill_v3_realm/campaigns/${currentCampaignCode}/ginnungagapState`).set(statePayload).catch(()=>{});
         }
       } catch(e) {}
     }
 
-    // ============================================================================
-    // GENERATORE MOSTRI E ALLEATI (SOLO DM)
-    // ============================================================================
-
-    window.dmSpawnEnemy = function(mType, tx = 2, tz = -2) {
+    window.dmSpawnEnemy = function(mType, tx = 2, tz = -3) {
       const eData = {
-        'valkyrie': { name: "Valkyria d'Odhinn", className: 'Boss Celestiale', hp: 75, maxHp: 75, avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150', role: 'ENEMY' },
-        'fenrir_wolf': { name: 'Lupo di Fenrir', className: 'Bestia Mitologica', hp: 32, maxHp: 32, avatar: 'https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150', role: 'ENEMY' },
-        'frost_giant': { name: 'Jotunn del Gelo', className: 'Gigante', hp: 110, maxHp: 110, avatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150', role: 'ENEMY' },
-        'draugr': { name: 'Draugr delle Cripte', className: 'Non-Morto', hp: 24, maxHp: 24, avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150', role: 'ENEMY' }
-      }[mType] || { name: 'Nemico', className: 'Mostro', hp: 20, maxHp: 20, role: 'ENEMY' };
+        'valkyrie': { name: "Valkyria d'Odhinn", className: 'Boss Celestiale', hp: 75, maxHp: 75, ac: 16, avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150', role: 'ENEMY' },
+        'fenrir_wolf': { name: 'Lupo di Fenrir', className: 'Bestia Mitologica', hp: 32, maxHp: 32, ac: 13, avatar: 'https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150', role: 'ENEMY' },
+        'frost_giant': { name: 'Jotunn del Gelo', className: 'Gigante', hp: 110, maxHp: 110, ac: 15, avatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150', role: 'ENEMY' },
+        'draugr': { name: 'Draugr delle Cripte', className: 'Non-Morto', hp: 24, maxHp: 24, ac: 12, avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150', role: 'ENEMY' }
+      }[mType] || { name: 'Nemico', className: 'Mostro', hp: 20, maxHp: 20, ac: 12, role: 'ENEMY' };
 
       eData.tileX = tx; eData.tileZ = tz;
       const mObj = createMiniature(eData);
       minisGroup.add(mObj);
       window.Ginnungagap.miniatures.push(mObj);
+      window.Ginnungagap.initiativeQueue.push(mObj);
+      updateInitiativeBar();
+
       showToast('👹 Schieramento DM', `${eData.name} è sceso in campo!`);
+      logCombatEvent('SCHIERAMENTO', `Il DM ha schierato: [${eData.name}] (PF ${eData.hp}, CA ${eData.ac})`);
       saveGinnungagapState();
+
+      broadcastEvent({
+        type: 'SPAWN_MINI',
+        miniData: mObj.userData
+      });
     };
 
     function populateDmPartyList(camp) {
@@ -1479,6 +2323,107 @@
       });
     }
 
+    window.dmSpawnAllParty = function() {
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+      const camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
+      const members = Object.values(camp?.members || {});
+      if (members.length === 0) {
+        showToast('⚠️ Nessun Eroe', 'Nessun eroe registrato nel codice sala!');
+        return;
+      }
+      members.forEach((m, idx) => {
+        if (!window.Ginnungagap.miniatures.some(min => min.userData.id === m.id || min.userData.name === m.name)) {
+          const hero = createMiniature({
+            id: m.id || ('hero_' + idx),
+            name: m.name,
+            className: m.className || 'Barbaro',
+            hp: m.hp || 28, maxHp: m.maxHp || 28, ac: m.ac || 15,
+            speedMeters: m.speedMeters || 9.0,
+            role: 'PLAYER',
+            avatar: m.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+            tileX: -3 + idx * 2, tileZ: 2
+          });
+          minisGroup.add(hero);
+          window.Ginnungagap.miniatures.push(hero);
+          window.Ginnungagap.initiativeQueue.push(hero);
+        }
+      });
+      updateInitiativeBar();
+      showToast('🛡️ Party Schierato', `Tutti i ${members.length} eroi sono stati posizionati sulla mappa!`);
+      logCombatEvent('SCHIERAMENTO', `Il DM ha schierato tutti i membri del party.`);
+      saveGinnungagapState();
+    };
+
+    window.dmFocusOrSpawnHero = function(heroId) {
+      const existing = window.Ginnungagap.miniatures.find(m => m.userData.id === heroId);
+      if (existing) {
+        selectMiniature(existing);
+        controls.target.set(existing.position.x, 0, existing.position.z);
+        showToast('👁️ Focus Eroe', `Telecamera centrata su [${existing.userData.name}].`);
+      } else {
+        let db = {};
+        try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+        const camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
+        const m = camp?.members ? camp.members[heroId] : null;
+        if (m) {
+          const hero = createMiniature({
+            id: m.id,
+            name: m.name,
+            className: m.className || 'Barbaro',
+            hp: m.hp || 28, maxHp: m.maxHp || 28, ac: m.ac || 15,
+            speedMeters: m.speedMeters || 9.0,
+            role: 'PLAYER',
+            avatar: m.avatar || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150',
+            tileX: 0, tileZ: 2
+          });
+          minisGroup.add(hero);
+          window.Ginnungagap.miniatures.push(hero);
+          window.Ginnungagap.initiativeQueue.push(hero);
+          updateInitiativeBar();
+          selectMiniature(hero);
+          showToast('🛡️ Eroe Schierato', `${hero.userData.name} posizionato sulla mappa!`);
+          saveGinnungagapState();
+        }
+      }
+    };
+
+    window.toggleSoftFog = function(active) {
+      if (!fogGroup) return;
+      while(fogGroup.children.length > 0) fogGroup.remove(fogGroup.children[0]);
+      if (!active) {
+        showToast('☀️ Nebbia Dissolta', 'Il campo di battaglia è ora visibile a tutti.');
+        logCombatEvent('NEBBIA', 'Il DM ha dissolto la nebbia di guerra.');
+        return;
+      }
+      for(let x = -20; x <= 20; x += 3) {
+        for(let z = -20; z <= 20; z += 3) {
+          const disc = new THREE.Mesh(
+            new THREE.CylinderGeometry(4.2, 4.2, 1.2, 16),
+            new THREE.MeshStandardMaterial({ color: 0x050811, transparent: true, opacity: 0.92, roughness: 0.95 })
+          );
+          disc.position.set(x * TILE_SIZE, 0.8, z * TILE_SIZE);
+          fogGroup.add(disc);
+        }
+      }
+      showToast('🌫️ Nebbia di Guerra Attiva', 'Le aree non esplorate sono avvolte dalla nebbia mistica.');
+      logCombatEvent('NEBBIA', 'Il DM ha calato la nebbia di guerra volumetrica.');
+    };
+
+    window.openDicePhysicsModal = function() {
+      document.getElementById('modal-dice-physics').classList.remove('hidden');
+    };
+
+    window.rollPhysicsDie = function(dieType) {
+      const max = parseInt(dieType.replace('d', '')) || 20;
+      const mod = parseInt(document.getElementById('dice-mod-val').value) || 0;
+      const roll = Math.floor(Math.random() * max) + 1;
+      const total = roll + mod;
+      showToast('🎲 Lancio Dado 3D', `${dieType.toUpperCase()}: Risultato ${roll} ${mod !== 0 ? (mod>0?'+':'')+mod : ''} = ${total}!`);
+      logCombatEvent('DADO', `${currentUser} ha tirato ${dieType.toUpperCase()}: [${roll}] + mod (${mod}) = ${total}`);
+      broadcastEvent({ type: 'DICE_ROLLED', roller: currentUser, die: dieType, roll: roll, total: total });
+    };
+
     // ============================================================================
     // MODALITÀ TELECAMERA SIGIL
     // ============================================================================
@@ -1491,20 +2436,20 @@
       });
 
       if (mode === 'orbit') {
-        new TWEEN.Tween(camera.position).to({ x: 0, y: 26, z: 30 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
+        new TWEEN.Tween(camera.position).to({ x: 0, y: 28, z: 32 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
         new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 700).start();
       } else if (mode === 'tactical') {
-        new TWEEN.Tween(camera.position).to({ x: 0, y: 38, z: 6 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
+        new TWEEN.Tween(camera.position).to({ x: 0, y: 44, z: 4 }, 700).easing(TWEEN.Easing.Cubic.Out).start();
         new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 700).start();
       } else if (mode === 'hero') {
         const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
         if (mini) {
           const mp = mini.position;
-          new TWEEN.Tween(camera.position).to({ x: mp.x, y: mp.y + 2.4, z: mp.z + 4.8 }, 800).start();
+          new TWEEN.Tween(camera.position).to({ x: mp.x, y: mp.y + 2.5, z: mp.z + 5.5 }, 800).start();
           new TWEEN.Tween(controls.target).to({ x: mp.x, y: mp.y + 1.8, z: mp.z - 8 }, 800).start();
         }
       } else if (mode === 'photo') {
-        showToast('📸 Photo Mode', 'Screenshot automatico in cattura ad alta risoluzione...');
+        showToast('📸 Photo Mode', 'Screenshot automatico ad altissima risoluzione...');
         setTimeout(() => {
           renderer.render(scene, camera);
           const a = document.createElement('a');
@@ -1546,7 +2491,6 @@
       TWEEN.update();
       controls.update();
 
-      // Animazione particelle meteo (Pioggia, Neve, Braci)
       if (window.Ginnungagap.weatherParticles) {
         const pts = window.Ginnungagap.weatherParticles;
         const pos = pts.geometry.attributes.position.array;
@@ -1565,20 +2509,90 @@
       renderer.render(scene, camera);
     }
 
-    // Ascolto eventi BroadcastChannel per sincronizzazione DM e Player
-    try {
-      const bc = new BroadcastChannel('yggdrasill_v3_bus');
-      bc.onmessage = (e) => {
-        const msg = e.data;
-        if (!msg) return;
-        if (msg.type === 'PLAYER_PROPOSED_ACTION' && currentRole === 'DM') {
-          openDmArbiterModal(msg.desc);
-        } else if (msg.type === 'DM_OVERRULE_EVENT') {
-          showToast('⚡ COLPO DI SCENA DEL DM!', msg.narrative);
-        }
-      };
-    } catch(e) {}
+    window.returnToYggdrasill = function() {
+      if (window.parent && window.parent !== window && typeof window.parent.closeEmbeddedGinnungagap === 'function') {
+        window.parent.closeEmbeddedGinnungagap();
+      } else {
+        window.location.href = 'index.html';
+      }
+    };
 
+    window.toggleHeroSheetOverlayBG3 = function() {
+      const modal = document.getElementById('modal-hero-sheet-bg3');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        window.refreshHeroOverlayData();
+      }
+    };
+
+    window.refreshHeroOverlayData = function() {
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+      const myHero = window.Ginnungagap.myHeroMini ? window.Ginnungagap.myHeroMini.userData : null;
+      let userObj = (db.users && currentUser) ? db.users[currentUser] : null;
+      let ch = (userObj && userObj.characters) ? userObj.characters[0] : null;
+
+      const name = (myHero && myHero.name) || (ch && ch.name) || currentUser || 'Ragnar Lodbrok';
+      const avatar = (myHero && myHero.avatar) || (ch && ch.avatar) || 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150';
+      const cls = (ch && ch.className) || (myHero && myHero.className) || 'Barbaro';
+      const lvl = (ch && ch.level) || 3;
+      const clan = (ch && ch.clanName) || 'Guerrieri dell\'Orso';
+      const hp = (myHero && myHero.hp !== undefined) ? myHero.hp : (ch ? ch.hp : 28);
+      const maxHp = (myHero && myHero.maxHp !== undefined) ? myHero.maxHp : (ch ? ch.maxHp : 28);
+      const ac = (myHero && myHero.ac !== undefined) ? myHero.ac : (ch ? ch.ac : 16);
+      const gold = (ch && ch.gold !== undefined) ? ch.gold : 1000;
+
+      document.getElementById('bg3-overlay-name').textContent = name;
+      document.getElementById('bg3-overlay-avatar').src = avatar;
+      document.getElementById('bg3-overlay-sub').textContent = `${cls} Liv. ${lvl} • ${clan}`;
+      document.getElementById('bg3-overlay-hp').textContent = `${hp}/${maxHp} PF`;
+      document.getElementById('bg3-overlay-ac').textContent = `${ac} CA`;
+      document.getElementById('bg3-overlay-gold').textContent = `🪙 ${gold.toLocaleString()}`;
+
+      if (ch && ch.stats) {
+        ['for', 'des', 'cos', 'int', 'sag', 'car'].forEach(s => {
+          const val = ch.stats[s] || 10;
+          const mod = Math.floor((val - 10) / 2);
+          const el = document.getElementById('bg3-stat-' + s);
+          if (el) {
+            el.textContent = val;
+            if (el.nextElementSibling) el.nextElementSibling.textContent = (mod >= 0 ? '+' : '') + mod;
+          }
+        });
+      }
+
+      const cardsContainer = document.getElementById('bg3-overlay-cards');
+      if (cardsContainer) {
+        const cards = (ch && ch.cards) || [
+          { name: 'Spada Ulfberht Runica', type: 'Arma', damage: '1d8+3 Tagliente' },
+          { name: 'Scudo Tondo con Umbone', type: 'Armatura', damage: '+2 CA' },
+          { name: 'Cotta di Maglia dei Fiordi', type: 'Armatura', damage: '14 + DES (Max 2)' },
+          { name: 'Runa del Tuono di Thor', type: 'Runa', damage: '3d8 Tuono' }
+        ];
+        cardsContainer.innerHTML = cards.map(c => `
+          <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+            <span class="font-cinzel font-bold text-amber-300 block text-[11px] truncate">${c.name}</span>
+            <span class="text-[9px] text-slate-400 uppercase font-semibold">${c.type} • ${c.damage || c.value || ''}</span>
+          </div>
+        `).join('');
+      }
+    };
+
+    // Esportazioni globali su window per interazioni DOM, moduli e sincronizzazione
+    window.appendChatMessage = appendChatMessage;
+    window.logCombatEvent = logCombatEvent;
+    window.executeCombatAttack = executeCombatAttack;
+    window.createMiniature = createMiniature;
+    window.loadBattleMap = loadBattleMap;
+    window.showCinematicBanner = showCinematicBanner;
+    window.applyDamageToMiniature = applyDamageToMiniature;
+    window.refreshMiniatureBillboard = refreshMiniatureBillboard;
+    window.currentUser = currentUser;
+    window.currentRole = currentRole;
+    window.confirmArbiterResolution = confirmArbiterResolution;
+    window.openDmArbiterModal = openDmArbiterModal;
+    window.closeDmArbiterModal = closeDmArbiterModal;
+    window.saveGinnungagapState = saveGinnungagapState;
   </script>
 </body>
 </html>

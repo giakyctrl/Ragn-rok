@@ -240,9 +240,6 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button type="button" onclick="window.openGinnungagap()" title="Entra in Ginnungagap (Tavolo Virtuale 3D dei Nove Mondi)" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-sky-500/25 border border-amber-400/60 hover:border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] flex items-center gap-1.5 transition shadow cursor-pointer">
-            <span>ᚷ</span> <span class="hidden sm:inline">Ginnungagap 3D</span>
-          </button>
           <button type="button" id="btn-exit-dm-campaign" onclick="window.exitDmCampaignWorkspace()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-[10px] text-sky-300">ESCI CAMPAGNA</button>
           <button type="button" onclick="window.logoutUser()" class="text-[11px] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 px-2.5 py-1 rounded-lg transition">Esci</button>
         </div>
@@ -424,9 +421,9 @@
             <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
           </div>
           <div class="flex items-center gap-2">
-            <a id="dm-map-link" href="mappa.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/40 transition shadow-lg">
-              <span class="text-sm">ᚷ</span> GINNUNGAGAP (VTT 3D)
-            </a>
+            <button type="button" id="dm-map-link" onclick="window.openEmbeddedGinnungagap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/40 transition shadow-lg">
+              <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+            </button>
             <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
               <span class="text-[8px] text-slate-400 uppercase block">Codice Sala</span>
               <span id="dm-ws-code" class="font-cinzel font-black text-sm text-amber-400 tracking-widest"></span>
@@ -687,20 +684,25 @@
           <span id="snav-char-label" class="font-cinzel font-black text-[10px] text-sky-300 mt-1 uppercase">Personaggi</span>
         </div>
 
-        <button type="button" onclick="window.switchStandardNav('campaigns')" id="snav-campaigns" class="flex flex-col items-center gap-1 text-slate-400 w-28 py-2">
+        <button type="button" onclick="window.switchStandardNav('campaigns')" id="snav-campaigns" class="flex flex-col items-center gap-1 text-slate-400 w-24 py-2">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
-          <span class="font-cinzel font-bold text-[10px]">Le Tue Campagne</span>
+          <span class="font-cinzel font-bold text-[10px]">Campagne</span>
+        </button>
+
+        <button type="button" onclick="window.enterActiveGinnungagap('PLAYER')" id="snav-ginnunga" class="flex flex-col items-center gap-1 text-slate-400 w-24 py-2 hover:text-amber-300">
+          <span class="text-lg font-cinzel font-black leading-none text-amber-400">ᚱ</span>
+          <span class="font-cinzel font-bold text-[10px] text-amber-300/80">Tavolo 3D</span>
         </button>
       </nav>
 
-      <!-- BARRA INFERIORE CAMPAGNA DM (CON COMMERCIO) -->
+      <!-- BARRA INFERIORE CAMPAGNA DM (CON COMMERCIO E TAVOLO 3D) -->
       <nav id="bottom-nav-dm-workspace" class="hidden bottom-nav-bar flex justify-around items-center px-2 sm:px-4 border-t border-amber-500/40">
-        <button type="button" onclick="window.switchDmWorkspaceTab('manage')" id="dmnav-manage" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+        <button type="button" onclick="window.switchDmWorkspaceTab('manage')" id="dmnav-manage" class="flex flex-col items-center gap-1 text-slate-400 w-16 py-2">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
           <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Gestisci</span>
         </button>
 
-        <button type="button" onclick="window.switchDmWorkspaceTab('trade')" id="dmnav-trade" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+        <button type="button" onclick="window.switchDmWorkspaceTab('trade')" id="dmnav-trade" class="flex flex-col items-center gap-1 text-slate-400 w-16 py-2">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Commercio</span>
         </button>
@@ -714,12 +716,22 @@
           <span id="dmnav-party-label" class="font-cinzel font-black text-[9px] sm:text-[10px] text-amber-300 mt-1 uppercase">Eroi</span>
         </div>
 
-        <button type="button" onclick="window.switchDmWorkspaceTab('create')" id="dmnav-create" class="flex flex-col items-center gap-1 text-slate-400 w-20 py-2">
+        <button type="button" onclick="window.switchDmWorkspaceTab('create')" id="dmnav-create" class="flex flex-col items-center gap-1 text-slate-400 w-16 py-2">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           <span class="font-cinzel font-bold text-[9px] sm:text-[10px]">Crea Carta</span>
         </button>
+
+        <button type="button" onclick="window.enterActiveGinnungagap('DM')" id="dmnav-ginnunga" class="flex flex-col items-center gap-1 text-slate-400 w-16 py-2 hover:text-amber-300">
+          <span class="text-base font-cinzel font-black leading-none text-amber-400">ᚱ</span>
+          <span class="font-cinzel font-bold text-[9px] sm:text-[10px] text-amber-300/80">Tavolo 3D</span>
+        </button>
       </nav>
 
+    </section>
+
+    <!-- 4. GINNUNGAGAP INTEGRATO DENTRO YGGDRASILL (TAVOLO TATTICO 3D DEI NOVE MONDI) -->
+    <section id="screen-ginnungagap" class="hidden fixed inset-0 z-50 bg-[#06090e] flex flex-col">
+      <iframe id="ginnungagap-iframe" class="w-full h-full border-0" src="about:blank"></iframe>
     </section>
   </div>
 

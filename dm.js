@@ -490,10 +490,9 @@ window.renderDmViews = function() {
                   <h4 class="font-cinzel font-bold text-base text-white">${c.title}</h4>
                 </div>
                 <div class="flex items-center gap-2">
-                  <a href="mappa.html?camp=${encodeURIComponent(c.code)}&role=DM" target="_blank" onclick="event.stopPropagation()" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-cinzel font-bold text-[10px] flex items-center gap-1 shadow transition">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-                    MAPPA DM
-                  </a>
+                  <button type="button" onclick="event.stopPropagation(); window.openEmbeddedGinnungagap('${c.code}', 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
+                    <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+                  </button>
                   <button type="button" onclick="window.toggleSwipeDeleteState(event, '${c.code}')" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] text-slate-400">Elimina</button>
                   <span class="font-cinzel font-bold text-xs text-sky-300">APRI &rarr;</span>
                 </div>
