@@ -1465,7 +1465,7 @@ window.renderDmEnemiesViews = function() {
     const atk1 = (e.attacks && e.attacks[0]) || null;
     const atk2 = (e.attacks && e.attacks[1]) || null;
     const stats = e.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
-    const hasStl = !!(e.custom3dModel && e.custom3dModel.dataUrl);
+    const hasStl = !!(e.custom3dModel && (e.custom3dModel.has3D || e.custom3dModel.dataUrl || e.custom3dModel.name));
 
     // Initial letter for tactical token badge
     const initial = (e.name || 'N').charAt(0).toUpperCase();
@@ -1665,6 +1665,9 @@ window.handleEnemyStlFileUpload = function(event) {
 };
 
 window.clearEnemyStlFile = function() {
+  if (window._currentEditingEnemyStl && window._currentEditingEnemyStl.modelId && window.Ygg3DStore) {
+    window.Ygg3DStore.removeModel(window._currentEditingEnemyStl.modelId);
+  }
   window._currentEditingEnemyStl = null;
   const input = document.getElementById('enemy-stl-file-input');
   if (input) input.value = '';
@@ -1717,6 +1720,28 @@ window.saveEnemySheetFromModal = function(e) {
   const traits = document.getElementById('enemy-form-traits').value.trim();
   const notes = document.getElementById('enemy-form-notes').value.trim();
 
+  let enemyCustom3d = null;
+  if (window._currentEditingEnemyStl) {
+    const modelId = window._currentEditingEnemyStl.modelId || ('enemy_' + id);
+    if (window.Ygg3DStore && window._currentEditingEnemyStl.dataUrl) {
+      window.Ygg3DStore.saveModel(modelId, {
+        modelId: modelId,
+        type: window._currentEditingEnemyStl.type,
+        name: window._currentEditingEnemyStl.name,
+        size: window._currentEditingEnemyStl.size,
+        dataUrl: window._currentEditingEnemyStl.dataUrl
+      });
+    }
+    enemyCustom3d = {
+      modelId: modelId,
+      type: window._currentEditingEnemyStl.type,
+      name: window._currentEditingEnemyStl.name,
+      size: window._currentEditingEnemyStl.size,
+      has3D: true,
+      dataUrl: (window._currentEditingEnemyStl.size < 300000) ? window._currentEditingEnemyStl.dataUrl : null
+    };
+  }
+
   const existingIdx = enemies.findIndex(en => en.id === id);
   const newSheet = {
     id,
@@ -1734,7 +1759,7 @@ window.saveEnemySheetFromModal = function(e) {
     notes,
     avatar: "",
     model: "",
-    custom3dModel: window._currentEditingEnemyStl || null
+    custom3dModel: enemyCustom3d
   };
 
   if (existingIdx !== -1) {

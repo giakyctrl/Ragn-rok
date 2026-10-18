@@ -8,6 +8,54 @@ window.ADMIN_CREDENTIALS = {
   password: "qwerty"
 };
 
+// ============================================================================
+// SISTEMA ICONE SVG VETTORIALI AD HOC (Sostituzione completa Emoji)
+// ============================================================================
+window.NORSE_ICONS = {
+  sword: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>`,
+  swords: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/><line x1="14" y1="4" x2="20" y2="4"/><line x1="20" y1="4" x2="20" y2="10"/><line x1="4" y1="4" x2="20" y2="20"/><line x1="4" y1="14" x2="4" y2="20"/><line x1="4" y1="20" x2="10" y2="20"/></svg>`,
+  skull: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M10 18v2"/><path d="M14 18v2"/><path d="M4 11a8 8 0 0 1 16 0c0 4-2.5 6-4 7l-.5 3h-7L8 18c-1.5-1-4-3-4-7z"/></svg>`,
+  shield: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  heart: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+  boot: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 6 9 9 9h3V4h4v7l4 4v3H4z"/><path d="M2 20h20"/></svg>`,
+  dodge: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M7 21l3-7-2-2 2-4 3 2 3-2 1 4-2 2 2 7"/><path d="M4 13l4-2"/><path d="M16 11l4 2"/></svg>`,
+  potion: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v4a3 3 0 0 1-1 2.24L4.36 12.5A4 4 0 0 0 3 15.5v2a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4v-2a4 4 0 0 0-1.36-3L15 8.24A3 3 0 0 1 14 6V2"/><path d="M6 14h12"/></svg>`,
+  parry: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"/><path d="M15 13 9 7"/><path d="m3 3 3 3"/><path d="m16 8 5-5"/><path d="m17.5 15.5 3 3"/><path d="m19 5 2 2"/></svg>`,
+  hourglass: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>`,
+  d20: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 8 4.5v11L12 22 4 17.5v-11L12 2z"/><path d="m12 2 8 15.5H4L12 2z"/><path d="M4 6.5 12 12l8-5.5"/><path d="M12 12v10"/></svg>`,
+  quill: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`,
+  clone: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  trash: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`,
+  eye: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  sun: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+  snow: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg>`,
+  flame: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  thunder: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  fog: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M4 22h16"/></svg>`,
+  brush: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.34-3 3 0 1.99-1.5 2.56-2.07 2.06 0 0 2.07 2 4.07 2 2.76 0 4-1.79 4-3.5 0-.83-.45-1.56-1-2.06z"/></svg>`,
+  plus: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  search: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  check: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  close: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  stl3d: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>`,
+  crown: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`,
+  coins: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4H7z"/></svg>`,
+  map: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>`,
+  scales: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>`,
+  book: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>`,
+  camera: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`,
+  target: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+  sparkles: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/></svg>`,
+  cart: (cls="w-4 h-4") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`
+};
+
+window.getNorseIcon = function(name, cls="w-4 h-4") {
+  if (window.NORSE_ICONS && window.NORSE_ICONS[name]) {
+    return window.NORSE_ICONS[name](cls);
+  }
+  return '';
+};
+
 // Ritratti Ufficiali dell'Eroe (Personaggi Nordici Fantasy Disegnati)
 window.PRESET_AVATARS = [
   "assets/heroes/portraits/norse_hero_01.jpg",
@@ -2961,3 +3009,131 @@ window.getArmorSlotForCard = function(card) {
   }
   return 'chest';
 };
+
+// ============================================================================
+// YGGDRASILL 3D MODEL STORAGE ENGINE (INDEXEDDB + SHARED MEMORY CACHE)
+// Evita il superamento del limite dei 5MB di LocalStorage supportando file STL/GLB di grandi dimensioni
+// ============================================================================
+(function() {
+  window._YGG_3D_CACHE = window._YGG_3D_CACHE || {};
+  
+  // Condivisione con window.parent se dentro iframe (Ginnungagap)
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent._YGG_3D_CACHE = window.parent._YGG_3D_CACHE || {};
+    }
+  } catch(e){}
+
+  let dbPromise = null;
+  function getIDB() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((resolve) => {
+      if (!window.indexedDB) { resolve(null); return; }
+      try {
+        const req = indexedDB.open('yggdrasill_models_v1', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('models')) {
+            db.createObjectStore('models', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = () => resolve(null);
+      } catch(e) { resolve(null); }
+    });
+    return dbPromise;
+  }
+
+  window.Ygg3DStore = {
+    saveModel: function(modelId, modelData, callback) {
+      if (!modelId || !modelData) return;
+      window._YGG_3D_CACHE[modelId] = modelData;
+      try {
+        if (window.parent && window.parent !== window && window.parent._YGG_3D_CACHE) {
+          window.parent._YGG_3D_CACHE[modelId] = modelData;
+        }
+      } catch(e){}
+
+      // Salva in sessionStorage se piccolo abbastanza
+      try {
+        sessionStorage.setItem('ygg_3d_' + modelId, JSON.stringify(modelData));
+      } catch(e){}
+
+      // Salva stabilmente in IndexedDB
+      getIDB().then(db => {
+        if (!db) { if (callback) callback(true); return; }
+        try {
+          const tx = db.transaction('models', 'readwrite');
+          const store = tx.objectStore('models');
+          store.put({ id: modelId, ...modelData });
+          tx.oncomplete = () => { if (callback) callback(true); };
+          tx.onerror = () => { if (callback) callback(false); };
+        } catch(err) { if (callback) callback(false); }
+      });
+    },
+
+    getModelSync: function(modelId) {
+      if (!modelId) return null;
+      if (window._YGG_3D_CACHE[modelId]) return window._YGG_3D_CACHE[modelId];
+      try {
+        if (window.parent && window.parent !== window && window.parent._YGG_3D_CACHE && window.parent._YGG_3D_CACHE[modelId]) {
+          return window.parent._YGG_3D_CACHE[modelId];
+        }
+      } catch(e){}
+      try {
+        const str = sessionStorage.getItem('ygg_3d_' + modelId);
+        if (str) {
+          const parsed = JSON.parse(str);
+          window._YGG_3D_CACHE[modelId] = parsed;
+          return parsed;
+        }
+      } catch(e){}
+      return null;
+    },
+
+    getModel: function(modelId, callback) {
+      if (!modelId) { if (callback) callback(null); return; }
+      const syncVal = this.getModelSync(modelId);
+      if (syncVal) {
+        if (callback) callback(syncVal);
+        return;
+      }
+      getIDB().then(db => {
+        if (!db) { if (callback) callback(null); return; }
+        try {
+          const tx = db.transaction('models', 'readonly');
+          const store = tx.objectStore('models');
+          const req = store.get(modelId);
+          req.onsuccess = (e) => {
+            const res = e.target.result;
+            if (res) {
+              window._YGG_3D_CACHE[modelId] = res;
+              if (callback) callback(res);
+            } else {
+              if (callback) callback(null);
+            }
+          };
+          req.onerror = () => { if (callback) callback(null); };
+        } catch(err) { if (callback) callback(null); }
+      });
+    },
+
+    removeModel: function(modelId, callback) {
+      delete window._YGG_3D_CACHE[modelId];
+      try {
+        if (window.parent && window.parent !== window && window.parent._YGG_3D_CACHE) {
+          delete window.parent._YGG_3D_CACHE[modelId];
+        }
+      } catch(e){}
+      try { sessionStorage.removeItem('ygg_3d_' + modelId); } catch(e){}
+      getIDB().then(db => {
+        if (!db) { if (callback) callback(); return; }
+        try {
+          const tx = db.transaction('models', 'readwrite');
+          tx.objectStore('models').delete(modelId);
+          tx.oncomplete = () => { if (callback) callback(); };
+        } catch(e){ if (callback) callback(); }
+      });
+    }
+  };
+})();

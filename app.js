@@ -3393,14 +3393,31 @@ window.handlePlayerStlFileUpload = function(e) {
   const ch = window.getMyCharacter();
   if (!ch) return;
 
+  const modelId = 'player_' + ch.id;
   const reader = new FileReader();
   reader.onload = function(evt) {
-    ch.custom3dModel = {
+    const rawDataUrl = evt.target.result;
+    const modelPayload = {
+      modelId: modelId,
       type: ext,
       name: file.name,
       size: file.size,
-      dataUrl: evt.target.result
+      dataUrl: rawDataUrl
     };
+
+    if (window.Ygg3DStore) {
+      window.Ygg3DStore.saveModel(modelId, modelPayload);
+    }
+
+    ch.custom3dModel = {
+      modelId: modelId,
+      type: ext,
+      name: file.name,
+      size: file.size,
+      has3D: true,
+      dataUrl: file.size < 300000 ? rawDataUrl : null
+    };
+
     window.propagateCharacterToCampaigns(ch);
     window.saveDB();
     window.openPlayerStlModal();
@@ -3408,6 +3425,15 @@ window.handlePlayerStlFileUpload = function(e) {
     if (typeof window.showToast === 'function') {
       window.showToast('Miniatura 3D Salvata', `"${file.name}" collegato all'eroe.`);
     }
+
+    try {
+      const bc = new BroadcastChannel('ragnarok_sync_channel');
+      bc.postMessage({
+        type: 'HERO_3D_MODEL_UPDATED',
+        heroId: ch.id,
+        modelData: modelPayload
+      });
+    } catch(err){}
   };
   reader.readAsDataURL(file);
 };
@@ -3415,9 +3441,23 @@ window.handlePlayerStlFileUpload = function(e) {
 window.clearPlayerStlFile = function() {
   const ch = window.getMyCharacter();
   if (!ch) return;
+  const modelId = (ch.custom3dModel && ch.custom3dModel.modelId) || ('player_' + ch.id);
+  if (window.Ygg3DStore) {
+    window.Ygg3DStore.removeModel(modelId);
+  }
   delete ch.custom3dModel;
   window.propagateCharacterToCampaigns(ch);
   window.saveDB();
   window.openPlayerStlModal();
   if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+
+  try {
+    const bc = new BroadcastChannel('ragnarok_sync_channel');
+    bc.postMessage({
+      type: 'HERO_3D_MODEL_UPDATED',
+      heroId: ch.id,
+      modelData: null
+    });
+  } catch(err){}
 };
+

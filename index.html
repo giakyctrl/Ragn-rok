@@ -294,9 +294,13 @@
                 
                 <!-- Identità Eroe -->
                 <div class="flex items-center gap-3.5 pb-2 border-b border-slate-800/80">
-                  <div class="relative flex-shrink-0">
-                    <img id="sheet-avatar" src="" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-500/50 shadow-[0_0_15px_rgba(201,160,80,0.25)]">
-                    <button type="button" onclick="window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica"><svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg></button>
+                  <div class="relative flex-shrink-0 cursor-pointer group" onclick="window.openPlayerStlModal()" title="Clicca sulla foto del personaggio per caricare il file .STL della miniatura 3D per Ginnungagap">
+                    <img id="sheet-avatar" src="" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-500/50 group-hover:border-cyan-400 group-hover:brightness-110 shadow-[0_0_15px_rgba(201,160,80,0.25)] transition duration-200">
+                    <div class="absolute inset-0 rounded-2xl bg-slate-950/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition border border-cyan-400/80 pointer-events-none">
+                      <svg class="w-5 h-5 text-cyan-300 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+                      <span class="text-[8px] font-mono font-bold text-cyan-200 uppercase tracking-tighter">Carica .STL</span>
+                    </div>
+                    <button type="button" onclick="event.stopPropagation(); window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica"><svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg></button>
                   </div>
                   <div class="min-w-0 flex-1">
                     <h2 id="sheet-name" class="text-lg sm:text-xl font-cinzel font-extrabold text-white tracking-tight truncate"></h2>
