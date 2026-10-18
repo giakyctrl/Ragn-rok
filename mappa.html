@@ -208,7 +208,10 @@
 
     <!-- STRUMENTI GENERALI: PERSONALIZZAZIONE MINIATURA, SCHEDA EROE OVERLAY, RITORNO A YGGDRASILL -->
     <div class="flex items-center gap-2">
-      
+      <!-- Pulsante Centro Comando DM VTT (visibile solo per il DM) -->
+      <button type="button" id="top-btn-dm-center" onclick="window.toggleDmOrganizerPanel()" class="hidden px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 hover:brightness-110 text-xs font-cinzel font-black flex items-center gap-1.5 transition shadow-lg shadow-amber-950/40">
+        <svg class="w-3.5 h-3.5 text-slate-950 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg> <span class="hidden sm:inline">Centro DM</span>
+      </button>
 
       <!-- Pulsante Scheda Eroe Overlay BG3 -->
       <button type="button" onclick="window.toggleHeroSheetOverlayBG3()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-500/30 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow">
@@ -255,7 +258,7 @@
   </div>
 
   <!-- 5. PANNELLO ORGANIZZATORE DUNGEON MASTER (SOLO DM) -->
-  <aside id="dm-organizer-panel" class="hidden absolute top-20 left-4 z-40 w-96 max-w-[94vw] max-h-[85vh] bg-[#070b13]/98 border-2 border-amber-500/60 rounded-3xl p-4.5 space-y-3.5 shadow-[0_0_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl flex flex-col">
+  <aside id="dm-organizer-panel" class="hidden fixed top-16 right-4 bottom-28 z-40 w-96 max-w-[94vw] bg-[#070b13]/98 border-2 border-amber-500/60 rounded-3xl p-4.5 space-y-3.5 shadow-[0_0_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl flex flex-col transition-all duration-300">
     <!-- Header Pannello DM -->
     <div class="flex justify-between items-center border-b border-amber-500/30 pb-3 flex-shrink-0">
       <div class="flex items-center gap-2.5">
@@ -270,7 +273,10 @@
           <span class="text-[9px] text-slate-400 font-mono">Arbitro Supremo &bull; Tavolo Tattico Ginnungagap</span>
         </div>
       </div>
-      <button onclick="document.getElementById('dm-organizer-panel').classList.add('hidden')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-amber-400 text-sm font-bold flex items-center justify-center transition">&times;</button>
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="window.toggleDmOrganizerPanel(false)" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-amber-400 text-sm font-bold flex items-center justify-center transition" title="Riduci a icona">&ndash;</button>
+        <button type="button" onclick="window.toggleDmOrganizerPanel(false)" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-amber-400 text-sm font-bold flex items-center justify-center transition" title="Chiudi">&times;</button>
+      </div>
     </div>
 
     <!-- Tab Switcher Nav con Badge Contatori -->
@@ -423,9 +429,10 @@
     </div>
   </aside>
 
-  <!-- PULSANTE APRI PANNELLO DM -->
-  <button id="btn-open-dm-panel" onclick="document.getElementById('dm-organizer-panel').classList.toggle('hidden')" class="hidden absolute top-28 left-4 z-30 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/50 text-amber-300 font-cinzel font-bold text-xs shadow-xl flex items-center gap-1.5">
-    <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg> Pannello DM
+  <!-- BADGE FLUTTUANTE APRI CONSOLE DM (QUANDO MINIMIZZATA) -->
+  <button id="btn-open-dm-panel" onclick="window.toggleDmOrganizerPanel(true)" class="hidden fixed top-16 right-4 z-40 px-3.5 py-1.5 rounded-2xl bg-slate-950/95 border-2 border-amber-400/80 text-amber-300 font-cinzel font-bold text-xs shadow-[0_0_30px_rgba(245,158,11,0.5)] backdrop-blur-xl flex items-center gap-2 hover:bg-amber-950/60 hover:scale-105 transition-all cursor-pointer">
+    <svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
+    <span>Centro DM</span>
   </button>
 
 
@@ -2314,27 +2321,61 @@
           const stlLoader = new THREE.STLLoader();
           const geometry = stlLoader.parse(bytes.buffer);
           geometry.computeVertexNormals();
-          geometry.center();
           geometry.computeBoundingBox();
 
           let sz = new THREE.Vector3();
           geometry.boundingBox.getSize(sz);
 
           // Rilevamento automatico coordinate Z-Up (standard Hero Forge & 3D Print STL)
-          // Se l'altezza su Z è superiore a Y, ruota di -90° su X per raddrizzare la miniatura in piedi!
           if (sz.z > sz.y * 1.15) {
             geometry.rotateX(-Math.PI / 2);
             geometry.computeVertexNormals();
-            geometry.center();
             geometry.computeBoundingBox();
             geometry.boundingBox.getSize(sz);
           }
+
+          // Centratura precisa del baricentro basetta/piedi (previene decentramento da armi o mantelli sporgenti)
+          const pos = geometry.attributes.position;
+          let minY = Infinity, maxY = -Infinity;
+          for (let i = 1; i < pos.array.length; i += 3) {
+            const y = pos.array[i];
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+          const height = maxY - minY;
+          const footThresh = minY + height * 0.20;
+          let minFootX = Infinity, maxFootX = -Infinity;
+          let minFootZ = Infinity, maxFootZ = -Infinity;
+          let footCount = 0;
+          for (let i = 0; i < pos.array.length; i += 3) {
+            const y = pos.array[i + 1];
+            if (y <= footThresh) {
+              const x = pos.array[i];
+              const z = pos.array[i + 2];
+              if (x < minFootX) minFootX = x;
+              if (x > maxFootX) maxFootX = x;
+              if (z < minFootZ) minFootZ = z;
+              if (z > maxFootZ) maxFootZ = z;
+              footCount++;
+            }
+          }
+          let cX = 0, cZ = 0;
+          if (footCount > 10) {
+            cX = (minFootX + maxFootX) / 2;
+            cZ = (minFootZ + maxFootZ) / 2;
+          } else {
+            cX = (geometry.boundingBox.min.x + geometry.boundingBox.max.x) / 2;
+            cZ = (geometry.boundingBox.min.z + geometry.boundingBox.max.z) / 2;
+          }
+          // Trasla la geometria in modo che i piedi siano esattamente a (0, 0) e la base poggi a y = 0
+          geometry.translate(-cX, -minY, -cZ);
+          geometry.computeBoundingBox();
+          geometry.boundingBox.getSize(sz);
 
           const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
           const scale = (isGiant ? 3.8 : 2.4) / maxDim;
 
           let miniMat;
-          // Se il file STL contiene colori nativi per vertice (Color 3D Print)
           if (geometry.attributes && geometry.attributes.color) {
             miniMat = new THREE.MeshStandardMaterial({
               vertexColors: true,
@@ -2342,25 +2383,29 @@
               metalness: 0.15
             });
           } else {
-            // Materiale miniatura dipinta con tono fazione vivido ed elegante
-            const baseColor = (modelData && modelData.color)
-              ? modelData.color
-              : (mini.userData.role === 'ENEMY' ? 0xd9383a : (mini.userData.role === 'DM' ? 0xf59e0b : 0x0ea5e9));
+            // Finitura metallo peltro / scultura da collezione tabletop (NO monocolore blu!)
+            const baseColor = (modelData && modelData.color) ? modelData.color : 0xd5d9e0;
             miniMat = new THREE.MeshStandardMaterial({
               color: baseColor,
               roughness: 0.35,
-              metalness: 0.3
+              metalness: 0.45
             });
           }
 
+          const pivot = new THREE.Group();
+          pivot.name = 'custom3dMesh';
+
           const stlMesh = new THREE.Mesh(geometry, miniMat);
-          stlMesh.name = 'custom3dMesh';
           stlMesh.scale.set(scale, scale, scale);
-          stlMesh.position.y = (sz.y * scale) / 2 + 0.22;
-          stlMesh.rotation.y = desiredRotY;
+          stlMesh.position.set(0, 0, 0);
           stlMesh.castShadow = true;
           stlMesh.receiveShadow = true;
-          mini.add(stlMesh);
+
+          pivot.add(stlMesh);
+          pivot.position.set(0, 0.22, 0);
+          pivot.rotation.y = desiredRotY;
+
+          mini.add(pivot);
           mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(err) {
@@ -2369,16 +2414,19 @@
       } else if ((ext === 'glb' || ext === 'gltf') && window.THREE && window.THREE.GLTFLoader) {
         try {
           const gltfLoader = new THREE.GLTFLoader();
-          // Parsing nativo da ArrayBuffer per preservare tutte le texture PBR e colori originali di Hero Forge
-          gltfLoader.parse(bytes.buffer, '', function(gltf) {
+          const bufferToParse = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+          gltfLoader.parse(bufferToParse, '', function(gltf) {
             const m = gltf.scene;
-            m.name = 'custom3dMesh';
+
+            m.position.set(0, 0, 0);
+            m.rotation.set(0, 0, 0);
+            m.scale.set(1, 1, 1);
+            m.updateMatrixWorld(true);
 
             let bbox = new THREE.Box3().setFromObject(m);
             let sz = new THREE.Vector3();
             bbox.getSize(sz);
 
-            // Correzione orientamento Z-Up se esportato orizzontale
             if (sz.z > sz.y * 1.25) {
               m.rotation.x = -Math.PI / 2;
               m.updateMatrixWorld(true);
@@ -2386,24 +2434,62 @@
               bbox.getSize(sz);
             }
 
-            m.rotation.y = desiredRotY;
+            const center = new THREE.Vector3();
+            bbox.getCenter(center);
+
+            let minFootX = Infinity, maxFootX = -Infinity;
+            let minFootZ = Infinity, maxFootZ = -Infinity;
+            let footCount = 0;
+            const footThresh = bbox.min.y + sz.y * 0.20;
+
+            m.traverse(child => {
+              if (child.isMesh && child.geometry && child.geometry.attributes && child.geometry.attributes.position) {
+                const pos = child.geometry.attributes.position;
+                const v = new THREE.Vector3();
+                for (let i = 0; i < pos.count; i++) {
+                  v.fromBufferAttribute(pos, i);
+                  child.localToWorld(v);
+                  if (v.y <= footThresh) {
+                    if (v.x < minFootX) minFootX = v.x;
+                    if (v.x > maxFootX) maxFootX = v.x;
+                    if (v.z < minFootZ) minFootZ = v.z;
+                    if (v.z > maxFootZ) maxFootZ = v.z;
+                    footCount++;
+                  }
+                }
+              }
+            });
+
+            let cX = center.x, cZ = center.z;
+            if (footCount > 10) {
+              cX = (minFootX + maxFootX) / 2;
+              cZ = (minFootZ + maxFootZ) / 2;
+            }
+
+            const pivot = new THREE.Group();
+            pivot.name = 'custom3dMesh';
+
+            m.position.set(-cX, -bbox.min.y, -cZ);
+            pivot.add(m);
 
             const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
             const scale = (isGiant ? 3.8 : 2.4) / maxDim;
-            m.scale.set(scale, scale, scale);
+            pivot.scale.set(scale, scale, scale);
 
-            // Centratura precisa sulla basetta tattica
-            const center = new THREE.Vector3();
-            bbox.getCenter(center);
-            m.position.x = -center.x * scale;
-            m.position.z = -center.z * scale;
-            m.position.y = 0.22 - (bbox.min.y * scale);
+            pivot.position.set(0, 0.22, 0);
+            pivot.rotation.y = desiredRotY;
 
-            // Preservazione texture PBR originali di Hero Forge
+            // Preserva e valorizza tutte le texture PBR, materiali e vertex colors originali di Hero Forge
             m.traverse(child => {
               if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
+                if (child.geometry && child.geometry.attributes && child.geometry.attributes.color) {
+                  if (child.material) {
+                    child.material.vertexColors = true;
+                    child.material.needsUpdate = true;
+                  }
+                }
                 if (child.material) {
                   child.material.side = THREE.DoubleSide;
                   if (child.material.map) {
@@ -2414,7 +2500,7 @@
               }
             });
 
-            mini.add(m);
+            mini.add(pivot);
             mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
             if (renderer && scene && camera) renderer.render(scene, camera);
           });
@@ -2426,7 +2512,11 @@
           const text = binaryStr;
           const objLoader = new THREE.OBJLoader();
           const obj = objLoader.parse(text);
-          obj.name = 'custom3dMesh';
+
+          obj.position.set(0, 0, 0);
+          obj.rotation.set(0, 0, 0);
+          obj.scale.set(1, 1, 1);
+          obj.updateMatrixWorld(true);
 
           let bbox = new THREE.Box3().setFromObject(obj);
           let sz = new THREE.Vector3();
@@ -2438,33 +2528,38 @@
             bbox.getSize(sz);
           }
 
-          obj.rotation.y = desiredRotY;
+          const center = new THREE.Vector3();
+          bbox.getCenter(center);
+
+          const pivot = new THREE.Group();
+          pivot.name = 'custom3dMesh';
+
+          obj.position.set(-center.x, -bbox.min.y, -center.z);
+          pivot.add(obj);
 
           const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
           const scale = (isGiant ? 3.8 : 2.4) / maxDim;
-          obj.scale.set(scale, scale, scale);
+          pivot.scale.set(scale, scale, scale);
 
-          const center = new THREE.Vector3();
-          bbox.getCenter(center);
-          obj.position.x = -center.x * scale;
-          obj.position.z = -center.z * scale;
-          obj.position.y = 0.22 - (bbox.min.y * scale);
+          pivot.position.set(0, 0.22, 0);
+          pivot.rotation.y = desiredRotY;
 
           obj.traverse(child => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
               if (!child.material || child.material.isMeshBasicMaterial) {
+                // Finitura metallo peltro invece di ciano
                 child.material = new THREE.MeshStandardMaterial({
-                  color: mini.userData.role === 'ENEMY' ? 0xd9383a : 0x0ea5e9,
+                  color: (modelData && modelData.color) ? modelData.color : 0xd5d9e0,
                   roughness: 0.35,
-                  metalness: 0.25
+                  metalness: 0.45
                 });
               }
             }
           });
 
-          mini.add(obj);
+          mini.add(pivot);
           mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(e) {}
@@ -3925,7 +4020,9 @@
       if (currentRole === 'DM') {
         roleBadge.textContent = 'DUNGEON MASTER';
         roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-extrabold uppercase tracking-wider';
-        document.getElementById('btn-open-dm-panel').classList.remove('hidden');
+        const topDmBtn = document.getElementById('top-btn-dm-center');
+        if (topDmBtn) topDmBtn.classList.remove('hidden');
+        document.getElementById('btn-open-dm-panel').classList.add('hidden');
         document.getElementById('dm-organizer-panel').classList.remove('hidden');
         if (typeof window.renderDmVttEnemiesList === 'function') {
           window.renderDmVttEnemiesList();
@@ -4192,6 +4289,21 @@
           }
         }
       });
+    };
+
+    window.toggleDmOrganizerPanel = function(forceState) {
+      const p = document.getElementById('dm-organizer-panel');
+      const btn = document.getElementById('btn-open-dm-panel');
+      if (!p) return;
+      const shouldOpen = (forceState !== undefined) ? forceState : p.classList.contains('hidden');
+      if (shouldOpen) {
+        p.classList.remove('hidden');
+        if (btn) btn.classList.add('hidden');
+        if (typeof window.renderDmVttEnemiesList === 'function') window.renderDmVttEnemiesList();
+      } else {
+        p.classList.add('hidden');
+        if (btn && currentRole === 'DM') btn.classList.remove('hidden');
+      }
     };
 
     window.filterDmVttEnemies = function() {
