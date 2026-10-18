@@ -1,0 +1,8 @@
+# Heill Hofn 3D Material
+newmtl MapMaterial
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.100 0.100 0.100
+Ns 20.0
+illum 2
+map_Kd heill_hofn_dungeon_alchemist.jpg

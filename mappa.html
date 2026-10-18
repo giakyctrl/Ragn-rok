@@ -222,8 +222,8 @@
       </div>
 
       <!-- TOGGLE STRUTTURE 3D vs MAPPA PULITA -->
-      <button id="btn-toggle-structures" onclick="window.toggle3DStructures()" title="Mostra/Nascondi blocchi 3D procedurali" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1.5 transition">
-        <span>🗺️</span> <span class="hidden md:inline">Mappa Pulita</span>
+      <button id="btn-toggle-structures" onclick="window.toggle3DStructures()" title="Mostra/Nascondi strutture 3D" class="px-2.5 py-1.5 rounded-xl bg-amber-950/40 border border-amber-500/80 text-amber-300 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-900/20">
+        <span>🏰</span> <span class="hidden md:inline">Scenario 3D</span>
       </button>
 
     </div>
@@ -1125,7 +1125,7 @@
       { id: "yggdrasill_9worlds", title: "I Nove Mondi (Yggdrasill)", act: "Atto 0", file: "assets/maps/yggdrasill_9worlds.jpg", width: 902, height: 1165, cellsW: 30, cellsH: 38 },
       { id: "midgardr_full", title: "Midgardr: Terre del Nord", act: "Atto I", file: "assets/maps/midgardr_full.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
       { id: "norvegr_regional", title: "Norvegr: Costa dei Fiordi", act: "Atto I", file: "assets/maps/norvegr_regional.jpg", width: 902, height: 578, cellsW: 30, cellsH: 20 },
-      { id: "battle_shipyard", title: "Cantiere Navale & Porto", act: "Atto I", file: "assets/maps/battle_shipyard.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
+      { id: "battle_shipyard", title: "Cantiere Navale & Porto (Heill Höfn 3D)", act: "Atto I", file: "assets/maps/battle_shipyard.jpg", objFile: "assets/maps/heill_hofn_3d.obj", width: 654, height: 858, cellsW: 40, cellsH: 50 },
       { id: "snowy_mountains_regional", title: "Le Montagne Innevate", act: "Atto I", file: "assets/maps/snowy_mountains_regional.jpg", width: 902, height: 579, cellsW: 30, cellsH: 20 },
       { id: "battle_bandit_camp", title: "Accampamento di Guthrum", act: "Atto I", file: "assets/maps/battle_bandit_camp.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
       { id: "battle_mountain_pass", title: "Il Sentiero tra i Ghiacci", act: "Atto I", file: "assets/maps/battle_mountain_pass.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
@@ -1233,7 +1233,7 @@
       groundGroup = new THREE.Group(); scene.add(groundGroup);
       worldGroup = new THREE.Group(); scene.add(worldGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
-      structuresGroup = new THREE.Group(); structuresGroup.visible = false; scene.add(structuresGroup);
+      structuresGroup = new THREE.Group(); structuresGroup.visible = true; scene.add(structuresGroup);
       landmarksGroup = new THREE.Group(); scene.add(landmarksGroup);
       vectorGroup = new THREE.Group(); scene.add(vectorGroup);
       fxGroup = new THREE.Group(); scene.add(fxGroup);
@@ -1327,6 +1327,41 @@
           planeMat.needsUpdate = true;
         }
       );
+
+      // Caricamento Mesh 3D Reale da file OBJ se presente (es. Heill Höfn 3D)
+      if (mapDef.objFile && window.THREE && window.THREE.OBJLoader) {
+        const objLoader = new THREE.OBJLoader();
+        objLoader.load(
+          mapDef.objFile,
+          function(loadedObj) {
+            textureLoader.load(mapDef.file, function(tex) {
+              tex.colorSpace = THREE.SRGBColorSpace;
+              if (renderer && renderer.capabilities) {
+                tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+              }
+              const terrainMat = new THREE.MeshStandardMaterial({
+                map: tex,
+                roughness: 0.85,
+                metalness: 0.1
+              });
+              loadedObj.traverse(child => {
+                if (child.isMesh) {
+                  child.material = terrainMat;
+                  child.castShadow = true;
+                  child.receiveShadow = true;
+                }
+              });
+              battlePlane.visible = false;
+              groundGroup.add(loadedObj);
+            });
+          },
+          undefined,
+          function(err) {
+            console.warn("3D OBJ non caricato, uso piano 2D standard:", err);
+            battlePlane.visible = true;
+          }
+        );
+      }
 
       const gridHelper = new THREE.GridHelper(Math.max(planeW, planeH), Math.max(mapDef.cellsW, mapDef.cellsH), 0xc9a050, 0x475569);
       gridHelper.position.set(0, 0.015, 0);
@@ -1464,6 +1499,12 @@
             if (aspect < 1) {
               cellsH = 36;
               cellsW = Math.max(15, Math.round(36 * aspect));
+            }
+            // Rileva automaticamente dimensioni nel nome file (es. 40x50 da Dungeon Alchemist)
+            const matchGrid = file.name.match(/(\d+)\s*[xX×]\s*(\d+)/);
+            if (matchGrid) {
+              cellsW = parseInt(matchGrid[1], 10);
+              cellsH = parseInt(matchGrid[2], 10);
             }
             const customId = 'custom_map_' + Date.now();
             const customDef = {
@@ -2838,53 +2879,37 @@
       // ========================================================================
 
       if (mapId === 'battle_shipyard') {
-        // 1. Moli dei Drakkar (L)
-        createDockPier3D(-16, -18, 18, 4.5, 0.1);
-        createDockPier3D(6, -22, 16, 4.2, -0.15);
-        createDockPier3D(24, -20, 14, 3.8, 0.2);
+        // SCENARIO 3D DI HEILL HÖFN (GEOMETRIA 3D OBJ + DRAKKAR E LUCI VIVE)
+        
+        // 1. Splendide Navi da Guerra Vichinghe 3D (Drakkar ormeggiate ai moli)
+        createDrakkarLongship(-32, 4, Math.PI / 2, 0.95);
+        createDrakkarLongship(-26, -14, -0.55, 1.05);
+        createDrakkarLongship(34, -22, 0.2, 0.9);
 
-        // 3. Due Splendidi Drakkar Vichinghi ormeggiati ai moli
-        createDrakkarLongship(-14, -22, 0.1, 1.15);
-        createDrakkarLongship(8, -26, -0.15, 1.1);
+        // 2. Bracieri e Fuochi d'allarme sulle torri perimetrali (Punti Luce Reali)
+        const torchLocations = [
+          { x: -26, y: 3.5, z: 10 },
+          { x: -20, y: 3.5, z: 36 },
+          { x: 20, y: 3.5, z: 36 },
+          { x: 28, y: 3.5, z: 10 },
+          { x: 0, y: 4.5, z: 14 },   // Braciere Gran Salone
+          { x: -22, y: 1.5, z: -8 }  // Lanterna del Molo
+        ];
+        torchLocations.forEach(t => {
+          const fireLight = new THREE.PointLight(0xf59e0b, 2.8, 22);
+          fireLight.position.set(t.x, t.y, t.z);
+          structuresGroup.add(fireLight);
 
-        // 4. Gran Salone del Re (G) sulla collina centrale
-        createNorseMeadHall(8, -6, -0.25, 1.0, true);
+          const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.25, 0.8, 8), ironMat);
+          brazier.position.set(t.x, t.y - 0.4, t.z);
+          brazier.castShadow = true;
+          structuresGroup.add(brazier);
+        });
 
-        // 5. Barricata difensiva di cinta (A) a sud, est e ovest
-        createPalisadeWall(-planeW * 0.42, 14, -planeW * 0.42, planeH * 0.42, 4.5);
-        createPalisadeWall(-planeW * 0.42, planeH * 0.42, planeW * 0.42, planeH * 0.42, 4.5);
-        createPalisadeWall(planeW * 0.42, planeH * 0.42, planeW * 0.42, 14, 4.5);
-
-        // 6. Torri difensive di guardia (B)
-        createWatchtower3D(-18, 20, 0.2, 9.0);
-        createWatchtower3D(18, 20, -0.2, 9.0);
-        createWatchtower3D(-planeW * 0.4, 12, 0.4, 9.0);
-        createWatchtower3D(planeW * 0.4, 12, -0.4, 9.0);
-
-        // 7. Il Grande Mercato (N)
-        createMarketStall(-8, 6, 0.2);
-        createMarketStall(-4, 6, -0.1);
-        createMarketStall(-6, 10, 0.4);
-
-        // 8. Chiesa della Fiamma (H) in pietra bianca
-        const church = new THREE.Group();
-        church.position.set(14, 0, 12);
-        const chBody = new THREE.Mesh(new THREE.BoxGeometry(6.2, 4.2, 8.4), whiteStoneMat);
-        chBody.position.y = 2.1;
-        church.add(chBody);
-        const chRoof = new THREE.Mesh(new THREE.ConeGeometry(5.2, 3.8, 4), goldMat);
-        chRoof.position.y = 5.8;
-        chRoof.rotation.y = Math.PI / 4;
-        church.add(chRoof);
-        const flameHoly = new THREE.PointLight(0xf59e0b, 2.5, 15);
-        flameHoly.position.set(0, 3.2, 4.6);
-        church.add(flameHoly);
-        structuresGroup.add(church);
-
-        // 9. Scuderie (I), Cacciatori (D) ed Eroi (F)
-        createNorseMeadHall(18, 4, 0.4, 1.05);
-        createNorseMeadHall(-6, -8, -0.2, 1.15);
-        createRunicMonolith(-22, 0, 1.3, 0x38bdf8);
+        // 3. Monoliti Runici Sacri (con auree runiche luminose)
+        createRunicMonolith(-8, 14, 1.25, 0xf59e0b);
+        createRunicMonolith(8, 14, 1.25, 0x38bdf8);
+        createRunicMonolith(-20, -4, 1.1, 0x10b981);
 
       } else if (mapId === 'battle_uppsala_temple') {
         // 1. Tempio Dorato di Uppsala (B)
