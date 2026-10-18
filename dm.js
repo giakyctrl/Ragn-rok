@@ -1417,6 +1417,21 @@ window.filterDmEnemies = function(cat) {
   window.renderDmEnemiesViews();
 };
 
+window.CR_XP_MAP = {
+  '1/8': '25 PE', '1/4': '50 PE', '1/2': '100 PE',
+  '1': '200 PE', '2': '450 PE', '3': '700 PE', '4': '1,100 PE', '5': '1,800 PE',
+  '6': '2,300 PE', '7': '2,900 PE', '8': '3,900 PE', '9': '5,000 PE', '10': '5,900 PE',
+  '11': '7,200 PE', '12': '8,400 PE', '13': '10,000 PE', '14': '11,500 PE', '15': '13,000 PE',
+  '16': '15,000 PE', '17': '18,000 PE', '18': '20,000 PE', '19': '22,000 PE', '20': '25,000 PE',
+  '21': '33,000 PE', '22': '41,000 PE', '23': '50,000 PE', '24': '62,000 PE', '25': '75,000 PE',
+  '28': '120,000 PE', '30': '155,000 PE'
+};
+
+function getStatModStr(val) {
+  const mod = Math.floor(((val || 10) - 10) / 2);
+  return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
 window.renderDmEnemiesViews = function() {
   const grid = document.getElementById('dm-enemies-cards-grid');
   if (!grid) return;
@@ -1426,6 +1441,31 @@ window.renderDmEnemiesViews = function() {
   const enemies = window.getCampaignEnemies(campCode);
   const search = (document.getElementById('dm-enemies-search')?.value || '').toLowerCase().trim();
   const filterCat = window.activeDmEnemyFilter || 'tutti';
+
+  // Aggiorna KPI Dashboard
+  const kpiTotal = document.getElementById('kpi-total-enemies');
+  const kpiBoss = document.getElementById('kpi-boss-enemies');
+  const kpiStl = document.getElementById('kpi-stl-enemies');
+  const kpiCr = document.getElementById('kpi-max-cr');
+
+  if (kpiTotal) kpiTotal.textContent = enemies.length;
+  if (kpiBoss) {
+    kpiBoss.textContent = enemies.filter(e => {
+      const c = ((e.category || '') + ' ' + (e.type || '')).toLowerCase();
+      return c.includes('boss') || c.includes('dei') || (e.hp >= 150);
+    }).length;
+  }
+  if (kpiStl) {
+    kpiStl.textContent = enemies.filter(e => e.custom3dModel && (e.custom3dModel.has3D || e.custom3dModel.dataUrl || e.custom3dModel.name)).length;
+  }
+  if (kpiCr) {
+    let maxCrNum = 0;
+    enemies.forEach(e => {
+      const num = parseInt((e.cr || '0').replace(/\D/g, '')) || 0;
+      if (num > maxCrNum) maxCrNum = num;
+    });
+    kpiCr.textContent = `GS ${maxCrNum || 1}`;
+  }
 
   const filtered = enemies.filter(e => {
     const matchSearch = !search ||
@@ -1438,14 +1478,14 @@ window.renderDmEnemiesViews = function() {
       (filterCat === 'dei' && (cat.includes('dei') || cat.includes('divin') || cat.includes('aesir') || cat.includes('vanir'))) ||
       (filterCat === 'boss' && (cat.includes('boss') || cat.includes('dei') || (e.hp >= 150))) ||
       (filterCat === 'gigante' && (cat.includes('gigant') || cat.includes('jotunn'))) ||
-      (filterCat === 'bestia' && (cat.includes('bestia') || cat.includes('lupo') || cat.includes('drago'))) ||
+      (filterCat === 'bestia' && (cat.includes('bestia') || cat.includes('lupo') || cat.includes('drago') || cat.includes('serpente'))) ||
       (filterCat === 'non-morto' && (cat.includes('non') || cat.includes('mort') || cat.includes('draugr') || cat.includes('schelet'))) ||
       (filterCat === 'umanoide' && (cat.includes('uman') || cat.includes('viching') || cat.includes('clan') || cat.includes('berserk')));
 
     return matchSearch && matchCat;
   });
 
-  const iconSword = window.getNorseIcon ? window.getNorseIcon('swords', 'w-3.5 h-3.5 inline mr-1 text-amber-300') : '';
+  const iconSword = window.getNorseIcon ? window.getNorseIcon('swords', 'w-4 h-4 inline mr-1 text-amber-300') : '';
   const iconQuill = window.getNorseIcon ? window.getNorseIcon('quill', 'w-3 h-3 inline mr-1') : '';
   const iconClone = window.getNorseIcon ? window.getNorseIcon('clone', 'w-3 h-3 inline mr-1') : '';
   const iconTrash = window.getNorseIcon ? window.getNorseIcon('trash', 'w-3 h-3 inline mr-1') : '';
@@ -1453,9 +1493,10 @@ window.renderDmEnemiesViews = function() {
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-slate-400 space-y-2 border border-slate-800">
-        <h4 class="font-cinzel font-bold text-sm text-white">Nessun nemico trovato con questi filtri</h4>
-        <p class="text-xs text-slate-500">Crea una nuova scheda con il pulsante "+ Crea Nuova Scheda Nemico".</p>
+      <div class="col-span-full norse-panel rounded-3xl p-10 text-center text-slate-400 space-y-3 border-2 border-slate-800 bg-slate-950/70">
+        <h4 class="font-cinzel font-bold text-base text-white">Nessuna creatura trovata</h4>
+        <p class="text-xs text-slate-500">Prova a modificare i filtri di ricerca o crea una nuova scheda per la campagna.</p>
+        <button type="button" onclick="window.filterDmEnemies('tutti'); document.getElementById('dm-enemies-search').value='';" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-amber-300 hover:text-white transition">Reimposta Filtri</button>
       </div>
     `;
     return;
@@ -1466,23 +1507,53 @@ window.renderDmEnemiesViews = function() {
     const atk2 = (e.attacks && e.attacks[1]) || null;
     const stats = e.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
     const hasStl = !!(e.custom3dModel && (e.custom3dModel.has3D || e.custom3dModel.dataUrl || e.custom3dModel.name));
+    const stlName = (e.custom3dModel && e.custom3dModel.name) || 'Modello 3D';
 
-    // Initial letter for tactical token badge
+    const catStr = ((e.category || '') + ' ' + (e.type || '')).toLowerCase();
+    const isBoss = (e.hp >= 150) || catStr.includes('boss') || catStr.includes('dei');
+    const isGiant = catStr.includes('gigant') || catStr.includes('jotunn');
+    const isUndead = catStr.includes('non') || catStr.includes('mort') || catStr.includes('draugr');
+    const isBeast = catStr.includes('bestia') || catStr.includes('lupo') || catStr.includes('drago') || catStr.includes('serpente');
+
+    let cardBorder = 'border-slate-800 hover:border-amber-500/50 bg-gradient-to-b from-slate-900/95 via-slate-950 to-slate-900';
+    let tokenBorder = 'border-amber-500/60 bg-slate-950 text-amber-300';
+    let badgeBg = 'bg-amber-950/80 text-amber-300 border-amber-500/40';
+
+    if (isBoss) {
+      cardBorder = 'border-amber-400/70 shadow-[0_0_30px_rgba(245,158,11,0.22)] bg-gradient-to-b from-[#1c1204] via-slate-950 to-slate-900 hover:border-amber-300';
+      tokenBorder = 'border-amber-400 bg-amber-950 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.5)]';
+      badgeBg = 'bg-amber-900/90 text-amber-200 border-amber-400/60';
+    } else if (isGiant) {
+      cardBorder = 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.15)] bg-gradient-to-b from-[#190808] via-slate-950 to-slate-900 hover:border-red-400';
+      tokenBorder = 'border-red-500 bg-red-950 text-red-300 shadow-[0_0_12px_rgba(239,68,68,0.4)]';
+      badgeBg = 'bg-red-950/90 text-red-300 border-red-500/40';
+    } else if (isUndead) {
+      cardBorder = 'border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)] bg-gradient-to-b from-[#14081c] via-slate-950 to-slate-900 hover:border-purple-400';
+      tokenBorder = 'border-purple-500 bg-purple-950 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.4)]';
+      badgeBg = 'bg-purple-950/90 text-purple-300 border-purple-500/40';
+    } else if (isBeast) {
+      cardBorder = 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)] bg-gradient-to-b from-[#06170d] via-slate-950 to-slate-900 hover:border-emerald-400';
+      tokenBorder = 'border-emerald-500 bg-emerald-950 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.4)]';
+      badgeBg = 'bg-emerald-950/90 text-emerald-300 border-emerald-500/40';
+    }
+
+    const crNum = (e.cr || '1').replace(/\D/g, '');
+    const xpText = window.CR_XP_MAP[crNum] || `${e.cr || 'GS 1'}`;
     const initial = (e.name || 'N').charAt(0).toUpperCase();
 
     return `
-      <div class="norse-panel rounded-2xl p-4 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 hover:border-amber-500/50 transition flex flex-col justify-between space-y-3 shadow-lg group">
-        <div>
-          <!-- Header Card: Token Iniziale, Nome, Tipo, GS -->
-          <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-2.5">
-            <div class="flex items-center gap-2.5">
-              <div class="w-10 h-10 rounded-xl bg-slate-950 border-2 border-amber-500/50 flex items-center justify-center font-cinzel font-black text-amber-300 text-base shadow shadow-amber-950/50">
+      <div class="norse-panel rounded-3xl p-4.5 border-2 ${cardBorder} transition-all duration-300 flex flex-col justify-between space-y-3.5 shadow-xl group">
+        <div class="space-y-3">
+          <!-- Header Card: Token Iniziale, Nome, Archetipo, GS & PE -->
+          <div class="flex items-start justify-between gap-2.5 border-b border-slate-800/80 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl border-2 ${tokenBorder} flex items-center justify-center font-cinzel font-black text-lg shrink-0">
                 ${initial}
               </div>
               <div class="min-w-0">
-                <h4 class="font-cinzel font-black text-sm text-white group-hover:text-amber-300 transition truncate max-w-[170px] sm:max-w-[200px]">${e.name}</h4>
+                <h4 class="font-cinzel font-black text-sm text-white group-hover:text-amber-300 transition truncate max-w-[180px] sm:max-w-[210px]">${e.name}</h4>
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-500/30">${e.cr || 'GS 1'}</span>
+                  <span class="text-[9px] font-mono font-bold px-2 py-0.2 rounded-md ${badgeBg} border">${e.cr || 'GS 1'} &bull; ${xpText}</span>
                   <span class="text-[10px] text-slate-400 truncate max-w-[120px]">${e.type || 'Creatura'}</span>
                 </div>
               </div>
@@ -1490,70 +1561,129 @@ window.renderDmEnemiesViews = function() {
 
             <!-- Badge PF & CA -->
             <div class="text-right flex-shrink-0">
-              <div class="font-mono font-extrabold text-sm text-emerald-400">${e.hp} <span class="text-[9px] text-slate-400 font-sans">PF</span></div>
-              <div class="text-[10px] text-amber-300 font-mono">CA ${e.ac || 12}</div>
+              <div class="font-mono font-extrabold text-sm text-emerald-400 flex items-center justify-end gap-1">
+                <span>${e.hp}</span> <span class="text-[9px] text-slate-400 font-sans font-normal">PF</span>
+              </div>
+              <div class="text-[10px] text-amber-300 font-mono font-bold flex items-center justify-end gap-1">
+                <svg class="w-3 h-3 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> CA ${e.ac || 12}
+              </div>
             </div>
           </div>
 
-          <!-- Modello 3D STL Status Indicator -->
-          <div class="py-1.5 flex items-center justify-between text-[10px]">
-            <span class="text-slate-400">Miniatura 3D VTT:</span>
-            ${hasStl ? `
-              <span class="text-cyan-300 font-mono font-semibold flex items-center gap-1 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-                ${iconStl} STL Collegato
-              </span>
-            ` : `
-              <span class="text-slate-500 font-mono text-[9px]">Basetta Tattica Base</span>
-            `}
+          <!-- Barra Salute Visiva & Velocità Metrica -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-[9px] font-mono text-slate-400">
+              <span>Salute Massima</span>
+              <span class="text-slate-300 font-bold">${e.hp}/${e.hp} PF &bull; Vel: ${e.speed || '9m'}</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-slate-950 border border-slate-800 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400" style="width: 100%;"></div>
+            </div>
           </div>
 
-          <!-- Caratteristiche Pills -->
-          <div class="grid grid-cols-6 gap-1 text-center py-1.5 border-y border-slate-800/60 text-[9px] font-mono">
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">FOR</span><strong class="text-slate-200">${stats.str || 10}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">DES</span><strong class="text-slate-200">${stats.dex || 10}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">COS</span><strong class="text-slate-200">${stats.con || 10}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">INT</span><strong class="text-slate-200">${stats.int || 10}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">SAG</span><strong class="text-slate-200">${stats.wis || 10}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">CAR</span><strong class="text-slate-200">${stats.cha || 10}</strong></div>
+          <!-- Modello 3D STL Status & Caricamento Rapido 1-Click -->
+          <div class="p-2 rounded-2xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between text-[10px]">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="text-slate-400 font-cinzel">Miniatura 3D:</span>
+              ${hasStl ? `
+                <span class="text-cyan-300 font-mono font-bold flex items-center gap-1 truncate">
+                  ${iconStl} ${stlName}
+                </span>
+              ` : `
+                <span class="text-slate-500 font-mono text-[9px]">Basetta Tattica Base</span>
+              `}
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+              <input type="file" id="direct-stl-${e.id}" accept=".stl,.glb,.gltf,.obj" class="hidden" onchange="window.handleDirectEnemyStlUpload(event, '${e.id}')">
+              <button type="button" onclick="document.getElementById('direct-stl-${e.id}').click()" class="px-2 py-0.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 font-mono text-[9px] font-bold transition">
+                ${hasStl ? 'Cambia' : '+ STL'}
+              </button>
+              ${hasStl ? `
+                <button type="button" onclick="window.clearEnemyDirectStl('${e.id}')" title="Rimuovi miniatura 3D" class="px-1.5 py-0.5 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-300 text-[9px] font-mono font-bold transition">
+                  &times;
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Caratteristiche Pills D&D 5E con Modificatori (+4, -1...) -->
+          <div class="grid grid-cols-6 gap-1 text-center py-1 border-y border-slate-800/80 text-[9px] font-mono">
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">FOR</span>
+              <strong class="text-white">${stats.str || 10}</strong>
+              <span class="text-[8px] text-amber-300 block">${getStatModStr(stats.str)}</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">DES</span>
+              <strong class="text-white">${stats.dex || 10}</strong>
+              <span class="text-[8px] text-sky-300 block">${getStatModStr(stats.dex)}</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">COS</span>
+              <strong class="text-white">${stats.con || 10}</strong>
+              <span class="text-[8px] text-emerald-300 block">${getStatModStr(stats.con)}</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">INT</span>
+              <strong class="text-white">${stats.int || 10}</strong>
+              <span class="text-[8px] text-purple-300 block">${getStatModStr(stats.int)}</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">SAG</span>
+              <strong class="text-white">${stats.wis || 10}</strong>
+              <span class="text-[8px] text-cyan-300 block">${getStatModStr(stats.wis)}</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-lg py-1 border border-slate-900">
+              <span class="text-slate-500 text-[8px] block">CAR</span>
+              <strong class="text-white">${stats.cha || 10}</strong>
+              <span class="text-[8px] text-pink-300 block">${getStatModStr(stats.cha)}</span>
+            </div>
           </div>
 
           <!-- Attacchi Principali -->
-          <div class="space-y-1 py-2 text-xs">
+          <div class="space-y-1 py-1 text-xs">
             ${atk1 ? `
-              <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
-                <span class="font-bold text-white truncate max-w-[140px]">${atk1.name}</span>
-                <span class="font-mono text-[10px] text-amber-300">${atk1.toHit || '+0'} &bull; ${atk1.damage || ''}</span>
+              <div class="flex items-center justify-between bg-slate-950/70 px-2.5 py-1.5 rounded-xl border border-slate-800/60">
+                <span class="font-bold text-white truncate max-w-[140px] flex items-center gap-1">
+                  <svg class="w-3 h-3 text-amber-400 inline shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>
+                  <span class="truncate">${atk1.name}</span>
+                </span>
+                <span class="font-mono text-[10px] text-amber-300 font-bold shrink-0">${atk1.toHit || '+0'} &bull; ${atk1.damage || ''}</span>
               </div>
             ` : ''}
             ${atk2 ? `
-              <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
-                <span class="font-bold text-slate-300 truncate max-w-[140px]">${atk2.name}</span>
-                <span class="font-mono text-[10px] text-sky-300">${atk2.toHit || ''} &bull; ${atk2.damage || ''}</span>
+              <div class="flex items-center justify-between bg-slate-950/70 px-2.5 py-1.5 rounded-xl border border-slate-800/60">
+                <span class="font-bold text-slate-300 truncate max-w-[140px] flex items-center gap-1">
+                  <svg class="w-3 h-3 text-sky-400 inline shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/></svg>
+                  <span class="truncate">${atk2.name}</span>
+                </span>
+                <span class="font-mono text-[10px] text-sky-300 font-bold shrink-0">${atk2.toHit || ''} &bull; ${atk2.damage || ''}</span>
               </div>
             ` : ''}
           </div>
 
           <!-- Tratti & Privilegi Brevi -->
           ${e.traits ? `
-            <p class="text-[10px] text-slate-400 line-clamp-2 leading-relaxed italic bg-slate-950/40 p-1.5 rounded-lg border border-slate-900">
-              ${e.traits}
+            <p class="text-[10px] text-slate-300 line-clamp-2 leading-relaxed italic bg-slate-950/50 p-2 rounded-xl border border-slate-800/60">
+              "${e.traits}"
             </p>
           ` : ''}
         </div>
 
         <!-- AZIONI: SCHIERA SU GINNUNGAGAP, SCHEDA COMPLETA, CLONA, ELIMINA -->
-        <div class="pt-2 border-t border-slate-800/80 flex flex-col gap-1.5">
-          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center justify-center transition active:scale-95">
+        <div class="pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg shadow-red-950/40 flex items-center justify-center transition active:scale-95">
             ${iconSword} SCHIERA SU GINNUNGAGAP
           </button>
           <div class="grid grid-cols-3 gap-1.5 text-[10px]">
-            <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center">
+            <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1.5 px-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center font-bold font-cinzel">
               ${iconQuill} Scheda
             </button>
-            <button type="button" onclick="window.duplicateEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white transition flex items-center justify-center">
+            <button type="button" onclick="window.duplicateEnemySheet('${e.id}')" class="py-1.5 px-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white transition flex items-center justify-center font-bold font-cinzel">
               ${iconClone} Clona
             </button>
-            <button type="button" onclick="window.deleteEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-red-950/40 border border-red-500/40 hover:border-red-400 text-red-300 hover:text-red-100 transition flex items-center justify-center">
+            <button type="button" onclick="window.deleteEnemySheet('${e.id}')" class="py-1.5 px-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-red-300 hover:text-red-100 transition flex items-center justify-center font-bold font-cinzel">
               ${iconTrash} Elimina
             </button>
           </div>
@@ -1561,6 +1691,53 @@ window.renderDmEnemiesViews = function() {
       </div>
     `;
   }).join('');
+};
+
+window.handleDirectEnemyStlUpload = function(event, enemyId) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['stl', 'glb', 'gltf', 'obj'].includes(ext)) {
+    alert("Formato non valido. Carica un file 3D (.stl, .glb o .obj).");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const campCode = window.activeDmWorkspaceCode;
+    const enemies = window.getCampaignEnemies(campCode);
+    const enemy = enemies.find(x => x.id === enemyId);
+    if (enemy) {
+      enemy.custom3dModel = {
+        type: ext,
+        name: file.name,
+        size: file.size,
+        has3D: true,
+        dataUrl: e.target.result
+      };
+      window.saveCampaignEnemies(campCode, enemies);
+      window.renderDmEnemiesViews();
+      if (typeof window.showToast === 'function') {
+        window.showToast('Miniatura 3D Collegata', `"${file.name}" associato con successo a ${enemy.name}!`);
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearEnemyDirectStl = function(enemyId) {
+  const campCode = window.activeDmWorkspaceCode;
+  const enemies = window.getCampaignEnemies(campCode);
+  const enemy = enemies.find(x => x.id === enemyId);
+  if (enemy) {
+    enemy.custom3dModel = null;
+    window.saveCampaignEnemies(campCode, enemies);
+    window.renderDmEnemiesViews();
+    if (typeof window.showToast === 'function') {
+      window.showToast('Miniatura Rimossa', `Modello 3D rimosso da ${enemy.name}.`);
+    }
+  }
 };
 
 window.openDmEnemyEditorModal = function(enemyId = null) {

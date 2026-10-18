@@ -255,57 +255,93 @@
   </div>
 
   <!-- 5. PANNELLO ORGANIZZATORE DUNGEON MASTER (SOLO DM) -->
-  <aside id="dm-organizer-panel" class="hidden absolute top-20 left-4 z-40 w-88 max-w-[92vw] bg-[#090d16]/95 border-2 border-amber-500/50 rounded-3xl p-4 space-y-3.5 shadow-[0_0_50px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+  <aside id="dm-organizer-panel" class="hidden absolute top-20 left-4 z-40 w-96 max-w-[94vw] max-h-[85vh] bg-[#070b13]/98 border-2 border-amber-500/60 rounded-3xl p-4.5 space-y-3.5 shadow-[0_0_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl flex flex-col">
     <!-- Header Pannello DM -->
-    <div class="flex justify-between items-center border-b border-amber-500/30 pb-2.5">
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400 flex items-center justify-center">
-          <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
+    <div class="flex justify-between items-center border-b border-amber-500/30 pb-3 flex-shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 border border-amber-400 flex items-center justify-center shadow-lg shadow-amber-950/60">
+          <svg class="w-4.5 h-4.5 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
         </div>
         <div>
-          <h3 class="font-cinzel font-black text-xs text-amber-300 uppercase tracking-wider">Centro Comando DM</h3>
-          <span class="text-[9px] text-slate-400 font-mono">Tavolo VTT Ginnungagap</span>
+          <h3 class="font-cinzel font-black text-xs text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+            <span>Centro Comando DM</span>
+            <span class="text-[8px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">VTT</span>
+          </h3>
+          <span class="text-[9px] text-slate-400 font-mono">Arbitro Supremo &bull; Tavolo Tattico Ginnungagap</span>
         </div>
       </div>
-      <button onclick="document.getElementById('dm-organizer-panel').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg font-bold px-1.5 py-0.5 rounded-lg hover:bg-slate-800 transition">&times;</button>
+      <button onclick="document.getElementById('dm-organizer-panel').classList.add('hidden')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-amber-400 text-sm font-bold flex items-center justify-center transition">&times;</button>
     </div>
 
-    <!-- Tab Switcher Nav -->
-    <div class="flex border-b border-slate-800 text-[10px] font-cinzel font-bold">
-      <button type="button" id="dm-tab-btn-enemies" onclick="window.switchDmPanelTab('enemies')" class="flex-1 py-1.5 text-center border-b-2 border-amber-400 text-amber-300 bg-amber-500/10 rounded-t-lg transition">Nemici</button>
-      <button type="button" id="dm-tab-btn-fog" onclick="window.switchDmPanelTab('fog')" class="flex-1 py-1.5 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">Nebbia</button>
-      <button type="button" id="dm-tab-btn-party" onclick="window.switchDmPanelTab('party')" class="flex-1 py-1.5 text-center border-b-2 border-transparent text-slate-400 hover:text-white transition">Party & Dadi</button>
+    <!-- Tab Switcher Nav con Badge Contatori -->
+    <div class="flex border-b border-slate-800 text-[10px] font-cinzel font-bold flex-shrink-0 gap-1">
+      <button type="button" id="dm-tab-btn-enemies" onclick="window.switchDmPanelTab('enemies')" class="flex-1 py-1.5 px-1 text-center border-b-2 border-amber-400 text-amber-300 bg-amber-500/10 rounded-t-lg transition flex items-center justify-center gap-1">
+        <span>Nemici</span>
+        <span id="dm-tab-badge-enemies" class="px-1.5 py-0.2 rounded-full bg-red-950 text-red-300 font-mono text-[8px] border border-red-500/40">15</span>
+      </button>
+      <button type="button" id="dm-tab-btn-fog" onclick="window.switchDmPanelTab('fog')" class="flex-1 py-1.5 px-1 text-center border-b-2 border-transparent text-slate-400 hover:text-white rounded-t-lg transition flex items-center justify-center gap-1">
+        <span>Nebbia</span>
+        <span id="dm-tab-badge-fog" class="px-1.5 py-0.2 rounded-full bg-slate-900 text-slate-400 font-mono text-[8px] border border-slate-800">OFF</span>
+      </button>
+      <button type="button" id="dm-tab-btn-party" onclick="window.switchDmPanelTab('party')" class="flex-1 py-1.5 px-1 text-center border-b-2 border-transparent text-slate-400 hover:text-white rounded-t-lg transition flex items-center justify-center gap-1">
+        <span>Party &amp; Dadi</span>
+        <span id="dm-tab-badge-party" class="px-1.5 py-0.2 rounded-full bg-sky-950 text-sky-300 font-mono text-[8px] border border-sky-500/40">Eroi</span>
+      </button>
     </div>
 
     <!-- TAB 1: SCHIERAMENTO NEMICI E BESTIARIO NORRENO -->
-    <div id="dm-tab-content-enemies" class="space-y-2.5">
-      <div class="flex items-center justify-between gap-2">
-        <input type="text" id="dm-vtt-enemy-search" oninput="window.filterDmVttEnemies()" placeholder="Filtra mostri norreni..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-[11px] text-white placeholder-slate-500 outline-none focus:border-red-400">
-        <button type="button" onclick="window.toggleDmQuickEnemyForm()" class="px-2 py-1 rounded-lg bg-red-950 border border-red-500/60 text-red-300 hover:text-white text-[10px] font-bold font-cinzel">+ Rapido</button>
+    <div id="dm-tab-content-enemies" class="space-y-2.5 flex-1 overflow-hidden flex flex-col min-h-0">
+      <div class="flex items-center justify-between gap-1.5 flex-shrink-0">
+        <div class="relative flex-1">
+          <input type="text" id="dm-vtt-enemy-search" oninput="window.filterDmVttEnemies()" placeholder="Filtra mostri norreni..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-2.5 pr-6 py-1.5 text-[11px] text-white placeholder-slate-500 outline-none focus:border-red-400 transition">
+          <button type="button" onclick="document.getElementById('dm-vtt-enemy-search').value=''; window.filterDmVttEnemies();" class="absolute right-2 top-1.5 text-slate-500 hover:text-white text-xs">&times;</button>
+        </div>
+        <button type="button" onclick="window.toggleDmQuickEnemyForm()" class="px-2.5 py-1.5 rounded-xl bg-red-950/80 border border-red-500/60 text-red-300 hover:text-white text-[10px] font-bold font-cinzel transition shadow shrink-0">+ Rapido</button>
+      </div>
+
+      <!-- Pillole di Categoria Rapida per DM Panel -->
+      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 flex-shrink-0 text-[9px] font-bold font-mono">
+        <button type="button" onclick="window.filterDmVttCategory('tutti')" class="dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-red-700 text-white" data-vtt-cat="tutti">Tutti</button>
+        <button type="button" onclick="window.filterDmVttCategory('boss')" class="dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-vtt-cat="boss">Boss</button>
+        <button type="button" onclick="window.filterDmVttCategory('gigante')" class="dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-vtt-cat="gigante">Giganti</button>
+        <button type="button" onclick="window.filterDmVttCategory('non-morto')" class="dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-vtt-cat="non-morto">Draugr</button>
+        <button type="button" onclick="window.filterDmVttCategory('bestia')" class="dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-vtt-cat="bestia">Bestie</button>
       </div>
 
       <!-- Form Rapido Aggiunta Nemico Estemporaneo -->
-      <div id="dm-quick-enemy-form" class="hidden p-2.5 rounded-2xl bg-slate-950 border border-red-500/50 space-y-2 text-xs">
-        <span class="text-[10px] font-cinzel font-bold text-red-400 uppercase block">Crea Nemico al Volo</span>
-        <input type="text" id="dm-quick-e-name" placeholder="Nome nemico..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs">
-        <div class="grid grid-cols-3 gap-1">
-          <input type="number" id="dm-quick-e-hp" placeholder="PF" value="25" class="bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-white text-center text-xs font-mono">
-          <input type="number" id="dm-quick-e-ac" placeholder="CA" value="13" class="bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-white text-center text-xs font-mono">
-          <input type="number" id="dm-quick-e-count" placeholder="Q.tà" value="1" min="1" max="20" class="bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-amber-300 text-center text-xs font-bold font-mono">
+      <div id="dm-quick-enemy-form" class="hidden p-2.5 rounded-2xl bg-slate-950 border border-red-500/50 space-y-2 text-xs flex-shrink-0 animate-section-fade">
+        <div class="flex justify-between items-center">
+          <span class="text-[10px] font-cinzel font-bold text-red-400 uppercase">Crea Nemico al Volo</span>
+          <span class="text-[9px] text-slate-500">Statistiche 5E</span>
         </div>
-        <button type="button" onclick="window.dmSpawnQuickEnemy()" class="w-full py-1.5 rounded-lg bg-red-700 hover:bg-red-600 text-white font-cinzel font-bold text-[11px] shadow">
-          Schiera sul Tavolo
+        <input type="text" id="dm-quick-e-name" placeholder="Nome creatura..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs">
+        <div class="grid grid-cols-3 gap-1">
+          <div>
+            <span class="text-[8px] text-slate-500 block uppercase font-mono">Punti Ferita</span>
+            <input type="number" id="dm-quick-e-hp" placeholder="PF" value="25" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-emerald-400 text-center text-xs font-mono font-bold">
+          </div>
+          <div>
+            <span class="text-[8px] text-slate-500 block uppercase font-mono">Classe Arm.</span>
+            <input type="number" id="dm-quick-e-ac" placeholder="CA" value="13" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-amber-300 text-center text-xs font-mono font-bold">
+          </div>
+          <div>
+            <span class="text-[8px] text-slate-500 block uppercase font-mono">Quantità</span>
+            <input type="number" id="dm-quick-e-count" placeholder="Q.tà" value="1" min="1" max="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-cyan-300 text-center text-xs font-bold font-mono">
+          </div>
+        </div>
+        <button type="button" onclick="window.dmSpawnQuickEnemy()" class="w-full py-1.5 rounded-xl bg-gradient-to-r from-red-700 to-red-600 hover:brightness-110 text-white font-cinzel font-bold text-[11px] shadow transition active:scale-95">
+          Schiera sul Tavolo Ginnungagap
         </button>
       </div>
 
-      <!-- Lista Nemici da Campagna -->
-      <div id="dm-vtt-enemies-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+      <!-- Lista Nemici da Campagna con Scroll Fluido -->
+      <div id="dm-vtt-enemies-list" class="space-y-1.5 flex-1 overflow-y-auto pr-1">
         <!-- popolato dinamicamente con schede nemici create dal DM -->
       </div>
     </div>
 
     <!-- TAB 2: NEBBIA DI GUERRA TATTICA GRADUALE -->
-    <div id="dm-tab-content-fog" class="hidden space-y-3">
+    <div id="dm-tab-content-fog" class="hidden space-y-3 flex-1 overflow-y-auto pr-1">
       <div class="flex items-center justify-between">
         <span class="font-cinzel text-[11px] font-bold text-cyan-300 uppercase flex items-center gap-1.5">
           <svg class="w-4 h-4 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M4 22h16"/></svg>
@@ -356,28 +392,32 @@
     </div>
 
     <!-- TAB 3: GESTIONE PARTY & TIRI RAPIDI DADI -->
-    <div id="dm-tab-content-party" class="hidden space-y-3">
+    <div id="dm-tab-content-party" class="hidden space-y-3 flex-1 overflow-y-auto pr-1">
       <!-- Party Campagna -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <span class="font-cinzel text-[11px] font-bold text-sky-400 uppercase">Eroi del Party:</span>
           <button onclick="window.dmSpawnAllParty()" class="text-[9px] text-sky-300 hover:text-white underline font-bold">Schiera Tutti</button>
         </div>
-        <div id="dm-party-list" class="space-y-1.5 max-h-36 overflow-y-auto">
+        <div id="dm-party-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
           <!-- Generato dinamicamente con i veri membri della campagna -->
         </div>
       </div>
 
-      <!-- Lanciatore Dadi Rapido per DM -->
+      <!-- Lanciatore Dadi Rapido per DM (D&D 5E Completo) -->
       <div class="space-y-1.5 border-t border-slate-800 pt-2.5">
-        <span class="font-cinzel text-[10px] font-bold text-amber-400 uppercase block">Tiri Rapidi Dadi (D&amp;D 5E):</span>
-        <div class="grid grid-cols-6 gap-1">
+        <div class="flex justify-between items-center">
+          <span class="font-cinzel text-[10px] font-bold text-amber-400 uppercase">Tiri Rapidi Dadi (D&amp;D 5E):</span>
+          <button onclick="window.rollPartyInitiative()" class="text-[9px] font-cinzel font-bold text-amber-300 hover:underline">Tira Iniziativa</button>
+        </div>
+        <div class="grid grid-cols-7 gap-1">
           <button type="button" onclick="window.dmRollDice(20)" class="py-1.5 rounded-lg bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-mono font-black hover:bg-amber-500/40">d20</button>
           <button type="button" onclick="window.dmRollDice(12)" class="py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:border-amber-400">d12</button>
           <button type="button" onclick="window.dmRollDice(10)" class="py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:border-amber-400">d10</button>
           <button type="button" onclick="window.dmRollDice(8)" class="py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:border-amber-400">d8</button>
           <button type="button" onclick="window.dmRollDice(6)" class="py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:border-amber-400">d6</button>
           <button type="button" onclick="window.dmRollDice(4)" class="py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:border-amber-400">d4</button>
+          <button type="button" onclick="window.dmRollDice(100)" class="py-1.5 rounded-lg bg-purple-950 border border-purple-500/60 text-purple-300 text-xs font-mono font-bold hover:border-purple-300">d%</button>
         </div>
       </div>
     </div>
@@ -389,10 +429,30 @@
   </button>
 
 
+  <!-- BANNER CINEMATOGRAFICO TURNO BG3 -->
+  <div id="bg3-turn-announcement" class="pointer-events-none fixed top-24 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center justify-center opacity-0 transition-all duration-500 scale-90">
+    <div class="px-7 py-2.5 rounded-full bg-slate-950/95 border-2 border-amber-400 shadow-[0_0_50px_rgba(245,158,11,0.6)] backdrop-blur-xl flex items-center gap-3">
+      <div id="bg3-turn-avatar-badge" class="w-9 h-9 rounded-full border border-amber-400 overflow-hidden bg-slate-900 flex items-center justify-center shrink-0"></div>
+      <div>
+        <div id="bg3-turn-title" class="font-cinzel font-black text-amber-300 text-sm tracking-widest uppercase">TURNO DI RAGNAR</div>
+        <div id="bg3-turn-sub" class="text-[10px] text-slate-300 font-mono">Iniziativa 18 &bull; 1 Azione, 1 Bonus, 1 Reazione, 9.0m Movimento</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER AUTO-TURN TRASIZIONE BG3 -->
+  <div id="bg3-auto-turn-banner" class="pointer-events-none fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-2.5 px-6 py-2.5 rounded-2xl bg-amber-950/95 border-2 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] backdrop-blur-md opacity-0 transition-all duration-300">
+    <svg class="w-4 h-4 text-amber-300 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <div class="text-left">
+      <div class="font-cinzel font-black text-xs text-amber-200 uppercase tracking-wider">Risorse Turno Esaurite</div>
+      <div class="text-[9px] text-amber-300 font-mono">Passaggio automatico al prossimo combattente...</div>
+    </div>
+  </div>
+
   <!-- 7. UI ALLA BALDUR'S GATE III (BG3 BOTTOM ACTION BAR PER GIOCATORI & EROI) -->
   <div id="bg3-bottom-bar" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-40 w-[96%] max-w-5xl bg3-hud rounded-3xl p-3 border border-amber-500/40 flex items-center justify-between gap-4 shadow-2xl">
     
-    <!-- SEZIONE SINISTRA: RITRATTO EROE, STATISTICHE & MISURATORE MOVIMENTO CIRCOLARE -->
+    <!-- SEZIONE SINISTRA: RITRATTO EROE, STATISTICHE & MISURATORE MOVIMENTO METRICO -->
     <div class="flex items-center gap-3">
       <!-- RITRATTO IN CORNICE NORDICA -->
       <div class="relative">
@@ -417,51 +477,62 @@
           <span id="bg3-hp-text" class="text-[11px] font-mono text-emerald-300 font-bold">28/28 PF</span>
         </div>
 
-        <!-- Misuratore Movimento Dinamico (Metri Rimanenti & Caselle) -->
-        <div class="flex items-center gap-1.5 mt-1">
-          <span class="text-[9px] font-cinzel text-slate-400">Movimento:</span>
-          <span id="bg3-movement-meter" class="font-mono font-extrabold text-[11px] text-emerald-400">9.0m / 9.0m (6 Caselle)</span>
+        <!-- Misuratore Movimento Dinamico (Metri Rimanenti, Caselle & Barra Metrica) -->
+        <div class="mt-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-cinzel text-slate-400">Movimento:</span>
+            <span id="bg3-movement-meter" class="font-mono font-extrabold text-[11px] text-emerald-400">9.0m / 9.0m (6 Caselle)</span>
+          </div>
+          <div class="w-28 h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 mt-0.5">
+            <div id="bg3-movement-bar" class="h-full bg-emerald-400 transition-all duration-300" style="width: 100%;"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- SEZIONE CENTRALE: HOTBAR AZIONI BALDUR'S GATE III -->
     <div class="flex flex-col items-center gap-1 flex-1 max-w-xl">
-      <!-- TURN RESOURCES (Azione verde, Azione Bonus arancione, Reazione) -->
-      <div class="flex items-center gap-3 text-[10px] font-cinzel font-bold">
-        <span id="res-action" class="flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Azione</span>
-        <span id="res-bonus" class="flex items-center gap-1 text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Azione Bonus</span>
-        <span id="res-reaction" class="flex items-center gap-1 text-sky-400"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Reazione</span>
+      <!-- TURN RESOURCES (Azione verde, Azione Bonus arancione, Reazione ciano) -->
+      <div class="flex items-center gap-4 text-[10px] font-cinzel font-bold">
+        <span id="res-action" class="flex items-center gap-1.5 text-emerald-400">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse"></span> Azione
+        </span>
+        <span id="res-bonus" class="flex items-center gap-1.5 text-amber-400">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse"></span> Azione Bonus
+        </span>
+        <span id="res-reaction" class="flex items-center gap-1.5 text-sky-400">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.9)]"></span> Reazione
+        </span>
       </div>
 
       <!-- SLOTS AZIONI ALLA BG3 -->
       <div class="flex items-center gap-1.5 overflow-x-auto p-1 max-w-full">
-        <!-- 1. Attacco Principale con Selezione Bersaglio -->
-        <button onclick="window.startTargetingAttack()" title="Attacco BG3: Seleziona bersaglio, tiro per colpire d20 vs CA bersaglio e calcolo danni" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-amber-500/50">
+        <!-- 1. Attacco Principale (1 Azione) -->
+        <button id="bg3-slot-attack" onclick="window.startTargetingAttack()" title="Attacco BG3 (1 Azione): Seleziona bersaglio, tiro d20 vs CA bersaglio e calcolo danni" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-amber-500/50">
           <svg class="w-5 h-5 text-amber-400 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-amber-300 uppercase">Colpo</span>
         </button>
 
-        <!-- 2. Scatto (Dash) - Raddoppia Movimento -->
-        <button onclick="window.bg3Action('dash')" title="Scatto (Raddoppia il movimento massimo per questo turno)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 2. Scatto / Dash (1 Azione) -->
+        <button id="bg3-slot-dash" onclick="window.bg3Action('dash')" title="Scatto (1 Azione: Raddoppia il movimento per questo turno)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <svg class="w-5 h-5 text-amber-300 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v-2.38C4 11.5 6 9 9 9h3V4h4v7l4 4v3H4z"/><path d="M2 20h20"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-amber-300 uppercase">Scatto</span>
         </button>
 
-        <!-- 3. Schivata (Dodge) -->
-        <button onclick="window.bg3Action('dodge')" title="Schivata (Svantaggio agli attacchi nemici)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 3. Schivata / Dodge (1 Azione) -->
+        <button id="bg3-slot-dodge" onclick="window.bg3Action('dodge')" title="Schivata (1 Azione: Svantaggio agli attacchi nemici)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <svg class="w-5 h-5 text-emerald-300 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M7 21l3-7-2-2 2-4 3 2 3-2 1 4-2 2 2 7"/><path d="M4 13l4-2"/><path d="M16 11l4 2"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-emerald-300 uppercase">Schiva</span>
         </button>
 
-        <!-- 4. Disimpegno (Disengage) -->
-        <button onclick="window.bg3Action('disengage')" title="Disimpegno (Nessun attacco d'opportunità)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 4. Disimpegno / Disengage (1 Azione) -->
+        <button id="bg3-slot-disengage" onclick="window.bg3Action('disengage')" title="Disimpegno (1 Azione: Nessun attacco d'opportunità per questo turno)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <svg class="w-5 h-5 text-sky-300 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-sky-300 uppercase">Disimp.</span>
         </button>
 
-        <!-- 5. Spinta (Shove) -->
-        <button onclick="window.startTargetingShove()" title="Spinta BG3: Prova contrapposta di Atletica per respingere il bersaglio" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 5. Spinta / Shove (1 Azione Bonus) -->
+        <button id="bg3-slot-shove" onclick="window.startTargetingShove()" title="Spinta BG3 (1 Azione Bonus): Respinge il bersaglio indietro di 1.5m" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <svg class="w-5 h-5 text-orange-400 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-orange-300 uppercase">Spinta</span>
         </button>
@@ -469,26 +540,31 @@
         <!-- Separatore -->
         <div class="w-px h-8 bg-slate-800 mx-1"></div>
 
-        
-
-        <!-- 7. Pozione di Guarigione (Azione Bonus con verifica inventario) -->
-        <button id="bg3-slot-potion" onclick="window.bg3Action('potion')" title="Bevi Pozione di Guarigione (2d4+2 PF)" class="bg3-slot relative w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
+        <!-- 6. Pozione di Guarigione (1 Azione Bonus) -->
+        <button id="bg3-slot-potion" onclick="window.bg3Action('potion')" title="Bevi Pozione di Guarigione (1 Azione Bonus: recupera 2d4+2 PF)" class="bg3-slot relative w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group">
           <svg class="w-5 h-5 text-pink-400 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6"/><path d="M10 2v4a3 3 0 0 1-1 2.24L4.36 12.5A4 4 0 0 0 3 15.5v2a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4v-2a4 4 0 0 0-1.36-3L15 8.24A3 3 0 0 1 14 6V2"/><path d="M6 14h12"/></svg>
           <span class="text-[7px] font-cinzel font-bold text-pink-300 uppercase">Pozione</span>
           <span id="bg3-potion-count" class="hidden absolute -top-1.5 -right-1.5 bg-pink-600 text-white font-mono text-[8px] font-black px-1.5 py-0.2 rounded-full border border-pink-400 shadow">0</span>
         </button>
 
-        <!-- 8. Reazione: Parata con Scudo Vichingo / Scudo Runico -->
-        <button onclick="window.triggerParryReaction()" title="Attiva Reazione Parata con Scudo (+2 CA) o Scudo Runico (+5 CA)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-sky-500/40">
+        <!-- 7. Reazione: Parata con Scudo (1 Reazione) -->
+        <button id="bg3-slot-parry" onclick="window.triggerParryReaction()" title="Attiva Reazione Parata con Scudo (1 Reazione: +2 CA contro il prossimo attacco)" class="bg3-slot w-11 h-11 rounded-xl flex flex-col items-center justify-center p-1 group border-sky-500/40">
           <span class="text-base text-sky-300 group-hover:scale-110 transition"><svg class="w-3.5 h-3.5 text-amber-300 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
           <span class="text-[7px] font-cinzel font-bold text-sky-300 uppercase">Parata</span>
         </button>
       </div>
     </div>
 
-    <!-- SEZIONE DESTRA: PULSANTE CIRCOLARE "TERMINA TURNO" BG3 -->
-    <div class="flex items-center gap-3">
-      <button onclick="window.bg3EndTurn()" class="bg3-turn-btn w-14 h-14 rounded-full flex flex-col items-center justify-center text-white cursor-pointer active:scale-95" title="Termina il tuo turno (Ripristina Movimento e Risorse)">
+    <!-- SEZIONE DESTRA: PULSANTI ROTAZIONE 3D & TERMINA TURNO BG3 -->
+    <div class="flex items-center gap-2">
+      <!-- Pulsante Ruota Miniatura 90° -->
+      <button onclick="window.rotateSelectedMiniature(90)" class="w-10 h-10 rounded-xl bg-slate-900 border border-cyan-500/50 hover:border-cyan-300 text-cyan-300 flex flex-col items-center justify-center p-1 transition shadow hover:bg-slate-800" title="Ruota Miniatura 3D di 90° (Tasto Rapido: R)">
+        <svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+        <span class="text-[7px] font-mono font-bold uppercase">Ruota</span>
+      </button>
+
+      <!-- Pulsante Fine Turno BG3 -->
+      <button onclick="window.bg3EndTurn()" class="bg3-turn-btn w-14 h-14 rounded-full flex flex-col items-center justify-center text-white cursor-pointer active:scale-95 shadow-xl" title="Termina il tuo turno (Ripristina Movimento e Risorse)">
         <svg class="w-5 h-5 text-amber-300 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
         <span class="text-[8px] font-cinzel font-black uppercase tracking-wider">FINE</span>
       </button>
@@ -1069,6 +1145,14 @@
       initiativeQueue: [],
       currentTurnIndex: 0,
       turnResources: { action: true, bonus: true, reaction: true },
+      turnState: {
+        actionUsed: false,
+        bonusActionUsed: false,
+        reactionUsed: false,
+        movementRemaining: 9.0,
+        movementMax: 9.0,
+        autoTurnTimer: null
+      },
       weatherParticles: null,
       pendingReaction: null
     };
@@ -1095,6 +1179,13 @@
       window.addEventListener('resize', onWindowResize);
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') cancelTargetingMode();
+        if ((e.key === 'r' || e.key === 'R') && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+          window.rotateSelectedMiniature(90);
+        }
+        if ((e.key === 'e' || e.key === 'E') && e.ctrlKey) {
+          e.preventDefault();
+          window.bg3EndTurn();
+        }
       });
     });
 
@@ -2207,36 +2298,70 @@
       });
       toRemove.forEach(c => mini.remove(c));
 
+      // Decodifica binaria da DataURL per tutti i formati
+      const b64 = rawData.includes(',') ? rawData.split(',')[1] : rawData;
+      const binaryStr = atob(b64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+
+      const defaultFacing = (mini.userData.role === 'ENEMY') ? 0 : Math.PI;
+      const desiredRotY = (modelData.rotY !== undefined) ? modelData.rotY : defaultFacing;
+
       if (ext === 'stl' && window.THREE && window.THREE.STLLoader) {
         try {
-          const b64 = rawData.includes(',') ? rawData.split(',')[1] : rawData;
-          const binaryStr = atob(b64);
-          const bytes = new Uint8Array(binaryStr.length);
-          for (let i = 0; i < binaryStr.length; i++) {
-            bytes[i] = binaryStr.charCodeAt(i);
-          }
           const stlLoader = new THREE.STLLoader();
           const geometry = stlLoader.parse(bytes.buffer);
           geometry.computeVertexNormals();
           geometry.center();
           geometry.computeBoundingBox();
-          const sz = new THREE.Vector3();
+
+          let sz = new THREE.Vector3();
           geometry.boundingBox.getSize(sz);
+
+          // Rilevamento automatico coordinate Z-Up (standard Hero Forge & 3D Print STL)
+          // Se l'altezza su Z è superiore a Y, ruota di -90° su X per raddrizzare la miniatura in piedi!
+          if (sz.z > sz.y * 1.15) {
+            geometry.rotateX(-Math.PI / 2);
+            geometry.computeVertexNormals();
+            geometry.center();
+            geometry.computeBoundingBox();
+            geometry.boundingBox.getSize(sz);
+          }
+
           const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
           const scale = (isGiant ? 3.8 : 2.4) / maxDim;
 
-          const miniMat = new THREE.MeshStandardMaterial({
-            color: mini.userData.role === 'ENEMY' ? 0x991b1b : (mini.userData.role === 'DM' ? 0xd97706 : 0xd4af37),
-            roughness: 0.35,
-            metalness: 0.65
-          });
+          let miniMat;
+          // Se il file STL contiene colori nativi per vertice (Color 3D Print)
+          if (geometry.attributes && geometry.attributes.color) {
+            miniMat = new THREE.MeshStandardMaterial({
+              vertexColors: true,
+              roughness: 0.4,
+              metalness: 0.15
+            });
+          } else {
+            // Materiale miniatura dipinta con tono fazione vivido ed elegante
+            const baseColor = (modelData && modelData.color)
+              ? modelData.color
+              : (mini.userData.role === 'ENEMY' ? 0xd9383a : (mini.userData.role === 'DM' ? 0xf59e0b : 0x0ea5e9));
+            miniMat = new THREE.MeshStandardMaterial({
+              color: baseColor,
+              roughness: 0.35,
+              metalness: 0.3
+            });
+          }
+
           const stlMesh = new THREE.Mesh(geometry, miniMat);
           stlMesh.name = 'custom3dMesh';
           stlMesh.scale.set(scale, scale, scale);
-          stlMesh.position.y = (sz.y * scale) / 2 + 0.18;
+          stlMesh.position.y = (sz.y * scale) / 2 + 0.22;
+          stlMesh.rotation.y = desiredRotY;
           stlMesh.castShadow = true;
+          stlMesh.receiveShadow = true;
           mini.add(stlMesh);
-          mini.userData.custom3dModel = modelData;
+          mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(err) {
           console.warn("Errore parsing STL miniatura:", err);
@@ -2244,42 +2369,134 @@
       } else if ((ext === 'glb' || ext === 'gltf') && window.THREE && window.THREE.GLTFLoader) {
         try {
           const gltfLoader = new THREE.GLTFLoader();
-          gltfLoader.parse(rawData, '', function(gltf) {
+          // Parsing nativo da ArrayBuffer per preservare tutte le texture PBR e colori originali di Hero Forge
+          gltfLoader.parse(bytes.buffer, '', function(gltf) {
             const m = gltf.scene;
             m.name = 'custom3dMesh';
-            const bbox = new THREE.Box3().setFromObject(m);
-            const sz = new THREE.Vector3();
+
+            let bbox = new THREE.Box3().setFromObject(m);
+            let sz = new THREE.Vector3();
             bbox.getSize(sz);
+
+            // Correzione orientamento Z-Up se esportato orizzontale
+            if (sz.z > sz.y * 1.25) {
+              m.rotation.x = -Math.PI / 2;
+              m.updateMatrixWorld(true);
+              bbox = new THREE.Box3().setFromObject(m);
+              bbox.getSize(sz);
+            }
+
+            m.rotation.y = desiredRotY;
+
             const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
             const scale = (isGiant ? 3.8 : 2.4) / maxDim;
             m.scale.set(scale, scale, scale);
-            m.position.y = 0.18;
+
+            // Centratura precisa sulla basetta tattica
+            const center = new THREE.Vector3();
+            bbox.getCenter(center);
+            m.position.x = -center.x * scale;
+            m.position.z = -center.z * scale;
+            m.position.y = 0.22 - (bbox.min.y * scale);
+
+            // Preservazione texture PBR originali di Hero Forge
+            m.traverse(child => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (child.material) {
+                  child.material.side = THREE.DoubleSide;
+                  if (child.material.map) {
+                    child.material.map.colorSpace = THREE.SRGBColorSpace;
+                    child.material.map.needsUpdate = true;
+                  }
+                }
+              }
+            });
+
             mini.add(m);
-            mini.userData.custom3dModel = modelData;
+            mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
             if (renderer && scene && camera) renderer.render(scene, camera);
           });
-        } catch(e) {}
+        } catch(e) {
+          console.warn("Errore caricamento GLTF/GLB:", e);
+        }
       } else if (ext === 'obj' && window.THREE && window.THREE.OBJLoader) {
         try {
-          const b64 = rawData.includes(',') ? rawData.split(',')[1] : rawData;
-          const text = atob(b64);
+          const text = binaryStr;
           const objLoader = new THREE.OBJLoader();
           const obj = objLoader.parse(text);
           obj.name = 'custom3dMesh';
-          const bbox = new THREE.Box3().setFromObject(obj);
-          const sz = new THREE.Vector3();
+
+          let bbox = new THREE.Box3().setFromObject(obj);
+          let sz = new THREE.Vector3();
           bbox.getSize(sz);
+
+          if (sz.z > sz.y * 1.25) {
+            obj.rotation.x = -Math.PI / 2;
+            bbox = new THREE.Box3().setFromObject(obj);
+            bbox.getSize(sz);
+          }
+
+          obj.rotation.y = desiredRotY;
+
           const maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
           const scale = (isGiant ? 3.8 : 2.4) / maxDim;
           obj.scale.set(scale, scale, scale);
-          obj.position.y = 0.18;
+
+          const center = new THREE.Vector3();
+          bbox.getCenter(center);
+          obj.position.x = -center.x * scale;
+          obj.position.z = -center.z * scale;
+          obj.position.y = 0.22 - (bbox.min.y * scale);
+
+          obj.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (!child.material || child.material.isMeshBasicMaterial) {
+                child.material = new THREE.MeshStandardMaterial({
+                  color: mini.userData.role === 'ENEMY' ? 0xd9383a : 0x0ea5e9,
+                  roughness: 0.35,
+                  metalness: 0.25
+                });
+              }
+            }
+          });
+
           mini.add(obj);
-          mini.userData.custom3dModel = modelData;
+          mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(e) {}
       }
     }
     window.attach3DModelToMiniature = attach3DModelToMiniature;
+
+    window.rotateSelectedMiniature = function(deltaDeg = 90) {
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      if (!mini) {
+        if (typeof showToast === 'function') showToast('Nessuna Pedina', 'Seleziona prima una pedina da ruotare!');
+        return;
+      }
+      const rad = (deltaDeg * Math.PI) / 180;
+      const mesh = mini.getObjectByName('custom3dMesh');
+      if (mesh) {
+        mesh.rotation.y = (mesh.rotation.y + rad) % (Math.PI * 2);
+        if (mini.userData.custom3dModel) {
+          mini.userData.custom3dModel.rotY = mesh.rotation.y;
+        }
+      } else {
+        mini.rotation.y = (mini.rotation.y + rad) % (Math.PI * 2);
+        mini.userData.rotY = mini.rotation.y;
+      }
+      if (renderer && scene && camera) renderer.render(scene, camera);
+      saveGinnungagapState();
+      const currentRot = mesh ? mesh.rotation.y : mini.rotation.y;
+      const deg = Math.round((currentRot * 180) / Math.PI);
+      if (typeof showToast === 'function') {
+        showToast('Orientamento Pedina', `${mini.userData.name} ruotato a ${deg < 0 ? deg + 360 : deg}°`);
+      }
+    };
 
     function addDefaultTacticalCap(miniGroup, initial, ringColor, baseRadius) {
       const disc = new THREE.Mesh(
@@ -2456,20 +2673,30 @@
       const actor = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
       if (!actor) { showToast('Nessun Eroe Selezionato', 'Seleziona prima la tua miniatura!'); return; }
 
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.actionUsed) {
+        showToast('Azione Già Usata', 'Hai già utilizzato la tua Azione in questo turno! Non puoi attaccare di nuovo.');
+        return;
+      }
+
       window.Ginnungagap.targetingMode = 'attack';
       document.body.classList.add('targeting-cursor');
       document.getElementById('targeting-mode-banner').classList.remove('hidden');
-      showToast('Modalità Attacco Attiva', 'Clicca sulla miniatura nemica che desideri colpire!');
+      showToast('Modalità Attacco Attiva (1 Azione)', 'Clicca sulla miniatura nemica che desideri colpire!');
     };
 
     window.startTargetingShove = function() {
       const actor = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
       if (!actor) { showToast('Nessun Eroe', 'Seleziona prima la tua miniatura!'); return; }
 
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.bonusActionUsed) {
+        showToast('Azione Bonus Già Usata', 'Hai già utilizzato la tua Azione Bonus in questo turno!');
+        return;
+      }
+
       window.Ginnungagap.targetingMode = 'shove';
       document.body.classList.add('targeting-cursor');
       document.getElementById('targeting-mode-banner').classList.remove('hidden');
-      showToast('Modalità Spinta', 'Clicca su un nemico per spingerlo indietro!');
+      showToast('Modalità Spinta (1 Azione Bonus)', 'Clicca su un nemico per spingerlo indietro di 1.5m!');
     };
 
     function cancelTargetingMode() {
@@ -2481,6 +2708,12 @@
 
     function executeCombatAttack(attackerMini, targetMini) {
       cancelTargetingMode();
+
+      // Consumo dell'Azione D&D 5E
+      if (window.Ginnungagap.turnState) {
+        window.Ginnungagap.turnState.actionUsed = true;
+        window.updateBg3ActionPips();
+      }
 
       const a = attackerMini.userData;
       const t = targetMini.userData;
@@ -2534,12 +2767,13 @@
       if (!isHit) {
         // MANCATO
         spawnFloatingCombatText(targetMini.position, 'MANCATO', '#94a3b8');
-        logCombatEvent('ATTACCO', `${a.name} attacca ${t.name} con [${weaponName}]: [d20] (${d20}) + ${atkBonus} = ${totalAttack} vs CA ${targetAC} -> [X] MANCATO!`);
+        logCombatEvent('ATTACCO', `${a.name} spende 1 Azione e attacca ${t.name} con [${weaponName}]: [d20] (${d20}) + ${atkBonus} = ${totalAttack} vs CA ${targetAC} -> [X] MANCATO!`);
         showToast('Colpo Deflesso', `L'attacco con ${weaponName} (${totalAttack} vs CA ${targetAC}) è stato respinto dalla difesa!`);
         broadcastEvent({
           type: 'COMBAT_ATTACK_RESOLVED',
           attacker: a.name, target: t.name, hit: false, roll: totalAttack, ac: targetAC
         });
+        window.checkBg3AutoTurnAdvancement();
         return;
       }
 
@@ -2550,7 +2784,7 @@
 
       // Notifica e Log Iniziale
       const critStr = isCrit ? ' [COLPO CRITICO]' : '';
-      logCombatEvent('COLPITO', `${a.name} colpisce ${t.name} con [${weaponName}]!  Tiro: ${totalAttack} vs CA ${targetAC}.${critStr} Danni inflitti: [d${weaponDice}: ${die1}${isCrit ? '+'+die2 : ''}] + ${weaponDmgBonus} = ${totalDamage} PF!`);
+      logCombatEvent('COLPITO', `${a.name} spende 1 Azione e colpisce ${t.name} con [${weaponName}]! Tiro: ${totalAttack} vs CA ${targetAC}.${critStr} Danni inflitti: [d${weaponDice}: ${die1}${isCrit ? '+'+die2 : ''}] + ${weaponDmgBonus} = ${totalDamage} PF!`);
 
       // SE IL BERSAGLIO È UN BOSS O IL DANNO È LETALE: VERIFICA ARBITRO DEL DM!
       const isBoss = t.name.toLowerCase().includes('valkyr') || t.hp - totalDamage <= 0;
@@ -2575,6 +2809,8 @@
         // Danno regolare applicato
         applyDamageToMiniature(targetMini, totalDamage, isCrit);
       }
+
+      window.checkBg3AutoTurnAdvancement();
     }
 
     function applyDamageToMiniature(targetMini, damage, isCrit = false) {
@@ -2643,10 +2879,22 @@
       const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
       if (!mini) return;
 
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.reactionUsed) {
+        showToast('Reazione Già Usata', 'Hai già impiegato la tua Reazione in questo round!');
+        return;
+      }
+
       mini.userData.ac = (mini.userData.ac || 15) + 2;
       refreshMiniatureBillboard(mini);
-      showToast('Parata Attivata', `${mini.userData.name} imbraccia lo Scudo Vichingo: +2 CA (CA attuale: ${mini.userData.ac})!`);
-      logCombatEvent('REAZIONE', `${mini.userData.name} attiva la Reazione: [Parata con Scudo Vichingo] +2 CA!`);
+
+      if (window.Ginnungagap.turnState) {
+        window.Ginnungagap.turnState.reactionUsed = true;
+        window.updateBg3ActionPips();
+        window.checkBg3AutoTurnAdvancement();
+      }
+
+      showToast('Parata Attivata (1 Reazione)', `${mini.userData.name} imbraccia lo Scudo Vichingo: +2 CA (CA attuale: ${mini.userData.ac})!`);
+      logCombatEvent('REAZIONE', `${mini.userData.name} spende 1 Reazione per [Parata con Scudo]: +2 CA!`);
       broadcastEvent({ type: 'REACTION_PARRY', miniId: mini.userData.id, newAc: mini.userData.ac });
     };
 
@@ -3031,16 +3279,215 @@
     };
 
     window.bg3NextTurn = function() {
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.autoTurnTimer) {
+        clearTimeout(window.Ginnungagap.turnState.autoTurnTimer);
+        window.Ginnungagap.turnState.autoTurnTimer = null;
+      }
+      const autoBanner = document.getElementById('bg3-auto-turn-banner');
+      if (autoBanner) {
+        autoBanner.classList.remove('opacity-100');
+        autoBanner.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      if (window.Ginnungagap.initiativeQueue.length === 0) {
+        window.Ginnungagap.initiativeQueue = [...window.Ginnungagap.miniatures];
+      }
       if (window.Ginnungagap.initiativeQueue.length === 0) return;
+
       window.Ginnungagap.currentTurnIndex = (window.Ginnungagap.currentTurnIndex + 1) % window.Ginnungagap.initiativeQueue.length;
       updateInitiativeBar();
 
       const currentMini = window.Ginnungagap.initiativeQueue[window.Ginnungagap.currentTurnIndex];
       if (currentMini) {
         selectMiniature(currentMini);
-        showToast('Nuovo Turno', `È il turno di: [${currentMini.userData.name}]`);
-        logCombatEvent('TURNO', `Inizio turno: ${currentMini.userData.name}`);
+
+        // Ripristino Risorse Turno D&D 5E
+        const spd = currentMini.userData.speedMeters || 9.0;
+        window.Ginnungagap.turnState = {
+          actionUsed: false,
+          bonusActionUsed: false,
+          reactionUsed: false,
+          movementRemaining: spd,
+          movementMax: spd,
+          autoTurnTimer: null
+        };
+        window.Ginnungagap.isDashActive = false;
+        window.updateBg3ActionPips();
+        window.updateBg3MovementMeter();
+
+        // Panning fluido della telecamera sul nuovo combattente di turno
+        if (controls && camera) {
+          new TWEEN.Tween(controls.target)
+            .to({ x: currentMini.position.x, y: 0, z: currentMini.position.z }, 650)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start();
+          new TWEEN.Tween(camera.position)
+            .to({ x: currentMini.position.x, y: Math.max(camera.position.y, 22), z: currentMini.position.z + 20 }, 650)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start();
+        }
+
+        // Mostra il banner cinematografico BG3 di annuncio turno
+        showBg3TurnAnnouncement(currentMini);
+
+        showToast('Nuovo Turno BG3', `È il turno di: [${currentMini.userData.name}] (Risorse D&D 5E Ripristinate)`);
+        logCombatEvent('TURNO', `Inizio turno: ${currentMini.userData.name} [CA ${currentMini.userData.ac || 15}, PF ${currentMini.userData.hp}/${currentMini.userData.maxHp}]`);
+
+        broadcastEvent({
+          type: 'TURN_CHANGED',
+          activeMiniId: currentMini.userData.id,
+          activeMiniName: currentMini.userData.name,
+          turnIndex: window.Ginnungagap.currentTurnIndex
+        });
       }
+    };
+
+    function showBg3TurnAnnouncement(mini) {
+      const ann = document.getElementById('bg3-turn-announcement');
+      if (!ann) return;
+      const u = mini.userData;
+      const isEnemy = u.role === 'ENEMY';
+      const title = document.getElementById('bg3-turn-title');
+      const sub = document.getElementById('bg3-turn-sub');
+      const avatar = document.getElementById('bg3-turn-avatar-badge');
+
+      if (title) {
+        title.textContent = `TURNO DI: ${u.name}`;
+        title.className = `font-cinzel font-black text-sm tracking-widest uppercase ${isEnemy ? 'text-red-400' : 'text-amber-300'}`;
+      }
+      if (sub) {
+        sub.textContent = `${isEnemy ? 'Creatura Nemica' : 'Eroe del Party'} • Iniziativa ${u.initiative || 12} • 1 Azione, 1 Bonus, ${u.speedMeters || 9.0}m Movimento`;
+      }
+      if (avatar) {
+        avatar.innerHTML = u.avatar
+          ? `<img src="${u.avatar}" class="w-full h-full object-cover">`
+          : `<span class="font-cinzel font-black text-xs ${isEnemy ? 'text-red-400' : 'text-amber-300'}">${(u.name || '?')[0]}</span>`;
+        avatar.className = `w-9 h-9 rounded-full border-2 overflow-hidden bg-slate-950 flex items-center justify-center shrink-0 ${isEnemy ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)]' : 'border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.7)]'}`;
+      }
+
+      ann.classList.remove('opacity-0', 'scale-90');
+      ann.classList.add('opacity-100', 'scale-100');
+
+      setTimeout(() => {
+        ann.classList.remove('opacity-100', 'scale-100');
+        ann.classList.add('opacity-0', 'scale-90');
+      }, 1900);
+    }
+
+    window.updateBg3ActionPips = function() {
+      const s = window.Ginnungagap.turnState;
+      if (!s) return;
+
+      const actEl = document.getElementById('res-action');
+      if (actEl) {
+        if (!s.actionUsed) {
+          actEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse"></span> <span class="text-emerald-400">Azione</span>`;
+        } else {
+          actEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full border border-emerald-500/40 bg-transparent opacity-40"></span> <span class="text-emerald-500/40 line-through">Azione</span>`;
+        }
+      }
+
+      const bonEl = document.getElementById('res-bonus');
+      if (bonEl) {
+        if (!s.bonusActionUsed) {
+          bonEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse"></span> <span class="text-amber-400">Azione Bonus</span>`;
+        } else {
+          bonEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full border border-amber-500/40 bg-transparent opacity-40"></span> <span class="text-amber-500/40 line-through">Azione Bonus</span>`;
+        }
+      }
+
+      const reaEl = document.getElementById('res-reaction');
+      if (reaEl) {
+        if (!s.reactionUsed) {
+          reaEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.9)]"></span> <span class="text-sky-400">Reazione</span>`;
+        } else {
+          reaEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full border border-sky-500/40 bg-transparent opacity-40"></span> <span class="text-sky-500/40 line-through">Reazione</span>`;
+        }
+      }
+
+      // Aggiorna classi bottoni Azioni (dimmed se usata)
+      ['bg3-slot-attack', 'bg3-slot-dash', 'bg3-slot-dodge', 'bg3-slot-disengage'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (s.actionUsed) {
+            el.classList.add('opacity-35', 'grayscale-[50%]');
+          } else {
+            el.classList.remove('opacity-35', 'grayscale-[50%]');
+          }
+        }
+      });
+
+      // Aggiorna classi bottoni Azioni Bonus
+      ['bg3-slot-shove', 'bg3-slot-potion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (s.bonusActionUsed) {
+            el.classList.add('opacity-35', 'grayscale-[50%]');
+          } else {
+            el.classList.remove('opacity-35', 'grayscale-[50%]');
+          }
+        }
+      });
+
+      // Aggiorna classe Reazione
+      const parryEl = document.getElementById('bg3-slot-parry');
+      if (parryEl) {
+        if (s.reactionUsed) {
+          parryEl.classList.add('opacity-35', 'grayscale-[50%]');
+        } else {
+          parryEl.classList.remove('opacity-35', 'grayscale-[50%]');
+        }
+      }
+    };
+
+    window.updateBg3MovementMeter = function() {
+      const s = window.Ginnungagap.turnState;
+      if (!s) return;
+      const cur = Math.max(0, s.movementRemaining).toFixed(1);
+      const max = Math.max(cur, s.movementMax).toFixed(1);
+      const tiles = Math.floor(s.movementRemaining / 1.5);
+
+      const mEl = document.getElementById('bg3-movement-meter');
+      if (mEl) {
+        mEl.textContent = `${cur}m / ${max}m (${tiles} Caselle)`;
+        if (tiles === 0) {
+          mEl.className = 'font-mono font-extrabold text-[11px] text-red-400';
+        } else if (tiles <= 2) {
+          mEl.className = 'font-mono font-extrabold text-[11px] text-amber-300';
+        } else {
+          mEl.className = 'font-mono font-extrabold text-[11px] text-emerald-400';
+        }
+      }
+
+      const bar = document.getElementById('bg3-movement-bar');
+      if (bar) {
+        const pct = Math.max(0, Math.min(100, (s.movementRemaining / s.movementMax) * 100));
+        bar.style.width = pct + '%';
+        bar.className = `h-full transition-all duration-300 ${pct < 25 ? 'bg-red-500' : (pct < 50 ? 'bg-amber-400' : 'bg-emerald-400')}`;
+      }
+    };
+
+    window.checkBg3AutoTurnAdvancement = function() {
+      const s = window.Ginnungagap.turnState;
+      if (!s) return;
+      const isExhausted = s.actionUsed && s.bonusActionUsed && (s.movementRemaining < 1.5);
+      if (!isExhausted) return;
+
+      const banner = document.getElementById('bg3-auto-turn-banner');
+      if (banner) {
+        banner.classList.remove('opacity-0', 'pointer-events-none');
+        banner.classList.add('opacity-100');
+      }
+
+      if (s.autoTurnTimer) clearTimeout(s.autoTurnTimer);
+      s.autoTurnTimer = setTimeout(() => {
+        if (banner) {
+          banner.classList.remove('opacity-100');
+          banner.classList.add('opacity-0', 'pointer-events-none');
+        }
+        showToast('Turno Concluso', 'Risorse turno esaurite: passaggio automatico al prossimo combattente!');
+        window.bg3NextTurn();
+      }, 1200);
     };
 
     // ============================================================================
@@ -3115,14 +3562,39 @@
 
           if (window.Ginnungagap.targetingMode === 'shove') {
             cancelTargetingMode();
-            showToast('Spinta Eseguita', `Tentativo di spingere [${root.userData.name}] indietro di 1.5m!`);
-            logCombatEvent('SPINTA', `${currentUser} spinge ${root.userData.name}!`);
+            const attacker = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+            if (attacker && attacker !== root) {
+              const dx = Math.sign(root.userData.tileX - attacker.userData.tileX) || 1;
+              const dz = Math.sign(root.userData.tileZ - attacker.userData.tileZ);
+              root.userData.tileX = Math.max(0, Math.min((currentMapDef?.cellsW || 32) - 1, root.userData.tileX + dx));
+              root.userData.tileZ = Math.max(0, Math.min((currentMapDef?.cellsH || 42) - 1, root.userData.tileZ + dz));
+              new TWEEN.Tween(root.position)
+                .to({ x: tileToWorldX(root.userData.tileX), z: tileToWorldZ(root.userData.tileZ) }, 220)
+                .easing(TWEEN.Easing.Back.Out)
+                .start();
+              spawnFloatingCombatText(root.position, 'SPINTA! 1.5m', '#f97316');
+              if (window.Ginnungagap.turnState) {
+                window.Ginnungagap.turnState.bonusActionUsed = true;
+                window.updateBg3ActionPips();
+                window.checkBg3AutoTurnAdvancement();
+              }
+              showToast('Spinta Eseguita!', `Tentativo riuscito: [${root.userData.name}] respinto di 1.5m!`);
+              logCombatEvent('SPINTA', `${attacker.userData.name} spende 1 Azione Bonus e spinge ${root.userData.name} indietro di 1.5m.`);
+              saveGinnungagapState();
+            }
             return;
           }
 
-          // Movimento miniatura
+          // Se il giocatore clicca su un'altra pedina per ispezionarla
           if (currentRole === 'PLAYER' && window.Ginnungagap.myHeroMini && root !== window.Ginnungagap.myHeroMini) {
-            selectMiniature(root); // Il giocatore può ispezionare le statistiche del bersaglio
+            selectMiniature(root);
+            return;
+          }
+
+          // Verifica se la pedina attiva ha ancora movimento rimanente prima di avviare il trascinamento
+          if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.movementRemaining < 1.5 && root === (window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini)) {
+            showToast('Movimento Esaurito', 'Non hai metri di movimento sufficienti per spostarti in questo turno!');
+            selectMiniature(root);
             return;
           }
 
@@ -3160,15 +3632,17 @@
           let tx = worldToTileX(hits[0].point.x);
           let tz = worldToTileZ(hits[0].point.z);
 
-          const maxSpeed = window.Ginnungagap.isDashActive ? dragMini.userData.speedMeters * 2 : dragMini.userData.speedMeters;
-          const maxTiles = Math.floor(maxSpeed / 1.5);
+          const curRemMove = (window.Ginnungagap.turnState && window.Ginnungagap.turnState.movementRemaining !== undefined)
+            ? window.Ginnungagap.turnState.movementRemaining
+            : dragMini.userData.speedMeters;
+          const maxTiles = Math.max(0, Math.floor(curRemMove / 1.5));
 
           const dx = tx - dragStartTile.tx;
           const dz = tz - dragStartTile.tz;
           const dist = Math.max(Math.abs(dx), Math.abs(dz));
 
           if (dist > maxTiles) {
-            const ratio = maxTiles / dist;
+            const ratio = maxTiles > 0 ? (maxTiles / dist) : 0;
             tx = Math.round(dragStartTile.tx + dx * ratio);
             tz = Math.round(dragStartTile.tz + dz * ratio);
           }
@@ -3178,7 +3652,7 @@
           dragMini.userData.tileX = tx;
           dragMini.userData.tileZ = tz;
 
-          updateMovementVector(dragStartTile.tx, dragStartTile.tz, tx, tz, maxTiles);
+          updateMovementVector(dragStartTile.tx, dragStartTile.tz, tx, tz, Math.max(1, maxTiles));
         }
       }
     }
@@ -3189,10 +3663,23 @@
         if (fogBrushMode === 'none' && controls) controls.enabled = true;
       }
 
-      if (isDraggingMini && dragMini) {
+      if (isDraggingMini && dragMini && dragStartTile) {
         controls.enabled = true;
         isDraggingMini = false;
         clearMovementVector();
+
+        const dx = Math.abs(dragMini.userData.tileX - dragStartTile.tx);
+        const dz = Math.abs(dragMini.userData.tileZ - dragStartTile.tz);
+        const distTiles = Math.max(dx, dz);
+        const metersSpent = distTiles * 1.5;
+
+        if (metersSpent > 0 && window.Ginnungagap.turnState) {
+          window.Ginnungagap.turnState.movementRemaining = Math.max(0, window.Ginnungagap.turnState.movementRemaining - metersSpent);
+          window.updateBg3MovementMeter();
+          logCombatEvent('MOVIMENTO', `${dragMini.userData.name} si sposta di ${metersSpent.toFixed(1)}m (${distTiles} caselle). Rimasti: ${window.Ginnungagap.turnState.movementRemaining.toFixed(1)}m.`);
+          window.checkBg3AutoTurnAdvancement();
+        }
+
         saveGinnungagapState();
 
         broadcastEvent({
@@ -3207,7 +3694,6 @@
       }
     }
 
-
     function selectMiniature(mini) {
       window.Ginnungagap.selectedMini = mini;
       const u = mini.userData;
@@ -3221,10 +3707,23 @@
       const pct = Math.max(0, Math.min(1, u.hp / u.maxHp));
       document.getElementById('bg3-hp-bar').style.width = (pct * 100) + '%';
       document.getElementById('bg3-hp-text').textContent = `${u.hp}/${u.maxHp} PF`;
+
+      if (!window.Ginnungagap.turnState || window.Ginnungagap.turnState.movementRemaining === undefined) {
+        window.Ginnungagap.turnState = {
+          actionUsed: false,
+          bonusActionUsed: false,
+          reactionUsed: false,
+          movementRemaining: u.speedMeters || 9.0,
+          movementMax: u.speedMeters || 9.0,
+          autoTurnTimer: null
+        };
+      }
+      window.updateBg3MovementMeter();
+      window.updateBg3ActionPips();
     }
 
     // ============================================================================
-    // AZIONI BG3 STANDARD & INCANTESIMI
+    // AZIONI BG3 STANDARD & INCANTESIMI (CON ECONOMIA RISORSE D&D 5E)
     // ============================================================================
 
     window.bg3Action = function(act) {
@@ -3232,22 +3731,49 @@
       if (!mini) { alert("Seleziona una miniatura!"); return; }
 
       if (act === 'dash') {
-        window.Ginnungagap.isDashActive = !window.Ginnungagap.isDashActive;
-        const speed = window.Ginnungagap.isDashActive ? mini.userData.speedMeters * 2 : mini.userData.speedMeters;
-        const tiles = Math.floor(speed / 1.5);
-        document.getElementById('bg3-movement-meter').textContent = `${speed}m / ${speed}m (${tiles} Caselle)`;
-        showToast('Scatto Attivato!', `Movimento raddoppiato: ${speed}m (${tiles} caselle).`);
-        logCombatEvent('AZIONE', `${mini.userData.name} attiva [Scatto]: movimento raddoppiato a ${speed}m!`);
+        if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.actionUsed) {
+          showToast('Azione Già Usata', 'Hai già impiegato la tua Azione in questo turno!');
+          return;
+        }
+        window.Ginnungagap.isDashActive = true;
+        const addSpeed = mini.userData.speedMeters || 9.0;
+        window.Ginnungagap.turnState.movementRemaining += addSpeed;
+        window.Ginnungagap.turnState.movementMax += addSpeed;
+        window.Ginnungagap.turnState.actionUsed = true;
+        window.updateBg3ActionPips();
+        window.updateBg3MovementMeter();
+
+        showToast('Scatto Attivato (1 Azione)', `Movimento raddoppiato: +${addSpeed}m disponibili!`);
+        logCombatEvent('AZIONE', `${mini.userData.name} spende 1 Azione per [Scatto]: movimento aumentato a ${window.Ginnungagap.turnState.movementRemaining.toFixed(1)}m!`);
+        window.checkBg3AutoTurnAdvancement();
 
       } else if (act === 'dodge') {
-        showToast('Schivata Attiva', `${mini.userData.name} adotta una guardia difensiva: svantaggio ai tiri per colpire avversari.`);
-        logCombatEvent('AZIONE', `${mini.userData.name} esegue [Schivata].`);
+        if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.actionUsed) {
+          showToast('Azione Già Usata', 'Hai già impiegato la tua Azione in questo turno!');
+          return;
+        }
+        window.Ginnungagap.turnState.actionUsed = true;
+        window.updateBg3ActionPips();
+        showToast('Schivata Eseguita (1 Azione)', `${mini.userData.name} assume postura difensiva: svantaggio ai tiri nemici.`);
+        logCombatEvent('AZIONE', `${mini.userData.name} spende 1 Azione per [Schivata].`);
+        window.checkBg3AutoTurnAdvancement();
 
       } else if (act === 'disengage') {
-        showToast('Disimpegno', `${mini.userData.name} si disimpegna: nessun attacco d'opportunità per questo turno.`);
-        logCombatEvent('AZIONE', `${mini.userData.name} attiva [Disimpegno].`);
+        if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.actionUsed) {
+          showToast('Azione Già Usata', 'Hai già impiegato la tua Azione in questo turno!');
+          return;
+        }
+        window.Ginnungagap.turnState.actionUsed = true;
+        window.updateBg3ActionPips();
+        showToast('Disimpegno (1 Azione)', `${mini.userData.name} si disimpegna: nessun attacco d'opportunità per questo turno.`);
+        logCombatEvent('AZIONE', `${mini.userData.name} spende 1 Azione per [Disimpegno].`);
+        window.checkBg3AutoTurnAdvancement();
 
       } else if (act === 'potion') {
+        if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.bonusActionUsed) {
+          showToast('Azione Bonus Già Usata', 'Hai già impiegato la tua Azione Bonus in questo turno!');
+          return;
+        }
         const ch = (typeof getHeroCharacterRecord === 'function') ? getHeroCharacterRecord() : null;
         const cards = (ch && ch.cards) ? ch.cards : [];
         const isPotion = c => {
@@ -3257,12 +3783,12 @@
         };
         const pIdx = cards.findIndex(isPotion);
 
-        if (pIdx === -1) {
+        if (pIdx === -1 && cards.length > 0) {
           showToast('Nessuna Pozione', 'Non possiedi alcuna pozione di guarigione o erba nell\'inventario!');
           return;
         }
 
-        const consumed = cards.splice(pIdx, 1)[0];
+        if (pIdx !== -1) cards.splice(pIdx, 1);
         const heal = Math.floor(Math.random()*4) + Math.floor(Math.random()*4) + 4;
         mini.userData.hp = Math.min(mini.userData.maxHp, mini.userData.hp + heal);
         if (ch) {
@@ -3270,24 +3796,29 @@
           saveHeroCharacterRecord(ch);
         }
 
+        window.Ginnungagap.turnState.bonusActionUsed = true;
+        window.updateBg3ActionPips();
+
         refreshMiniatureBillboard(mini);
         selectMiniature(mini);
         if (typeof window.updateInventoryAndEquipmentUI === 'function') window.updateInventoryAndEquipmentUI();
 
-        showToast('Pozione Consumata', `${mini.userData.name} beve [${consumed.name}]: recuperati +${heal} PF!`);
-        logCombatEvent('POZIONE', `${mini.userData.name} consuma [${consumed.name}]: recuperati +${heal} PF (PF Attuali: ${mini.userData.hp}/${mini.userData.maxHp}).`);
+        showToast('Pozione Consumata (1 Azione Bonus)', `${mini.userData.name} beve la pozione: recuperati +${heal} PF!`);
+        logCombatEvent('POZIONE', `${mini.userData.name} spende 1 Azione Bonus per una pozione: recuperati +${heal} PF (PF Attuali: ${mini.userData.hp}/${mini.userData.maxHp}).`);
         spawnFloatingCombatText(mini.position, `+${heal} PF`, '#10b981');
         saveGinnungagapState();
+        window.checkBg3AutoTurnAdvancement();
       }
     };
 
     window.bg3EndTurn = function() {
-      window.Ginnungagap.isDashActive = false;
-      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
-      if (mini) {
-        document.getElementById('bg3-movement-meter').textContent = `${mini.userData.speedMeters}m / ${mini.userData.speedMeters}m (${Math.floor(mini.userData.speedMeters/1.5)} Caselle)`;
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.autoTurnTimer) {
+        clearTimeout(window.Ginnungagap.turnState.autoTurnTimer);
+        window.Ginnungagap.turnState.autoTurnTimer = null;
       }
-      showToast('Turno Terminato', 'Risorse e movimento ripristinati per il prossimo round.');
+      const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
+      const name = mini ? mini.userData.name : 'Combattente';
+      showToast('Turno Terminato', `${name} conclude il proprio turno. Passaggio in corso...`);
       window.bg3NextTurn();
     };
 
@@ -3300,15 +3831,26 @@
       const mini = window.Ginnungagap.selectedMini || window.Ginnungagap.myHeroMini;
       if (!mini) return;
 
+      if (window.Ginnungagap.turnState && window.Ginnungagap.turnState.actionUsed) {
+        showToast('Azione Già Usata', 'Hai già impiegato la tua Azione in questo turno!');
+        return;
+      }
+
+      if (window.Ginnungagap.turnState) {
+        window.Ginnungagap.turnState.actionUsed = true;
+        window.updateBg3ActionPips();
+        window.checkBg3AutoTurnAdvancement();
+      }
+
       if (spellType === 'thunder') {
-        showToast('Runa del Tuono', 'Thor sprigiona il boato dei cieli! 3d8 danni da tuono.');
-        logCombatEvent('INCANTESIMO', `${mini.userData.name} invoca la [Runa del Tuono di Thor]! `);
+        showToast('Runa del Tuono (1 Azione)', 'Thor sprigiona il boato dei cieli! 3d8 danni da tuono.');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} spende 1 Azione e invoca la [Runa del Tuono di Thor]! `);
       } else if (spellType === 'frost') {
-        showToast('Gelo di Niflheim', 'Runa del Gelo scagliata! I nemici nell\'area sono rallentati.');
-        logCombatEvent('INCANTESIMO', `${mini.userData.name} scaglia il [Gelo Primordiale di Niflheim]! `);
+        showToast('Gelo di Niflheim (1 Azione)', 'Runa del Gelo scagliata! I nemici nell\'area sono rallentati.');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} spende 1 Azione e scaglia il [Gelo Primordiale di Niflheim]! `);
       } else if (spellType === 'heal') {
-        showToast('Respiro di Freya', 'Luce benevola risana le ferite del compagno!');
-        logCombatEvent('INCANTESIMO', `${mini.userData.name} canalizza il [Respiro Rigenerante di Freya]! `);
+        showToast('Respiro di Freya (1 Azione)', 'Luce benevola risana le ferite del compagno!');
+        logCombatEvent('INCANTESIMO', `${mini.userData.name} spende 1 Azione e canalizza il [Respiro Rigenerante di Freya]! `);
       }
     };
 
@@ -3667,6 +4209,24 @@
       logCombatEvent('DADI', `Il DM ha lanciato 1d${sides}: [${roll}]${desc}`);
     };
 
+    window.activeDmVttCategoryFilter = 'tutti';
+
+    window.filterDmVttCategory = function(cat) {
+      window.activeDmVttCategoryFilter = cat;
+      document.querySelectorAll('.dm-vtt-cat-btn').forEach(btn => {
+        if (btn.dataset.vttCat === cat) {
+          btn.className = 'dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-red-700 text-white font-bold font-mono shadow';
+        } else {
+          btn.className = 'dm-vtt-cat-btn px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800 font-bold font-mono';
+        }
+      });
+      window.renderDmVttEnemiesList();
+    };
+
+    window.filterDmVttEnemies = function() {
+      window.renderDmVttEnemiesList();
+    };
+
     window.renderDmVttEnemiesList = function() {
       const container = document.getElementById('dm-vtt-enemies-list');
       if (!container) return;
@@ -3674,9 +4234,25 @@
       let db = {};
       try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
       let camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
-      let enemies = (camp && camp.enemies && camp.enemies.length > 0)
+      let allEnemies = (camp && camp.enemies && camp.enemies.length > 0)
         ? camp.enemies
         : (window.DEFAULT_NORSE_BESTIARY || []);
+
+      const badge = document.getElementById('dm-tab-badge-enemies');
+      if (badge) badge.textContent = allEnemies.length;
+
+      let enemies = [...allEnemies];
+      const catFilter = window.activeDmVttCategoryFilter || 'tutti';
+      if (catFilter !== 'tutti') {
+        enemies = enemies.filter(e => {
+          const c = ((e.category || '') + ' ' + (e.type || '')).toLowerCase();
+          if (catFilter === 'boss') return c.includes('boss') || c.includes('dei') || (e.hp >= 150);
+          if (catFilter === 'gigante') return c.includes('gigant') || c.includes('jotunn');
+          if (catFilter === 'non-morto') return c.includes('non') || c.includes('mort') || c.includes('draugr');
+          if (catFilter === 'bestia') return c.includes('bestia') || c.includes('lupo') || c.includes('drago') || c.includes('serpente');
+          return true;
+        });
+      }
 
       const q = (document.getElementById('dm-vtt-enemy-search')?.value || '').toLowerCase().trim();
       if (q) {
@@ -3688,16 +4264,17 @@
       }
 
       if (enemies.length === 0) {
-        container.innerHTML = '<div class="text-[10px] text-slate-500 p-2 text-center">Nessun nemico trovato.</div>';
+        container.innerHTML = '<div class="text-[10px] text-slate-500 p-3 text-center bg-slate-950/60 rounded-xl border border-slate-900">Nessun nemico trovato con questi filtri.</div>';
         return;
       }
 
       container.innerHTML = enemies.map(e => {
         const has3D = !!(e.custom3dModel && (e.custom3dModel.has3D || e.custom3dModel.dataUrl || e.custom3dModel.name));
+        const isBoss = (e.hp >= 150) || (e.cr && parseInt(e.cr.replace(/\D/g, '')) >= 15);
         return `
-        <div class="flex items-center justify-between p-2 bg-slate-900/90 border border-red-500/30 rounded-xl text-xs hover:border-red-400 transition">
+        <div class="flex items-center justify-between p-2 bg-slate-900/90 border ${isBoss ? 'border-amber-500/50 shadow-md shadow-amber-950/30' : 'border-red-500/30'} rounded-2xl text-xs hover:border-red-400 transition">
           <div class="flex items-center gap-2 truncate">
-            <div class="w-6 h-6 rounded-lg bg-red-950 border border-red-500/50 flex items-center justify-center font-cinzel font-black text-red-300 text-xs shrink-0">
+            <div class="w-7 h-7 rounded-xl ${isBoss ? 'bg-amber-950 border-amber-400 text-amber-300' : 'bg-red-950 border-red-500/50 text-red-300'} border flex items-center justify-center font-cinzel font-black text-xs shrink-0">
               ${(e.name || 'N').charAt(0).toUpperCase()}
             </div>
             <div class="truncate">
@@ -3705,14 +4282,14 @@
                 <span>${e.name}</span>
                 ${has3D ? '<span class="text-[8px] font-mono px-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">3D</span>' : ''}
               </div>
-              <div class="text-[9px] text-slate-400">${e.hp} PF &bull; CA ${e.ac || 12} &bull; ${e.cr || 'GS 1'}</div>
+              <div class="text-[9px] text-slate-400 font-mono">${e.hp} PF &bull; CA ${e.ac || 12} &bull; ${e.cr || 'GS 1'}</div>
             </div>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 1)' class="px-2 py-0.5 rounded bg-red-950 border border-red-500 text-[10px] text-red-200 hover:bg-red-900 font-bold font-mono">
+            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 1)' class="px-2 py-1 rounded-lg bg-red-950 hover:bg-red-900 border border-red-500 text-[10px] text-red-200 font-bold font-mono transition active:scale-95 shadow">
               +1
             </button>
-            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 3)' class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-amber-300 hover:bg-slate-700 font-bold font-mono">
+            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 3)' class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] text-amber-300 font-bold font-mono transition active:scale-95 shadow">
               +3
             </button>
           </div>
@@ -3723,9 +4300,11 @@
     function populateDmPartyList(camp) {
       const container = document.getElementById('dm-party-list');
       if (!container) return;
+      const members = Object.values(camp?.members || {});
+      const pBadge = document.getElementById('dm-tab-badge-party');
+      if (pBadge) pBadge.textContent = members.length;
       container.innerHTML = '';
 
-      const members = Object.values(camp.members || {});
       if (members.length === 0) {
         container.innerHTML = '<div class="text-[9px] text-slate-500">Nessun eroe registrato nel codice sala.</div>';
         return;

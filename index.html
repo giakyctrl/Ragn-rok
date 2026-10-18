@@ -677,46 +677,96 @@
 
         <!-- DM 5: BESTIARIO & SCHEDE NEMICI CAMPAGNA -->
         <div id="dm-subview-enemies" class="hidden space-y-5 animate-section-fade">
-          <div class="norse-panel rounded-2xl p-4 sm:p-5 border border-red-500/40 bg-gradient-to-br from-slate-900/95 via-slate-950 to-red-950/20 shadow-xl space-y-4">
+          <!-- Banner Superiore con KPI Dashboard -->
+          <div class="norse-panel rounded-3xl p-5 border-2 border-red-500/50 bg-gradient-to-br from-[#0c0e17] via-slate-950 to-red-950/30 shadow-[0_0_50px_rgba(239,68,68,0.15)] space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M10 18v2"/><path d="M14 18v2"/><path d="M4 11a8 8 0 0 1 16 0c0 4-2.5 6-4 7l-.5 3h-7L8 18c-1.5-1-4-3-4-7z"/></svg>
-                  <h3 class="font-cinzel font-black text-sm sm:text-base text-red-300 uppercase tracking-wider">
-                    Nemici
-                  </h3>
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-red-950/80 border border-red-500 flex items-center justify-center shadow-lg shadow-red-950/60">
+                    <svg class="w-4.5 h-4.5 text-red-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M10 18v2"/><path d="M14 18v2"/><path d="M4 11a8 8 0 0 1 16 0c0 4-2.5 6-4 7l-.5 3h-7L8 18c-1.5-1-4-3-4-7z"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="font-cinzel font-black text-sm sm:text-base text-red-200 uppercase tracking-widest flex items-center gap-2">
+                      <span>Compendio Creature &amp; Nemici Norreni</span>
+                      <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-red-950 border border-red-500/50 text-red-300 font-bold">D&amp;D 5E</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                      Statistiche complete per il Dungeon Master (PF, CA, Tiri Salvezza, Azioni e Modelli 3D STL). Schieramento istantaneo sul tavolo VTT Ginnungagap.
+                    </p>
+                  </div>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">
-                  Crea e conserva le schede complete dei nemici (PF, CA, Velocità, Attacchi e Tratti). Schierali istantaneamente con miniatura e statistiche sul tavolo Ginnungagap.
-                </p>
               </div>
 
               <div class="flex items-center gap-2 w-full sm:w-auto">
-                <button type="button" onclick="window.openDmEnemyEditorModal()" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95">
-                  <svg class="w-4 h-4 mr-1 text-white inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Crea Nuova Scheda Nemico
+                <button type="button" onclick="window.openDmEnemyEditorModal()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-xl flex items-center justify-center gap-1.5 transition active:scale-95">
+                  <svg class="w-4 h-4 mr-1 text-white inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Crea Nuova Scheda Nemico
                 </button>
-                
+              </div>
+            </div>
+
+            <!-- KPI Dashboard Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-slate-800/80">
+              <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-red-400 font-cinzel font-black text-xs shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block font-mono uppercase">Creature Totali</span>
+                  <strong id="kpi-total-enemies" class="text-sm font-mono font-black text-white">15</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-300 font-cinzel font-black text-xs shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block font-mono uppercase">Dei &amp; Boss Epici</span>
+                  <strong id="kpi-boss-enemies" class="text-sm font-mono font-black text-amber-300">5</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-cinzel font-black text-xs shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block font-mono uppercase">Miniature 3D STL</span>
+                  <strong id="kpi-stl-enemies" class="text-sm font-mono font-black text-cyan-300">0</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center justify-center text-purple-300 font-cinzel font-black text-xs shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block font-mono uppercase">Grado Sfida Max</span>
+                  <strong id="kpi-max-cr" class="text-sm font-mono font-black text-purple-300">GS 30</strong>
+                </div>
               </div>
             </div>
 
             <!-- Filtri & Ricerca Nemici -->
-            <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between border-t border-slate-800/80 pt-3">
-              <div class="flex items-center gap-2 w-full sm:w-72">
-                <input type="text" id="dm-enemies-search" oninput="window.renderDmEnemiesViews()" placeholder="Cerca mostro, archetipo, GS..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none w-full focus:border-red-400 transition">
+            <div class="flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between border-t border-slate-800/80 pt-3">
+              <div class="relative w-full md:w-80">
+                <input type="text" id="dm-enemies-search" oninput="window.renderDmEnemiesViews()" placeholder="Cerca mostro, archetipo, GS..." class="bg-slate-950 border border-slate-800 rounded-xl pl-3 pr-7 py-2 text-xs text-white placeholder-slate-500 outline-none w-full focus:border-red-400 transition">
+                <button type="button" onclick="document.getElementById('dm-enemies-search').value=''; window.renderDmEnemiesViews();" class="absolute right-2.5 top-2 text-slate-500 hover:text-white text-xs">&times;</button>
               </div>
 
-              <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                <button type="button" onclick="window.filterDmEnemies('tutti')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-red-600 text-white" data-filter="tutti">Tutti</button>
-                <button type="button" onclick="window.filterDmEnemies('non-morto')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white" data-filter="non-morto">Non Morti</button>
-                <button type="button" onclick="window.filterDmEnemies('gigante')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white" data-filter="gigante">Giganti</button>
-                <button type="button" onclick="window.filterDmEnemies('bestia')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white" data-filter="bestia">Bestie</button>
-                <button type="button" onclick="window.filterDmEnemies('umanoide')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white" data-filter="umanoide">Umanoidi</button>
-                <button type="button" onclick="window.filterDmEnemies('boss')" class="dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white" data-filter="boss">Boss</button>
+              <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 text-[10px] font-bold">
+                <button type="button" onclick="window.filterDmEnemies('tutti')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-red-600 text-white shadow" data-filter="tutti">Tutti</button>
+                <button type="button" onclick="window.filterDmEnemies('boss')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="boss">Boss Epici</button>
+                <button type="button" onclick="window.filterDmEnemies('dei')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="dei">Æsir &amp; Vanir</button>
+                <button type="button" onclick="window.filterDmEnemies('gigante')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="gigante">Giganti (Jötunn)</button>
+                <button type="button" onclick="window.filterDmEnemies('non-morto')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="non-morto">Non Morti (Draugr)</button>
+                <button type="button" onclick="window.filterDmEnemies('bestia')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="bestia">Bestie</button>
+                <button type="button" onclick="window.filterDmEnemies('umanoide')" class="dm-enemy-filter-btn px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800" data-filter="umanoide">Clan &amp; Berserkir</button>
               </div>
             </div>
 
             <!-- Griglia Schede Nemici -->
-            <div id="dm-enemies-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
+            <div id="dm-enemies-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
               <!-- Popolato dinamicamente da dm.js -->
             </div>
           </div>
