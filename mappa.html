@@ -221,6 +221,11 @@
         </button>
       </div>
 
+      <!-- TOGGLE STRUTTURE 3D vs MAPPA PULITA -->
+      <button id="btn-toggle-structures" onclick="window.toggle3DStructures()" title="Mostra/Nascondi blocchi 3D procedurali" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1.5 transition">
+        <span>🗺️</span> <span class="hidden md:inline">Mappa Pulita</span>
+      </button>
+
     </div>
 
     <!-- STRUMENTI GENERALI: PERSONALIZZAZIONE MINIATURA, SCHEDA EROE OVERLAY, RITORNO A YGGDRASILL -->
@@ -625,6 +630,26 @@
         <button onclick="window.filterMapSelectorByAct('Atto I')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto I">Atto I: Norvegr</button>
         <button onclick="window.filterMapSelectorByAct('Atto II')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto II">Atto II: Svitjod & Jutland</button>
         <button onclick="window.filterMapSelectorByAct('Atto Finale')" class="map-act-tab px-3 py-1 rounded-xl text-xs font-cinzel font-bold bg-slate-800 text-slate-300 hover:text-white" data-act="Atto Finale">Atto Finale: Ragnarok</button>
+      </div>
+
+      <!-- BARRA IMPORTAZIONE MAPPA PERSONALIZZATA (INKARNATE, DUNGEON ALCHEMIST O FILE 3D .GLB) -->
+      <div class="px-6 py-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-amber-500/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📁</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-cinzel font-bold text-amber-300">Carica Mappa Creata da Te:</span>
+              <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">.PNG / .JPG 4K / .GLB 3D</span>
+            </div>
+            <span class="text-[10px] text-slate-400">Esporta la tua mappa da Inkarnate, Dungeon Alchemist o Blender e caricala subito sul tavolo</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input type="file" id="custom-map-file-input" accept=".jpg,.jpeg,.png,.webp,.glb,.gltf" class="hidden" onchange="window.handleCustomMapFileSelect(event)">
+          <button type="button" onclick="document.getElementById('custom-map-file-input').click()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-xs shadow hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2">
+            <span>➕</span> Importa File Mappa
+          </button>
+        </div>
       </div>
 
       <!-- GRIGLIA SCHEDE MAPPE -->
@@ -1208,7 +1233,7 @@
       groundGroup = new THREE.Group(); scene.add(groundGroup);
       worldGroup = new THREE.Group(); scene.add(worldGroup);
       minisGroup = new THREE.Group(); scene.add(minisGroup);
-      structuresGroup = new THREE.Group(); scene.add(structuresGroup);
+      structuresGroup = new THREE.Group(); structuresGroup.visible = false; scene.add(structuresGroup);
       landmarksGroup = new THREE.Group(); scene.add(landmarksGroup);
       vectorGroup = new THREE.Group(); scene.add(vectorGroup);
       fxGroup = new THREE.Group(); scene.add(fxGroup);
@@ -1286,6 +1311,9 @@
         mapDef.file,
         function(tex) {
           tex.colorSpace = THREE.SRGBColorSpace;
+          if (renderer && renderer.capabilities) {
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          }
           tex.minFilter = THREE.LinearMipmapLinearFilter;
           tex.magFilter = THREE.LinearFilter;
           planeMat.map = tex;
@@ -1301,7 +1329,7 @@
       );
 
       const gridHelper = new THREE.GridHelper(Math.max(planeW, planeH), Math.max(mapDef.cellsW, mapDef.cellsH), 0xc9a050, 0x475569);
-      gridHelper.position.set(0, 0.02, 0);
+      gridHelper.position.set(0, 0.015, 0);
       gridHelper.material.opacity = 0.55;
       gridHelper.material.transparent = true;
       groundGroup.add(gridHelper);
@@ -1309,7 +1337,7 @@
       const borderGeo = new THREE.BoxGeometry(planeW + 0.8, 0.4, planeH + 0.8);
       const borderMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9, metalness: 0.3 });
       const borderMesh = new THREE.Mesh(borderGeo, borderMat);
-      borderMesh.position.set(0, -0.2, 0);
+      borderMesh.position.set(0, -0.25, 0);
       borderMesh.receiveShadow = true;
       groundGroup.add(borderMesh);
 
@@ -1394,6 +1422,136 @@
     function populateMapsDropdown() {
       renderMapSelectorGrid('all');
     }
+
+    // Toggle per mostrare o nascondere i blocchi procedurali 3D (default: spenti per mappa pulita)
+    window.toggle3DStructures = function() {
+      if (!structuresGroup) return;
+      structuresGroup.visible = !structuresGroup.visible;
+      const btn = document.getElementById('btn-toggle-structures');
+      if (btn) {
+        if (structuresGroup.visible) {
+          btn.innerHTML = '<span>🏛️</span> <span class="hidden md:inline">Blocchi 3D</span>';
+          btn.className = 'px-2.5 py-1.5 rounded-xl bg-amber-950/40 border border-amber-500/80 text-amber-300 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-900/20';
+          if (typeof showToast === 'function') {
+            showToast('🏛️ Strutture 3D Attivate', 'Visualizzazione blocchi 3D procedurali attiva.');
+          }
+        } else {
+          btn.innerHTML = '<span>🗺️</span> <span class="hidden md:inline">Mappa Pulita</span>';
+          btn.className = 'px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-cinzel font-bold flex items-center gap-1.5 transition';
+          if (typeof showToast === 'function') {
+            showToast('🗺️ Mappa Pulita', 'Visualizzazione cartografia 2D pulita attiva.');
+          }
+        }
+      }
+    };
+
+    // Gestore importazione mappe personalizzate (2D Image o 3D GLB/GLTF)
+    window.handleCustomMapFileSelect = function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const dataUrl = evt.target.result;
+          const img = new Image();
+          img.onload = function() {
+            const aspect = img.naturalWidth / img.naturalHeight;
+            let cellsW = 32;
+            let cellsH = Math.max(15, Math.round(32 / aspect));
+            if (aspect < 1) {
+              cellsH = 36;
+              cellsW = Math.max(15, Math.round(36 * aspect));
+            }
+            const customId = 'custom_map_' + Date.now();
+            const customDef = {
+              id: customId,
+              title: file.name.replace(/\.[^/.]+$/, ""),
+              act: "Personalizzata",
+              file: dataUrl,
+              width: img.naturalWidth,
+              height: img.naturalHeight,
+              cellsW: cellsW,
+              cellsH: cellsH
+            };
+            MAPS_MANIFEST.unshift(customDef);
+            renderMapSelectorGrid('all');
+            loadBattleMap(customId, true);
+            window.closeMapSelectorModal();
+            if (typeof showToast === 'function') {
+              showToast('🗺️ Mappa Caricata', `Mappa "${customDef.title}" impostata (${img.naturalWidth}x${img.naturalHeight})!`);
+            }
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+      } else if (['glb', 'gltf'].includes(ext)) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const buffer = evt.target.result;
+          if (!window.THREE || !window.THREE.GLTFLoader) {
+            if (typeof showToast === 'function') showToast('⚠️ Errore Loader', 'GLTFLoader non pronto.');
+            return;
+          }
+          const loader = new THREE.GLTFLoader();
+          loader.parse(buffer, '', function(gltf) {
+            const sceneModel = gltf.scene;
+
+            // Pulisci eventuale scenario 3D precedente in worldGroup
+            if (worldGroup) {
+              while (worldGroup.children.length > 0) {
+                const child = worldGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                  if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                  else child.material.dispose();
+                }
+                worldGroup.remove(child);
+              }
+            }
+
+            const box = new THREE.Box3().setFromObject(sceneModel);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+
+            const maxDim = Math.max(size.x, size.z, size.y);
+            const targetSize = 42;
+            const scaleFactor = (maxDim > 0) ? (targetSize / maxDim) : 1;
+
+            sceneModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            sceneModel.position.set(-center.x * scaleFactor, -box.min.y * scaleFactor, -center.z * scaleFactor);
+
+            sceneModel.traverse(child => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (child.material) {
+                  child.material.depthWrite = true;
+                }
+              }
+            });
+
+            worldGroup.add(sceneModel);
+            window.closeMapSelectorModal();
+            if (typeof showToast === 'function') {
+              showToast('🏛️ Scenario 3D Caricato', `Modello "${file.name}" importato come scenario tattico 3D!`);
+            }
+          }, function(err) {
+            console.error("Errore parse 3D GLB:", err);
+            if (typeof showToast === 'function') showToast('⚠️ Errore 3D', 'Impossibile interpretare il file 3D GLB/GLTF.');
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast('⚠️ Formato Non Supportato', 'Seleziona un\'immagine (.jpg, .png, .webp) o un modello 3D (.glb, .gltf).');
+        }
+      }
+    };
 
     
     
@@ -2680,21 +2838,7 @@
       // ========================================================================
 
       if (mapId === 'battle_shipyard') {
-        // 1. Bacino d'acqua marino a nord
-        const seaGeo = new THREE.PlaneGeometry(planeW, planeH * 0.35);
-        const seaMat = new THREE.MeshStandardMaterial({
-          color: 0x0a2540,
-          roughness: 0.1,
-          metalness: 0.8,
-          transparent: true,
-          opacity: 0.92
-        });
-        const sea = new THREE.Mesh(seaGeo, seaMat);
-        sea.rotation.x = -Math.PI / 2;
-        sea.position.set(0, 0.05, -planeH * 0.32);
-        structuresGroup.add(sea);
-
-        // 2. Moli dei Drakkar (L)
+        // 1. Moli dei Drakkar (L)
         createDockPier3D(-16, -18, 18, 4.5, 0.1);
         createDockPier3D(6, -22, 16, 4.2, -0.15);
         createDockPier3D(24, -20, 14, 3.8, 0.2);
@@ -2803,16 +2947,7 @@
         createRunicMonolith(-12, 8, 1.3, 0x38bdf8);
 
       } else if (mapId === 'battle_fenmark_ruins') {
-        // 1. Acqua paludosa verde scura
-        const swamp = new THREE.Mesh(
-          new THREE.PlaneGeometry(planeW, planeH),
-          new THREE.MeshStandardMaterial({ color: 0x142818, roughness: 0.2, metalness: 0.4, transparent: true, opacity: 0.88 })
-        );
-        swamp.rotation.x = -Math.PI / 2;
-        swamp.position.y = 0.05;
-        structuresGroup.add(swamp);
-
-        // 2. Colossale Effigie di Loki (D)
+        // 1. Colossale Effigie di Loki (D)
         createLokiEffigy3D(0, -4, 0);
 
         // 3. Capanne su palafitte (A, B, C)
@@ -2891,21 +3026,7 @@
         structuresGroup.add(swordAltar);
 
       } else if (mapId === 'battle_muspellsheimr_lava') {
-        // 1. Fiume di Lava Incandescente (A)
-        const lava = new THREE.Mesh(
-          new THREE.PlaneGeometry(planeW, 14),
-          new THREE.MeshStandardMaterial({
-            color: 0xff3700,
-            emissive: 0xff2200,
-            emissiveIntensity: 0.95,
-            roughness: 0.3
-          })
-        );
-        lava.rotation.x = -Math.PI / 2;
-        lava.position.set(0, 0.05, 0);
-        structuresGroup.add(lava);
-
-        // 2. Colonne basaltiche di guado (B)
+        // 1. Colonne basaltiche di guado (B)
         [-12, -7, -2, 3, 8, 13].forEach((bx, idx) => {
           const col = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.3, 1.8, 6), stoneMat);
           col.position.set(bx, 0.9, (idx % 2 === 0 ? 2 : -2));
