@@ -2269,9 +2269,9 @@
         }
       }
 
-      // 4. Billboard fluttuante con Nome e PF
+      // 4. Billboard fluttuante con Nome e PF (posizionato sopra la testa della pedina)
       const bb = createBillboardSprite(mini.userData);
-      bb.position.y = isGiant ? 4.2 : 2.5;
+      bb.position.y = isGiant ? 5.5 : 3.8;
       bb.name = 'billboard';
       mini.add(bb);
 
@@ -2407,6 +2407,7 @@
 
           mini.add(pivot);
           mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
+          refreshMiniatureBillboard(mini);
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(err) {
           console.warn("Errore parsing STL miniatura:", err);
@@ -2502,6 +2503,7 @@
 
             mini.add(pivot);
             mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
+            refreshMiniatureBillboard(mini);
             if (renderer && scene && camera) renderer.render(scene, camera);
           });
         } catch(e) {
@@ -2561,6 +2563,7 @@
 
           mini.add(pivot);
           mini.userData.custom3dModel = { ...modelData, rotY: desiredRotY };
+          refreshMiniatureBillboard(mini);
           if (renderer && scene && camera) renderer.render(scene, camera);
         } catch(e) {}
       }
@@ -2637,38 +2640,46 @@
 
     function createBillboardSprite(uData) {
       const cvs = document.createElement('canvas');
-      cvs.width = 512; cvs.height = 140;
+      cvs.width = 440;
+      cvs.height = 110;
       const ctx = cvs.getContext('2d');
 
-      // Sfondo in pergamena scura con bordo dorato
-      ctx.fillStyle = 'rgba(7, 11, 20, 0.92)';
+      const isEnemy = uData.role === 'ENEMY';
+      const isBoss = (uData.hp >= 150) || (uData.cr && parseInt(String(uData.cr).replace(/\D/g, '')) >= 15);
+      const strokeCol = isBoss ? '#f59e0b' : (isEnemy ? '#ef4444' : '#38bdf8');
+
+      // Sfondo pillola tattica aerodinamica e trasparente
+      ctx.fillStyle = 'rgba(6, 10, 18, 0.88)';
       ctx.beginPath();
-      ctx.roundRect(12, 12, 488, 116, 20);
+      ctx.roundRect(10, 10, 420, 90, 18);
       ctx.fill();
 
-      ctx.strokeStyle = '#c9a050';
-      ctx.lineWidth = 4;
+      // Bordo luminoso della fazione
+      ctx.strokeStyle = strokeCol;
+      ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Nome Personaggio in Cinzel
+      // Nome Personaggio / Creatura in Cinzel
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px Cinzel, serif';
+      const nameText = uData.name || 'Sconosciuto';
+      const maxTextWidth = 380;
+      let displayFont = 26;
+      ctx.font = `bold ${displayFont}px Cinzel, serif`;
+      while (ctx.measureText(nameText).width > maxTextWidth && displayFont > 16) {
+        displayFont -= 2;
+        ctx.font = `bold ${displayFont}px Cinzel, serif`;
+      }
       ctx.textAlign = 'center';
-      ctx.fillText(uData.name, 256, 52);
+      ctx.fillText(nameText, 220, 42);
 
-      // Badge Ruolo / Classe & CA
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText(`${uData.className} • CA ${uData.ac || 15}`, 256, 78);
-
-      // Barra Punti Ferita con Gradiente
-      const pct = Math.max(0, Math.min(1, uData.hp / uData.maxHp));
-      ctx.fillStyle = '#1e293b';
+      // Barra Punti Ferita con Gradiente di Precisione
+      const pct = Math.max(0, Math.min(1, (uData.hp || 0) / (uData.maxHp || 1)));
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.9)';
       ctx.beginPath();
-      ctx.roundRect(40, 92, 432, 22, 10);
+      ctx.roundRect(30, 56, 380, 14, 7);
       ctx.fill();
 
-      const hpGrad = ctx.createLinearGradient(40, 0, 472, 0);
+      const hpGrad = ctx.createLinearGradient(30, 0, 410, 0);
       if (pct > 0.5) {
         hpGrad.addColorStop(0, '#10b981'); hpGrad.addColorStop(1, '#059669');
       } else if (pct > 0.25) {
@@ -2679,16 +2690,22 @@
 
       ctx.fillStyle = hpGrad;
       ctx.beginPath();
-      ctx.roundRect(40, 92, Math.max(12, 432 * pct), 22, 10);
+      ctx.roundRect(30, 56, Math.max(10, 380 * pct), 14, 7);
       ctx.fill();
 
-      // Testo numerico PF
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText(`${uData.hp}/${uData.maxHp} PF`, 256, 109);
+      // Testo informativo compatto: PF & CA
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      const acText = uData.ac ? ` • CA ${uData.ac}` : '';
+      ctx.fillText(`${uData.hp}/${uData.maxHp} PF${acText}`, 220, 93);
 
-      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs), transparent: true }));
-      spr.scale.set(3.4, 0.95, 1);
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(cvs),
+        transparent: true
+      }));
+      // Scala compatta proporzionata: 2.1 x 0.525 (lascia la figura 3D libera e visibile)
+      spr.scale.set(2.1, 0.525, 1);
       return spr;
     }
 
@@ -2696,9 +2713,27 @@
       if (!mini) return;
       const old = mini.getObjectByName('billboard');
       if (old) mini.remove(old);
-      const isGiant = mini.userData.name.toLowerCase().includes('gigante');
+      const isGiant = mini.userData.name.toLowerCase().includes('gigante') ||
+                      mini.userData.name.toLowerCase().includes('jotunn') ||
+                      mini.userData.name.toLowerCase().includes('drago') ||
+                      mini.userData.name.toLowerCase().includes('serpente') ||
+                      mini.userData.name.toLowerCase().includes('fenrir') ||
+                      mini.userData.name.toLowerCase().includes('surtr');
       const bb = createBillboardSprite(mini.userData);
-      bb.position.y = isGiant ? 4.2 : 2.5;
+
+      // Posiziona il nome sempre BEN AL DI SOPRA della testa della miniatura (mai a coprire viso o busto)
+      let targetY = isGiant ? 5.5 : 3.8;
+      const customMesh = mini.getObjectByName('custom3dMesh');
+      if (customMesh) {
+        try {
+          const bbox = new THREE.Box3().setFromObject(customMesh);
+          if (bbox && isFinite(bbox.max.y) && bbox.max.y > 0.5) {
+            targetY = Math.max(targetY, bbox.max.y + 0.65);
+          }
+        } catch(e){}
+      }
+
+      bb.position.y = targetY;
       bb.name = 'billboard';
       mini.add(bb);
 
