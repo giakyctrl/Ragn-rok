@@ -70,32 +70,38 @@ window.switchDmWorkspaceTab = function(tab) {
   const pView = document.getElementById('dm-subview-party');
   const cView = document.getElementById('dm-subview-create');
   const tView = document.getElementById('dm-subview-trade');
+  const eView = document.getElementById('dm-subview-enemies');
 
   if (mView) mView.classList.toggle('hidden', tab !== 'manage');
   if (pView) pView.classList.toggle('hidden', tab !== 'party');
   if (cView) cView.classList.toggle('hidden', tab !== 'create');
   if (tView) tView.classList.toggle('hidden', tab !== 'trade');
+  if (eView) eView.classList.toggle('hidden', tab !== 'enemies');
 
-  const activeSub = tab === 'manage' ? mView : tab === 'party' ? pView : tab === 'create' ? cView : tView;
+  const activeSub = tab === 'manage' ? mView : tab === 'party' ? pView : tab === 'create' ? cView : tab === 'trade' ? tView : eView;
   if (activeSub) {
     activeSub.classList.remove('animate-page-switch');
     void activeSub.offsetWidth;
     activeSub.classList.add('animate-page-switch');
   }
 
-  const setClass = (id, isActive) => {
+  const setClass = (id, isActive, activeCol = 'text-amber-400') => {
     const el = document.getElementById(id);
-    if (el) el.className = isActive ? 'flex flex-col items-center gap-1 text-amber-400 w-20 py-2' : 'flex flex-col items-center gap-1 text-slate-400 w-20 py-2';
+    if (el) el.className = isActive ? `flex flex-col items-center gap-1 ${activeCol} w-20 py-2` : 'flex flex-col items-center gap-1 text-slate-400 w-20 py-2';
   };
   setClass('dmnav-manage', tab === 'manage');
   setClass('dmnav-trade', tab === 'trade');
   setClass('dmnav-create', tab === 'create');
+  setClass('dmnav-enemies', tab === 'enemies', 'text-red-400');
   const partyLabel = document.getElementById('dmnav-party-label');
   if (partyLabel) partyLabel.className = tab === 'party' ? 'font-cinzel font-black text-[9px] sm:text-[10px] text-amber-300 mt-1 uppercase' : 'font-cinzel font-bold text-[9px] sm:text-[10px] text-slate-400 mt-1 uppercase';
 
   window.renderDmViews();
   if (tab === 'trade') {
     window.renderDmTradeViews();
+  }
+  if (tab === 'enemies') {
+    window.renderDmEnemiesViews();
   }
   if (tab === 'create') window.updateDmCardPreview();
 };
@@ -852,4 +858,509 @@ window.dmBroadcastMarketUpdate = function() {
     timestamp: Date.now()
   };
   window.saveDB();
+};
+
+// ============================================================================
+// 12. BESTIARIO NORRENO, SCHEDE NEMICI & SCHIERAMENTO VTT GINNUNGAGAP
+// ============================================================================
+
+window.DEFAULT_NORSE_BESTIARY = [
+  {
+    id: "draugr_cripte",
+    name: "Draugr delle Cripte",
+    type: "Non-Morto (Medio)",
+    category: "non-morto",
+    cr: "GS 1/2",
+    hp: 24,
+    maxHp: 24,
+    ac: 13,
+    speed: "9m (30ft)",
+    stats: { str: 14, dex: 11, con: 14, int: 6, wis: 10, cha: 5 },
+    attacks: [
+      { name: "Ascia da Guerra Antica", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
+      { name: "Sguardo Ingelosente", toHit: "CD 12 Sag", damage: "2d4 Freddo", reach: "9m" }
+    ],
+    traits: "Resistenza ai danni da freddo e veleno. Vigore Non Morto (se scende a 0 PF effettua TS Costituzione con CD 5+danni subiti per rimanere a 1 PF).",
+    actions: "Assalto Cadaverico, Urlo Ingelosente della Tomba.",
+    notes: "Antico fiero guerriero norreno risorto dalla sua tomba per difendere i tesori sepolti nel permafrost.",
+    avatar: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150",
+    model: "draugr"
+  },
+  {
+    id: "lupo_fenrir",
+    name: "Lupo Invernale di Fenrir",
+    type: "Bestia Mostruosa (Grande)",
+    category: "bestia",
+    cr: "GS 1",
+    hp: 32,
+    maxHp: 32,
+    ac: 13,
+    speed: "15m (50ft)",
+    stats: { str: 16, dex: 13, con: 14, int: 5, wis: 12, cha: 6 },
+    attacks: [
+      { name: "Morso Zannuto", toHit: "+5", damage: "2d6+3 Perforante", reach: "1.5m" },
+      { name: "Soffio Polare", toHit: "CD 12 Des", damage: "3d6 Freddo", reach: "4.5m cono" }
+    ],
+    traits: "Fiuto e Udito Sviluppati (Vantaggio su Saggezza). Tattica di Branco (Vantaggio ai tiri per colpire se ha alleati entro 1.5m).",
+    actions: "Balzo Selvaggio, Atterramento (bersaglio supera TS For CD 13 o cade prono).",
+    notes: "Fiera predatrice nata dalle nevi eterne dell'Utgardr al servizio della prole di Fenrir.",
+    avatar: "https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150",
+    model: "wolf"
+  },
+  {
+    id: "jotunn_gelo",
+    name: "Jotunn del Gelo",
+    type: "Gigante (Grande)",
+    category: "gigante",
+    cr: "GS 5",
+    hp: 110,
+    maxHp: 110,
+    ac: 15,
+    speed: "12m (40ft)",
+    stats: { str: 21, dex: 9, con: 18, int: 9, wis: 10, cha: 12 },
+    attacks: [
+      { name: "Clava Monolitica di Ghiaccio", toHit: "+8", damage: "3d8+5 Contundente", reach: "3m" },
+      { name: "Lancio del Masso", toHit: "+8", damage: "3d10+5 Contundente", reach: "18/72m" }
+    ],
+    traits: "Immunità assoluta al Freddo. Vulnerabilità al Fuoco. Aura di Fimbulwinter (terreno ghiacciato attorno al gigante).",
+    actions: "Attacco Multiplo (2 colpi di clava), Schiacciamento tellurico.",
+    notes: "Figlio primordiale di Ymir armato di una colonna di roccia e ghiaccio per annientare gli intrusi.",
+    avatar: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150",
+    model: "giant"
+  },
+  {
+    id: "guerriero_predone",
+    name: "Guerriero Predone del Clan",
+    type: "Umanoide (Medio)",
+    category: "umanoide",
+    cr: "GS 1/2",
+    hp: 18,
+    maxHp: 18,
+    ac: 14,
+    speed: "9m (30ft)",
+    stats: { str: 15, dex: 12, con: 14, int: 10, wis: 11, cha: 9 },
+    attacks: [
+      { name: "Ascia da Battaglia Norrena", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
+      { name: "Giavellotto da Lancio", toHit: "+4", damage: "1d6+2 Perforante", reach: "9/36m" }
+    ],
+    traits: "Frenesia di Battaglia (Vantaggio sui TS contro Spaventato). Muro di Scudi Vichingo (+2 CA con alleato a contatto).",
+    actions: "Furia Razziale, Urlo di Guerra intimidatorio.",
+    notes: "Incursore dei fiordi pronto a combattere all'ultimo sangue per l'onore del proprio Jarl.",
+    avatar: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150",
+    model: "berserker"
+  },
+  {
+    id: "valkyria_corrotta",
+    name: "Valkyria d'Odhinn",
+    type: "Celestiale Boss (Medio)",
+    category: "boss",
+    cr: "GS 4",
+    hp: 75,
+    maxHp: 75,
+    ac: 16,
+    speed: "9m (volo 18m)",
+    stats: { str: 17, dex: 16, con: 15, int: 12, wis: 14, cha: 16 },
+    attacks: [
+      { name: "Lancia di Valhalla", toHit: "+6", damage: "1d10+3 Perforante + 1d8 Radioso", reach: "3m" },
+      { name: "Dardo Celestiale Runiche", toHit: "+5", damage: "3d6 Radioso", reach: "36m" }
+    ],
+    traits: "Resistenza a freddo, fuoco e danni radiosi. Ali dorate eteree. Sguardo del Padre di Tutti.",
+    actions: "Attacco Multiplo (2 colpi con la lancia), Canto dei Caduti (TS Sag CD 14 o Spaventato).",
+    notes: "Giudice celeste discesa dalla dimora degli Dei per testare il valore dei guerrieri di Midgard.",
+    avatar: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150",
+    model: "valkyrie"
+  },
+  {
+    id: "sciamano_hel",
+    name: "Sciamano dell'Helheimr",
+    type: "Umanoide Incantatore (Medio)",
+    category: "non-morto",
+    cr: "GS 2",
+    hp: 36,
+    maxHp: 36,
+    ac: 12,
+    speed: "9m (30ft)",
+    stats: { str: 10, dex: 12, con: 12, int: 12, wis: 16, cha: 13 },
+    attacks: [
+      { name: "Bastone delle Ossa Intagliato", toHit: "+3", damage: "1d6 Contundente + 1d6 Necrotico", reach: "1.5m" },
+      { name: "Dardo d'Ombra Runiche", toHit: "+5", damage: "2d8 Necrotico", reach: "24m" }
+    ],
+    traits: "Incantatore di Helheimr (CD Salvezza 13, attacco incantesimi +5). Vista Cieca 9 metri nel buio magico.",
+    actions: "Evocazione delle Ossa Risorte, Maledizione del Gelo Eterno.",
+    notes: "Mistici e officianti dei riti funebri legati alla dea Hel, maestri della necromanzia runica.",
+    avatar: "https://images.unsplash.com/photo-1514539079130-25950c84af65?w=150",
+    model: "runemaster"
+  }
+];
+
+window.getCampaignEnemies = function(campCode) {
+  const camp = window.dbState && window.dbState.campaigns ? window.dbState.campaigns[campCode] : null;
+  if (!camp) return window.DEFAULT_NORSE_BESTIARY;
+  if (!camp.enemies || !Array.isArray(camp.enemies) || camp.enemies.length === 0) {
+    camp.enemies = JSON.parse(JSON.stringify(window.DEFAULT_NORSE_BESTIARY));
+    window.saveDB?.();
+  }
+  return camp.enemies;
+};
+
+window.saveCampaignEnemies = function(campCode, enemies) {
+  const camp = window.dbState && window.dbState.campaigns ? window.dbState.campaigns[campCode] : null;
+  if (!camp) return;
+  camp.enemies = enemies;
+  window.saveDB?.();
+};
+
+window.activeDmEnemyFilter = 'tutti';
+
+window.filterDmEnemies = function(cat) {
+  window.activeDmEnemyFilter = cat;
+  document.querySelectorAll('.dm-enemy-filter-btn').forEach(b => {
+    if (b.dataset.filter === cat) {
+      b.className = 'dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-red-600 text-white shadow-sm';
+    } else {
+      b.className = 'dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white';
+    }
+  });
+  window.renderDmEnemiesViews();
+};
+
+window.renderDmEnemiesViews = function() {
+  const grid = document.getElementById('dm-enemies-cards-grid');
+  if (!grid) return;
+  const campCode = window.activeDmWorkspaceCode;
+  if (!campCode) return;
+
+  const enemies = window.getCampaignEnemies(campCode);
+  const search = (document.getElementById('dm-enemies-search')?.value || '').toLowerCase().trim();
+  const filterCat = window.activeDmEnemyFilter || 'tutti';
+
+  const filtered = enemies.filter(e => {
+    const matchSearch = !search ||
+      (e.name || '').toLowerCase().includes(search) ||
+      (e.type || '').toLowerCase().includes(search) ||
+      (e.cr || '').toLowerCase().includes(search);
+
+    const cat = (e.category || '').toLowerCase() || (e.type || '').toLowerCase();
+    const matchCat = (filterCat === 'tutti') ||
+      (filterCat === 'non-morto' && (cat.includes('non') || cat.includes('mort') || cat.includes('draugr'))) ||
+      (filterCat === 'gigante' && (cat.includes('gigant') || cat.includes('jotunn'))) ||
+      (filterCat === 'bestia' && (cat.includes('bestia') || cat.includes('lupo') || cat.includes('mostr'))) ||
+      (filterCat === 'umanoide' && (cat.includes('uman') || cat.includes('viching') || cat.includes('clan') || cat.includes('guerrier'))) ||
+      (filterCat === 'boss' && (cat.includes('boss') || cat.includes('celest') || (e.hp >= 70)));
+
+    return matchSearch && matchCat;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-slate-400 space-y-2 border border-slate-800">
+        <span class="text-3xl">⚔️</span>
+        <h4 class="font-cinzel font-bold text-sm text-white">Nessun nemico trovato con questi filtri</h4>
+        <p class="text-xs text-slate-500">Crea una nuova scheda nemico con il pulsante "+ Crea Nuova Scheda Nemico" in alto.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(e => {
+    const atk1 = (e.attacks && e.attacks[0]) || null;
+    const atk2 = (e.attacks && e.attacks[1]) || null;
+    const stats = e.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+
+    return `
+      <div class="norse-panel rounded-2xl p-4 bg-gradient-to-b from-slate-900 to-slate-950 border border-red-500/30 hover:border-red-400 transition flex flex-col justify-between space-y-3 shadow-lg group">
+        <div>
+          <!-- Header Card: Nome, Tipo, GS, Icona -->
+          <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2.5">
+              <img src="${e.avatar || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150'}" alt="${e.name}" class="w-10 h-10 rounded-xl object-cover border border-red-500/50 shadow">
+              <div>
+                <h4 class="font-cinzel font-black text-sm text-white group-hover:text-red-300 transition truncate max-w-[170px] sm:max-w-[200px]">${e.name}</h4>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/30">${e.cr || 'GS 1'}</span>
+                  <span class="text-[10px] text-slate-400 truncate max-w-[120px]">${e.type || 'Mostro'}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Badge PF & CA -->
+            <div class="text-right">
+              <div class="font-mono font-extrabold text-sm text-emerald-400">${e.hp} <span class="text-[9px] text-slate-400 font-sans">PF</span></div>
+              <div class="text-[10px] text-amber-300 font-mono">CA ${e.ac || 12}</div>
+            </div>
+          </div>
+
+          <!-- Caratteristiche Pills -->
+          <div class="grid grid-cols-6 gap-1 text-center py-2 border-b border-slate-800/60 text-[9px] font-mono">
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">FOR</span><strong class="text-slate-200">${stats.str}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">DES</span><strong class="text-slate-200">${stats.dex}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">COS</span><strong class="text-slate-200">${stats.con}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">INT</span><strong class="text-slate-200">${stats.int}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">SAG</span><strong class="text-slate-200">${stats.wis}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">CAR</span><strong class="text-slate-200">${stats.cha}</strong></div>
+          </div>
+
+          <!-- Attacchi Principali -->
+          <div class="space-y-1 py-2 text-xs">
+            ${atk1 ? `
+              <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
+                <span class="font-bold text-white truncate max-w-[140px]">🗡️ ${atk1.name}</span>
+                <span class="font-mono text-[10px] text-amber-300">${atk1.toHit || '+0'} &bull; ${atk1.damage || ''}</span>
+              </div>
+            ` : ''}
+            ${atk2 ? `
+              <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
+                <span class="font-bold text-slate-300 truncate max-w-[140px]">⚡ ${atk2.name}</span>
+                <span class="font-mono text-[10px] text-sky-300">${atk2.toHit || ''} &bull; ${atk2.damage || ''}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Tratti & Azioni Brevi -->
+          ${e.traits ? `
+            <p class="text-[10px] text-slate-400 line-clamp-2 leading-relaxed italic bg-slate-950/40 p-1.5 rounded-lg border border-slate-900">
+              ${e.traits}
+            </p>
+          ` : ''}
+        </div>
+
+        <!-- AZIONI: SCHIERA SU GINNUNGAGAP, MODIFICA, DUPLICA, ELIMINA -->
+        <div class="pt-2 border-t border-slate-800/80 flex flex-col gap-1.5">
+          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition active:scale-95">
+            <span>⚔️</span> SCHIERA SU GINNUNGAGAP
+          </button>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
+              <span>✏️</span> Modifica
+            </button>
+            <button type="button" onclick="window.duplicateEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
+              <span>📋</span> Clona
+            </button>
+            <button type="button" onclick="window.deleteEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-red-950/40 border border-red-500/40 hover:border-red-400 text-red-300 hover:text-red-100 transition flex items-center justify-center gap-1">
+              <span>🗑️</span> Elimina
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.openDmEnemyEditorModal = function(enemyId = null) {
+  const modal = document.getElementById('modal-enemy-sheet-editor');
+  if (!modal) return;
+  const form = document.getElementById('dm-enemy-form');
+  if (form) form.reset();
+
+  const campCode = window.activeDmWorkspaceCode;
+  const enemies = window.getCampaignEnemies(campCode);
+  const enemy = enemyId ? enemies.find(e => e.id === enemyId) : null;
+
+  const title = document.getElementById('modal-enemy-editor-title');
+  if (title) title.textContent = enemy ? `Modifica: ${enemy.name}` : "Nuova Scheda Nemico";
+
+  document.getElementById('enemy-form-id').value = enemy ? enemy.id : '';
+  document.getElementById('enemy-form-name').value = enemy ? enemy.name : '';
+  document.getElementById('enemy-form-cr').value = enemy ? (enemy.cr || 'GS 1') : 'GS 1';
+  document.getElementById('enemy-form-type').value = enemy ? (enemy.type || 'Non Morto') : 'Non Morto';
+  document.getElementById('enemy-form-hp').value = enemy ? (enemy.hp || 24) : 24;
+  document.getElementById('enemy-form-ac').value = enemy ? (enemy.ac || 13) : 13;
+  document.getElementById('enemy-form-speed').value = enemy ? (enemy.speed || '9m (30ft)') : '9m (30ft)';
+
+  const stats = (enemy && enemy.stats) || { str: 14, dex: 11, con: 14, int: 6, wis: 10, cha: 5 };
+  document.getElementById('enemy-form-str').value = stats.str || 10;
+  document.getElementById('enemy-form-dex').value = stats.dex || 10;
+  document.getElementById('enemy-form-con').value = stats.con || 10;
+  document.getElementById('enemy-form-int').value = stats.int || 10;
+  document.getElementById('enemy-form-wis').value = stats.wis || 10;
+  document.getElementById('enemy-form-cha').value = stats.cha || 10;
+
+  const atk1 = (enemy && enemy.attacks && enemy.attacks[0]) || {};
+  document.getElementById('enemy-form-atk1-name').value = atk1.name || '';
+  document.getElementById('enemy-form-atk1-hit').value = atk1.toHit || '+4';
+  document.getElementById('enemy-form-atk1-dmg').value = atk1.damage || '1d8+2 Tagliente';
+
+  const atk2 = (enemy && enemy.attacks && enemy.attacks[1]) || {};
+  document.getElementById('enemy-form-atk2-name').value = atk2.name || '';
+  document.getElementById('enemy-form-atk2-hit').value = atk2.toHit || 'CD 12 Sag';
+  document.getElementById('enemy-form-atk2-dmg').value = atk2.damage || '2d4 Freddo';
+
+  document.getElementById('enemy-form-traits').value = enemy ? (enemy.traits || '') : '';
+  document.getElementById('enemy-form-notes').value = enemy ? (enemy.notes || '') : '';
+
+  modal.classList.remove('hidden');
+};
+
+window.closeDmEnemyEditorModal = function() {
+  const modal = document.getElementById('modal-enemy-sheet-editor');
+  if (modal) modal.classList.add('hidden');
+};
+
+window.saveEnemySheetFromModal = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const campCode = window.activeDmWorkspaceCode;
+  if (!campCode) return;
+  const enemies = window.getCampaignEnemies(campCode);
+
+  const id = document.getElementById('enemy-form-id').value || ('enemy_' + Date.now());
+  const name = document.getElementById('enemy-form-name').value.trim() || 'Nemico Senza Nome';
+  const cr = document.getElementById('enemy-form-cr').value.trim() || 'GS 1';
+  const type = document.getElementById('enemy-form-type').value.trim() || 'Mostro';
+  const hp = parseInt(document.getElementById('enemy-form-hp').value, 10) || 20;
+  const ac = parseInt(document.getElementById('enemy-form-ac').value, 10) || 12;
+  const speed = document.getElementById('enemy-form-speed').value.trim() || '9m (30ft)';
+
+  const stats = {
+    str: parseInt(document.getElementById('enemy-form-str').value, 10) || 10,
+    dex: parseInt(document.getElementById('enemy-form-dex').value, 10) || 10,
+    con: parseInt(document.getElementById('enemy-form-con').value, 10) || 10,
+    int: parseInt(document.getElementById('enemy-form-int').value, 10) || 10,
+    wis: parseInt(document.getElementById('enemy-form-wis').value, 10) || 10,
+    cha: parseInt(document.getElementById('enemy-form-cha').value, 10) || 10
+  };
+
+  const attacks = [];
+  const atk1Name = document.getElementById('enemy-form-atk1-name').value.trim();
+  if (atk1Name) {
+    attacks.push({
+      name: atk1Name,
+      toHit: document.getElementById('enemy-form-atk1-hit').value.trim() || '+0',
+      damage: document.getElementById('enemy-form-atk1-dmg').value.trim() || '1d6',
+      reach: '1.5m'
+    });
+  }
+  const atk2Name = document.getElementById('enemy-form-atk2-name').value.trim();
+  if (atk2Name) {
+    attacks.push({
+      name: atk2Name,
+      toHit: document.getElementById('enemy-form-atk2-hit').value.trim() || '',
+      damage: document.getElementById('enemy-form-atk2-dmg').value.trim() || '',
+      reach: '9m'
+    });
+  }
+
+  const traits = document.getElementById('enemy-form-traits').value.trim();
+  const notes = document.getElementById('enemy-form-notes').value.trim();
+
+  // Deduci modello 3D
+  let model = 'draugr';
+  const tLow = (type + ' ' + name).toLowerCase();
+  if (tLow.includes('lup') || tLow.includes('wolf') || tLow.includes('bestia')) model = 'wolf';
+  else if (tLow.includes('gigant') || tLow.includes('jotunn')) model = 'giant';
+  else if (tLow.includes('valkyr') || tLow.includes('celest')) model = 'valkyrie';
+  else if (tLow.includes('mago') || tLow.includes('sciaman') || tLow.includes('rune')) model = 'runemaster';
+  else if (tLow.includes('berserk') || tLow.includes('predon') || tLow.includes('jarl')) model = 'berserker';
+
+  const existingIdx = enemies.findIndex(en => en.id === id);
+  const newSheet = {
+    id,
+    name,
+    cr,
+    type,
+    category: type.toLowerCase(),
+    hp,
+    maxHp: hp,
+    ac,
+    speed,
+    stats,
+    attacks,
+    traits,
+    notes,
+    model,
+    avatar: (existingIdx !== -1 && enemies[existingIdx].avatar) ? enemies[existingIdx].avatar : 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150'
+  };
+
+  if (existingIdx !== -1) {
+    enemies[existingIdx] = newSheet;
+  } else {
+    enemies.push(newSheet);
+  }
+
+  window.saveCampaignEnemies(campCode, enemies);
+  window.closeDmEnemyEditorModal();
+  window.renderDmEnemiesViews();
+  if (typeof window.showToast === 'function') {
+    window.showToast('💀 Scheda Nemico Salvata', `"${name}" registrato nel bestiario.`);
+  }
+};
+
+window.duplicateEnemySheet = function(enemyId) {
+  const campCode = window.activeDmWorkspaceCode;
+  if (!campCode) return;
+  const enemies = window.getCampaignEnemies(campCode);
+  const orig = enemies.find(e => e.id === enemyId);
+  if (!orig) return;
+
+  const clone = JSON.parse(JSON.stringify(orig));
+  clone.id = 'enemy_' + Date.now();
+  clone.name = clone.name + ' (Copia)';
+  enemies.push(clone);
+
+  window.saveCampaignEnemies(campCode, enemies);
+  window.renderDmEnemiesViews();
+  if (typeof window.showToast === 'function') {
+    window.showToast('📋 Scheda Clonata', `Creata copia di "${orig.name}".`);
+  }
+};
+
+window.deleteEnemySheet = function(enemyId) {
+  const campCode = window.activeDmWorkspaceCode;
+  if (!campCode) return;
+  const enemies = window.getCampaignEnemies(campCode);
+  const enemy = enemies.find(e => e.id === enemyId);
+  if (!enemy) return;
+
+  if (!confirm(`Sei sicuro di voler eliminare la scheda di "${enemy.name}" dal bestiario?`)) return;
+
+  const updated = enemies.filter(e => e.id !== enemyId);
+  window.saveCampaignEnemies(campCode, updated);
+  window.renderDmEnemiesViews();
+  if (typeof window.showToast === 'function') {
+    window.showToast('🗑️ Scheda Eliminata', `"${enemy.name}" rimosso dal bestiario.`);
+  }
+};
+
+window.deployEnemyToGinnungagap = function(enemyId) {
+  const campCode = window.activeDmWorkspaceCode;
+  if (!campCode) return;
+  const enemies = window.getCampaignEnemies(campCode);
+  const enemy = enemies.find(e => e.id === enemyId);
+  if (!enemy) return;
+
+  // 1. Accoda in sessionStorage per Ginnungagap
+  try {
+    const pending = JSON.parse(sessionStorage.getItem('ginnungagap_pending_enemy_spawns') || '[]');
+    pending.push({
+      ...enemy,
+      campCode: campCode,
+      timestamp: Date.now()
+    });
+    sessionStorage.setItem('ginnungagap_pending_enemy_spawns', JSON.stringify(pending));
+  } catch(e) {}
+
+  // 2. Broadcast Channel
+  try {
+    const bus = new BroadcastChannel(`ginnungagap_${campCode}`);
+    bus.postMessage({
+      type: 'SPAWN_ENEMY_SHEET',
+      enemy: enemy,
+      timestamp: Date.now()
+    });
+    setTimeout(() => { try { bus.close(); } catch(e){} }, 1000);
+  } catch(e) {}
+
+  // 3. Se iframe è già montato e attivo
+  const iframe = document.getElementById('ginnungagap-iframe');
+  if (iframe && iframe.contentWindow && iframe.contentWindow.Ginnungagap && typeof iframe.contentWindow.dmSpawnEnemyFromSheet === 'function') {
+    iframe.contentWindow.dmSpawnEnemyFromSheet(enemy);
+    if (typeof window.showToast === 'function') {
+      window.showToast('👹 Schierato su Ginnungagap', `[${enemy.name}] schierato sul tavolo tattico VTT!`);
+    }
+  } else {
+    // Apri embedded Ginnungagap
+    if (typeof window.showToast === 'function') {
+      window.showToast('🎲 Lancio Ginnungagap', `Apertura tavolo tattico con [${enemy.name}] pronto sul campo!`);
+    }
+    window.openEmbeddedGinnungagap(campCode, 'DM');
+  }
 };

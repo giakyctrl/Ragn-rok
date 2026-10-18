@@ -220,12 +220,6 @@
           <span>📸</span> <span class="hidden md:inline">Foto</span>
         </button>
       </div>
-
-      <!-- TOGGLE STRUTTURE 3D vs MAPPA PULITA -->
-      <button id="btn-toggle-structures" onclick="window.toggle3DStructures()" title="Mostra/Nascondi strutture 3D" class="px-2.5 py-1.5 rounded-xl bg-amber-950/40 border border-amber-500/80 text-amber-300 text-xs font-cinzel font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-900/20">
-        <span>🏰</span> <span class="hidden md:inline">Scenario 3D</span>
-      </button>
-
     </div>
 
     <!-- STRUMENTI GENERALI: PERSONALIZZAZIONE MINIATURA, SCHEDA EROE OVERLAY, RITORNO A YGGDRASILL -->
@@ -289,29 +283,29 @@
       <button onclick="document.getElementById('dm-organizer-panel').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs">&times;</button>
     </div>
 
-    <!-- SCHIERAMENTO NEMICI E BOSS -->
+    <!-- SCHIERAMENTO NEMICI E BESTIARIO COLLEGATO -->
     <div class="space-y-2">
       <div class="flex justify-between items-center">
-        <span class="font-cinzel text-[11px] font-bold text-red-400 uppercase">Schiera Nemici & Boss:</span>
-        <span class="text-[9px] text-slate-500">Clicca per schierare</span>
+        <span class="font-cinzel text-[11px] font-bold text-red-400 uppercase">Bestiario Campagna &amp; Nemici:</span>
+        <button type="button" onclick="window.toggleDmQuickEnemyForm()" class="text-[9px] text-red-300 hover:text-white underline font-bold">+ Rapido</button>
       </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="window.dmSpawnEnemy('valkyrie')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
-          <div class="font-cinzel font-bold text-xs text-red-200">🪽 Valkyria</div>
-          <span class="text-[9px] text-slate-400">Boss &bull; 75 PF &bull; CA 16</span>
+
+      <!-- Form Rapido Aggiunta Nemico Estemporaneo -->
+      <div id="dm-quick-enemy-form" class="hidden p-2 rounded-xl bg-slate-900 border border-red-500/40 space-y-2 text-xs">
+        <input type="text" id="dm-quick-e-name" placeholder="Nome nemico..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs">
+        <div class="grid grid-cols-3 gap-1">
+          <input type="number" id="dm-quick-e-hp" placeholder="PF" value="25" class="bg-slate-950 border border-slate-700 rounded-lg px-1.5 py-1 text-white text-center text-xs font-mono">
+          <input type="number" id="dm-quick-e-ac" placeholder="CA" value="13" class="bg-slate-950 border border-slate-700 rounded-lg px-1.5 py-1 text-white text-center text-xs font-mono">
+          <input type="number" id="dm-quick-e-count" placeholder="Q.tà" value="1" min="1" max="20" class="bg-slate-950 border border-slate-700 rounded-lg px-1.5 py-1 text-amber-300 text-center text-xs font-bold font-mono">
+        </div>
+        <button type="button" onclick="window.dmSpawnQuickEnemy()" class="w-full py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-cinzel font-bold text-[11px] shadow">
+          Schiera sul Tavolo
         </button>
-        <button onclick="window.dmSpawnEnemy('fenrir_wolf')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
-          <div class="font-cinzel font-bold text-xs text-red-200">🐺 Lupo Fenrir</div>
-          <span class="text-[9px] text-slate-400">Bestia &bull; 32 PF &bull; CA 13</span>
-        </button>
-        <button onclick="window.dmSpawnEnemy('frost_giant')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
-          <div class="font-cinzel font-bold text-xs text-red-200">❄️ Gigante Gelo</div>
-          <span class="text-[9px] text-slate-400">Jotunn &bull; 110 PF &bull; CA 15</span>
-        </button>
-        <button onclick="window.dmSpawnEnemy('draugr')" class="p-2 rounded-xl bg-red-950/40 border border-red-500/40 hover:border-red-400 text-left transition">
-          <div class="font-cinzel font-bold text-xs text-red-200">💀 Draugr</div>
-          <span class="text-[9px] text-slate-400">Non-Morto &bull; 24 PF &bull; CA 12</span>
-        </button>
+      </div>
+
+      <!-- Lista Nemici da Campagna -->
+      <div id="dm-vtt-enemies-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+        <!-- popolato dinamicamente con schede nemici create dal DM -->
       </div>
     </div>
 
@@ -749,98 +743,16 @@
             </div>
           </div>
 
-          <!-- 2. SCELTA ARCHETIPO PREDEFINITO HERO FORGE -->
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between">
-              <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">
-                2. Oppure Scegli un Archetipo Rapido Hero Forge:
-              </label>
-              <span class="text-[9px] text-slate-400">8 Eroi & Nemici Scolpiti</span>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" onclick="window.selectMiniatureModel('berserker')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border-2 border-amber-400 text-left transition" data-model="berserker">
-                <div class="font-cinzel font-bold text-xs text-amber-300">🪓 Berserker</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Spada & Scudo</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('shieldmaiden')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="shieldmaiden">
-                <div class="font-cinzel font-bold text-xs text-sky-300">🛡️ Shieldmaiden</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Scudo & Lancia</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('runemaster')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="runemaster">
-                <div class="font-cinzel font-bold text-xs text-purple-300">⚡ Runemaster</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Cappuccio & Bastone</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('valkyrie')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="valkyrie">
-                <div class="font-cinzel font-bold text-xs text-amber-200">🪽 Valkyria</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Ali dorate & Lancia</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('jarl')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="jarl">
-                <div class="font-cinzel font-bold text-xs text-yellow-300">👑 Jarl Condottiero</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Corona & Pelliccia</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('wolf')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="wolf">
-                <div class="font-cinzel font-bold text-xs text-red-300">🐺 Fenrir Wolf</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Lupo quadrupede</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('giant')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="giant">
-                <div class="font-cinzel font-bold text-xs text-cyan-300">❄️ Jotunn Giant</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Colosso & Clava</span>
-              </button>
-              <button type="button" onclick="window.selectMiniatureModel('draugr')" class="mini-model-opt p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-left transition" data-model="draugr">
-                <div class="font-cinzel font-bold text-xs text-emerald-300">💀 Draugr</div>
-                <span class="text-[9px] text-slate-400 block mt-0.5">Non-morto risorto</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3. SCELTA AURA ANELLO DI FAZIONE -->
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">3. Colore Anello Runico della Fazione:</label>
-            <div class="grid grid-cols-5 gap-2 text-center">
-              <button type="button" onclick="window.selectRingColor('amber', 0xf59e0b, '#f59e0b')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 hover:brightness-110 flex flex-col items-center gap-1 ring-color-opt" data-color="amber">
-                <span class="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
-                <span class="text-[9px] font-bold text-amber-300">Ambra</span>
-              </button>
-              <button type="button" onclick="window.selectRingColor('frost', 0x38bdf8, '#38bdf8')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 flex flex-col items-center gap-1 ring-color-opt" data-color="frost">
-                <span class="w-4 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
-                <span class="text-[9px] font-bold text-sky-300">Gelo</span>
-              </button>
-              <button type="button" onclick="window.selectRingColor('emerald', 0x10b981, '#10b981')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-400 flex flex-col items-center gap-1 ring-color-opt" data-color="emerald">
-                <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-                <span class="text-[9px] font-bold text-emerald-300">Smeraldo</span>
-              </button>
-              <button type="button" onclick="window.selectRingColor('blood', 0xef4444, '#ef4444')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-400 flex flex-col items-center gap-1 ring-color-opt" data-color="blood">
-                <span class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
-                <span class="text-[9px] font-bold text-red-300">Sangue</span>
-              </button>
-              <button type="button" onclick="window.selectRingColor('rune', 0xa855f7, '#a855f7')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-purple-400 flex flex-col items-center gap-1 ring-color-opt" data-color="rune">
-                <span class="w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
-                <span class="text-[9px] font-bold text-purple-300">Runa</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 4. MATERIALE DEL PIEDISTALLO -->
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-cinzel font-bold text-amber-400 uppercase tracking-wider block">4. Materiale Piedistallo Bisellato:</label>
-            <div class="grid grid-cols-4 gap-2 text-center">
-              <button type="button" onclick="window.selectPedestalMaterial('ardesia')" class="p-2 rounded-xl bg-slate-900 border-2 border-amber-400 pedestal-opt" data-pedestal="ardesia">
-                <span class="text-sm">🪨</span>
-                <span class="text-[9px] font-bold text-white block mt-0.5">Ardesia</span>
-              </button>
-              <button type="button" onclick="window.selectPedestalMaterial('ossidiana')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="ossidiana">
-                <span class="text-sm">💎</span>
-                <span class="text-[9px] font-bold text-slate-300 block mt-0.5">Ossidiana</span>
-              </button>
-              <button type="button" onclick="window.selectPedestalMaterial('ghiaccio')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-400 pedestal-opt" data-pedestal="ghiaccio">
-                <span class="text-sm">🧊</span>
-                <span class="text-[9px] font-bold text-sky-200 block mt-0.5">Ghiaccio</span>
-              </button>
-              <button type="button" onclick="window.selectPedestalMaterial('bronzo')" class="p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 pedestal-opt" data-pedestal="bronzo">
-                <span class="text-sm">🪙</span>
-                <span class="text-[9px] font-bold text-amber-200 block mt-0.5">Bronzo</span>
-              </button>
-            </div>
+          <!-- GUIDA RAPIDA HERO FORGE -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 text-xs text-slate-300">
+            <h4 class="font-cinzel font-bold text-amber-300 text-xs flex items-center gap-1.5">
+              <span>📖</span> Come usare Hero Forge in Ginnungagap:
+            </h4>
+            <ol class="list-decimal list-inside space-y-1 text-[11px] text-slate-400 leading-relaxed">
+              <li>Apri <strong class="text-white">Hero Forge</strong> e crea l'aspetto esatto del tuo eroe (abiti, armi, pose norrene).</li>
+              <li>Esporta o scarica il file 3D del personaggio in formato <strong class="text-amber-300">.GLB</strong>, <strong class="text-amber-300">.GLTF</strong> o <strong class="text-amber-300">.OBJ</strong>.</li>
+              <li>Trascina il file nel box qui sopra: il tuo modello prenderà vita nel visualizzatore 3D live e camminerà direttamente sulla mappa tattica del Dungeon Master!</li>
+            </ol>
           </div>
         </div>
 
@@ -1119,13 +1031,121 @@
   <!-- ========================================================================== -->
   <script>
     // ============================================================================
+    // BESTIARIO NORRENO UFFICIALE PER GINNUNGAGAP VTT
+    // ============================================================================
+    window.DEFAULT_NORSE_BESTIARY = [
+      {
+        id: "draugr_cripte",
+        name: "Draugr delle Cripte",
+        type: "Non-Morto (Medio)",
+        category: "non-morto",
+        cr: "GS 1/2",
+        hp: 24, maxHp: 24, ac: 13,
+        speed: "9m (30ft)",
+        stats: { str: 14, dex: 11, con: 14, int: 6, wis: 10, cha: 5 },
+        attacks: [
+          { name: "Ascia da Guerra Antica", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
+          { name: "Sguardo Ingelosente", toHit: "CD 12 Sag", damage: "2d4 Freddo", reach: "9m" }
+        ],
+        traits: "Resistenza ai danni da freddo e veleno. Vigore Non Morto.",
+        avatar: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150",
+        model: "draugr"
+      },
+      {
+        id: "lupo_fenrir",
+        name: "Lupo Invernale di Fenrir",
+        type: "Bestia Mostruosa (Grande)",
+        category: "bestia",
+        cr: "GS 1",
+        hp: 32, maxHp: 32, ac: 13,
+        speed: "15m (50ft)",
+        stats: { str: 16, dex: 13, con: 14, int: 5, wis: 12, cha: 6 },
+        attacks: [
+          { name: "Morso Zannuto", toHit: "+5", damage: "2d6+3 Perforante", reach: "1.5m" },
+          { name: "Soffio Polare", toHit: "CD 12 Des", damage: "3d6 Freddo", reach: "4.5m cono" }
+        ],
+        traits: "Fiuto e Udito Sviluppati. Tattica di Branco.",
+        avatar: "https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150",
+        model: "wolf"
+      },
+      {
+        id: "jotunn_gelo",
+        name: "Jotunn del Gelo",
+        type: "Gigante (Grande)",
+        category: "gigante",
+        cr: "GS 5",
+        hp: 110, maxHp: 110, ac: 15,
+        speed: "12m (40ft)",
+        stats: { str: 21, dex: 9, con: 18, int: 9, wis: 10, cha: 12 },
+        attacks: [
+          { name: "Clava Monolitica di Ghiaccio", toHit: "+8", damage: "3d8+5 Contundente", reach: "3m" },
+          { name: "Lancio del Masso", toHit: "+8", damage: "3d10+5 Contundente", reach: "18/72m" }
+        ],
+        traits: "Immunità assoluta al Freddo. Vulnerabilità al Fuoco.",
+        avatar: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150",
+        model: "giant"
+      },
+      {
+        id: "guerriero_predone",
+        name: "Guerriero Predone del Clan",
+        type: "Umanoide (Medio)",
+        category: "umanoide",
+        cr: "GS 1/2",
+        hp: 18, maxHp: 18, ac: 14,
+        speed: "9m (30ft)",
+        stats: { str: 15, dex: 12, con: 14, int: 10, wis: 11, cha: 9 },
+        attacks: [
+          { name: "Ascia da Battaglia Norrena", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
+          { name: "Giavellotto da Lancio", toHit: "+4", damage: "1d6+2 Perforante", reach: "9/36m" }
+        ],
+        traits: "Frenesia di Battaglia. Muro di Scudi Vichingo.",
+        avatar: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150",
+        model: "berserker"
+      },
+      {
+        id: "valkyria_corrotta",
+        name: "Valkyria d'Odhinn",
+        type: "Celestiale Boss (Medio)",
+        category: "boss",
+        cr: "GS 4",
+        hp: 75, maxHp: 75, ac: 16,
+        speed: "9m (volo 18m)",
+        stats: { str: 17, dex: 16, con: 15, int: 12, wis: 14, cha: 16 },
+        attacks: [
+          { name: "Lancia di Valhalla", toHit: "+6", damage: "1d10+3 Perforante + 1d8 Radioso", reach: "3m" },
+          { name: "Dardo Celestiale Runiche", toHit: "+5", damage: "3d6 Radioso", reach: "36m" }
+        ],
+        traits: "Resistenza a freddo, fuoco e danni radiosi. Ali dorate eteree.",
+        avatar: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150",
+        model: "valkyrie"
+      },
+      {
+        id: "sciamano_hel",
+        name: "Sciamano dell'Helheimr",
+        type: "Umanoide Incantatore (Medio)",
+        category: "non-morto",
+        cr: "GS 2",
+        hp: 36, maxHp: 36, ac: 12,
+        speed: "9m (30ft)",
+        stats: { str: 10, dex: 12, con: 12, int: 12, wis: 16, cha: 13 },
+        attacks: [
+          { name: "Bastone delle Ossa Intagliato", toHit: "+3", damage: "1d6 Contundente + 1d6 Necrotico", reach: "1.5m" },
+          { name: "Dardo d'Ombra Runiche", toHit: "+5", damage: "2d8 Necrotico", reach: "24m" }
+        ],
+        traits: "Incantatore di Helheimr (CD 13). Vista Cieca 9m.",
+        avatar: "https://images.unsplash.com/photo-1514539079130-25950c84af65?w=150",
+        model: "runemaster"
+      }
+    ];
+
+    // ============================================================================
     // 26 MAPPE UFFICIALI DAL PDF "JOURNEY TO RAGNAROK"
     // ============================================================================
     const MAPS_MANIFEST = [
       { id: "yggdrasill_9worlds", title: "I Nove Mondi (Yggdrasill)", act: "Atto 0", file: "assets/maps/yggdrasill_9worlds.jpg", width: 902, height: 1165, cellsW: 30, cellsH: 38 },
       { id: "midgardr_full", title: "Midgardr: Terre del Nord", act: "Atto I", file: "assets/maps/midgardr_full.jpg", width: 902, height: 1167, cellsW: 30, cellsH: 38 },
       { id: "norvegr_regional", title: "Norvegr: Costa dei Fiordi", act: "Atto I", file: "assets/maps/norvegr_regional.jpg", width: 902, height: 578, cellsW: 30, cellsH: 20 },
-      { id: "battle_shipyard", title: "Cantiere Navale & Porto (Heill Höfn 3D)", act: "Atto I", file: "assets/maps/battle_shipyard.jpg", objFile: "assets/maps/heill_hofn_3d.obj", width: 654, height: 858, cellsW: 40, cellsH: 50 },
+      { id: "battle_shipyard", title: "Cantiere Navale & Porto (Heill Höfn)", act: "Atto I", file: "assets/maps/battle_shipyard.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
       { id: "snowy_mountains_regional", title: "Le Montagne Innevate", act: "Atto I", file: "assets/maps/snowy_mountains_regional.jpg", width: 902, height: 579, cellsW: 30, cellsH: 20 },
       { id: "battle_bandit_camp", title: "Accampamento di Guthrum", act: "Atto I", file: "assets/maps/battle_bandit_camp.jpg", width: 902, height: 1166, cellsW: 32, cellsH: 42 },
       { id: "battle_mountain_pass", title: "Il Sentiero tra i Ghiacci", act: "Atto I", file: "assets/maps/battle_mountain_pass.jpg", width: 902, height: 1163, cellsW: 32, cellsH: 42 },
@@ -1219,7 +1239,7 @@
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.1;
+      renderer.toneMappingExposure = 1.25;
       container.appendChild(renderer.domElement);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -1239,16 +1259,20 @@
       fxGroup = new THREE.Group(); scene.add(fxGroup);
       fogGroup = new THREE.Group(); scene.add(fogGroup);
 
-      ambientLight = new THREE.AmbientLight(0xdbeafe, 0.85);
+      ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
       scene.add(ambientLight);
 
-      directionalLight = new THREE.DirectionalLight(0xfff7ed, 1.5);
-      directionalLight.position.set(20, 45, 18);
+      directionalLight = new THREE.DirectionalLight(0xfffdf5, 1.3);
+      directionalLight.position.set(20, 50, 20);
       directionalLight.castShadow = true;
       directionalLight.shadow.mapSize.width = 2048;
       directionalLight.shadow.mapSize.height = 2048;
       directionalLight.shadow.bias = -0.0004;
       scene.add(directionalLight);
+
+      const fillLight = new THREE.DirectionalLight(0xfef3c7, 0.45);
+      fillLight.position.set(-20, 30, -20);
+      scene.add(fillLight);
 
       dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshBasicMaterial({ visible: false }));
       dragPlane.rotation.x = -Math.PI / 2;
@@ -1296,9 +1320,9 @@
       const planeGeo = new THREE.PlaneGeometry(planeW, planeH);
 
       const planeMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        roughness: 0.85,
-        metalness: 0.1
+        color: 0xffffff,
+        roughness: 0.95,
+        metalness: 0.0
       });
 
       const battlePlane = new THREE.Mesh(planeGeo, planeMat);
@@ -2136,7 +2160,7 @@
 
     function build3DStructuresForMap(mapId, planeW, planeH) {
       if (!structuresGroup) return;
-      while(structuresGroup.children.length > 0) {
+      while (structuresGroup.children.length > 0) {
         const obj = structuresGroup.children[0];
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
@@ -2144,953 +2168,6 @@
           else obj.material.dispose();
         }
         structuresGroup.remove(obj);
-      }
-
-      // Materiali ad alta fedeltà norrena
-      const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.85 });
-      const pineWoodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
-      const thatchMat = new THREE.MeshStandardMaterial({ color: 0x24170e, roughness: 0.95 });
-      const stoneMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
-      const whiteStoneMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.75 });
-      const goldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3, metalness: 0.85 });
-      const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.8 });
-      const bloodstoneMat = new THREE.MeshStandardMaterial({ color: 0x4a0404, roughness: 0.8 });
-      const sailClothMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.75 });
-      const redClothMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.7 });
-      const blueClothMat = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.7 });
-
-      // Costruttore: Drakkar Vichingo da Guerra
-      function createDrakkarLongship(x, z, rotY = 0, scale = 1.0) {
-        const ship = new THREE.Group();
-        ship.position.set(x, 0.1, z);
-        ship.rotation.y = rotY;
-        ship.scale.set(scale, scale, scale);
-
-        // Chiglia e fondo scafo
-        const keel = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 18), darkWoodMat);
-        keel.position.y = 0.25;
-        keel.castShadow = true;
-        ship.add(keel);
-
-        // Fondo interno
-        const floor = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.2, 13), pineWoodMat);
-        floor.position.y = 0.5;
-        floor.receiveShadow = true;
-        ship.add(floor);
-
-        // Murate a fasciame inclinate (babord e tribord)
-        [-1, 1].forEach(side => {
-          const sidePlank = new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.4, 14), darkWoodMat);
-          sidePlank.position.set(side * 2.0, 0.9, 0);
-          sidePlank.rotation.z = side * -0.15;
-          sidePlank.castShadow = true;
-          ship.add(sidePlank);
-
-          // Panca rematori
-          for(let r = -6; r <= 6; r += 2.5) {
-            const bench = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.2, 0.6), pineWoodMat);
-            bench.position.set(side * 1.3, 0.9, r);
-            bench.castShadow = true;
-            ship.add(bench);
-          }
-
-          // Fila di scudi vichinghi policromi montati sulle murate
-          const shieldColors = [redClothMat, goldMat, blueClothMat, darkWoodMat];
-          for(let s = -7; s <= 7; s += 1.8) {
-            const shieldGroup = new THREE.Group();
-            shieldGroup.position.set(side * 2.72, 1.4, s);
-            shieldGroup.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
-
-            const shieldPlate = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.65, 0.65, 0.08, 16),
-              shieldColors[Math.abs(Math.floor(s)) % shieldColors.length]
-            );
-            shieldPlate.rotation.x = Math.PI / 2;
-            shieldGroup.add(shieldPlate);
-
-            const boss = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), ironMat);
-            boss.position.z = 0.06;
-            shieldGroup.add(boss);
-
-            ship.add(shieldGroup);
-          }
-        });
-
-        // Prua incurvata verso l'alto con Testa di Drago (Dreki)
-        const bowStem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3.8, 2.8), darkWoodMat);
-        bowStem.position.set(0, 2.2, 9.8);
-        bowStem.rotation.x = 0.35;
-        ship.add(bowStem);
-
-        const dragonHead = new THREE.Group();
-        dragonHead.position.set(0, 4.4, 11.2);
-        const snout = new THREE.Mesh(new THREE.ConeGeometry(0.6, 2.0, 4), darkWoodMat);
-        snout.rotation.x = Math.PI / 2.2;
-        dragonHead.add(snout);
-
-        const horn1 = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 4), goldMat);
-        horn1.position.set(-0.35, 0.6, -0.4);
-        horn1.rotation.z = -0.4;
-        dragonHead.add(horn1);
-        const horn2 = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 4), goldMat);
-        horn2.position.set(0.35, 0.6, -0.4);
-        horn2.rotation.z = 0.4;
-        dragonHead.add(horn2);
-
-        const eyes = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
-        eyes.position.set(-0.3, 0.2, 0.2);
-        dragonHead.add(eyes);
-        const eyes2 = eyes.clone();
-        eyes2.position.x = 0.3;
-        dragonHead.add(eyes2);
-        ship.add(dragonHead);
-
-        // Poppa con coda arricciata
-        const sternStem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3.4, 2.4), darkWoodMat);
-        sternStem.position.set(0, 2.0, -9.8);
-        sternStem.rotation.x = -0.35;
-        ship.add(sternStem);
-
-        const tail = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.2, 8, 16, Math.PI * 1.4), darkWoodMat);
-        tail.position.set(0, 3.6, -10.8);
-        tail.rotation.y = Math.PI / 2;
-        ship.add(tail);
-
-        // Albero di pino centrale, pennone e vela serrata
-        const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 12, 8), pineWoodMat);
-        mast.position.set(0, 6.2, 0);
-        mast.castShadow = true;
-        ship.add(mast);
-
-        const yardarm = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 8.2, 8), pineWoodMat);
-        yardarm.position.set(0, 9.8, 0);
-        yardarm.rotation.z = Math.PI / 2;
-        ship.add(yardarm);
-
-        const furledSail = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.7, 0.7), sailClothMat);
-        furledSail.position.set(0, 9.7, 0);
-        ship.add(furledSail);
-
-        // Timone laterale (styri) a poppa tribordo
-        const rudder = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.8, 0.8), darkWoodMat);
-        rudder.position.set(2.6, 0.2, -8.2);
-        rudder.rotation.x = 0.3;
-        ship.add(rudder);
-
-        structuresGroup.add(ship);
-        return ship;
-      }
-
-      // Costruttore: Gran Salone dei Jarl & Longhouse Vichinga
-      function createNorseMeadHall(x, z, rotY = 0, scale = 1.0, isRoyal = false) {
-        const hall = new THREE.Group();
-        hall.position.set(x, 0, z);
-        hall.rotation.y = rotY;
-        hall.scale.set(scale, scale, scale);
-
-        // Basamento in pietre a secco
-        const plinth = new THREE.Mesh(new THREE.BoxGeometry(8.6, 0.5, 14.2), stoneMat);
-        plinth.position.y = 0.25;
-        plinth.castShadow = true;
-        plinth.receiveShadow = true;
-        hall.add(plinth);
-
-        // Pareti maestre in tronchi incrociati
-        const walls = new THREE.Mesh(new THREE.BoxGeometry(7.8, 2.8, 13.2), darkWoodMat);
-        walls.position.y = 1.65;
-        walls.castShadow = true;
-        walls.receiveShadow = true;
-        hall.add(walls);
-
-        // Portico d'ingresso con architrave runico
-        const porch = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 2.2), isRoyal ? goldMat : pineWoodMat);
-        porch.position.set(0, 1.35, 7.3);
-        porch.castShadow = true;
-        hall.add(porch);
-
-        const door = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.0, 0.15), ironMat);
-        door.position.set(0, 1.25, 8.4);
-        hall.add(door);
-
-        // Tetto a spiovente scandinavo armonioso
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(6.2, 3.2, 4), thatchMat);
-        roof.position.y = 4.4;
-        roof.rotation.y = Math.PI / 4;
-        roof.scale.set(0.95, 1, 1.7);
-        roof.castShadow = true;
-        hall.add(roof);
-
-        // Teste di drago incrociate alle estremità del colmo del tetto
-        [-6.4, 6.4].forEach(rz => {
-          const apex = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.6, 4), isRoyal ? goldMat : darkWoodMat);
-          apex.position.set(0, 5.6, rz);
-          apex.rotation.x = rz > 0 ? 0.45 : -0.45;
-          hall.add(apex);
-        });
-
-        // Sfiatatoio fumi centrale sul tetto (Ljøri) con luce dorata del grande focolare
-        const smokeVent = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 2.0), darkWoodMat);
-        smokeVent.position.set(0, 5.5, 0);
-        hall.add(smokeVent);
-
-        const hearthLight = new THREE.PointLight(0xf59e0b, isRoyal ? 3.0 : 2.0, 22);
-        hearthLight.position.set(0, 4.0, 0);
-        hall.add(hearthLight);
-
-        // Lanterna esterna sul portone
-        const porchLight = new THREE.PointLight(0xff8800, 1.8, 12);
-        porchLight.position.set(0, 3.6, 11.2);
-        hall.add(porchLight);
-
-        // Decorazioni reali: stendardi e finiture dorate
-        if (isRoyal) {
-          const goldTrim = new THREE.Mesh(new THREE.BoxGeometry(10.6, 0.4, 17.6), goldMat);
-          goldTrim.position.y = 4.8;
-          hall.add(goldTrim);
-
-          // Scalinata in pietra d'accesso
-          const stairs = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.4, 2.2), stoneMat);
-          stairs.position.set(0, 0.2, 11.4);
-          hall.add(stairs);
-        }
-
-        structuresGroup.add(hall);
-        return hall;
-      }
-
-      // Costruttore: Molo con palafitte e merci da carico
-      function createDockPier3D(x, z, length = 16, width = 4.5, rotY = 0) {
-        const pier = new THREE.Group();
-        pier.position.set(x, 0, z);
-        pier.rotation.y = rotY;
-
-        // Banchina in assi di quercia
-        const deck = new THREE.Mesh(new THREE.BoxGeometry(width, 0.4, length), pineWoodMat);
-        deck.position.y = 0.6;
-        deck.receiveShadow = true;
-        deck.castShadow = true;
-        pier.add(deck);
-
-        // Pali di sostegno immersi nell'acqua
-        const count = Math.max(3, Math.floor(length / 3));
-        for(let i = -count/2; i <= count/2; i++) {
-          [-width/2 + 0.4, width/2 - 0.4].forEach(px => {
-            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 2.6, 8), darkWoodMat);
-            post.position.set(px, 0.1, i * (length / count));
-            post.castShadow = true;
-            pier.add(post);
-          });
-          // Bitte d'ormeggio
-          const bitta = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.6, 8), darkWoodMat);
-          bitta.position.set(width/2 - 0.25, 0.9, i * (length / count));
-          pier.add(bitta);
-        }
-
-        // Botti e casse di merce
-        for(let b = 0; b < 4; b++) {
-          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 0.95, 10), ironMat);
-          barrel.position.set((b % 2 === 0 ? 1 : -1) * 0.9, 1.2, (b - 1.5) * 2.2);
-          barrel.castShadow = true;
-          pier.add(barrel);
-        }
-
-        structuresGroup.add(pier);
-        return pier;
-      }
-
-      // Costruttore: Torre di Vedetta con Braciere di Segnalazione (30 ft)
-      function createWatchtower3D(x, z, rotY = 0, height = 8.5) {
-        const twr = new THREE.Group();
-        twr.position.set(x, 0, z);
-        twr.rotation.y = rotY;
-
-        // 4 montanti angolari in tronchi con controventatura a X
-        const legDist = 1.6;
-        [-legDist, legDist].forEach(px => {
-          [-legDist, legDist].forEach(pz => {
-            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, height, 8), darkWoodMat);
-            leg.position.set(px, height / 2, pz);
-            leg.castShadow = true;
-            twr.add(leg);
-          });
-        });
-
-        // Traverse a X
-        const cross1 = new THREE.Mesh(new THREE.BoxGeometry(legDist * 2.5, 0.18, 0.18), darkWoodMat);
-        cross1.position.set(0, height * 0.45, legDist);
-        cross1.rotation.z = 0.5;
-        twr.add(cross1);
-
-        // Piattaforma di combattimento sopraelevata
-        const deck = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.35, 4.2), pineWoodMat);
-        deck.position.y = height * 0.85;
-        deck.castShadow = true;
-        twr.add(deck);
-
-        // Parapetto merlato
-        const breast = new THREE.Mesh(new THREE.BoxGeometry(4.1, 1.1, 4.1), darkWoodMat);
-        breast.position.y = height * 0.85 + 0.6;
-        breast.castShadow = true;
-        twr.add(breast);
-
-        // Scala a pioli
-        const ladder = new THREE.Mesh(new THREE.BoxGeometry(0.6, height * 0.85, 0.15), pineWoodMat);
-        ladder.position.set(0, height * 0.42, legDist + 0.1);
-        twr.add(ladder);
-
-        // Tettuccio di copertura
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(3.6, 2.0, 4), thatchMat);
-        roof.position.y = height + 1.6;
-        roof.rotation.y = Math.PI / 4;
-        twr.add(roof);
-
-        // Braciere di ferro battuto con fuoco vivo
-        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.3, 0.4, 8), ironMat);
-        brazier.position.set(0, height * 0.85 + 1.2, 0);
-        twr.add(brazier);
-
-        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff6600 }));
-        flame.position.set(0, height * 0.85 + 1.5, 0);
-        twr.add(flame);
-
-        const fireLight = new THREE.PointLight(0xff6600, 2.2, 18);
-        fireLight.position.set(0, height * 0.85 + 1.8, 0);
-        twr.add(fireLight);
-
-        structuresGroup.add(twr);
-        return twr;
-      }
-
-      // Costruttore: Palizzata di Tronchi Appuntiti con Camminamento di Ronda
-      function createPalisadeWall(startX, startZ, endX, endZ, height = 4.5) {
-        const dx = endX - startX;
-        const dz = endZ - startZ;
-        const length = Math.sqrt(dx * dx + dz * dz);
-        const angle = Math.atan2(dx, dz);
-
-        const wallGroup = new THREE.Group();
-        wallGroup.position.set((startX + endX) / 2, 0, (startZ + endZ) / 2);
-        wallGroup.rotation.y = angle;
-
-        // Tronchi verticali appuntiti
-        const count = Math.max(3, Math.floor(length / 0.65));
-        for(let i = -count/2; i <= count/2; i++) {
-          const log = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.28, height, 6), darkWoodMat);
-          log.position.set(0, height / 2, i * 0.65);
-          log.castShadow = true;
-          wallGroup.add(log);
-
-          const tip = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 6), darkWoodMat);
-          tip.position.set(0, height + 0.4, i * 0.65);
-          wallGroup.add(tip);
-        }
-
-        // Camminamento posteriore di ronda
-        const walkway = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.25, length), pineWoodMat);
-        walkway.position.set(-0.8, height * 0.55, 0);
-        walkway.castShadow = true;
-        wallGroup.add(walkway);
-
-        // Travi di sostegno
-        for(let b = -count/2; b <= count/2; b += 4) {
-          const brace = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, height * 0.75, 6), darkWoodMat);
-          brace.position.set(-0.8, height * 0.28, b * 0.65);
-          wallGroup.add(brace);
-        }
-
-        structuresGroup.add(wallGroup);
-        return wallGroup;
-      }
-
-      // Costruttore: Il Tempio Dorato di Uppsala
-      function createGoldenTempleUppsala(x, z, rotY = 0, scale = 1.0) {
-        const temple = new THREE.Group();
-        temple.position.set(x, 0, z);
-        temple.rotation.y = rotY;
-        temple.scale.set(scale, scale, scale);
-
-        // Podio a gradoni d'oro e marmo scuro
-        const base = new THREE.Mesh(new THREE.BoxGeometry(16, 1.2, 22), stoneMat);
-        base.position.y = 0.6;
-        base.receiveShadow = true;
-        temple.add(base);
-
-        // Navata centrale a tre ordini in stile Stave Temple
-        const lowerHall = new THREE.Mesh(new THREE.BoxGeometry(14, 5.0, 19), darkWoodMat);
-        lowerHall.position.y = 3.6;
-        lowerHall.castShadow = true;
-        temple.add(lowerHall);
-
-        const lowerRoof = new THREE.Mesh(new THREE.ConeGeometry(11, 4.5, 4), thatchMat);
-        lowerRoof.position.y = 7.8;
-        lowerRoof.rotation.y = Math.PI / 4;
-        lowerRoof.scale.set(1.0, 1, 1.6);
-        temple.add(lowerRoof);
-
-        // Secondo ordine rialzato
-        const midHall = new THREE.Mesh(new THREE.BoxGeometry(9.5, 4.2, 13), darkWoodMat);
-        midHall.position.y = 8.5;
-        midHall.castShadow = true;
-        temple.add(midHall);
-
-        const midRoof = new THREE.Mesh(new THREE.ConeGeometry(7.8, 3.8, 4), thatchMat);
-        midRoof.position.y = 12.0;
-        midRoof.rotation.y = Math.PI / 4;
-        midRoof.scale.set(1.0, 1, 1.5);
-        temple.add(midRoof);
-
-        // Guglia superiore dorata
-        const spire = new THREE.Mesh(new THREE.ConeGeometry(2.5, 5.5, 4), goldMat);
-        spire.position.y = 16.0;
-        spire.rotation.y = Math.PI / 4;
-        temple.add(spire);
-
-        // Catena d'oro monumentale che corre lungo le grondaie (da Adamo di Brema / Ragnarok)
-        const chainGeo = new THREE.TorusGeometry(8.5, 0.15, 8, 24);
-        const chain = new THREE.Mesh(chainGeo, goldMat);
-        chain.position.set(0, 6.2, 0);
-        chain.rotation.x = Math.PI / 2;
-        temple.add(chain);
-
-        // Colonne d'ingresso dorate con intarsi sacri
-        [-3.8, -1.3, 1.3, 3.8].forEach(cx => {
-          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.45, 5.2, 10), goldMat);
-          col.position.set(cx, 3.7, 10.0);
-          col.castShadow = true;
-          temple.add(col);
-        });
-
-        // Bagliore dorato divino degli idoli (Odino, Thor, Freyr)
-        const holyLight = new THREE.PointLight(0xfbbf24, 3.2, 28);
-        holyLight.position.set(0, 5.5, 0);
-        temple.add(holyLight);
-
-        structuresGroup.add(temple);
-        return temple;
-      }
-
-      // Costruttore: Il Sacro Yggdrasill (Frassino Millenario semprevivo)
-      function createSacredYggdrasill(x, z, scale = 1.0) {
-        const tree = new THREE.Group();
-        tree.position.set(x, 0, z);
-        tree.scale.set(scale, scale, scale);
-
-        // Tronco monumentale contorto con radici che penetrano il suolo
-        const trunkGeo = new THREE.CylinderGeometry(1.6, 2.8, 8, 12);
-        const trunk = new THREE.Mesh(trunkGeo, darkWoodMat);
-        trunk.position.y = 4.0;
-        trunk.castShadow = true;
-        tree.add(trunk);
-
-        // Radici affioranti
-        for(let r = 0; r < 5; r++) {
-          const ang = (r / 5) * Math.PI * 2;
-          const root = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 4.5, 8), darkWoodMat);
-          root.position.set(Math.cos(ang) * 2.8, 0.8, Math.sin(ang) * 2.8);
-          root.rotation.x = Math.sin(ang) * 0.8;
-          root.rotation.z = Math.cos(ang) * 0.8;
-          tree.add(root);
-        }
-
-        // Rami principali contorti
-        const bough1 = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.1, 5.5, 8), darkWoodMat);
-        bough1.position.set(-1.8, 7.8, 1.2);
-        bough1.rotation.z = 0.55;
-        tree.add(bough1);
-
-        const bough2 = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 1.0, 5.2, 8), darkWoodMat);
-        bough2.position.set(1.9, 8.0, -1.0);
-        bough2.rotation.z = -0.55;
-        tree.add(bough2);
-
-        // Chioma smeraldina magica a più livelli
-        const leafMat = new THREE.MeshStandardMaterial({
-          color: 0x059669,
-          roughness: 0.5,
-          emissive: 0x047857,
-          emissiveIntensity: 0.35
-        });
-
-        const canopyPositions = [
-          { x: 0, y: 11.5, z: 0, s: 5.5 },
-          { x: -3.2, y: 9.8, z: 1.8, s: 4.2 },
-          { x: 3.4, y: 10.2, z: -1.6, s: 4.0 },
-          { x: 1.4, y: 11.8, z: 2.8, s: 3.8 },
-          { x: -1.8, y: 12.0, z: -2.6, s: 3.6 }
-        ];
-
-        canopyPositions.forEach(cp => {
-          const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(cp.s, 1), leafMat);
-          foliage.position.set(cp.x, cp.y, cp.z);
-          foliage.castShadow = true;
-          tree.add(foliage);
-        });
-
-        // Bagliore smeraldino vivente
-        const treeLight = new THREE.PointLight(0x10b981, 2.8, 22);
-        treeLight.position.set(0, 8.5, 0);
-        tree.add(treeLight);
-
-        structuresGroup.add(tree);
-        return tree;
-      }
-
-      // Costruttore: Fucina di Svenn Skallfoss
-      function createSvennForge(x, z, rotY = 0) {
-        const forge = new THREE.Group();
-        forge.position.set(x, 0, z);
-        forge.rotation.y = rotY;
-
-        // Forno in pietra e camino
-        const chimney = new THREE.Mesh(new THREE.BoxGeometry(3.6, 5.2, 3.2), stoneMat);
-        chimney.position.set(0, 2.6, 0);
-        chimney.castShadow = true;
-        forge.add(chimney);
-
-        const flue = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 3.2, 8), stoneMat);
-        flue.position.set(0, 5.8, 0);
-        forge.add(flue);
-
-        // Bocca del forno con carboni ardenti
-        const coalGlow = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 1.2), new THREE.MeshBasicMaterial({ color: 0xff3300 }));
-        coalGlow.position.set(0, 1.5, 1.2);
-        forge.add(coalGlow);
-
-        const fLight = new THREE.PointLight(0xff5500, 2.4, 16);
-        fLight.position.set(0, 1.8, 1.8);
-        forge.add(fLight);
-
-        // Incudine titanica su ceppo di quercia
-        const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 1.1, 10), darkWoodMat);
-        stump.position.set(2.4, 0.55, 1.5);
-        stump.castShadow = true;
-        forge.add(stump);
-
-        const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 1.6), ironMat);
-        anvil.position.set(2.4, 1.35, 1.5);
-        anvil.castShadow = true;
-        forge.add(anvil);
-
-        // Tinozza d'acqua per la tempra
-        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.65, 0.9, 10), darkWoodMat);
-        tub.position.set(-2.2, 0.45, 1.4);
-        forge.add(tub);
-
-        structuresGroup.add(forge);
-        return forge;
-      }
-
-      // Costruttore: Colossale Effigie di Loki (Fenmark)
-      function createLokiEffigy3D(x, z, rotY = 0) {
-        const idol = new THREE.Group();
-        idol.position.set(x, 0, z);
-        idol.rotation.y = rotY;
-
-        // Fusto totemico intagliato
-        const totem = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.4, 8.5, 10), darkWoodMat);
-        totem.position.y = 4.25;
-        totem.castShadow = true;
-        idol.add(totem);
-
-        // Maschera cornuta di Loki
-        const mask = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.2, 1.6), darkWoodMat);
-        mask.position.set(0, 7.2, 0.4);
-        idol.add(mask);
-
-        // Corna ricurve
-        const hornL = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 8, 16, Math.PI * 0.8), darkWoodMat);
-        hornL.position.set(-1.1, 8.2, 0.3);
-        hornL.rotation.z = 0.6;
-        idol.add(hornL);
-
-        const hornR = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 8, 16, Math.PI * 0.8), darkWoodMat);
-        hornR.position.set(1.1, 8.2, 0.3);
-        hornR.rotation.z = -0.6;
-        idol.add(hornR);
-
-        // Braciere rituale di fiamme verdi spettrali
-        const brazier = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 0.8, 0.8, 8), stoneMat);
-        brazier.position.set(0, 0.4, 2.2);
-        idol.add(brazier);
-
-        const witchfire = new THREE.Mesh(
-          new THREE.SphereGeometry(0.65, 8, 8),
-          new THREE.MeshBasicMaterial({ color: 0x10b981 })
-        );
-        witchfire.position.set(0, 1.1, 2.2);
-        idol.add(witchfire);
-
-        const wfLight = new THREE.PointLight(0x10b981, 3.2, 18);
-        wfLight.position.set(0, 1.8, 2.2);
-        idol.add(wfLight);
-
-        structuresGroup.add(idol);
-        return idol;
-      }
-
-      // Costruttore: Capanna su Palafitte (Finnbol)
-      function createStiltHut3D(x, z, rotY = 0, scale = 1.0) {
-        const hut = new THREE.Group();
-        hut.position.set(x, 0, z);
-        hut.rotation.y = rotY;
-        hut.scale.set(scale, scale, scale);
-
-        // 4 Pali di sostegno immersi nella palude
-        [-2.0, 2.0].forEach(px => {
-          [-2.4, 2.4].forEach(pz => {
-            const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 3.2, 8), darkWoodMat);
-            stilt.position.set(px, 1.6, pz);
-            stilt.castShadow = true;
-            hut.add(stilt);
-          });
-        });
-
-        // Piattaforma e capanna in torba
-        const deck = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.3, 6.0), pineWoodMat);
-        deck.position.y = 3.2;
-        deck.castShadow = true;
-        hut.add(deck);
-
-        const hutBody = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.6, 5.2), darkWoodMat);
-        hutBody.position.y = 4.6;
-        hutBody.castShadow = true;
-        hut.add(hutBody);
-
-        const hutRoof = new THREE.Mesh(new THREE.ConeGeometry(3.8, 2.4, 4), thatchMat);
-        hutRoof.position.y = 6.8;
-        hutRoof.rotation.y = Math.PI / 4;
-        hutRoof.scale.set(1.0, 1, 1.4);
-        hut.add(hutRoof);
-
-        structuresGroup.add(hut);
-        return hut;
-      }
-
-      // Costruttore: Altare Sacrificale di Pietra
-      function createBloodstoneAltar(x, z) {
-        const altar = new THREE.Group();
-        altar.position.set(x, 0, z);
-
-        const slab = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.0, 2.6), bloodstoneMat);
-        slab.position.y = 0.5;
-        slab.castShadow = true;
-        altar.add(slab);
-
-        const runicGlow = new THREE.PointLight(0xd97706, 1.6, 10);
-        runicGlow.position.set(0, 1.4, 0);
-        altar.add(runicGlow);
-
-        [-1.8, 1.8].forEach(bx => {
-          const braz = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.25, 0.9, 8), ironMat);
-          braz.position.set(bx, 0.45, 0);
-          altar.add(braz);
-        });
-
-        structuresGroup.add(altar);
-        return altar;
-      }
-
-      // Costruttore: Cerchio dell'Holmgang (Siste Klintr)
-      function createHolmgangCircle(x, z, radius = 5.0) {
-        const ring = new THREE.Group();
-        ring.position.set(x, 0.1, z);
-
-        // Corda rossa di nocciolo
-        const rope = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.12, 8, 32), redClothMat);
-        rope.rotation.x = Math.PI / 2;
-        ring.add(rope);
-
-        // Pioli e pietre runiche di confine
-        for(let i = 0; i < 8; i++) {
-          const ang = (i / 8) * Math.PI * 2;
-          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 1.4, 6), pineWoodMat);
-          post.position.set(Math.cos(ang) * radius, 0.7, Math.sin(ang) * radius);
-          ring.add(post);
-
-          if (i % 2 === 0) {
-            const rStone = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.8, 0.4), stoneMat);
-            rStone.position.set(Math.cos(ang) * (radius + 0.9), 0.9, Math.sin(ang) * (radius + 0.9));
-            ring.add(rStone);
-          }
-        }
-
-        structuresGroup.add(ring);
-        return ring;
-      }
-
-      // Costruttore: Monolite Runico Primordiale
-      function createRunicMonolith(x, z, scale = 1.0, colorHex = 0x38bdf8) {
-        const stone = new THREE.Group();
-        stone.position.set(x, 0, z);
-        stone.scale.set(scale, scale, scale);
-
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4.2, 0.6), stoneMat);
-        pillar.position.y = 2.1;
-        pillar.castShadow = true;
-        stone.add(pillar);
-
-        const runePlate = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.7, 2.6),
-          new THREE.MeshBasicMaterial({ color: colorHex, side: THREE.DoubleSide })
-        );
-        runePlate.position.set(0, 2.1, 0.32);
-        stone.add(runePlate);
-
-        const rLight = new THREE.PointLight(colorHex, 1.8, 10);
-        rLight.position.set(0, 2.2, 0.8);
-        stone.add(rLight);
-
-        structuresGroup.add(stone);
-        return stone;
-      }
-
-      // Costruttore: Bancarella del Grande Mercato
-      function createMarketStall(x, z, rotY = 0) {
-        const stall = new THREE.Group();
-        stall.position.set(x, 0, z);
-        stall.rotation.y = rotY;
-
-        // Bancone in legno
-        const table = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.1, 1.8), pineWoodMat);
-        table.position.y = 0.55;
-        table.castShadow = true;
-        stall.add(table);
-
-        // 4 Pali e tendone a righe
-        [-1.6, 1.6].forEach(px => {
-          [-0.8, 0.8].forEach(pz => {
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.8, 6), pineWoodMat);
-            pole.position.set(px, 1.4, pz);
-            stall.add(pole);
-          });
-        });
-
-        const canopy = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.15, 2.4), (Math.abs(x) % 2 === 0) ? redClothMat : blueClothMat);
-        canopy.position.y = 2.8;
-        canopy.rotation.x = 0.15;
-        stall.add(canopy);
-
-        structuresGroup.add(stall);
-        return stall;
-      }
-
-      // ========================================================================
-      // SCHIERAMENTO COMPLETO PER CIASCUNA DELLE 11 MAPPE DA BATTAGLIA
-      // ========================================================================
-
-      if (mapId === 'battle_shipyard') {
-        // SCENARIO 3D DI HEILL HÖFN (GEOMETRIA 3D OBJ + DRAKKAR E LUCI VIVE)
-        
-        // 1. Splendide Navi da Guerra Vichinghe 3D (Drakkar ormeggiate ai moli)
-        createDrakkarLongship(-32, 4, Math.PI / 2, 0.95);
-        createDrakkarLongship(-26, -14, -0.55, 1.05);
-        createDrakkarLongship(34, -22, 0.2, 0.9);
-
-        // 2. Bracieri e Fuochi d'allarme sulle torri perimetrali (Punti Luce Reali)
-        const torchLocations = [
-          { x: -26, y: 3.5, z: 10 },
-          { x: -20, y: 3.5, z: 36 },
-          { x: 20, y: 3.5, z: 36 },
-          { x: 28, y: 3.5, z: 10 },
-          { x: 0, y: 4.5, z: 14 },   // Braciere Gran Salone
-          { x: -22, y: 1.5, z: -8 }  // Lanterna del Molo
-        ];
-        torchLocations.forEach(t => {
-          const fireLight = new THREE.PointLight(0xf59e0b, 2.8, 22);
-          fireLight.position.set(t.x, t.y, t.z);
-          structuresGroup.add(fireLight);
-
-          const brazier = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.25, 0.8, 8), ironMat);
-          brazier.position.set(t.x, t.y - 0.4, t.z);
-          brazier.castShadow = true;
-          structuresGroup.add(brazier);
-        });
-
-        // 3. Monoliti Runici Sacri (con auree runiche luminose)
-        createRunicMonolith(-8, 14, 1.25, 0xf59e0b);
-        createRunicMonolith(8, 14, 1.25, 0x38bdf8);
-        createRunicMonolith(-20, -4, 1.1, 0x10b981);
-
-      } else if (mapId === 'battle_uppsala_temple') {
-        // 1. Tempio Dorato di Uppsala (B)
-        createGoldenTempleUppsala(0, -12, 0, 1.25);
-
-        // 2. Il Sacro Yggdrasill (I)
-        createSacredYggdrasill(-14, 0, 1.2);
-
-        // 3. Fucina di Svenn Skallfoss (D)
-        createSvennForge(16, 4, -0.3);
-
-        // 4. Altare Sacrificale (F) e Recinto Offerte (E)
-        createBloodstoneAltar(0, 12);
-
-        // 5. Capanne dei sacerdoti e dimora Jarl (A, H)
-        createNorseMeadHall(-14, -14, 0.3, 1.15);
-        createRunicMonolith(14, -12, 1.2, 0xf59e0b);
-        createRunicMonolith(-14, 12, 1.2, 0x10b981);
-
-      } else if (mapId === 'battle_danevirke_wall') {
-        // 1. Monumentale Vallo di Danevirke (A) che taglia la mappa a metà
-        const rampart = new THREE.Mesh(new THREE.BoxGeometry(planeW * 0.95, 2.2, 7.5), stoneMat);
-        rampart.position.set(0, 1.1, 0);
-        rampart.castShadow = true;
-        structuresGroup.add(rampart);
-
-        createPalisadeWall(-planeW * 0.46, 0, planeW * 0.46, 0, 5.0);
-
-        // 2. Portone monumentale centrale con saracinesca (B)
-        const gateL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 7.5, 4.5), darkWoodMat);
-        gateL.position.set(-3.2, 3.75, 0);
-        structuresGroup.add(gateL);
-        const gateR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 7.5, 4.5), darkWoodMat);
-        gateR.position.set(3.2, 3.75, 0);
-        structuresGroup.add(gateR);
-
-        const arch = new THREE.Mesh(new THREE.BoxGeometry(9.5, 1.6, 4.2), darkWoodMat);
-        arch.position.set(0, 7.6, 0);
-        structuresGroup.add(arch);
-
-        // 3. Torri di guardia (C) con pire d'allarme
-        createWatchtower3D(-18, 2, 0, 8.5);
-        createWatchtower3D(18, 2, 0, 8.5);
-
-        // 4. Baraccamenti guarnigione (E)
-        createNorseMeadHall(14, -12, 0.2, 1.1);
-
-      } else if (mapId === 'battle_mountain_pass') {
-        // 1. Cerchio dell'Holmgang (D)
-        createHolmgangCircle(-6, -2, 5.5);
-
-        // 2. Barricata dei passi ghiacciati (A)
-        createPalisadeWall(6, 10, 18, 10, 4.2);
-
-        // 3. Baita del Capoclan (E)
-        createNorseMeadHall(14, -10, -0.4, 1.15);
-
-        // 4. Depositi e Torre d'osservazione (G, F)
-        createWatchtower3D(0, -16, 0, 9.5);
-        createRunicMonolith(-12, 8, 1.3, 0x38bdf8);
-
-      } else if (mapId === 'battle_fenmark_ruins') {
-        // 1. Colossale Effigie di Loki (D)
-        createLokiEffigy3D(0, -4, 0);
-
-        // 3. Capanne su palafitte (A, B, C)
-        createStiltHut3D(-12, 6, 0.2, 1.1);
-        createStiltHut3D(12, -10, -0.3, 1.05);
-        createStiltHut3D(-8, -14, 0.4, 1.0);
-
-        // 4. Passerelle di legno sospese
-        createDockPier3D(-6, 2, 14, 2.4, 0.5);
-        createDockPier3D(6, -4, 12, 2.2, -0.4);
-
-      } else if (mapId === 'battle_jutland_keep') {
-        // 1. Il Grande Gjallarhorn del clan (G)
-        const hornGroup = new THREE.Group();
-        hornGroup.position.set(0, 0, 0);
-
-        const dais = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.8, 0.9, 16), stoneMat);
-        dais.position.y = 0.45;
-        hornGroup.add(dais);
-
-        const hornBody = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.45, 8, 20, Math.PI * 0.9), goldMat);
-        hornBody.position.set(0, 2.2, 0);
-        hornBody.rotation.z = Math.PI / 4;
-        hornGroup.add(hornBody);
-
-        structuresGroup.add(hornGroup);
-
-        // 2. Palazzo Reale dello Jarl (H)
-        createNorseMeadHall(0, -14, 0, 1.4, true);
-
-        // 3. Mura circolari e torri (A, C)
-        createWatchtower3D(-16, 8, 0.3, 8.5);
-        createWatchtower3D(16, 8, -0.3, 8.5);
-        createNorseMeadHall(14, 4, 0.3, 1.05);
-
-      } else if (mapId === 'battle_pillars_of_gods') {
-        // 1. Colonne Runiche Titaniche di Gnitaheith (B)
-        [-8, 8].forEach(cx => {
-          [-14, -6, 2, 10].forEach(cz => {
-            const col = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.6, 16, 8), stoneMat);
-            col.position.set(cx, 8, cz);
-            col.castShadow = true;
-            structuresGroup.add(col);
-
-            const rGlow = new THREE.PointLight(0x38bdf8, 1.8, 12);
-            rGlow.position.set(cx, 5, cz);
-            structuresGroup.add(rGlow);
-          });
-        });
-
-        // 2. Trono di Stalagmite e Tesoro di Fafnir (D)
-        const throne = new THREE.Mesh(new THREE.ConeGeometry(3.5, 6.0, 6), darkWoodMat);
-        throne.position.set(0, 3.0, -14);
-        structuresGroup.add(throne);
-
-        // Mucchio di monete e tesori d'oro (Oro lucido)
-        const goldHoard = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 5.0, 0.8, 16), goldMat);
-        goldHoard.position.set(0, 0.4, -14);
-        structuresGroup.add(goldHoard);
-
-        // 3. Gramr - La Spada Mitica (E)
-        const swordAltar = new THREE.Group();
-        swordAltar.position.set(0, 0, -2);
-        const sPed = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 1.6), ironMat);
-        sPed.position.y = 0.9;
-        swordAltar.add(sPed);
-
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.4), goldMat);
-        blade.position.set(0, 3.0, 0);
-        swordAltar.add(blade);
-
-        const sLight = new THREE.PointLight(0xfbbf24, 3.2, 18);
-        sLight.position.set(0, 3.5, 0);
-        swordAltar.add(sLight);
-
-        structuresGroup.add(swordAltar);
-
-      } else if (mapId === 'battle_muspellsheimr_lava') {
-        // 1. Colonne basaltiche di guado (B)
-        [-12, -7, -2, 3, 8, 13].forEach((bx, idx) => {
-          const col = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.3, 1.8, 6), stoneMat);
-          col.position.set(bx, 0.9, (idx % 2 === 0 ? 2 : -2));
-          structuresGroup.add(col);
-        });
-
-        // 3. Monoliti vulcanici con rune di fuoco (C)
-        createRunicMonolith(14, -8, 1.4, 0xff3300);
-        createRunicMonolith(-14, 8, 1.4, 0xff3300);
-
-        // 4. Incudine di Surtur (D)
-        const surturAnvil = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.6, 3.0), ironMat);
-        surturAnvil.position.set(0, 0.8, -12);
-        structuresGroup.add(surturAnvil);
-
-        const lavaLight = new THREE.PointLight(0xff5500, 3.5, 25);
-        lavaLight.position.set(0, 2.5, 0);
-        structuresGroup.add(lavaLight);
-
-      } else if (mapId === 'battle_bandit_camp') {
-        // Accampamento di Guthrum
-        createNorseMeadHall(0, -10, 0, 1.25);
-        createWatchtower3D(-12, 10, 0.2, 8.5);
-        createWatchtower3D(12, 10, -0.2, 8.5);
-        createPalisadeWall(-planeW * 0.35, 14, planeW * 0.35, 14, 4.2);
-        createRunicMonolith(-10, -4, 1.1, 0xef4444);
-
-      } else if (mapId === 'battle_svitjod_camp') {
-        // Radura dei Clan di Svitjod
-        createNorseMeadHall(0, -10, 0, 1.2);
-        createWatchtower3D(-14, 6, 0.2, 8.5);
-        createRunicMonolith(10, 8, 1.2, 0x10b981);
-
-      } else {
-        // Mappe Regionali / Cosmiche: arricchite con monoliti runici cardinali
-        createRunicMonolith(-planeW * 0.3, -planeH * 0.3, 1.3, 0xf59e0b);
-        createRunicMonolith(planeW * 0.3, -planeH * 0.3, 1.3, 0x38bdf8);
-        createRunicMonolith(-planeW * 0.3, planeH * 0.3, 1.3, 0x10b981);
-        createRunicMonolith(planeW * 0.3, planeH * 0.3, 1.3, 0xef4444);
       }
     }
 
@@ -4715,6 +3792,15 @@
         };
       } catch(e) {}
 
+      try {
+        const campBus = new BroadcastChannel('ginnungagap_' + currentCampaignCode);
+        campBus.onmessage = (event) => {
+          if (event.data && event.data.type === 'SPAWN_ENEMY_SHEET' && event.data.enemy) {
+            window.dmSpawnEnemyFromSheet(event.data.enemy, undefined, undefined, event.data.count || 1);
+          }
+        };
+      } catch(e) {}
+
       // Fallback cross-window con storage event
       window.addEventListener('storage', (e) => {
         if (e.key === 'yggdrasill_v3_sync_pulse') {
@@ -4761,7 +3847,7 @@
             firebase.database().ref(`yggdrasill_v3_realm/campaigns/${currentCampaignCode}/events`).push(payload);
           } catch(e){}
         }
-      } catch(err) {}
+      } catch(e){}
     };
     const broadcastEvent = window.broadcastEvent;
 
@@ -4805,6 +3891,9 @@
           mini.userData.hp = msg.newHp;
           refreshMiniatureBillboard(mini);
         }
+
+      } else if (msg.type === 'SPAWN_ENEMY_SHEET' && msg.enemy) {
+        window.dmSpawnEnemyFromSheet(msg.enemy, undefined, undefined, msg.count || 1);
 
       } else if (msg.type === 'PROPOSED_LETHAL_ACTION' && currentRole === 'DM') {
         // Sul dispositivo del DM compare subito il modale di approvazione / colpo di scena!
@@ -5179,6 +4268,9 @@
         roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-extrabold uppercase tracking-wider';
         document.getElementById('btn-open-dm-panel').classList.remove('hidden');
         document.getElementById('dm-organizer-panel').classList.remove('hidden');
+        if (typeof window.renderDmVttEnemiesList === 'function') {
+          window.renderDmVttEnemiesList();
+        }
       } else {
         roleBadge.textContent = 'GIOCATORE';
         roleBadge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-400 text-sky-300 font-extrabold uppercase tracking-wider';
@@ -5254,6 +4346,22 @@
         saveGinnungagapState();
       }
 
+      // Controlla spawn nemici pendenti accodati dalla schermata Nemici del DM
+      try {
+        const rawPending = sessionStorage.getItem('ginnungagap_pending_enemy_spawns');
+        if (rawPending) {
+          const pendingList = JSON.parse(rawPending);
+          if (Array.isArray(pendingList) && pendingList.length > 0) {
+            pendingList.forEach(e => {
+              if (!e.campCode || e.campCode === currentCampaignCode) {
+                window.dmSpawnEnemyFromSheet(e);
+              }
+            });
+            sessionStorage.removeItem('ginnungagap_pending_enemy_spawns');
+          }
+        }
+      } catch(e) {}
+
       // Seleziona la propria miniatura nella HUD
       const activeMini = window.Ginnungagap.myHeroMini || window.Ginnungagap.miniatures[0];
       if (activeMini) selectMiniature(activeMini);
@@ -5302,29 +4410,150 @@
       } catch(e) {}
     }
 
-    window.dmSpawnEnemy = function(mType, tx = 2, tz = -3) {
-      const eData = {
-        'valkyrie': { name: "Valkyria d'Odhinn", className: 'Boss Celestiale', hp: 75, maxHp: 75, ac: 16, avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150', role: 'ENEMY' },
-        'fenrir_wolf': { name: 'Lupo di Fenrir', className: 'Bestia Mitologica', hp: 32, maxHp: 32, ac: 13, avatar: 'https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150', role: 'ENEMY' },
-        'frost_giant': { name: 'Jotunn del Gelo', className: 'Gigante', hp: 110, maxHp: 110, ac: 15, avatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150', role: 'ENEMY' },
-        'draugr': { name: 'Draugr delle Cripte', className: 'Non-Morto', hp: 24, maxHp: 24, ac: 12, avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150', role: 'ENEMY' }
-      }[mType] || { name: 'Nemico', className: 'Mostro', hp: 20, maxHp: 20, ac: 12, role: 'ENEMY' };
+    window.dmSpawnEnemyFromSheet = function(enemySheet, tx, tz, count = 1) {
+      if (!enemySheet) return;
 
-      eData.tileX = tx; eData.tileZ = tz;
-      const mObj = createMiniature(eData);
-      minisGroup.add(mObj);
-      window.Ginnungagap.miniatures.push(mObj);
-      window.Ginnungagap.initiativeQueue.push(mObj);
+      for (let i = 0; i < count; i++) {
+        const baseName = enemySheet.name || 'Nemico';
+        const existing = window.Ginnungagap.miniatures.filter(m =>
+          m.userData && (m.userData.baseName === baseName || (m.userData.name && m.userData.name.startsWith(baseName)))
+        );
+        const nextNum = existing.length + 1;
+        const finalName = (existing.length > 0 || count > 1) ? `${baseName} #${nextNum}` : baseName;
+
+        let spawnTx = tx;
+        let spawnTz = tz;
+        if (spawnTx === undefined || spawnTz === undefined) {
+          const enemyTotal = window.Ginnungagap.miniatures.filter(m => m.userData && m.userData.role === 'ENEMY').length;
+          spawnTx = ((enemyTotal + i) % 7) * 2 - 6;
+          spawnTz = -3 - Math.floor((enemyTotal + i) / 7) * 2;
+        }
+
+        const eData = {
+          id: 'mini_enemy_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+          name: finalName,
+          baseName: baseName,
+          enemySheetId: enemySheet.id,
+          className: enemySheet.type || 'Nemico',
+          role: 'ENEMY',
+          hp: enemySheet.hp || 20,
+          maxHp: enemySheet.maxHp || enemySheet.hp || 20,
+          ac: enemySheet.ac || 12,
+          speedMeters: 9.0,
+          stats: enemySheet.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+          attacks: enemySheet.attacks || [],
+          traits: enemySheet.traits || '',
+          actions: enemySheet.actions || '',
+          notes: enemySheet.notes || '',
+          avatar: enemySheet.avatar || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150',
+          modelType: enemySheet.model || 'draugr',
+          tileX: spawnTx,
+          tileZ: spawnTz
+        };
+
+        const mObj = createMiniature(eData);
+        minisGroup.add(mObj);
+        window.Ginnungagap.miniatures.push(mObj);
+        window.Ginnungagap.initiativeQueue.push(mObj);
+
+        if (typeof showToast === 'function') {
+          showToast('👹 Nemico Schierato', `${finalName} (PF ${eData.hp}, CA ${eData.ac}) è sceso in campo!`);
+        }
+        logCombatEvent('SCHIERAMENTO', `Il DM ha schierato: [${finalName}] (PF ${eData.hp}, CA ${eData.ac})`);
+      }
+
       updateInitiativeBar();
-
-      showToast('👹 Schieramento DM', `${eData.name} è sceso in campo!`);
-      logCombatEvent('SCHIERAMENTO', `Il DM ha schierato: [${eData.name}] (PF ${eData.hp}, CA ${eData.ac})`);
       saveGinnungagapState();
 
       broadcastEvent({
-        type: 'SPAWN_MINI',
-        miniData: mObj.userData
+        type: 'SPAWN_ENEMY_SHEET',
+        enemy: enemySheet,
+        count: count
       });
+    };
+
+    window.dmSpawnEnemy = function(mType, tx, tz, count = 1) {
+      if (typeof mType === 'object' && mType !== null) {
+        window.dmSpawnEnemyFromSheet(mType, tx, tz, count);
+        return;
+      }
+
+      // Ricerca nei nemici della campagna o fallback
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+      const camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
+      const enemies = (camp && camp.enemies) ? camp.enemies : (window.DEFAULT_NORSE_BESTIARY || []);
+
+      let found = enemies.find(e => e.id === mType || e.model === mType || (e.name && e.name.toLowerCase().includes(String(mType).toLowerCase())));
+      if (!found) {
+        found = {
+          id: 'enemy_' + mType,
+          name: typeof mType === 'string' ? (mType.charAt(0).toUpperCase() + mType.slice(1)) : 'Nemico',
+          type: 'Nemico',
+          hp: 25, maxHp: 25, ac: 13,
+          model: mType,
+          avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150'
+        };
+      }
+
+      window.dmSpawnEnemyFromSheet(found, tx, tz, count);
+    };
+
+    window.toggleDmQuickEnemyForm = function() {
+      const form = document.getElementById('dm-quick-enemy-form');
+      if (form) form.classList.toggle('hidden');
+    };
+
+    window.dmSpawnQuickEnemy = function() {
+      const name = document.getElementById('dm-quick-e-name')?.value.trim() || 'Nemico';
+      const hp = parseInt(document.getElementById('dm-quick-e-hp')?.value, 10) || 25;
+      const ac = parseInt(document.getElementById('dm-quick-e-ac')?.value, 10) || 13;
+      const count = parseInt(document.getElementById('dm-quick-e-count')?.value, 10) || 1;
+
+      const sheet = {
+        id: 'quick_' + Date.now(),
+        name,
+        type: 'Mostro Estemporaneo',
+        hp, maxHp: hp, ac,
+        attacks: [{ name: 'Attacco Rapido', toHit: '+4', damage: '1d8+2' }],
+        avatar: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150',
+        model: 'draugr'
+      };
+
+      window.dmSpawnEnemyFromSheet(sheet, undefined, undefined, count);
+      document.getElementById('dm-quick-enemy-form')?.classList.add('hidden');
+    };
+
+    window.renderDmVttEnemiesList = function() {
+      const container = document.getElementById('dm-vtt-enemies-list');
+      if (!container) return;
+
+      let db = {};
+      try { db = JSON.parse(localStorage.getItem('yggdrasill_v3_db') || '{}'); } catch(e){}
+      let camp = db.campaigns ? db.campaigns[currentCampaignCode] : null;
+      const enemies = (camp && camp.enemies && camp.enemies.length > 0)
+        ? camp.enemies
+        : (window.DEFAULT_NORSE_BESTIARY || []);
+
+      container.innerHTML = enemies.map(e => `
+        <div class="flex items-center justify-between p-2 bg-slate-900/90 border border-red-500/30 rounded-xl text-xs hover:border-red-400 transition">
+          <div class="flex items-center gap-2 truncate">
+            <span class="text-base">💀</span>
+            <div class="truncate">
+              <div class="font-cinzel font-bold text-white text-[11px] truncate">${e.name}</div>
+              <div class="text-[9px] text-slate-400">${e.hp} PF &bull; CA ${e.ac || 12} &bull; ${e.cr || 'GS 1'}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 1)' class="px-2 py-0.5 rounded bg-red-950 border border-red-500 text-[10px] text-red-200 hover:bg-red-900 font-bold font-mono">
+              +1
+            </button>
+            <button onclick='window.dmSpawnEnemyFromSheet(${JSON.stringify(e).replace(/'/g, "&#39;")}, undefined, undefined, 3)' class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-amber-300 hover:bg-slate-700 font-bold font-mono">
+              +3
+            </button>
+          </div>
+        </div>
+      `).join('');
     };
 
     function populateDmPartyList(camp) {
