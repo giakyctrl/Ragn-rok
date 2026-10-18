@@ -89,7 +89,7 @@
 
       <footer class="text-center text-[10px] text-slate-500 font-cinzel tracking-widest flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-slate-900">
         <span>YGGDRASILL • JOURNEY TO RAGNAROK 5E</span>
-        <a href="admin.html" class="text-amber-500/80 hover:text-amber-300 font-bold transition flex items-center gap-1">👑 CONSOLLE ADMIN (ROOT)</a>
+        <a href="admin.html" class="text-amber-500/80 hover:text-amber-300 font-bold transition flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg> CONSOLLE ADMIN (ROOT)</a>
       </footer>
     </section>
 
@@ -304,7 +304,11 @@
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                       <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
                       <button type="button" onclick="window.openClanDetailModal(window.getMyCharacter() ? (window.getMyCharacter().clanId || window.getMyCharacter().clan || window.getMyCharacter().clanName) : null)" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Clan di Midgardr</button>
-                      <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Kaupang di Midgard (Mercato)">💰 <span id="sheet-gold-val">50</span> mo</button>
+                      <button type="button" onclick="window.openPlayerStlModal()" id="sheet-stl-btn" class="text-[10px] px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-bold hover:bg-cyan-900 transition flex items-center gap-1 shadow" title="Collega il file 3D (.STL) esportato da Hero Forge per la mappa VTT">
+                        <svg class="w-3.5 h-3.5 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+                        <span id="sheet-stl-btn-label">Miniatura 3D (.STL)</span>
+                      </button>
+                      <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Kaupang di Midgard (Mercato)"><span id="sheet-gold-val">50</span> mo</button>
                     </div>
                   </div>
                 </div>
@@ -482,10 +486,10 @@
           <div class="norse-panel norse-border-gold rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
             <div class="flex items-center gap-2">
               <button type="button" id="dmc-tab-comp" onclick="window.switchDmCreateMode('compendium')" class="px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 transition">
-                <span>📦</span> DATABASE ADMIN / COMPENDIO
+                DATABASE ADMIN / COMPENDIO
               </button>
               <button type="button" id="dmc-tab-forge" onclick="window.switchDmCreateMode('forge')" class="px-4 py-2 rounded-xl font-cinzel font-bold text-xs bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-                <span>⚒️</span> FORGIA NUOVA CARTA CUSTOM
+                FORGIA NUOVA CARTA CUSTOM
               </button>
             </div>
             <div class="text-[11px] text-slate-400 font-cinzel flex items-center gap-1">
@@ -498,7 +502,7 @@
           <div id="dm-create-mode-compendium" class="space-y-4">
             <div class="norse-panel norse-border-gold rounded-2xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
               <div class="flex items-center gap-2 flex-1 max-w-sm">
-                <span class="text-amber-300 font-cinzel font-bold text-xs whitespace-nowrap">🎯 Assegna a:</span>
+                <span class="text-amber-300 font-cinzel font-bold text-xs whitespace-nowrap flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg> Assegna a:</span>
                 <select id="dm-comp-target" class="w-full bg-slate-950 border border-amber-500/60 rounded-xl px-3 py-2 text-xs font-bold text-amber-200 shadow-inner">
                   <!-- Popolato dinamicamente da renderDmViews -->
                 </select>
@@ -611,7 +615,7 @@
           <div class="norse-panel norse-border-gold rounded-2xl p-4 sm:p-5 space-y-4">
             <div class="flex flex-wrap justify-between items-center border-b border-amber-500/30 pb-3 gap-2">
               <div class="flex items-center gap-3">
-                <span class="text-2xl">⚖️</span>
+                
                 <div>
                   <h3 class="font-cinzel font-bold text-base text-amber-300 uppercase tracking-wider">Commercio &amp; Kaupang di Midgard</h3>
                   <p class="text-[11px] text-slate-400">Invia carte ed equipaggiamenti al mercato. I giocatori vedranno queste merci e potranno acquistarle con le loro monete d'oro.</p>
@@ -619,7 +623,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" onclick="window.dmClearMarket()" class="px-3 py-1.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs font-bold font-cinzel hover:bg-red-900 transition">
-                  🗑️ Svuota Kaupang
+                  Svuota Kaupang
                 </button>
               </div>
             </div>
@@ -642,7 +646,7 @@
           <div class="norse-panel rounded-2xl p-4 sm:p-5 space-y-4">
             <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-3">
               <div class="flex items-center gap-2">
-                <span class="text-xl">📦</span>
+                
                 <h4 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">
                   Attingi dal Database Generale &amp; Manda al Kaupang
                 </h4>
@@ -673,13 +677,10 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <div class="flex items-center gap-2">
-                  <span class="text-xl">💀</span>
+                  <svg class="w-5 h-5 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M10 18v2"/><path d="M14 18v2"/><path d="M4 11a8 8 0 0 1 16 0c0 4-2.5 6-4 7l-.5 3h-7L8 18c-1.5-1-4-3-4-7z"/></svg>
                   <h3 class="font-cinzel font-black text-sm sm:text-base text-red-300 uppercase tracking-wider">
-                    Bestiario &amp; Schede Nemici Campagna
+                    Nemici
                   </h3>
-                  <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-red-950 border border-red-500/50 text-red-300 font-bold">
-                    VTT 100% LINKED
-                  </span>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5">
                   Crea e conserva le schede complete dei nemici (PF, CA, Velocità, Attacchi e Tratti). Schierali istantaneamente con miniatura e statistiche sul tavolo Ginnungagap.
@@ -688,11 +689,9 @@
 
               <div class="flex items-center gap-2 w-full sm:w-auto">
                 <button type="button" onclick="window.openDmEnemyEditorModal()" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95">
-                  <span>➕</span> Crea Nuova Scheda Nemico
+                  <svg class="w-4 h-4 mr-1 text-white inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Crea Nuova Scheda Nemico
                 </button>
-                <button type="button" onclick="window.openEmbeddedGinnungagap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-2 rounded-xl bg-slate-900 border border-amber-500/50 hover:bg-slate-800 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 transition">
-                  <span>🎲</span> Tavolo VTT
-                </button>
+                
               </div>
             </div>
 
@@ -789,7 +788,7 @@
   <!-- MENU SEZIONI CON SFONDO BLURRATO -->
   <div id="ddb-section-modal" class="fixed inset-0 ddb-blur-overlay z-50 hidden flex-col p-5 overflow-y-auto">
     <div class="flex justify-between items-center max-w-md mx-auto w-full mb-4">
-      <button type="button" onclick="window.closeDdbSectionModal()" class="w-10 h-10 rounded-full bg-[#1c2530] border border-slate-700 text-slate-300 font-bold text-lg flex items-center justify-center active:scale-90 transition">✕</button>
+      <button type="button" onclick="window.closeDdbSectionModal()" class="w-10 h-10 rounded-full bg-[#1c2530] border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center active:scale-90 transition"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       <span class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-widest">Sezioni della Scheda</span>
       <div class="w-10"></div>
     </div>
@@ -804,7 +803,7 @@
           <span id="cdm-badge" class="text-[9px] font-cinzel font-bold uppercase tracking-wider text-sky-300 px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40">AZIONE</span>
           <span id="cdm-rarity" class="text-[9px] font-bold uppercase text-amber-300">RARO</span>
         </div>
-        <button type="button" onclick="window.closeCardDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+        <button type="button" onclick="window.closeCardDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
@@ -918,7 +917,7 @@
             <h2 id="clm-name" class="font-cinzel font-black text-xl text-white tracking-wide">Guerrieri dell'Orso</h2>
           </div>
         </div>
-        <button type="button" onclick="window.closeClanDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+        <button type="button" onclick="window.closeClanDetailModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
       <div class="relative rounded-xl overflow-hidden border border-amber-500/40 h-36 sm:h-44 bg-slate-950">
@@ -996,7 +995,7 @@
     <div class="norse-panel rounded-2xl p-5 sm:p-6 max-w-4xl w-full border-2 border-amber-500/60 shadow-[0_0_50px_rgba(201,160,80,0.35)] max-h-[92vh] overflow-y-auto space-y-5 animate-modal-pop" onclick="event.stopPropagation()">
       <div class="flex flex-wrap justify-between items-center border-b border-amber-500/30 pb-3 gap-3">
         <div class="flex items-center gap-3">
-          <span class="text-3xl">🛒</span>
+          
           <div>
             <span class="text-[9px] font-cinzel uppercase text-amber-400 font-bold tracking-widest block">Emporio e Fiera di Scambio dei Nove Mondi</span>
             <h2 class="font-cinzel font-black text-xl text-white tracking-wide">Kaupang di Midgard</h2>
@@ -1004,11 +1003,11 @@
         </div>
         <div class="flex items-center gap-3">
           <div class="px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center gap-2 shadow">
-            <span class="text-base">💰</span>
+            <span class="text-xs font-mono font-bold text-amber-300 mr-1">mo</span>
             <span class="text-xs font-cinzel font-bold text-slate-300">Il Tuo Oro:</span>
             <strong id="pmm-player-gold" class="font-mono text-sm text-amber-300">0 mo</strong>
           </div>
-          <button type="button" onclick="window.closePlayerMarketModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+          <button type="button" onclick="window.closePlayerMarketModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
 
@@ -1036,13 +1035,13 @@
     <div class="norse-panel rounded-2xl p-5 max-w-xl w-full border-2 border-sky-500/50 shadow-2xl max-h-[88vh] overflow-y-auto space-y-4 animate-modal-pop" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2.5">
-          <span id="aspm-slot-icon" class="text-2xl">🛡️</span>
+          <span id="aspm-slot-icon" class="text-2xl"><svg class="w-6 h-6 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
           <div>
             <span class="text-[9px] font-cinzel uppercase text-sky-400 font-bold tracking-widest block">Slot Equipaggiamento</span>
             <h3 id="aspm-slot-title" class="font-cinzel font-black text-base text-white">Seleziona Armatura</h3>
           </div>
         </div>
-        <button type="button" onclick="window.closeArmorSlotPickerModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">✕</button>
+        <button type="button" onclick="window.closeArmorSlotPickerModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
       <p class="text-xs text-slate-400 leading-relaxed">
@@ -1066,7 +1065,7 @@
     <div class="bg-[#0b101b] border-2 border-red-500/80 rounded-3xl max-w-2xl w-full p-5 space-y-4 shadow-[0_0_50px_rgba(239,68,68,0.3)] my-auto max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-red-500/30 pb-3">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl">💀</span>
+          <svg class="w-6 h-6 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M10 18v2"/><path d="M14 18v2"/><path d="M4 11a8 8 0 0 1 16 0c0 4-2.5 6-4 7l-.5 3h-7L8 18c-1.5-1-4-3-4-7z"/></svg>
           <div>
             <h3 id="modal-enemy-editor-title" class="font-cinzel font-black text-sm sm:text-base text-red-300 uppercase tracking-wider">Nuova Scheda Nemico</h3>
             <span class="text-[10px] text-slate-400">Statistiche complete collegate al tavolo tattico Ginnungagap</span>
@@ -1161,25 +1160,81 @@
           </div>
         </div>
 
-        <!-- RIGA 5: TRATTI E NOTE -->
+        <!-- RIGA 5: MINIATURA 3D (.STL / .GLB / .OBJ) PER TAVOLO VTT -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] font-cinzel font-bold text-cyan-300 uppercase flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+              Miniatura 3D Personale (.STL / .GLB / .OBJ)
+            </label>
+            <button type="button" id="enemy-stl-clear-btn" onclick="window.clearEnemyStlFile()" class="hidden text-[10px] text-rose-400 hover:text-rose-300 font-bold">Rimuovi File 3D</button>
+          </div>
+          <div id="enemy-stl-status-badge" class="text-xs"></div>
+          <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-amber-400 rounded-xl p-3 cursor-pointer bg-slate-900/50 hover:bg-slate-900 transition text-center">
+            <span class="text-xs text-slate-300 font-semibold">Trascina o clicca per caricare un file .STL (da Hero Forge o 3D Print)</span>
+            <span class="text-[10px] text-slate-500 mt-0.5">Il modello 3D apparirà autonomamente sul tavolo VTT al momento dello schieramento</span>
+            <input type="file" id="enemy-stl-file-input" accept=".stl,.glb,.gltf,.obj" onchange="window.handleEnemyStlFileUpload(event)" class="hidden">
+          </label>
+        </div>
+
+        <!-- RIGA 6: TRATTI E NOTE -->
         <div class="space-y-2 pt-1 border-t border-slate-800">
           <div>
-            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Tratti Speciali &amp; Reazioni</label>
-            <textarea id="enemy-form-traits" rows="2" placeholder="Resistenze, immunità o abilità passive norrene..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-red-400 text-xs resize-none"></textarea>
+            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Tratti Speciali, Privilegi &amp; Azioni Leggendarie</label>
+            <textarea id="enemy-form-traits" rows="2" placeholder="Resistenze, immunità o abilità passive norrene..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs resize-none"></textarea>
           </div>
           <div>
-            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Note &amp; Tattiche del Dungeon Master</label>
-            <textarea id="enemy-form-notes" rows="2" placeholder="Comportamento in combattimento, lore e bottino..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-red-400 text-xs resize-none"></textarea>
+            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Note &amp; Lore del Dungeon Master</label>
+            <textarea id="enemy-form-notes" rows="2" placeholder="Comportamento in combattimento, lore e bottino..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs resize-none"></textarea>
           </div>
         </div>
 
         <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-800">
           <button type="button" onclick="window.closeDmEnemyEditorModal()" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs">Annulla</button>
           <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-red-700 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg flex items-center gap-1.5">
-            <span>💾</span> Salva Scheda Nemico
+            <svg class="w-4 h-4 mr-1 text-white inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salva Scheda Nemico
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODALE CARICAMENTO MINIATURA 3D (.STL / .GLB / .OBJ) GIOCATORE -->
+  <div id="modal-player-stl-uploader" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="norse-panel norse-border-gold rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl bg-[#0b101b] border-2 border-cyan-500/50">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+          <h3 class="font-cinzel font-black text-sm text-white uppercase tracking-wider">Miniatura 3D per Ginnungagap</h3>
+        </div>
+        <button type="button" onclick="window.closePlayerStlModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed">
+          Carica qui il modello 3D in formato <strong>.STL</strong> (o <strong>.GLB</strong> / <strong>.OBJ</strong>) esportato da <a href="https://www.heroforge.com" target="_blank" class="text-cyan-400 underline font-semibold">Hero Forge</a> o dal tuo software 3D.
+        </p>
+
+        <div id="player-stl-current-status" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
+          <!-- Stato attuale -->
+        </div>
+
+        <label class="flex flex-col items-center justify-center border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 rounded-2xl p-6 cursor-pointer bg-slate-900/40 hover:bg-slate-900 transition text-center space-y-1">
+          <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+          <span class="text-sm text-white font-bold">Seleziona o Trascina file .STL</span>
+          <span class="text-[10px] text-slate-500">Supportati: .stl, .glb, .gltf, .obj</span>
+          <input type="file" id="player-stl-file-input" accept=".stl,.glb,.gltf,.obj" onchange="window.handlePlayerStlFileUpload(event)" class="hidden">
+        </label>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <button type="button" id="player-stl-remove-btn" onclick="window.clearPlayerStlFile()" class="hidden text-xs text-rose-400 hover:text-rose-300 font-bold">
+          Rimuovi Miniatura 3D
+        </button>
+        <button type="button" onclick="window.closePlayerStlModal()" class="ml-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-cinzel font-bold text-xs">
+          Chiudi
+        </button>
+      </div>
     </div>
   </div>
 

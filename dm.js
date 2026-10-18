@@ -268,7 +268,7 @@ window.renderDmCompendiumCards = function() {
     const rarityClass = (c.rarity || 'comune').toLowerCase().replace(/\s+/g, '-');
     const typeClass = (c.type || 'arma').toLowerCase();
     const artUrl = c.img || (window.CARD_ARTWORKS && window.CARD_ARTWORKS[c.type]) || (window.CARD_ARTWORKS && window.CARD_ARTWORKS.arma) || 'assets/items/spada_ulfberht.jpg';
-    const costText = c.cost ? `💰 ${c.cost}` : '—';
+    const costText = c.cost ? `${c.cost} mo` : '—';
     const statText = c.damage ? `EFF: ${c.damage}` : (c.weight ? `${c.weight} kg` : (c.range || '18m'));
 
     return `
@@ -297,10 +297,10 @@ window.renderDmCompendiumCards = function() {
 
         <div class="grid grid-cols-2 gap-1.5 pt-1">
           <button type="button" onclick="window.openCardDetailModal('${c.id}')" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-cinzel font-bold text-[10px] transition border border-sky-400/30 flex items-center justify-center gap-1 shadow">
-            🔍 DETTAGLI
+            DETTAGLI
           </button>
           <button type="button" onclick="window.dmAssignCardFromCompendium('${c.id}')" class="py-1.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] transition flex items-center justify-center gap-1 shadow">
-            ➕ ASSEGNA
+            ASSEGNA
           </button>
         </div>
       </div>
@@ -347,7 +347,7 @@ window.dmAssignCardFromCompendium = function(cardId) {
   }
 
   window.saveDB();
-  alert(`⚔️ Carta "${original.name}" assegnata con successo a: ${targetName}!`);
+  alert(`Carta "${original.name}" assegnata con successo a: ${targetName}!`);
   window.renderDmViews();
 };
 
@@ -417,7 +417,7 @@ window.dmCreateAndAssignCard = function(e) {
   window.updateDmCardPreview();
   window.saveDB();
 
-  alert(`⚒️ Carta "${newCard.name}" creata, assegnata a ${targetName} e registrata nel Database Admin globale!`);
+  alert(`Carta "${newCard.name}" creata, assegnata a ${targetName} e registrata nel Database Admin globale!`);
   window.switchDmCreateMode('compendium');
   window.renderDmViews();
 };
@@ -559,14 +559,14 @@ window.renderDmViews = function() {
 
             <div class="pt-1.5 flex items-center justify-between gap-1 border-t border-slate-800/80 text-[10px]">
               <div class="flex items-center gap-1.5">
-                <span class="text-amber-300 font-bold">💰 Oro:</span>
+                <span class="text-amber-300 font-bold">Oro:</span>
                 <span class="font-mono font-black text-amber-200">${mChar.gold !== undefined ? mChar.gold : 50} mo</span>
               </div>
               <div class="flex items-center gap-1">
                 <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', -10)" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-[9px] font-bold hover:text-white" title="-10 mo">-10</button>
                 <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', 10)" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold hover:bg-amber-500/30" title="+10 mo">+10</button>
                 <button type="button" onclick="window.dmAdjustPlayerGold('${uKey}', 50)" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] font-bold hover:bg-amber-500/30" title="+50 mo">+50</button>
-                <button type="button" onclick="window.dmPromptSetPlayerGold('${uKey}')" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-sky-300 text-[9px] font-bold hover:text-white" title="Imposta ammontare manuale">✏️</button>
+                <button type="button" onclick="window.dmPromptSetPlayerGold('${uKey}')" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-sky-300 text-[9px] font-bold hover:text-white" title="Imposta ammontare manuale"><svg class="w-3 h-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
               </div>
             </div>
           </div>
@@ -704,7 +704,7 @@ window.renderDmTradeViews = function() {
             <div class="flex-1 min-w-0 space-y-1">
               <div class="flex justify-between items-start gap-1">
                 <h4 class="font-cinzel font-bold text-xs text-amber-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${item.id || item.canonicalId}')">${item.name}</h4>
-                <button type="button" onclick="window.dmRemoveCardFromMarket('${item.marketId}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-950/60 border border-red-500/30" title="Ritira mercanzia dal Kaupang">✕</button>
+                <button type="button" onclick="window.dmRemoveCardFromMarket('${item.marketId}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-950/60 border border-red-500/30" title="Ritira mercanzia dal Kaupang"><svg class="w-3 h-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
               </div>
               <div class="flex items-center gap-2 text-[10px]">
                 <span class="text-amber-300 uppercase font-bold">${item.type}</span>
@@ -713,11 +713,11 @@ window.renderDmTradeViews = function() {
               </div>
               <div class="flex items-center justify-between pt-1 border-t border-slate-800">
                 <div class="flex items-center gap-1">
-                  <span class="text-xs">💰</span>
+                  <span class="text-xs font-mono font-bold text-amber-300">mo</span>
                   <span class="font-mono font-black text-amber-300 text-xs">${costGold} mo</span>
                 </div>
                 <button type="button" onclick="window.dmEditMarketItemPrice('${item.marketId}')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-sky-300 border border-slate-700">
-                  ✏️ Modifica Prezzo
+                  Modifica Prezzo
                 </button>
               </div>
             </div>
@@ -777,10 +777,10 @@ window.renderDmTradeCatalog = function() {
             <span class="text-slate-500">•</span>
             <span class="text-sky-300">${c.rarity || 'Comune'}</span>
           </div>
-          <span class="text-[10px] font-mono text-amber-200 block font-semibold">💰 Valore: ${defCost}</span>
+          <span class="text-[10px] font-mono text-amber-200 block font-semibold">Valore: ${defCost}</span>
         </div>
         <button type="button" onclick="window.dmAddCardToMarket('${c.id}')" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] shrink-0 shadow flex items-center gap-1 transition">
-          ⚖️ Manda
+          Manda
         </button>
       </div>
     `;
@@ -812,7 +812,7 @@ window.dmAddCardToMarket = function(cardId) {
   camp.market.push(marketItem);
   window.saveDB();
   window.renderDmTradeViews();
-  alert(`⚖️ "${card.name}" è ora disponibile nel Kaupang per ${priceGold} mo!`);
+  alert(`"${card.name}" è ora disponibile nel Kaupang per ${priceGold} mo!`);
 };
 
 window.dmRemoveCardFromMarket = function(marketId) {
@@ -861,143 +861,536 @@ window.dmBroadcastMarketUpdate = function() {
 };
 
 // ============================================================================
-// 12. BESTIARIO NORRENO, SCHEDE NEMICI & SCHIERAMENTO VTT GINNUNGAGAP
+// ============================================================================
+// 12. NEMICI NORRENI, SCHEDE COMPLETE & SCHIERAMENTO VTT GINNUNGAGAP
 // ============================================================================
 
 window.DEFAULT_NORSE_BESTIARY = [
   {
-    id: "draugr_cripte",
-    name: "Draugr delle Cripte",
-    type: "Non-Morto (Medio)",
-    category: "non-morto",
-    cr: "GS 1/2",
-    hp: 24,
-    maxHp: 24,
-    ac: 13,
-    speed: "9m (30ft)",
-    stats: { str: 14, dex: 11, con: 14, int: 6, wis: 10, cha: 5 },
+    id: "odhinn",
+    name: "Odhinn (Padre di Tutti)",
+    type: "Grande Divinità (Æsir), Legale Onorevole",
+    category: "dei",
+    cr: "GS 30",
+    hp: 320, maxHp: 320, ac: 22,
+    speed: "12m (40ft)",
+    stats: { str: 24, dex: 22, con: 24, int: 22, wis: 26, cha: 24 },
+    saves: { str: true, con: true, wis: true, cha: true },
+    proficientSkills: ["percezione", "intimidire", "religione", "asatru", "storia"],
+    senses: "Vista Vera 36m, Vista Cieca 18m, Percezione Passiva 28",
+    damageImmunities: "Necrotico, Radioso; Contundente, Perforante e Tagliente da armi non magiche",
+    conditionImmunities: "Affascinato, Esausto, Spaventato, Paralizzato, Avvelenato",
     attacks: [
-      { name: "Ascia da Guerra Antica", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
-      { name: "Sguardo Ingelosente", toHit: "CD 12 Sag", damage: "2d4 Freddo", reach: "9m" }
+      { name: "Gungnir, la Lancia del Fato", toHit: "+18", damage: "2d10+8 Perforante + 4d8 Radioso", reach: "3m (Lancio 36m)", desc: "Non manca mai il bersaglio per volere delle Rune." },
+      { name: "Bagliore delle Rune Primordiali", toHit: "CD 22 Des", damage: "6d8 Forza / Radioso", reach: "36m" }
     ],
-    traits: "Resistenza ai danni da freddo e veleno. Vigore Non Morto (se scende a 0 PF effettua TS Costituzione con CD 5+danni subiti per rimanere a 1 PF).",
-    actions: "Assalto Cadaverico, Urlo Ingelosente della Tomba.",
-    notes: "Antico fiero guerriero norreno risorto dalla sua tomba per difendere i tesori sepolti nel permafrost.",
-    avatar: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150",
-    model: "draugr"
+    traits: "Onniscienza delle Rune (Vantaggio su ogni prova di caratteristica). Huginn e Muninn (I due corvi condividono la vista con Odino ovunque nei Nove Mondi). Resistenza Leggendaria (3/giorno). Presenza Divina (CD 22 Saggezza o Spaventato).",
+    actions: "Attacco Multiplo (3 attacchi con Gungnir), Squarcio della Realtà, Evocazione degli Einherjar caduti.",
+    legendaryActions: ["Colpo di Gungnir (1 Azione)", "Sguardo dei Corvi / Teletrasporto Etereo (2 Azioni)", "Decreto del Padre di Tutti (3 Azioni)"],
+    notes: "Il sovrano supremo di Asgardr, colui che si impiccò al Frassino Yggdrasill per nove notti e sacrificò il suo occhio alla fonte di Mimir per apprendere il segreto supremo delle Rune.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   },
   {
-    id: "lupo_fenrir",
-    name: "Lupo Invernale di Fenrir",
-    type: "Bestia Mostruosa (Grande)",
-    category: "bestia",
-    cr: "GS 1",
-    hp: 32,
-    maxHp: 32,
-    ac: 13,
-    speed: "15m (50ft)",
-    stats: { str: 16, dex: 13, con: 14, int: 5, wis: 12, cha: 6 },
+    id: "thorr",
+    name: "Thorr (Dio del Tuono)",
+    type: "Grande Divinità (Æsir), Caotico Onorevole",
+    category: "dei",
+    cr: "GS 28",
+    hp: 340, maxHp: 340, ac: 23,
+    speed: "12m (40ft)",
+    stats: { str: 30, dex: 18, con: 28, int: 12, wis: 18, cha: 20 },
+    saves: { str: true, con: true, wis: true },
+    proficientSkills: ["atletica", "intimidire", "percezione", "asatru"],
+    senses: "Scurovisione 36m, Percezione Passiva 24",
+    damageImmunities: "Fulmine, Tuono; Contundente, Perforante e Tagliente da armi non magiche",
+    conditionImmunities: "Spaventato, Paralizzato, Avvelenato, Esausto",
     attacks: [
-      { name: "Morso Zannuto", toHit: "+5", damage: "2d6+3 Perforante", reach: "1.5m" },
-      { name: "Soffio Polare", toHit: "CD 12 Des", damage: "3d6 Freddo", reach: "4.5m cono" }
+      { name: "Mjölnir, il Fracassatore", toHit: "+19", damage: "3d8+10 Contundente + 3d8 Tuono", reach: "3m (Lancio 24m, ritorna in pugno)", desc: "Devasta barriere, scudi e ossa. I colpi critici atterrano e stordiscono i giganti." },
+      { name: "Folgore Celeste", toHit: "CD 21 Des", damage: "8d8 Fulmine", reach: "30m linea" }
     ],
-    traits: "Fiuto e Udito Sviluppati (Vantaggio su Saggezza). Tattica di Branco (Vantaggio ai tiri per colpire se ha alleati entro 1.5m).",
-    actions: "Balzo Selvaggio, Atterramento (bersaglio supera TS For CD 13 o cade prono).",
-    notes: "Fiera predatrice nata dalle nevi eterne dell'Utgardr al servizio della prole di Fenrir.",
-    avatar: "https://images.unsplash.com/photo-1564865878688-9a244444042a?w=150",
-    model: "wolf"
+    traits: "Cintura Megingjörd (Raddoppia la forza titanica). Ira della Tempesta (I nemici entro 3m subiscono 2d8 danni da tuono all'inizio del turno). Resistenza Leggendaria (3/giorno).",
+    actions: "Attacco Multiplo (3 colpi con Mjölnir), Terremoto del Tuono, Richiamo delle Tempeste dei Nove Mondi.",
+    legendaryActions: ["Lancio e Ritorno di Mjölnir (1 Azione)", "Scatto Tempestoso (1 Azione)", "Boato dell'Apocalisse (3 Azioni)"],
+    notes: "Il più potente guerriero di Asgardr, flagello implacabile dei giganti e protettore giurato dell'umanità di Midgardr.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "loki",
+    name: "Loki (Dio dell'Inganno)",
+    type: "Grande Divinità, Caotico Disonorevole",
+    category: "dei",
+    cr: "GS 25",
+    hp: 300, maxHp: 300, ac: 20,
+    speed: "12m (40ft)",
+    stats: { str: 20, dex: 26, con: 20, int: 30, wis: 20, cha: 30 },
+    saves: { str: true, con: true, wis: true, cha: true },
+    proficientSkills: ["inganno", "intimidire", "percezione", "persuasione", "furtivita", "rapidita"],
+    senses: "Vista Vera 36m, Percezione Passiva 22",
+    damageImmunities: "Necrotico, Veleno; Contundente, Perforante e Tagliente da armi non magiche",
+    damageResistances: "Radioso, Freddo, Fuoco",
+    conditionImmunities: "Affascinato, Esausto, Spaventato, Paralizzato",
+    attacks: [
+      { name: "Pugnali delle Ombre di Lopt", toHit: "+17", damage: "2d4+8 Perforante + 4d6 Veleno/Necrotico", reach: "1.5m (Lancio 18m)", desc: "Lame invisibili che corrompono il sangue e l'anima." },
+      { name: "Bagliore del Caos Illusorio", toHit: "CD 21 Sag", damage: "5d8 Psichico", reach: "24m" }
+    ],
+    traits: "Maestro dell'Inganno (Impossibile discernere le sue menzogne con la magia). Mutamento di Forma Illusorio (Può assumere l'aspetto di qualsiasi creatura o bestia). Riflesso Speculare Illusorio (Ogni attacco ha il 50% di colpire un'illusione). Resistenza Leggendaria (3/giorno).",
+    actions: "Attacco Multiplo (3 pugnalate), Scambio di Posizione Etereo, Dissoluzione nell'Ombra.",
+    legendaryActions: ["Scivolata nell'Ombra (1 Azione)", "Lancio di Dardi Velenosi (2 Azioni)", "Onda di Follia e Discordia (3 Azioni)"],
+    notes: "Padre di Fenrir, Hel e Jörmungandr, architetto della morte di Baldr e artefice dell'inizio del Ragnarok.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "freyja",
+    name: "Freyja (Signora del Seidr)",
+    type: "Grande Divinità (Vanir), Neutrale Onorevole",
+    category: "dei",
+    cr: "GS 24",
+    hp: 275, maxHp: 275, ac: 20,
+    speed: "12m (volo 18m)",
+    stats: { str: 18, dex: 22, con: 20, int: 20, wis: 24, cha: 28 },
+    saves: { dex: true, wis: true, cha: true },
+    proficientSkills: ["asatru", "persuasione", "percezione", "intuizione", "addestrare"],
+    senses: "Vista Vera 24m, Percezione Passiva 23",
+    damageResistances: "Freddo, Fulmine; Danni non magici",
+    conditionImmunities: "Affascinato, Spaventato, Paralizzato",
+    attacks: [
+      { name: "Lancia del Destino Vanir", toHit: "+14", damage: "1d10+6 Perforante + 3d8 Radioso", reach: "3m" },
+      { name: "Canto Mistico del Seidr", toHit: "CD 20 Sag", damage: "4d8 Psichico / Radioso", reach: "24m" }
+    ],
+    traits: "Collana Brísingamen (Fascino irresistibile, vantaggio sui tiri salvezza magici). Mantello di Falco (Capacità di volare silenziosamente e trasformarsi in falco). Metà dei Caduti (Rivendica metà dei guerrieri morti in battaglia per Fólkvangr).",
+    actions: "Attacco Multiplo (2 colpi con la lancia), Canto del Fato, Richiamo dei Gatti Celesti.",
+    legendaryActions: ["Volo di Falco (1 Azione)", "Aura Rigenerativa (2 Azioni)", "Comando Sovrano del Seidr (3 Azioni)"],
+    notes: "La dea più gloriosa dei Vanir, maestra suprema della magia del Seidr, signora dell'amore, della fertilità e della guerra.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "heimdallr",
+    name: "Heimdallr (Custode di Bifröst)",
+    type: "Grande Divinità (Æsir), Legale Onorevole",
+    category: "dei",
+    cr: "GS 24",
+    hp: 290, maxHp: 290, ac: 21,
+    speed: "12m (40ft)",
+    stats: { str: 24, dex: 22, con: 24, int: 18, wis: 28, cha: 20 },
+    saves: { str: true, con: true, wis: true },
+    proficientSkills: ["percezione", "intuizione", "atletica", "storia"],
+    senses: "Sensi Infiniti (Sente l'erba crescere e vede a cento leghe giorno e notte), Vista Vera 72m, Percezione Passiva 30",
+    damageImmunities: "Danni non magici",
+    conditionImmunities: "Accecato, Assordato, Affascinato, Sorpreso",
+    attacks: [
+      { name: "Höfund, la Spada Radiosa", toHit: "+15", damage: "2d8+7 Tagliente + 3d8 Radioso", reach: "1.5m" },
+      { name: "Squillo di Gjallarhorn", toHit: "CD 21 Cos", damage: "6d8 Tuono / Frastornato", reach: "36m cono" }
+    ],
+    traits: "Insonne Custode del Ponte dell'Arcobaleno. Vista e Udito Divini (Impossibile coglierlo di sorpresa o nascondersi dalla sua vista). Squillo del Fato.",
+    actions: "Attacco Multiplo (3 fendenti con Höfund), Squillo d'Allarme di Asgardr, Sigillo del Bifröst.",
+    legendaryActions: ["Fendente di Luce (1 Azione)", "Bagliore Iridato (2 Azioni)", "Ruggito del Gjallarhorn (3 Azioni)"],
+    notes: "Il guardiano biondo di Asgardr, nemico giurato di Loki contro il quale combatterà fino alla morte reciproca al Ragnarok.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "tyr",
+    name: "Tyr (Dio della Giustizia e della Guerra)",
+    type: "Grande Divinità (Æsir), Legale Onorevole",
+    category: "dei",
+    cr: "GS 26",
+    hp: 310, maxHp: 310, ac: 22,
+    speed: "12m (40ft)",
+    stats: { str: 26, dex: 20, con: 26, int: 16, wis: 22, cha: 22 },
+    saves: { str: true, con: true, wis: true },
+    proficientSkills: ["atletica", "intimidire", "storia", "asatru"],
+    senses: "Vista Vera 24m, Percezione Passiva 22",
+    damageImmunities: "Danni non magici",
+    conditionImmunities: "Spaventato, Affascinato, Paralizzato",
+    attacks: [
+      { name: "Spada del Giuramento Sacro", toHit: "+16", damage: "3d8+8 Tagliente + 2d8 Radioso", reach: "1.5m" },
+      { name: "Colpo Monomano di Giustizia", toHit: "+16", damage: "2d10+8 Contundente", reach: "1.5m" }
+    ],
+    traits: "Moncone del Sacrificio (Sacrificò la mano destra nella fauce di Fenrir per legarlo; immune a qualsiasi disarmo o presa). Aura di Coraggio Incrollabile.",
+    actions: "Attacco Multiplo (3 attacchi con la spada), Giudizio del Thing, Scudo della Legge.",
+    legendaryActions: ["Fendente della Legge (1 Azione)", "Imposizione del Giuramento (2 Azioni)", "Giudizio del Fato (3 Azioni)"],
+    notes: "Il dio del diritto, del coraggio e dell'onore marziale, destinato a scontrarsi e morire con il mastino infernale Garmr.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "hel",
+    name: "Hel (Regina dei Morti)",
+    type: "Grande Divinità (Regina dell'Oltretomba), Neutrale Disonorevole",
+    category: "dei",
+    cr: "GS 24",
+    hp: 280, maxHp: 280, ac: 20,
+    speed: "12m (40ft)",
+    stats: { str: 18, dex: 18, con: 22, int: 24, wis: 24, cha: 24 },
+    saves: { con: true, int: true, wis: true, cha: true },
+    proficientSkills: ["inganno", "intimidire", "religione", "percezione"],
+    senses: "Scurovisione 36m, Vista Cieca 18m, Percezione Passiva 23",
+    damageImmunities: "Necrotico, Freddo, Veleno; Danni da armi non magiche",
+    conditionImmunities: "Affascinato, Esausto, Spaventato, Paralizzato, Avvelenato",
+    attacks: [
+      { name: "Tocco della Morte Eterna", toHit: "+14", damage: "3d10+7 Necrotico + 2d8 Freddo", reach: "1.5m", desc: "I PF massimi della creatura vengono ridotti di un ammontare pari al danno necrotico." },
+      { name: "Onda Gelida dell'Eljudnir", toHit: "CD 21 Cos", damage: "6d8 Freddo / Necrotico", reach: "18m cono" }
+    ],
+    traits: "Sembiante Duplice (Metà corpo viva e bellissima, metà scheletrica e putrefatta). Aura Sepolcrale (I nemici entro 6m non possono recuperare punti ferita). Regina dei Caduti di Malattia e Vecchiaia.",
+    actions: "Attacco Multiplo (2 tocchi letali), Evoca Legione di Draugr (2d4 scheletri o draugr), Maledizione di Helheimr.",
+    legendaryActions: ["Tocco Spettrale (1 Azione)", "Spirito dei Sepolcri (2 Azioni)", "Gelo dell'Abisso Infernale (3 Azioni)"],
+    notes: "Figlia di Loki e Angrboða, sovrana del regno nebbioso e freddo dell'Helheimr dove dimorano le anime non morte con onore in battaglia.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "fenrir",
+    name: "Fenrir (Il Grande Lupo del Ragnarok)",
+    type: "Bestia Titanica (Gargantuesca), Caotico Disonorevole",
+    category: "boss",
+    cr: "GS 28",
+    hp: 420, maxHp: 420, ac: 21,
+    speed: "18m (60ft)",
+    stats: { str: 30, dex: 26, con: 28, int: 18, wis: 20, cha: 20 },
+    saves: { str: true, dex: true, con: true, wis: true },
+    proficientSkills: ["percezione", "furtivita", "atletica", "intimidire"],
+    senses: "Scurovisione 36m, Fiuto Implacabile 72m, Percezione Passiva 25",
+    damageImmunities: "Veleno; Contundente, Perforante e Tagliente da armi non magiche",
+    damageResistances: "Freddo, Fuoco, Tuono",
+    conditionImmunities: "Affascinato, Spaventato, Paralizzato, Prono",
+    attacks: [
+      { name: "Morso Inghiotti-Dei", toHit: "+18", damage: "4d12+10 Perforante + 3d8 Necrotico", reach: "3m", desc: "Se il bersaglio è Grande o inferiore viene inghiottito se scende a 0 PF." },
+      { name: "Zampata Squartatrice", toHit: "+18", damage: "3d10+10 Tagliente", reach: "3m" }
+    ],
+    traits: "Spezzatore di Gleipnir (Immune a qualsiasi catena, vincolo magico o paralisi). Fauci del Mondo (La bocca aperta tocca contemporaneamente terra e cielo). Ruggito della Fine dei Tempi.",
+    actions: "Attacco Multiplo (1 Morso e 2 Zampate), Balzo Titanico, Ruggito Apocalittico (CD 21 Sag o Spaventato e Stordito).",
+    legendaryActions: ["Zampata Fulminea (1 Azione)", "Scatto Selvaggio (1 Azione)", "Morso Devastatore (2 Azioni)"],
+    notes: "Il mostruoso lupo figlio di Loki, destinato a spezzare le catene di Gleipnir, divorare il sole e inghiottire Odino nella battaglia finale del Ragnarok.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "jormungandr",
+    name: "Jörmungandr (Il Serpente di Midgardr)",
+    type: "Drago Titanico (Gargantuesco), Caotico Disonorevole",
+    category: "boss",
+    cr: "GS 30",
+    hp: 480, maxHp: 480, ac: 22,
+    speed: "15m (nuoto 24m)",
+    stats: { str: 30, dex: 10, con: 30, int: 10, wis: 18, cha: 16 },
+    saves: { str: true, con: true, wis: true },
+    proficientSkills: ["percezione", "atletica", "intimidire"],
+    senses: "Vista Cieca 36m, Scurovisione 36m, Percezione Passiva 24",
+    damageImmunities: "Veleno, Freddo, Acido; Armi non magiche",
+    conditionImmunities: "Avvelenato, Affascinato, Paralizzato, Pietrificato, Prono",
+    attacks: [
+      { name: "Morso Tossico dell'Abisso", toHit: "+19", damage: "4d12+10 Perforante + 6d8 Veleno", reach: "4.5m" },
+      { name: "Stretta Soffocante della Coda", toHit: "+19", damage: "4d10+10 Contundente", reach: "6m", desc: "Bersaglio afferrato e stritolato (CD 23 Forza per liberarsi)." },
+      { name: "Soffio Letale di Eitr", toHit: "CD 23 Cos", damage: "12d8 Veleno / Acido", reach: "27m cono" }
+    ],
+    traits: "Serpente del Mondo (Il suo corpo cinge l'intero Midgardr). Sangue Velenoso di Eitr (Le armi da mischia che lo colpiscono subiscono corrosione). Maremoto Tellurico.",
+    actions: "Attacco Multiplo (1 Morso, 1 Stretta di Coda), Soffio di Eitr (Ricarica 5-6), Maremoto Oceanico.",
+    legendaryActions: ["Colpo di Coda (1 Azione)", "Stretta Mortale (2 Azioni)", "Spruzzo Tossico (2 Azioni)"],
+    notes: "Il gigantesco serpente oceanico figlio di Loki, nemico predestinato di Thorr col quale si uccideranno a vicenda al termine di nove passi.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "surtr",
+    name: "Surtr (Signore di Muspellsheimr)",
+    type: "Gigante di Fuoco Titanico (Enorme), Caotico Disonorevole",
+    category: "boss",
+    cr: "GS 28",
+    hp: 390, maxHp: 390, ac: 22,
+    speed: "15m (50ft)",
+    stats: { str: 30, dex: 14, con: 28, int: 18, wis: 20, cha: 22 },
+    saves: { str: true, con: true, wis: true, cha: true },
+    proficientSkills: ["atletica", "intimidire", "percezione"],
+    senses: "Scurovisione 36m, Vista Cieca 18m, Percezione Passiva 23",
+    damageImmunities: "Fuoco; Armi non magiche",
+    conditionImmunities: "Affascinato, Spaventato, Paralizzato, Avvelenato",
+    attacks: [
+      { name: "Spada Fiammeggiante del Crepuscolo", toHit: "+18", damage: "4d10+10 Tagliente + 4d8 Fuoco", reach: "3m", desc: "Lama ardente più brillante del sole che brucia l'aria e dissolve ogni armatura." },
+      { name: "Lancio del Magma Incandescente", toHit: "+18", damage: "4d8+10 Contundente + 3d8 Fuoco", reach: "18/72m" }
+    ],
+    traits: "Aura di Muspel (Ogni creatura entro 3m subisce 2d8 danni da fuoco all'inizio del turno). Flagello di Yggdrasill (Incendierà i Nove Mondi con la sua spada). Resistenza Leggendaria (3/giorno).",
+    actions: "Attacco Multiplo (3 fendenti con la Spada del Crepuscolo), Eruzione Tellurica, Pioggia di Lapilli ardenti.",
+    legendaryActions: ["Fendente di Fiamma (1 Azione)", "Muro di Magma (2 Azioni)", "Incendio dei Mondi (3 Azioni)"],
+    notes: "Il sovrano dei giganti del fuoco di Muspellsheimr, custode della lama ardente primordiale destinato a uccidere Freyr e bruciare il cosmo.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "fafnir",
+    name: "Fafnir (Il Drago dell'Oro Maledetto)",
+    type: "Drago Enorme, Legale Disonorevole",
+    category: "boss",
+    cr: "GS 18",
+    hp: 256, maxHp: 256, ac: 19,
+    speed: "12m (volo 24m)",
+    stats: { str: 25, dex: 14, con: 23, int: 18, wis: 15, cha: 19 },
+    saves: { dex: true, con: true, wis: true, cha: true },
+    proficientSkills: ["furtivita", "percezione", "inganno", "intimidire"],
+    senses: "Vista Cieca 18m, Scurovisione 36m, Percezione Passiva 22",
+    damageImmunities: "Veleno, Fuoco",
+    conditionImmunities: "Affascinato, Spaventato, Paralizzato, Avvelenato",
+    attacks: [
+      { name: "Morso del Drago Corrotto", toHit: "+13", damage: "2d10+7 Perforante + 2d8 Veleno", reach: "3m" },
+      { name: "Artigli Dilanianti", toHit: "+13", damage: "2d6+7 Tagliente", reach: "1.5m" },
+      { name: "Soffio Velenoso Maledetto", toHit: "CD 19 Cos", damage: "10d8 Veleno", reach: "18m cono" }
+    ],
+    traits: "Aura di Cupidigia (Le creature vicine devono superare TS Sag CD 17 o essere ossessionate dal suo tesoro d'oro). Squame d'Acciaio Antico (Resistenza ai colpi non sferrati da una lama leggendaria come Gramr).",
+    actions: "Attacco Multiplo (1 Morso e 2 Artigli), Soffio Tossico (Ricarica 5-6), Presenza Terrificante.",
+    legendaryActions: ["Spazzata di Coda (1 Azione)", "Battito d'Ali (2 Azioni)"],
+    notes: "Un tempo nobile dvergar figlio di Hreidmar, trasformato in una bestia mostruosa dalla corruzione dell'anello maledetto di Andvari.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "garmr",
+    name: "Garmr (Il Mastino Infernale di Helheimr)",
+    type: "Bestia Enorme (Segugio Infernale), Neutrale Malvagio",
+    category: "boss",
+    cr: "GS 14",
+    hp: 195, maxHp: 195, ac: 18,
+    speed: "15m (50ft)",
+    stats: { str: 24, dex: 16, con: 22, int: 8, wis: 16, cha: 12 },
+    saves: { str: true, dex: true, con: true },
+    proficientSkills: ["percezione", "atletica", "furtivita"],
+    senses: "Scurovisione 36m, Fiuto del Sangue 36m, Percezione Passiva 21",
+    damageImmunities: "Freddo, Necrotico",
+    conditionImmunities: "Affascinato, Spaventato, Paralizzato",
+    attacks: [
+      { name: "Morso Insanguinato della Gnipahellir", toHit: "+12", damage: "3d10+7 Perforante + 2d8 Necrotico", reach: "3m", desc: "Bersaglio atterrato e trattenuto nelle fauci insanguinate." },
+      { name: "Urlo Infernale dell'Oltretomba", toHit: "CD 17 Sag", damage: "4d8 Tuono / Spaventato", reach: "12m raggio" }
+    ],
+    traits: "Custode delle Porte della Caverna Gnipahellir. Pelo grondante di sangue delle anime prave. Fiuto della Morte.",
+    actions: "Attacco Multiplo (2 Morsi Zannuti), Ruggito Infernale, Balzo Dilaniante.",
+    legendaryActions: ["Zampata Spezzaossa (1 Azione)", "Morso Rabbioso (2 Azioni)"],
+    notes: "Il feroce mastino a quattro occhi incatenato all'ingresso del regno di Hel, destinato a battersi all'ultimo respiro contro il dio Tyr.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   },
   {
     id: "jotunn_gelo",
-    name: "Jotunn del Gelo",
-    type: "Gigante (Grande)",
+    name: "Jötunn del Gelo (Gigante delle Montagne)",
+    type: "Gigante Enorme, Neutrale Disonorevole",
     category: "gigante",
-    cr: "GS 5",
-    hp: 110,
-    maxHp: 110,
-    ac: 15,
+    cr: "GS 8",
+    hp: 138, maxHp: 138, ac: 15,
     speed: "12m (40ft)",
-    stats: { str: 21, dex: 9, con: 18, int: 9, wis: 10, cha: 12 },
+    stats: { str: 23, dex: 9, con: 21, int: 9, wis: 10, cha: 12 },
+    saves: { str: true, con: true },
+    proficientSkills: ["atletica", "percezione"],
+    senses: "Scurovisione 18m, Percezione Passiva 13",
+    damageImmunities: "Freddo",
+    damageVulnerabilities: "Fuoco",
     attacks: [
-      { name: "Clava Monolitica di Ghiaccio", toHit: "+8", damage: "3d8+5 Contundente", reach: "3m" },
-      { name: "Lancio del Masso", toHit: "+8", damage: "3d10+5 Contundente", reach: "18/72m" }
+      { name: "Ascia Bipenne Titanica", toHit: "+9", damage: "3d12+6 Tagliente + 1d8 Freddo", reach: "3m" },
+      { name: "Lancio del Macigno Glaciale", toHit: "+9", damage: "3d10+6 Contundente", reach: "18/72m" }
     ],
-    traits: "Immunità assoluta al Freddo. Vulnerabilità al Fuoco. Aura di Fimbulwinter (terreno ghiacciato attorno al gigante).",
-    actions: "Attacco Multiplo (2 colpi di clava), Schiacciamento tellurico.",
-    notes: "Figlio primordiale di Ymir armato di una colonna di roccia e ghiaccio per annientare gli intrusi.",
-    avatar: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150",
-    model: "giant"
+    traits: "Nato dal corpo primordiale di Ymir. Fimbulwinter (Il terreno entro 3m è terreno difficile di ghiaccio scivoloso).",
+    actions: "Attacco Multiplo (2 colpi con l'Ascia Bipenne), Terremoto del Piede, Lancio del Masso.",
+    notes: "Gigante glaciale delle alture dell'Utgardr, eterno nemico dei clan vichinghi e guerriero implacabile nelle bufere.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   },
   {
-    id: "guerriero_predone",
-    name: "Guerriero Predone del Clan",
-    type: "Umanoide (Medio)",
-    category: "umanoide",
-    cr: "GS 1/2",
-    hp: 18,
-    maxHp: 18,
-    ac: 14,
-    speed: "9m (30ft)",
-    stats: { str: 15, dex: 12, con: 14, int: 10, wis: 11, cha: 9 },
+    id: "geri_freki",
+    name: "Geri & Freki (I Lupi Celesti di Odhinn)",
+    type: "Bestia Grande, Legale Onorevole",
+    category: "bestia",
+    cr: "GS 8",
+    hp: 120, maxHp: 120, ac: 20,
+    speed: "18m (60ft)",
+    stats: { str: 22, dex: 22, con: 17, int: 11, wis: 16, cha: 10 },
+    saves: { dex: true, wis: true },
+    proficientSkills: ["percezione", "furtivita", "sopravvivenza"],
+    senses: "Vista Spirituale 36m, Fiuto delle Tracce 72m, Percezione Passiva 21",
+    damageImmunities: "Veleno",
+    damageResistances: "Danni da armi non magiche",
     attacks: [
-      { name: "Ascia da Battaglia Norrena", toHit: "+4", damage: "1d8+2 Tagliente", reach: "1.5m" },
-      { name: "Giavellotto da Lancio", toHit: "+4", damage: "1d6+2 Perforante", reach: "9/36m" }
+      { name: "Morso Spirituale dei Járnviðr", toHit: "+9", damage: "2d8+6 Perforante + 2d6 Radioso", reach: "1.5m", desc: "Bersaglio supera TS For CD 17 o cade prono." },
+      { name: "Assalto di Branco Coordinato", toHit: "+9", damage: "2d6+6 Tagliente", reach: "1.5m" }
     ],
-    traits: "Frenesia di Battaglia (Vantaggio sui TS contro Spaventato). Muro di Scudi Vichingo (+2 CA con alleato a contatto).",
-    actions: "Furia Razziale, Urlo di Guerra intimidatorio.",
-    notes: "Incursore dei fiordi pronto a combattere all'ultimo sangue per l'onore del proprio Jarl.",
-    avatar: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=150",
-    model: "berserker"
+    traits: "Tracciatore Spirituale (Interagiscono direttamente con il mondo degli spiriti e le anime). Tattica di Branco di Valhalla (Vantaggio sui tiri per colpire vicino a un alleato).",
+    actions: "Attacco Multiplo (2 colpi di zanna), Atterramento Feroce, Balzo Silenzioso.",
+    notes: "I due lupi compagni inseparabili del Padre di Tutti, nutriti con il cibo della tavola di Odino nel Valhalla.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   },
   {
-    id: "valkyria_corrotta",
-    name: "Valkyria d'Odhinn",
-    type: "Celestiale Boss (Medio)",
+    id: "sleipnir",
+    name: "Sleipnir (Destriero a Otto Zampe)",
+    type: "Bestia Grande, Legale Onorevole",
+    category: "bestia",
+    cr: "GS 8",
+    hp: 145, maxHp: 145, ac: 18,
+    speed: "18m (volo 18m, nuoto 18m)",
+    stats: { str: 24, dex: 18, con: 20, int: 11, wis: 17, cha: 15 },
+    saves: { str: true, con: true },
+    proficientSkills: ["atletica", "percezione"],
+    senses: "Vista Magica 36m, Percezione Passiva 19",
+    damageImmunities: "Veleno",
+    attacks: [
+      { name: "Zoccolo delle Otto Zampe", toHit: "+10", damage: "2d8+7 Contundente", reach: "1.5m" },
+      { name: "Carica Tonante tra i Mondi", toHit: "+10", damage: "3d10+7 Contundente + 2d8 Tuono", reach: "3m" }
+    ],
+    traits: "Volo tra i Nove Mondi (Può cavalcare nell'aria, sulle acque e tra le dimensioni dei Nove Mondi). Otto Zampe Inarrestabili (Immune al terreno difficile).",
+    actions: "Attacco Multiplo (2 Zoccolate), Salto Dimensionale del Bifröst, Calpestamento.",
+    notes: "Il destriero supremo di Odino, nato dall'unione di Loki con il cavallo Svadilfari durante la costruzione delle mura di Asgardr.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "valkyria_odhinn",
+    name: "Valkyria d'Odhinn (Sceglitrice dei Caduti)",
+    type: "Celestiale Medio, Neutrale Onorevole",
     category: "boss",
-    cr: "GS 4",
-    hp: 75,
-    maxHp: 75,
-    ac: 16,
+    cr: "GS 5",
+    hp: 85, maxHp: 85, ac: 17,
     speed: "9m (volo 18m)",
-    stats: { str: 17, dex: 16, con: 15, int: 12, wis: 14, cha: 16 },
+    stats: { str: 18, dex: 16, con: 16, int: 12, wis: 16, cha: 16 },
+    saves: { con: true, wis: true },
+    proficientSkills: ["percezione", "religione", "intimidire", "atletica"],
+    senses: "Scurovisione 18m, Percezione Passiva 16",
+    damageResistances: "Freddo, Fulmine, Radioso; Armi non magiche",
     attacks: [
-      { name: "Lancia di Valhalla", toHit: "+6", damage: "1d10+3 Perforante + 1d8 Radioso", reach: "3m" },
-      { name: "Dardo Celestiale Runiche", toHit: "+5", damage: "3d6 Radioso", reach: "36m" }
+      { name: "Lancia di Valhalla", toHit: "+7", damage: "1d10+4 Perforante + 1d8 Radioso", reach: "3m" },
+      { name: "Dardo Runiche Celestiale", toHit: "+6", damage: "3d6 Radioso", reach: "36m" }
     ],
-    traits: "Resistenza a freddo, fuoco e danni radiosi. Ali dorate eteree. Sguardo del Padre di Tutti.",
-    actions: "Attacco Multiplo (2 colpi con la lancia), Canto dei Caduti (TS Sag CD 14 o Spaventato).",
-    notes: "Giudice celeste discesa dalla dimora degli Dei per testare il valore dei guerrieri di Midgard.",
-    avatar: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150",
-    model: "valkyrie"
+    traits: "Ali d'Oro del Valhalla (Volo etereo senza provocare attacchi di opportunità). Favore dei Caduti (Vantaggio sui tiri contro creature a meno di metà PF).",
+    actions: "Attacco Multiplo (2 colpi di lancia), Canto della Gloria (Alleati entro 9m hanno +1d4 ai tiri per colpire).",
+    notes: "Guerriera alata inviata dal Padre di Tutti per scegliere i guerrieri caduti più valorosi e condurli al Valhalla.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   },
   {
     id: "sciamano_hel",
     name: "Sciamano dell'Helheimr",
-    type: "Umanoide Incantatore (Medio)",
+    type: "Umanoide Medio (Seidmadhr Corrotto), Caotico Malvagio",
+    category: "non-morto",
+    cr: "GS 4",
+    hp: 58, maxHp: 58, ac: 13,
+    speed: "9m (30ft)",
+    stats: { str: 10, dex: 14, con: 14, int: 14, wis: 18, cha: 13 },
+    saves: { wis: true, int: true },
+    proficientSkills: ["asatru", "religione", "inganno", "percezione"],
+    senses: "Vista Cieca 9m, Percezione Passiva 16",
+    damageResistances: "Necrotico, Freddo",
+    attacks: [
+      { name: "Bastone delle Rune d'Ossa", toHit: "+5", damage: "1d6+2 Contundente + 2d6 Necrotico", reach: "1.5m" },
+      { name: "Dardo dell'Abisso Infernale", toHit: "+6", damage: "3d8 Necrotico", reach: "24m" }
+    ],
+    traits: "Incantatore del Seidr Oscuro (CD 14, bonus attacco incantesimi +6). Sussurri dei Defunti (I nemici entro 6m hanno svantaggio sui TS Saggezza).",
+    actions: "Attacco Multiplo (2 dardi necrotici), Rianima Scheletro dal Permafrost, Maledizione delle Ossa Gelide.",
+    notes: "Officiante dei riti sacrileghi legati alla dimora nebbiosa di Hel, capace di richiamare i guerrieri morti dal ghiaccio.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "lupo_invernale",
+    name: "Lupo Invernale di Fenrir",
+    type: "Bestia Grande, Caotico Malvagio",
+    category: "bestia",
+    cr: "GS 3",
+    hp: 75, maxHp: 75, ac: 15,
+    speed: "15m (50ft)",
+    stats: { str: 18, dex: 14, con: 16, int: 6, wis: 12, cha: 8 },
+    saves: { dex: true, con: true },
+    proficientSkills: ["percezione", "furtivita"],
+    senses: "Fiuto e Udito Sviluppati, Scurovisione 18m, Percezione Passiva 15",
+    damageImmunities: "Freddo",
+    attacks: [
+      { name: "Morso Zannuto Glaciale", toHit: "+6", damage: "2d6+4 Perforante + 1d6 Freddo", reach: "1.5m", desc: "Bersaglio deve superare TS For CD 14 o cadere prono." },
+      { name: "Soffio del Gelo Polare", toHit: "CD 13 Des", damage: "4d6 Freddo", reach: "4.5m cono" }
+    ],
+    traits: "Tattica di Branco (Vantaggio sui tiri per colpire se ha alleati a 1.5m). Passo nella Bufera (Nessun malus da neve o ghiaccio).",
+    actions: "Morso Zannuto, Soffio Polare (Ricarica 5-6), Balzo Rapido.",
+    notes: "Predatore nato dalle profondità dei boschi di Járnviðr che caccia nei branchi al servizio della prole di Fenrir.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "draugr_cripte",
+    name: "Draugr delle Cripte",
+    type: "Non-Morto Medio (Guerriero del Tumulo), Caotico Disonorevole",
     category: "non-morto",
     cr: "GS 2",
-    hp: 36,
-    maxHp: 36,
-    ac: 12,
+    hp: 45, maxHp: 45, ac: 14,
     speed: "9m (30ft)",
-    stats: { str: 10, dex: 12, con: 12, int: 12, wis: 16, cha: 13 },
+    stats: { str: 16, dex: 11, con: 16, int: 6, wis: 10, cha: 6 },
+    saves: { con: true, str: true },
+    proficientSkills: ["atletica", "intimidire"],
+    senses: "Scurovisione 18m, Percezione Passiva 10",
+    damageImmunities: "Veleno",
+    damageResistances: "Freddo, Necrotico",
+    conditionImmunities: "Avvelenato, Esausto",
     attacks: [
-      { name: "Bastone delle Ossa Intagliato", toHit: "+3", damage: "1d6 Contundente + 1d6 Necrotico", reach: "1.5m" },
-      { name: "Dardo d'Ombra Runiche", toHit: "+5", damage: "2d8 Necrotico", reach: "24m" }
+      { name: "Spada Arrugginita del Sepolcro", toHit: "+5", damage: "1d8+3 Tagliente + 1d6 Necrotico", reach: "1.5m" },
+      { name: "Tocco Cadaverico Ingelosente", toHit: "+5", damage: "2d6 Freddo", reach: "1.5m" }
     ],
-    traits: "Incantatore di Helheimr (CD Salvezza 13, attacco incantesimi +5). Vista Cieca 9 metri nel buio magico.",
-    actions: "Evocazione delle Ossa Risorte, Maledizione del Gelo Eterno.",
-    notes: "Mistici e officianti dei riti funebri legati alla dea Hel, maestri della necromanzia runica.",
-    avatar: "https://images.unsplash.com/photo-1514539079130-25950c84af65?w=150",
-    model: "runemaster"
+    traits: "Tenacia del Non-Morto (Se ridotto a 0 PF effettua TS Costituzione con CD 5+danni per tornare a 1 PF). Odore della Decomposizione.",
+    actions: "Attacco Multiplo (2 colpi con la spada), Sguardo Terrificante della Tomba.",
+    notes: "Antico fiero guerriero vichingo rianimato dalla magia oscura per difendere il tesoro del suo tumulo funerario nel permafrost.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
+  },
+  {
+    id: "guerriero_predone",
+    name: "Guerriero Predone del Clan",
+    type: "Umanoide Medio (Berserker Vichingo), Caotico Neutrale",
+    category: "umanoide",
+    cr: "GS 2",
+    hp: 38, maxHp: 38, ac: 13,
+    speed: "9m (30ft)",
+    stats: { str: 16, dex: 12, con: 15, int: 10, wis: 11, cha: 9 },
+    saves: { str: true, con: true },
+    proficientSkills: ["atletica", "intimidire", "sopravvivenza"],
+    senses: "Percezione Passiva 11",
+    attacks: [
+      { name: "Ascia da Battaglia Norrena", toHit: "+5", damage: "1d8+3 Tagliente (o 1d10+3 a due mani)", reach: "1.5m" },
+      { name: "Giavellotto di Frassino", toHit: "+5", damage: "1d6+3 Perforante", reach: "9/36m" }
+    ],
+    traits: "Frenesia di Sangue (Vantaggio sui tiri salvezza contro Spaventato). Muro di Scudi (+2 CA se adiacente a un alleato armato di scudo).",
+    actions: "Attacco Multiplo (2 colpi di ascia), Urlo di Guerra intimidatorio.",
+    notes: "Incursore veterano dei fiordi di Norvegr pronto a dare la vita per il suo Jarl e guadagnarsi il Valhalla.",
+    avatar: "",
+    model: "",
+    custom3dModel: null
   }
 ];
 
 window.getCampaignEnemies = function(campCode) {
   const camp = window.dbState && window.dbState.campaigns ? window.dbState.campaigns[campCode] : null;
   if (!camp) return window.DEFAULT_NORSE_BESTIARY;
-  if (!camp.enemies || !Array.isArray(camp.enemies) || camp.enemies.length === 0) {
-    camp.enemies = JSON.parse(JSON.stringify(window.DEFAULT_NORSE_BESTIARY));
+  if (!camp.enemies || !Array.isArray(camp.enemies) || camp.enemies.length < window.DEFAULT_NORSE_BESTIARY.length) {
+    const existingIds = new Set((camp.enemies || []).map(e => e.id));
+    const merged = [...(camp.enemies || [])];
+    window.DEFAULT_NORSE_BESTIARY.forEach(defEnemy => {
+      if (!existingIds.has(defEnemy.id)) {
+        merged.push(JSON.parse(JSON.stringify(defEnemy)));
+      }
+    });
+    camp.enemies = merged.length >= window.DEFAULT_NORSE_BESTIARY.length ? merged : JSON.parse(JSON.stringify(window.DEFAULT_NORSE_BESTIARY));
     window.saveDB?.();
   }
   return camp.enemies;
@@ -1016,7 +1409,7 @@ window.filterDmEnemies = function(cat) {
   window.activeDmEnemyFilter = cat;
   document.querySelectorAll('.dm-enemy-filter-btn').forEach(b => {
     if (b.dataset.filter === cat) {
-      b.className = 'dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-red-600 text-white shadow-sm';
+      b.className = 'dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-amber-600 text-white shadow-sm';
     } else {
       b.className = 'dm-enemy-filter-btn px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300 hover:text-white';
     }
@@ -1042,21 +1435,27 @@ window.renderDmEnemiesViews = function() {
 
     const cat = (e.category || '').toLowerCase() || (e.type || '').toLowerCase();
     const matchCat = (filterCat === 'tutti') ||
-      (filterCat === 'non-morto' && (cat.includes('non') || cat.includes('mort') || cat.includes('draugr'))) ||
+      (filterCat === 'dei' && (cat.includes('dei') || cat.includes('divin') || cat.includes('aesir') || cat.includes('vanir'))) ||
+      (filterCat === 'boss' && (cat.includes('boss') || cat.includes('dei') || (e.hp >= 150))) ||
       (filterCat === 'gigante' && (cat.includes('gigant') || cat.includes('jotunn'))) ||
-      (filterCat === 'bestia' && (cat.includes('bestia') || cat.includes('lupo') || cat.includes('mostr'))) ||
-      (filterCat === 'umanoide' && (cat.includes('uman') || cat.includes('viching') || cat.includes('clan') || cat.includes('guerrier'))) ||
-      (filterCat === 'boss' && (cat.includes('boss') || cat.includes('celest') || (e.hp >= 70)));
+      (filterCat === 'bestia' && (cat.includes('bestia') || cat.includes('lupo') || cat.includes('drago'))) ||
+      (filterCat === 'non-morto' && (cat.includes('non') || cat.includes('mort') || cat.includes('draugr') || cat.includes('schelet'))) ||
+      (filterCat === 'umanoide' && (cat.includes('uman') || cat.includes('viching') || cat.includes('clan') || cat.includes('berserk')));
 
     return matchSearch && matchCat;
   });
 
+  const iconSword = window.getNorseIcon ? window.getNorseIcon('swords', 'w-3.5 h-3.5 inline mr-1 text-amber-300') : '';
+  const iconQuill = window.getNorseIcon ? window.getNorseIcon('quill', 'w-3 h-3 inline mr-1') : '';
+  const iconClone = window.getNorseIcon ? window.getNorseIcon('clone', 'w-3 h-3 inline mr-1') : '';
+  const iconTrash = window.getNorseIcon ? window.getNorseIcon('trash', 'w-3 h-3 inline mr-1') : '';
+  const iconStl = window.getNorseIcon ? window.getNorseIcon('stl3d', 'w-3.5 h-3.5 text-cyan-400 inline mr-1') : '';
+
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="col-span-full norse-panel rounded-2xl p-8 text-center text-slate-400 space-y-2 border border-slate-800">
-        <span class="text-3xl">⚔️</span>
         <h4 class="font-cinzel font-bold text-sm text-white">Nessun nemico trovato con questi filtri</h4>
-        <p class="text-xs text-slate-500">Crea una nuova scheda nemico con il pulsante "+ Crea Nuova Scheda Nemico" in alto.</p>
+        <p class="text-xs text-slate-500">Crea una nuova scheda con il pulsante "+ Crea Nuova Scheda Nemico".</p>
       </div>
     `;
     return;
@@ -1066,57 +1465,75 @@ window.renderDmEnemiesViews = function() {
     const atk1 = (e.attacks && e.attacks[0]) || null;
     const atk2 = (e.attacks && e.attacks[1]) || null;
     const stats = e.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+    const hasStl = !!(e.custom3dModel && e.custom3dModel.dataUrl);
+
+    // Initial letter for tactical token badge
+    const initial = (e.name || 'N').charAt(0).toUpperCase();
 
     return `
-      <div class="norse-panel rounded-2xl p-4 bg-gradient-to-b from-slate-900 to-slate-950 border border-red-500/30 hover:border-red-400 transition flex flex-col justify-between space-y-3 shadow-lg group">
+      <div class="norse-panel rounded-2xl p-4 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 hover:border-amber-500/50 transition flex flex-col justify-between space-y-3 shadow-lg group">
         <div>
-          <!-- Header Card: Nome, Tipo, GS, Icona -->
+          <!-- Header Card: Token Iniziale, Nome, Tipo, GS -->
           <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-2.5">
             <div class="flex items-center gap-2.5">
-              <img src="${e.avatar || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150'}" alt="${e.name}" class="w-10 h-10 rounded-xl object-cover border border-red-500/50 shadow">
-              <div>
-                <h4 class="font-cinzel font-black text-sm text-white group-hover:text-red-300 transition truncate max-w-[170px] sm:max-w-[200px]">${e.name}</h4>
+              <div class="w-10 h-10 rounded-xl bg-slate-950 border-2 border-amber-500/50 flex items-center justify-center font-cinzel font-black text-amber-300 text-base shadow shadow-amber-950/50">
+                ${initial}
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-cinzel font-black text-sm text-white group-hover:text-amber-300 transition truncate max-w-[170px] sm:max-w-[200px]">${e.name}</h4>
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/30">${e.cr || 'GS 1'}</span>
-                  <span class="text-[10px] text-slate-400 truncate max-w-[120px]">${e.type || 'Mostro'}</span>
+                  <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-500/30">${e.cr || 'GS 1'}</span>
+                  <span class="text-[10px] text-slate-400 truncate max-w-[120px]">${e.type || 'Creatura'}</span>
                 </div>
               </div>
             </div>
 
             <!-- Badge PF & CA -->
-            <div class="text-right">
+            <div class="text-right flex-shrink-0">
               <div class="font-mono font-extrabold text-sm text-emerald-400">${e.hp} <span class="text-[9px] text-slate-400 font-sans">PF</span></div>
               <div class="text-[10px] text-amber-300 font-mono">CA ${e.ac || 12}</div>
             </div>
           </div>
 
+          <!-- Modello 3D STL Status Indicator -->
+          <div class="py-1.5 flex items-center justify-between text-[10px]">
+            <span class="text-slate-400">Miniatura 3D VTT:</span>
+            ${hasStl ? `
+              <span class="text-cyan-300 font-mono font-semibold flex items-center gap-1 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+                ${iconStl} STL Collegato
+              </span>
+            ` : `
+              <span class="text-slate-500 font-mono text-[9px]">Basetta Tattica Base</span>
+            `}
+          </div>
+
           <!-- Caratteristiche Pills -->
-          <div class="grid grid-cols-6 gap-1 text-center py-2 border-b border-slate-800/60 text-[9px] font-mono">
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">FOR</span><strong class="text-slate-200">${stats.str}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">DES</span><strong class="text-slate-200">${stats.dex}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">COS</span><strong class="text-slate-200">${stats.con}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">INT</span><strong class="text-slate-200">${stats.int}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">SAG</span><strong class="text-slate-200">${stats.wis}</strong></div>
-            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">CAR</span><strong class="text-slate-200">${stats.cha}</strong></div>
+          <div class="grid grid-cols-6 gap-1 text-center py-1.5 border-y border-slate-800/60 text-[9px] font-mono">
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">FOR</span><strong class="text-slate-200">${stats.str || 10}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">DES</span><strong class="text-slate-200">${stats.dex || 10}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">COS</span><strong class="text-slate-200">${stats.con || 10}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">INT</span><strong class="text-slate-200">${stats.int || 10}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">SAG</span><strong class="text-slate-200">${stats.wis || 10}</strong></div>
+            <div class="bg-slate-950/80 rounded py-0.5"><span class="text-slate-500 text-[8px] block">CAR</span><strong class="text-slate-200">${stats.cha || 10}</strong></div>
           </div>
 
           <!-- Attacchi Principali -->
           <div class="space-y-1 py-2 text-xs">
             ${atk1 ? `
               <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
-                <span class="font-bold text-white truncate max-w-[140px]">🗡️ ${atk1.name}</span>
+                <span class="font-bold text-white truncate max-w-[140px]">${atk1.name}</span>
                 <span class="font-mono text-[10px] text-amber-300">${atk1.toHit || '+0'} &bull; ${atk1.damage || ''}</span>
               </div>
             ` : ''}
             ${atk2 ? `
               <div class="flex items-center justify-between bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800/50">
-                <span class="font-bold text-slate-300 truncate max-w-[140px]">⚡ ${atk2.name}</span>
+                <span class="font-bold text-slate-300 truncate max-w-[140px]">${atk2.name}</span>
                 <span class="font-mono text-[10px] text-sky-300">${atk2.toHit || ''} &bull; ${atk2.damage || ''}</span>
               </div>
             ` : ''}
           </div>
 
-          <!-- Tratti & Azioni Brevi -->
+          <!-- Tratti & Privilegi Brevi -->
           ${e.traits ? `
             <p class="text-[10px] text-slate-400 line-clamp-2 leading-relaxed italic bg-slate-950/40 p-1.5 rounded-lg border border-slate-900">
               ${e.traits}
@@ -1124,20 +1541,20 @@ window.renderDmEnemiesViews = function() {
           ` : ''}
         </div>
 
-        <!-- AZIONI: SCHIERA SU GINNUNGAGAP, MODIFICA, DUPLICA, ELIMINA -->
+        <!-- AZIONI: SCHIERA SU GINNUNGAGAP, SCHEDA COMPLETA, CLONA, ELIMINA -->
         <div class="pt-2 border-t border-slate-800/80 flex flex-col gap-1.5">
-          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition active:scale-95">
-            <span>⚔️</span> SCHIERA SU GINNUNGAGAP
+          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center justify-center transition active:scale-95">
+            ${iconSword} SCHIERA SU GINNUNGAGAP
           </button>
           <div class="grid grid-cols-3 gap-1.5 text-[10px]">
-            <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
-              <span>✏️</span> Modifica
+            <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center">
+              ${iconQuill} Scheda
             </button>
-            <button type="button" onclick="window.duplicateEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
-              <span>📋</span> Clona
+            <button type="button" onclick="window.duplicateEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white transition flex items-center justify-center">
+              ${iconClone} Clona
             </button>
-            <button type="button" onclick="window.deleteEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-red-950/40 border border-red-500/40 hover:border-red-400 text-red-300 hover:text-red-100 transition flex items-center justify-center gap-1">
-              <span>🗑️</span> Elimina
+            <button type="button" onclick="window.deleteEnemySheet('${e.id}')" class="py-1 px-2 rounded-lg bg-red-950/40 border border-red-500/40 hover:border-red-400 text-red-300 hover:text-red-100 transition flex items-center justify-center">
+              ${iconTrash} Elimina
             </button>
           </div>
         </div>
@@ -1157,7 +1574,7 @@ window.openDmEnemyEditorModal = function(enemyId = null) {
   const enemy = enemyId ? enemies.find(e => e.id === enemyId) : null;
 
   const title = document.getElementById('modal-enemy-editor-title');
-  if (title) title.textContent = enemy ? `Modifica: ${enemy.name}` : "Nuova Scheda Nemico";
+  if (title) title.textContent = enemy ? `Scheda Completa: ${enemy.name}` : "Nuova Scheda Nemico (Manuale Norreno)";
 
   document.getElementById('enemy-form-id').value = enemy ? enemy.id : '';
   document.getElementById('enemy-form-name').value = enemy ? enemy.name : '';
@@ -1188,12 +1605,70 @@ window.openDmEnemyEditorModal = function(enemyId = null) {
   document.getElementById('enemy-form-traits').value = enemy ? (enemy.traits || '') : '';
   document.getElementById('enemy-form-notes').value = enemy ? (enemy.notes || '') : '';
 
+  // Gestione Miniatura 3D (.STL / .GLB / .OBJ)
+  window._currentEditingEnemyStl = (enemy && enemy.custom3dModel) ? JSON.parse(JSON.stringify(enemy.custom3dModel)) : null;
+  window.updateEnemyStlPreviewBadge();
+
   modal.classList.remove('hidden');
 };
 
 window.closeDmEnemyEditorModal = function() {
   const modal = document.getElementById('modal-enemy-sheet-editor');
   if (modal) modal.classList.add('hidden');
+};
+
+window.updateEnemyStlPreviewBadge = function() {
+  const badge = document.getElementById('enemy-stl-status-badge');
+  const clearBtn = document.getElementById('enemy-stl-clear-btn');
+  if (!badge) return;
+
+  if (window._currentEditingEnemyStl && window._currentEditingEnemyStl.name) {
+    badge.innerHTML = `
+      <span class="text-cyan-300 font-mono font-bold flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
+        File 3D Collegato: ${window._currentEditingEnemyStl.name}
+      </span>
+    `;
+    if (clearBtn) clearBtn.classList.remove('hidden');
+  } else {
+    badge.innerHTML = `
+      <span class="text-slate-500 font-mono text-xs">Nessun file .STL collegato (apparirà la basetta runica tattica con iniziale sul VTT).</span>
+    `;
+    if (clearBtn) clearBtn.classList.add('hidden');
+  }
+};
+
+window.handleEnemyStlFileUpload = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'stl' && ext !== 'glb' && ext !== 'gltf' && ext !== 'obj') {
+    alert("Formato non valido. Carica un file 3D (.stl, .glb o .obj).");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    window._currentEditingEnemyStl = {
+      type: ext,
+      name: file.name,
+      size: file.size,
+      dataUrl: e.target.result
+    };
+    window.updateEnemyStlPreviewBadge();
+    if (typeof window.showToast === 'function') {
+      window.showToast('Miniatura 3D Collegata', `File 3D "${file.name}" caricato nella scheda.`);
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearEnemyStlFile = function() {
+  window._currentEditingEnemyStl = null;
+  const input = document.getElementById('enemy-stl-file-input');
+  if (input) input.value = '';
+  window.updateEnemyStlPreviewBadge();
 };
 
 window.saveEnemySheetFromModal = function(e) {
@@ -1242,15 +1717,6 @@ window.saveEnemySheetFromModal = function(e) {
   const traits = document.getElementById('enemy-form-traits').value.trim();
   const notes = document.getElementById('enemy-form-notes').value.trim();
 
-  // Deduci modello 3D
-  let model = 'draugr';
-  const tLow = (type + ' ' + name).toLowerCase();
-  if (tLow.includes('lup') || tLow.includes('wolf') || tLow.includes('bestia')) model = 'wolf';
-  else if (tLow.includes('gigant') || tLow.includes('jotunn')) model = 'giant';
-  else if (tLow.includes('valkyr') || tLow.includes('celest')) model = 'valkyrie';
-  else if (tLow.includes('mago') || tLow.includes('sciaman') || tLow.includes('rune')) model = 'runemaster';
-  else if (tLow.includes('berserk') || tLow.includes('predon') || tLow.includes('jarl')) model = 'berserker';
-
   const existingIdx = enemies.findIndex(en => en.id === id);
   const newSheet = {
     id,
@@ -1266,8 +1732,9 @@ window.saveEnemySheetFromModal = function(e) {
     attacks,
     traits,
     notes,
-    model,
-    avatar: (existingIdx !== -1 && enemies[existingIdx].avatar) ? enemies[existingIdx].avatar : 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150'
+    avatar: "",
+    model: "",
+    custom3dModel: window._currentEditingEnemyStl || null
   };
 
   if (existingIdx !== -1) {
@@ -1280,7 +1747,7 @@ window.saveEnemySheetFromModal = function(e) {
   window.closeDmEnemyEditorModal();
   window.renderDmEnemiesViews();
   if (typeof window.showToast === 'function') {
-    window.showToast('💀 Scheda Nemico Salvata', `"${name}" registrato nel bestiario.`);
+    window.showToast('Scheda Salvata', `"${name}" registrata con successo.`);
   }
 };
 
@@ -1299,7 +1766,7 @@ window.duplicateEnemySheet = function(enemyId) {
   window.saveCampaignEnemies(campCode, enemies);
   window.renderDmEnemiesViews();
   if (typeof window.showToast === 'function') {
-    window.showToast('📋 Scheda Clonata', `Creata copia di "${orig.name}".`);
+    window.showToast('Scheda Clonata', `Creata copia di "${orig.name}".`);
   }
 };
 
@@ -1310,13 +1777,13 @@ window.deleteEnemySheet = function(enemyId) {
   const enemy = enemies.find(e => e.id === enemyId);
   if (!enemy) return;
 
-  if (!confirm(`Sei sicuro di voler eliminare la scheda di "${enemy.name}" dal bestiario?`)) return;
+  if (!confirm(`Sei sicuro di voler eliminare la scheda di "${enemy.name}" dai nemici?`)) return;
 
   const updated = enemies.filter(e => e.id !== enemyId);
   window.saveCampaignEnemies(campCode, updated);
   window.renderDmEnemiesViews();
   if (typeof window.showToast === 'function') {
-    window.showToast('🗑️ Scheda Eliminata', `"${enemy.name}" rimosso dal bestiario.`);
+    window.showToast('Scheda Eliminata', `"${enemy.name}" rimosso dai nemici.`);
   }
 };
 
@@ -1354,12 +1821,12 @@ window.deployEnemyToGinnungagap = function(enemyId) {
   if (iframe && iframe.contentWindow && iframe.contentWindow.Ginnungagap && typeof iframe.contentWindow.dmSpawnEnemyFromSheet === 'function') {
     iframe.contentWindow.dmSpawnEnemyFromSheet(enemy);
     if (typeof window.showToast === 'function') {
-      window.showToast('👹 Schierato su Ginnungagap', `[${enemy.name}] schierato sul tavolo tattico VTT!`);
+      window.showToast('Schierato su Ginnungagap', `[${enemy.name}] schierato sul tavolo tattico VTT!`);
     }
   } else {
     // Apri embedded Ginnungagap
     if (typeof window.showToast === 'function') {
-      window.showToast('🎲 Lancio Ginnungagap', `Apertura tavolo tattico con [${enemy.name}] pronto sul campo!`);
+      window.showToast('Lancio Ginnungagap', `Apertura tavolo tattico con [${enemy.name}] pronto sul campo!`);
     }
     window.openEmbeddedGinnungagap(campCode, 'DM');
   }

@@ -1188,7 +1188,7 @@ window.buildYgoCardHTML = function(card, interactive = true) {
           <div class="min-w-0 flex-1">
             <span class="text-[8px] font-mono text-slate-300 truncate block">${card.type} • ${card.damage || '—'}</span>
           </div>
-          <span class="text-[9px] text-amber-300 font-mono font-bold opacity-90 group-hover:opacity-100 transition ml-1">${card.cost ? '💰 ' + card.cost : ''}</span>
+          <span class="text-[9px] text-amber-300 font-mono font-bold opacity-90 group-hover:opacity-100 transition ml-1">${card.cost ? ' ' + card.cost : ''}</span>
         </div>
       </div>
     </div>
@@ -1661,10 +1661,10 @@ window.renderDdbSectionContent = function(ch) {
       const myGold = ch.gold !== undefined ? ch.gold : 50;
 
       const armorSlotDefs = [
-        { key: 'head', name: 'Elmo (Testa)', icon: '🪖', desc: 'Protezione cranica, corone o spangenhelm' },
-        { key: 'chest', name: 'Busto (Corazza)', icon: '🛡️', desc: 'Corazza di scaglie, piastre o cuoio' },
-        { key: 'legs', name: 'Gambe (Schinieri)', icon: '👖', desc: 'Schinieri d\'acciaio, bronzo o pelliccia' },
-        { key: 'feet', name: 'Piedi (Stivali)', icon: '👢', desc: 'Stivali delle terre d\'inverno o falcate' }
+        { key: 'head', name: 'Elmo (Testa)', icon: 'ELMO', desc: 'Protezione cranica, corone o spangenhelm' },
+        { key: 'chest', name: 'Busto (Corazza)', icon: 'BUSTO', desc: 'Corazza di scaglie, piastre o cuoio' },
+        { key: 'legs', name: 'Gambe (Schinieri)', icon: 'GAMBE', desc: 'Schinieri d\'acciaio, bronzo o pelliccia' },
+        { key: 'feet', name: 'Piedi (Stivali)', icon: 'PIEDI', desc: 'Stivali delle terre d\'inverno o falcate' }
       ];
 
       const slotsHTML = armorSlotDefs.map(def => {
@@ -1694,10 +1694,10 @@ window.renderDdbSectionContent = function(ch) {
               </div>
               <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-800/80">
                 <button type="button" onclick="window.openCardDetailModal('${eqCard.id || eqCard.canonicalId}')" class="py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 text-[10px] font-cinzel font-bold border border-slate-700 text-center">
-                  🔍 Dettagli
+                  Dettagli
                 </button>
                 <button type="button" onclick="window.unequipArmorSlot('${def.key}')" class="py-1 px-2 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-300 text-[10px] font-cinzel font-bold text-center">
-                  ✖️ Togli
+                  Rimuovi
                 </button>
               </div>
             </div>
@@ -1729,7 +1729,7 @@ window.renderDdbSectionContent = function(ch) {
           <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3 shadow-xl">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/30 pb-2">
               <div class="flex items-center gap-2">
-                <span class="text-xl">🛡️</span>
+                <span class="text-xl"><svg class="w-5 h-5 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
                 <div>
                   <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Slot Armatura & Protezione Corporea</h3>
                   <p class="text-[10px] text-slate-400">Seleziona le carte dal tuo inventario per equipaggiarle nei 4 slot e aggiornare la tua Classe Armatura (CA: <strong class="text-white">${ch.ac || 14}</strong>).</p>
@@ -1745,14 +1745,14 @@ window.renderDdbSectionContent = function(ch) {
           <!-- BANNER VALUTA & KAUPANG COMMERCIO -->
           <div class="norse-panel rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 border border-amber-500/40 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-950 shadow-lg">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-xl shrink-0">💰</div>
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-xl shrink-0"></div>
               <div>
                 <span class="text-[10px] font-cinzel uppercase text-slate-400 block font-bold">Patrimonio del Guerriero (Hacksilver)</span>
                 <strong class="font-mono text-sm text-amber-300">${myGold} Monete d'Oro (mo)</strong>
               </div>
             </div>
             <button type="button" onclick="window.openPlayerMarketModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-xs transition flex items-center gap-1.5 shadow-md">
-              🛒 Visita Kaupang di Midgard (${marketCount} merci)
+              Visita Kaupang di Midgard (${marketCount} merci)
             </button>
           </div>
 
@@ -1770,7 +1770,7 @@ window.renderDdbSectionContent = function(ch) {
                     const equippedSlotKey = Object.keys(ch.equippedArmor || {}).find(k => ch.equippedArmor[k] === c.id || ch.equippedArmor[k] === c.canonicalId);
                     if (equippedSlotKey) {
                       const slotLabel = equippedSlotKey === 'head' ? 'Elmo' : equippedSlotKey === 'chest' ? 'Busto' : equippedSlotKey === 'legs' ? 'Gambe' : 'Piedi';
-                      equippedBadge = `<div class="mb-1 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400 font-bold text-[9px] uppercase tracking-wider">🛡️ INDOSSATO [${slotLabel}]</span></div>`;
+                      equippedBadge = `<div class="mb-1 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400 font-bold text-[9px] uppercase tracking-wider"> INDOSSATO [${slotLabel}]</span></div>`;
                     }
                     return `<div class="flex flex-col">${equippedBadge}${window.buildYgoCardHTML(c, true)}</div>`;
                   }).join('')}
@@ -1827,7 +1827,7 @@ window.renderDdbSectionContent = function(ch) {
           <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-2.5 shadow-xl">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/30 pb-2">
               <div class="flex items-center gap-2.5">
-                <span class="text-2xl">⚡</span>
+                <span class="text-2xl"></span>
                 <div>
                   <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Incantesimi & Rune Preparate per il Combattimento</h3>
                   <p class="text-[10px] text-slate-400">Un incantatore non può lanciare magie a casaccio: seleziona gli incantesimi attivi dal tuo Grimorio. I Trucchetti e le Rune Minori sono sempre pronti.</p>
@@ -1841,7 +1841,7 @@ window.renderDdbSectionContent = function(ch) {
             <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
               <span>Capacità di Preparazione: Livello (${ch.level || 1}) + Mod. Incantatore (${spellMod >= 0 ? '+' + spellMod : spellMod}) = <strong>${maxPrepared} incantesimi attivi</strong></span>
               <span class="${preparedList.length >= maxPrepared ? 'text-amber-400 font-bold' : 'text-emerald-400'}">
-                ${preparedList.length >= maxPrepared ? '⚠️ Massimo raggiunto' : `${maxPrepared - preparedList.length} slot liberi`}
+                ${preparedList.length >= maxPrepared ? 'Massimo raggiunto' : `${maxPrepared - preparedList.length} slot liberi`}
               </span>
             </div>
           </div>
@@ -1850,7 +1850,7 @@ window.renderDdbSectionContent = function(ch) {
           <div class="space-y-2.5">
             <div class="flex items-center justify-between px-1">
               <h4 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🔥</span> Incantesimi &amp; Rune Attivi (Pronti al Lancio) [${cantrips.length + preparedList.length}]
+                <span><svg class="w-4 h-4 text-amber-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span> Incantesimi &amp; Rune Attivi (Pronti al Lancio) [${cantrips.length + preparedList.length}]
               </h4>
               <span class="text-[10px] text-slate-400">Clicca "Lancia Incantesimo" per scatenare la magia</span>
             </div>
@@ -1870,7 +1870,7 @@ window.renderDdbSectionContent = function(ch) {
                         <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
                         <div class="pt-1 flex gap-2">
                           <button type="button" onclick="window.castSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-cinzel font-bold text-[10px] shadow transition">
-                            ✨ Lancia Magia
+                            Lancia Magia
                           </button>
                         </div>
                       </div>
@@ -1883,13 +1883,13 @@ window.renderDdbSectionContent = function(ch) {
                       <div class="flex-1 min-w-0 space-y-1">
                         <div class="flex justify-between items-start">
                           <h4 class="font-cinzel font-bold text-xs text-amber-200 truncate cursor-pointer hover:text-white" onclick="window.openCardDetailModal('${c.id}')">${c.name}</h4>
-                          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400 font-bold uppercase">⚡ PREPARATO</span>
+                          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400 font-bold uppercase"> PREPARATO</span>
                         </div>
                         <p class="text-[10px] text-amber-300 font-mono font-bold">${c.damage || 'Effetto Magico'}</p>
                         <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
                         <div class="pt-1 flex gap-2">
                           <button type="button" onclick="window.castSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-[10px] shadow transition">
-                            ✨ Lancia Magia
+                            Lancia Magia
                           </button>
                           <button type="button" onclick="window.togglePrepareSpell('${c.id}')" class="py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-cinzel font-bold border border-slate-700">
                             Disattiva
@@ -1906,7 +1906,7 @@ window.renderDdbSectionContent = function(ch) {
           <div class="space-y-2.5 pt-2">
             <div class="flex items-center justify-between px-1 border-t border-slate-800 pt-3">
               <h4 class="font-cinzel font-bold text-xs text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📜</span> Grimorio &amp; Rune Apprese (Inattive) [${unpreparedList.length}]
+                <span><svg class="w-4 h-4 text-sky-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg></span> Grimorio &amp; Rune Apprese (Inattive) [${unpreparedList.length}]
               </h4>
               <span class="text-[10px] text-slate-400">Clicca "Prepara" per renderle attive in battaglia</span>
             </div>
@@ -1926,7 +1926,7 @@ window.renderDdbSectionContent = function(ch) {
                         <p class="text-[9px] text-slate-400 line-clamp-1">${c.desc || ''}</p>
                         <div class="pt-1 flex gap-2">
                           <button type="button" onclick="window.togglePrepareSpell('${c.id}')" class="flex-1 py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-cinzel font-bold text-[10px] border border-amber-500/30 shadow transition">
-                            ⚡ Prepara / Rendi Attivo
+                            Prepara / Rendi Attivo
                           </button>
                         </div>
                       </div>
@@ -1957,7 +1957,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-amber-400">⚡</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Velocità & Mobilità Tattica</h3>
             </div>
             <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300">${spdVal}m / ${feetVal} ft</span>
@@ -1985,7 +1985,7 @@ window.renderDdbSectionContent = function(ch) {
             </div>
           </div>
           <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-300 flex items-center gap-2">
-            <span class="text-sky-400 text-base">🏔️</span>
+            <span class="text-sky-400 text-base"></span>
             <span>${ch.clan === 'icy_crow' ? '<strong>Tratto Ali del Nord:</strong> Ignori i terreni difficili provocati da neve, lastroni di ghiaccio e burrasca polare.' : '<strong>Terreno Difficile:</strong> Ogni 1.5m (1 quad) di movimento costa 3m (2 quad) di passo a meno di privilegi speciali.'}</span>
           </div>
         </div>
@@ -1994,7 +1994,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-sky-400">🛡️</span>
+              <span class="text-base text-sky-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Condizione Psico-Fisica Attiva</h3>
             </div>
             <span class="text-xs px-2.5 py-0.5 rounded font-bold uppercase ${ch.condition === 'Normale' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'}">${ch.condition || 'Normale'}</span>
@@ -2010,17 +2010,17 @@ window.renderDdbSectionContent = function(ch) {
         <!-- 3. DIFESE, RESISTENZE & IMMUNITÀ -->
         <div class="norse-panel rounded-2xl p-4 space-y-3">
           <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-            <span class="text-base text-amber-400">⚔️</span>
+            <span class="text-base text-amber-400"></span>
             <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Difese, Resistenze & Immunità</h3>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
               <span class="text-[10px] font-cinzel uppercase text-amber-400 block font-bold">Resistenze ai Danni</span>
-              <p class="text-slate-200 font-medium">${isColdRes ? '❄️ Gelo Primordiale & Freddo Glaciale (Figli di Jötunn)' : (isBarbarian ? '⚔️ Contundente, Perforante e Tagliente durante l\'Ira Furiosa' : (ch.defenses || 'Nessuna resistenza ai danni innata'))}</p>
+              <p class="text-slate-200 font-medium">${isColdRes ? ' Gelo Primordiale & Freddo Glaciale (Figli di Jötunn)' : (isBarbarian ? ' Contundente, Perforante e Tagliente durante l\'Ira Furiosa' : (ch.defenses || 'Nessuna resistenza ai danni innata'))}</p>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
               <span class="text-[10px] font-cinzel uppercase text-sky-400 block font-bold">Immunità & Vantaggi Difensivi</span>
-              <p class="text-slate-200 font-medium">${ch.clan === 'gjallarhorn' ? '👁️ Non può essere Sorpreso mentre cosciente (+2 Percezione Passiva)' : 'Soggetto alle leggi fisiche e mistiche dei Nove Mondi.'}</p>
+              <p class="text-slate-200 font-medium">${ch.clan === 'gjallarhorn' ? ' Non può essere Sorpreso mentre cosciente (+2 Percezione Passiva)' : 'Soggetto alle leggi fisiche e mistiche dei Nove Mondi.'}</p>
             </div>
           </div>
         </div>
@@ -2029,7 +2029,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel norse-border-gold rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-red-400">💀</span>
+              <span class="text-base text-red-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Tiri Salvezza Contro la Morte (0 PF)</h3>
             </div>
             <button type="button" onclick="window.resetDeathSaves()" class="text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Azzera</button>
@@ -2042,7 +2042,7 @@ window.renderDdbSectionContent = function(ch) {
               </div>
               <div class="flex items-center gap-2">
                 ${[1, 2, 3].map(i => `
-                  <button type="button" onclick="window.toggleDeathSave('success', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${succ >= i ? 'bg-emerald-500 border-emerald-300 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}">✓</button>
+                  <button type="button" onclick="window.toggleDeathSave('success', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${succ >= i ? 'bg-emerald-500 border-emerald-300 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}"><svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></button>
                 `).join('')}
               </div>
             </div>
@@ -2053,7 +2053,7 @@ window.renderDdbSectionContent = function(ch) {
               </div>
               <div class="flex items-center gap-2">
                 ${[1, 2, 3].map(i => `
-                  <button type="button" onclick="window.toggleDeathSave('failure', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${fail >= i ? 'bg-red-600 border-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}">✕</button>
+                  <button type="button" onclick="window.toggleDeathSave('failure', ${i})" class="w-7 h-7 rounded-full border-2 transition flex items-center justify-center font-bold text-xs ${fail >= i ? 'bg-red-600 border-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.6)]' : 'bg-slate-950 border-slate-700 text-transparent'}"><svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                 `).join('')}
               </div>
             </div>
@@ -2094,7 +2094,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-sky-400">⚔️</span>
+              <span class="text-base text-sky-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Privilegi di Classe (5.5e & JTR)</h3>
             </div>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950 border border-sky-500/30 text-sky-300">${ch.className} Liv. ${ch.level || 1}</span>
@@ -2124,7 +2124,7 @@ window.renderDdbSectionContent = function(ch) {
         ${raceTraits.length > 0 ? `
           <div class="norse-panel rounded-2xl p-4 space-y-3">
             <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-              <span class="text-base text-amber-400">🧬</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Tratti di Stirpe (${ch.race || 'Umano dei Fiordi'})</h3>
             </div>
             <div class="space-y-2">
@@ -2151,25 +2151,25 @@ window.renderDdbSectionContent = function(ch) {
           <!-- 1. ARMATURE E SCUDI -->
           <div class="norse-panel rounded-2xl p-4 space-y-2.5">
             <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-              <span class="text-base text-amber-400">🛡️</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Armature & Scudi</h3>
             </div>
             <div class="space-y-1.5 pt-1">
               <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
                 <span class="text-slate-300">Armature Leggere (Cuoio, Pelli)</span>
-                <span class="text-emerald-400 font-bold">✓ Competente</span>
+                <span class="text-emerald-400 font-bold">Competente</span>
               </div>
               <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
                 <span class="text-slate-300">Armature Medie (Giaco, Scaglie)</span>
-                <span class="${isMedium ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isMedium ? '✓ Competente' : '—'}</span>
+                <span class="${isMedium ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isMedium ? 'Competente' : '—'}</span>
               </div>
               <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
                 <span class="text-slate-300">Armature Pesanti (Piastre Nordiche)</span>
-                <span class="${isHeavy ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isHeavy ? '✓ Competente' : '—'}</span>
+                <span class="${isHeavy ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isHeavy ? 'Competente' : '—'}</span>
               </div>
               <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/70 border border-slate-800">
                 <span class="text-slate-300">Scudi Rotondi Vichinghi</span>
-                <span class="${isShield ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isShield ? '✓ Competente' : '—'}</span>
+                <span class="${isShield ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${isShield ? 'Competente' : '—'}</span>
               </div>
             </div>
           </div>
@@ -2177,7 +2177,7 @@ window.renderDdbSectionContent = function(ch) {
           <!-- 2. ARMI & MAESTRIE 5.5E -->
           <div class="norse-panel rounded-2xl p-4 space-y-2.5">
             <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-              <span class="text-base text-sky-400">⚔️</span>
+              <span class="text-base text-sky-400"></span>
               <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Armi & Maestrie (5.5e)</h3>
             </div>
             <div class="space-y-1.5 pt-1">
@@ -2190,7 +2190,7 @@ window.renderDdbSectionContent = function(ch) {
                 <strong class="text-white">Spade Ulfberht, Asce Danesi Bipenni, Magli Pesanti, Archi Compositi</strong>
               </div>
               <div class="p-2.5 rounded-lg bg-slate-950/60 border border-amber-500/20 text-amber-200/90 text-[11px]">
-                ⚡ <strong>Maestrie 5.5e:</strong> Graze, Nick, Push, Sap, Slow, Topple, Vex, Cleave.
+                 <strong>Maestrie 5.5e:</strong> Graze, Nick, Push, Sap, Slow, Topple, Vex, Cleave.
               </div>
             </div>
           </div>
@@ -2198,7 +2198,7 @@ window.renderDdbSectionContent = function(ch) {
           <!-- 3. STRUMENTI & MESTIERI -->
           <div class="norse-panel rounded-2xl p-4 space-y-2.5">
             <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-              <span class="text-base text-amber-400">🛠️</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Strumenti & Mestieri</h3>
             </div>
             <div class="space-y-1.5 pt-1">
@@ -2216,7 +2216,7 @@ window.renderDdbSectionContent = function(ch) {
           <!-- 4. LINGUAGGI CONOSCIUTI -->
           <div class="norse-panel rounded-2xl p-4 space-y-2.5">
             <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-              <span class="text-base text-sky-400">🗣️</span>
+              <span class="text-base text-sky-400"></span>
               <h3 class="font-cinzel font-bold text-xs text-sky-300 uppercase tracking-wider">Linguaggi dei Nove Mondi</h3>
             </div>
             <div class="space-y-1.5 pt-1">
@@ -2292,7 +2292,7 @@ window.renderDdbSectionContent = function(ch) {
 
             <div class="pt-2 flex justify-end">
               <button type="button" onclick="window.openClanDetailModal('${(clanMatch && clanMatch.id) || ch.clanId || ch.clan}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs hover:bg-amber-500/30 transition flex items-center gap-2 shadow-md">
-                ⚔️ Visualizza Statuto Completo & Cimelio del Clan
+                 Visualizza Statuto Completo & Cimelio del Clan
               </button>
             </div>
           </div>
@@ -2302,7 +2302,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-amber-400">📜</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-sm text-sky-300 uppercase tracking-wider">Origine & Background Nordico</h3>
             </div>
             <span class="px-2.5 py-0.5 rounded text-xs font-cinzel font-bold bg-sky-950 text-sky-300 border border-sky-500/30">${bgName}</span>
@@ -2329,7 +2329,7 @@ window.renderDdbSectionContent = function(ch) {
             <strong class="font-mono text-sm text-amber-300 block">${ch.gold !== undefined ? ch.gold : 50} Monete d'Oro (mo)</strong>
             <p class="text-[10px] text-slate-400 leading-snug">Bracciali d'argento spezzato e monete coniate dai re del Nord.</p>
             <button type="button" onclick="window.openPlayerMarketModal()" class="mt-2 w-full py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400 text-amber-300 font-cinzel font-bold text-[10px] transition flex items-center justify-center gap-1 shadow">
-              ⚖️ Apri Kaupang di Midgard
+               Apri Kaupang di Midgard
             </button>
           </div>
         </div>
@@ -2369,7 +2369,7 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel norse-border-gold rounded-2xl p-5 space-y-3">
           <div class="flex items-center justify-between border-b border-amber-500/30 pb-2">
             <div class="flex items-center gap-2.5">
-              <span class="text-lg text-amber-400">✒️</span>
+              <span class="text-lg text-amber-400"></span>
               <div>
                 <h3 class="font-cinzel font-bold text-sm text-amber-300 uppercase tracking-wider">Diario di Viaggio & Cronache dello Skald</h3>
                 <span class="text-[10px] text-slate-400">Note di sessione, indizi profetici e cronache di Ragnarok</span>
@@ -2384,15 +2384,15 @@ window.renderDdbSectionContent = function(ch) {
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-[11px]">
             <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
-              <span class="text-amber-400 font-cinzel font-bold uppercase block">📜 Trama & Missioni</span>
+              <span class="text-amber-400 font-cinzel font-bold uppercase block"> Trama & Missioni</span>
               <p class="text-slate-400">Segna gli obiettivi ricevuti dagli dei o dai capi villaggio.</p>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
-              <span class="text-sky-400 font-cinzel font-bold uppercase block">🗺️ Luoghi & Terre Esplorate</span>
+              <span class="text-sky-400 font-cinzel font-bold uppercase block"> Luoghi & Terre Esplorate</span>
               <p class="text-slate-400">Ricorda fiordi, porti, torri di guardia e rovine misteriose.</p>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-1">
-              <span class="text-emerald-400 font-cinzel font-bold uppercase block">💎 Bottino & Doni</span>
+              <span class="text-emerald-400 font-cinzel font-bold uppercase block"> Bottino & Doni</span>
               <p class="text-slate-400">Traccia manufatti, pelli preziose e ricompense d'onore.</p>
             </div>
           </div>
@@ -2412,22 +2412,22 @@ window.renderDdbSectionContent = function(ch) {
         <div class="norse-panel rounded-2xl p-4 space-y-2.5">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div class="flex items-center gap-2">
-              <span class="text-base text-amber-400">🐾</span>
+              <span class="text-base text-amber-400"></span>
               <h3 class="font-cinzel font-bold text-xs text-amber-300 uppercase tracking-wider">Evoca / Seleziona Compagno di Viaggio</h3>
             </div>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button type="button" onclick="window.setMyCharacterCompanion('raven')" class="p-2 rounded-xl border text-center transition ${comp.id === 'raven' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
-              🦅 Corvo di Odhinn
+               Corvo di Odhinn
             </button>
             <button type="button" onclick="window.setMyCharacterCompanion('wolf')" class="p-2 rounded-xl border text-center transition ${comp.id === 'wolf' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
-              🐺 Lupo delle Nevi
+               Lupo delle Nevi
             </button>
             <button type="button" onclick="window.setMyCharacterCompanion('horse')" class="p-2 rounded-xl border text-center transition ${comp.id === 'horse' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
-              🐎 Cavallo da Guerra
+               Cavallo da Guerra
             </button>
             <button type="button" onclick="window.setMyCharacterCompanion('bear')" class="p-2 rounded-xl border text-center transition ${comp.id === 'bear' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'}">
-              🐻 Orso delle Vette
+               Orso delle Vette
             </button>
           </div>
         </div>
@@ -2506,7 +2506,7 @@ window.renderDdbSectionContent = function(ch) {
                     <p class="text-[10px] text-slate-400">${atk.desc}</p>
                   </div>
                   <button type="button" onclick="window.rollCompanionAttack('${comp.name}', '${atk.name}', ${atk.bonus}, '${atk.damage}')" class="px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 font-cinzel font-bold text-xs hover:bg-red-900/90 transition shadow-sm self-start sm:self-center shrink-0">
-                    ⚔️ Attacca
+                     Attacca
                   </button>
                 </div>
               `).join('')}
@@ -2579,6 +2579,15 @@ window.renderAllViews = function() {
     document.getElementById('sheet-name').textContent = ch.name;
     document.getElementById('sheet-race-class').textContent = `${ch.clanName ? ch.clanName.split(' (')[0] + ' • ' : ''}${ch.className} ${ch.subclass ? '('+ch.subclass.split(' (')[0]+')' : ''} • Liv. ${ch.level || 1}`;
     document.getElementById('sheet-avatar').src = ch.avatar;
+    const stlBtnLabel = document.getElementById('sheet-stl-btn-label');
+    if (stlBtnLabel) {
+      if (ch.custom3dModel && ch.custom3dModel.name) {
+        const n = ch.custom3dModel.name;
+        stlBtnLabel.textContent = n.length > 14 ? (n.substring(0, 11) + '...') : n;
+      } else {
+        stlBtnLabel.textContent = "Miniatura 3D (.STL)";
+      }
+    }
 
     const inspBtn = document.getElementById('sheet-insp-badge');
     if (inspBtn) inspBtn.className = ch.inspiration ? 'ddb-insp-btn active' : 'ddb-insp-btn';
@@ -2850,7 +2859,7 @@ window.saveMyCharacterNotes = function(notesText) {
   if (window.fbRef) { try { window.fbRef.set(window.dbState); } catch(e){} }
   const btn = document.getElementById('btn-save-notes-feedback');
   if (btn) {
-    btn.textContent = '✓ Cronaca Salvata!';
+    btn.textContent = 'Cronaca Salvata!';
     btn.classList.add('text-emerald-400');
     setTimeout(() => {
       btn.textContent = 'Salva Cronaca';
@@ -2885,7 +2894,7 @@ window.adjustCompanionHp = function(delta) {
 window.rollCompanionAttack = function(compName, atkName, bonus, dmgFormula) {
   const d20 = Math.floor(Math.random() * 20) + 1;
   const total = d20 + bonus;
-  alert(`⚔️ ${compName} esegue ${atkName}!\nTiro per Colpire: 1d20+${bonus} = ${total} (Dado: ${d20})\nDanno inflitto: ${dmgFormula}`);
+  alert(` ${compName} esegue ${atkName}!\nTiro per Colpire: 1d20+${bonus} = ${total} (Dado: ${d20})\nDanno inflitto: ${dmgFormula}`);
 };
 
 // ============================================================================
@@ -2983,12 +2992,12 @@ window.openArmorSlotPickerModal = function(slotKey) {
   if (!modal) return;
 
   const titleMap = {
-    head: { icon: '🪖', title: 'Equipaggia Elmo / Copricapo' },
-    chest: { icon: '🛡️', title: 'Equipaggia Corazza / Busto' },
-    legs: { icon: '👖', title: 'Equipaggia Schinieri / Gambe' },
-    feet: { icon: '👢', title: 'Equipaggia Stivali / Calzari' }
+    head: { icon: 'ELMO', title: 'Equipaggia Elmo / Copricapo' },
+    chest: { icon: '', title: 'Equipaggia Corazza / Busto' },
+    legs: { icon: 'GAMBE', title: 'Equipaggia Schinieri / Gambe' },
+    feet: { icon: 'PIEDI', title: 'Equipaggia Stivali / Calzari' }
   };
-  const cfg = titleMap[slotKey] || { icon: '🛡️', title: 'Seleziona Armatura' };
+  const cfg = titleMap[slotKey] || { icon: '', title: 'Seleziona Armatura' };
 
   const iconEl = document.getElementById('aspm-slot-icon');
   const titleEl = document.getElementById('aspm-slot-title');
@@ -3018,7 +3027,7 @@ window.openArmorSlotPickerModal = function(slotKey) {
         <div class="p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 flex justify-between items-center mb-3">
           <span class="text-xs text-red-200">Hai un oggetto attualmente indossato in questo slot.</span>
           <button type="button" onclick="window.unequipArmorSlot('${slotKey}')" class="px-3 py-1.5 rounded-lg bg-red-900 hover:bg-red-800 text-white font-cinzel font-bold text-xs">
-            ✖️ Togli Equipaggiamento
+            Rimuovi Equipaggiamento
           </button>
         </div>
       `;
@@ -3046,7 +3055,7 @@ window.openArmorSlotPickerModal = function(slotKey) {
             </div>
             ${isCurrent ? `
               <span class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-cinzel font-bold text-xs border border-emerald-400/50">
-                ✓ Attuale
+                Attuale
               </span>
             ` : `
               <button type="button" onclick="window.equipArmorToSlot('${slotKey}', '${c.id}')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-cinzel font-bold text-xs shadow transition">
@@ -3124,7 +3133,7 @@ window.togglePrepareSpell = function(cardId) {
     const maxPrepared = Math.max(1, (ch.level || 1) + Math.max(0, spellMod));
 
     if (ch.preparedSpells.length >= maxPrepared) {
-      alert(`⚠️ Hai già raggiunto il limite massimo di ${maxPrepared} incantesimi preparati!\nDisattiva un altro incantesimo prima di poterne preparare uno nuovo.`);
+      alert(`[Attenzione] Hai già raggiunto il limite massimo di ${maxPrepared} incantesimi preparati!\nDisattiva un altro incantesimo prima di poterne preparare uno nuovo.`);
       return;
     }
     ch.preparedSpells.push(cardId);
@@ -3157,11 +3166,11 @@ window.castSpell = function(cardId) {
   const atkTotal = d20 + profBonus + spellMod;
   const spellDC = 8 + profBonus + spellMod;
 
-  alert(`🔮 ${ch.name} incanala le rune e lancia "${card.name}"!\n\n` +
-        `🎲 Tiro Attacco Magico: 1d20+${profBonus + spellMod} = ${atkTotal} (Dado: ${d20})\n` +
-        `🛡️ CD Salvezza per i Nemici: ${spellDC}\n` +
-        `💥 Danno / Effetto: ${card.damage || 'Effetto magico applicato!'}\n` +
-        `📖 Lore: ${card.desc || ''}`);
+  alert(` ${ch.name} incanala le rune e lancia "${card.name}"!\n\n` +
+        ` Tiro Attacco Magico: 1d20+${profBonus + spellMod} = ${atkTotal} (Dado: ${d20})\n` +
+        ` CD Salvezza per i Nemici: ${spellDC}\n` +
+        ` Danno / Effetto: ${card.damage || 'Effetto magico applicato!'}\n` +
+        ` Lore: ${card.desc || ''}`);
 };
 
 // ============================================================================
@@ -3239,13 +3248,13 @@ window.renderPlayerMarket = function() {
 
         <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5">
-            <span class="text-base">💰</span>
+            <span class="text-base"></span>
             <strong class="font-mono text-sm text-amber-300">${costGold} mo</strong>
           </div>
 
           ${canAfford ? `
             <button type="button" onclick="window.buyMarketItem('${item.marketId}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-cinzel font-black text-xs shadow-md transition flex items-center gap-1 active:scale-95">
-              🛒 Compra
+               Compra
             </button>
           ` : `
             <button type="button" disabled class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-red-400 font-cinzel font-bold text-[10px] cursor-not-allowed">
@@ -3308,7 +3317,7 @@ window.buyMarketItem = function(marketId) {
   window.renderDdbSectionContent(ch);
   if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
 
-  alert(`⚔️ Acquisto completato con successo nel Kaupang di Midgard!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
+  alert(`Acquisto completato con successo nel Kaupang di Midgard!\n"${item.name}" è ora nel tuo inventario.\nHai speso ${costGold} monete d'oro (Residuo: ${ch.gold} mo).`);
 };
 
 window.openEmbeddedGinnungagap = function(campCode, role) {
@@ -3348,3 +3357,67 @@ window.initCloudConnection();
 if (window.currentUser && window.dbState.users && window.dbState.users[window.currentUser]) {
   window.enterAfterLogin();
 }
+
+// ============================================================================
+// GESTIONE MINIATURA 3D (.STL / .GLB / .OBJ) GIOCATORE PER VTT
+// ============================================================================
+window.openPlayerStlModal = function() {
+  const m = document.getElementById('modal-player-stl-uploader');
+  if (!m) return;
+  const ch = window.getMyCharacter();
+  const statusEl = document.getElementById('player-stl-current-status');
+  const rmBtn = document.getElementById('player-stl-remove-btn');
+  if (ch && ch.custom3dModel && ch.custom3dModel.name) {
+    if (statusEl) statusEl.innerHTML = `<span class="text-cyan-300 font-bold font-mono">Modello 3D Collegato:</span> ${ch.custom3dModel.name} (${Math.round((ch.custom3dModel.size || 0)/1024)} KB)<br><span class="text-[10px] text-slate-500">Pronto per il rendering autonomo 3D sul tavolo Ginnungagap VTT.</span>`;
+    if (rmBtn) rmBtn.classList.remove('hidden');
+  } else {
+    if (statusEl) statusEl.innerHTML = `<span class="text-slate-400">Nessun file 3D collegato. Sul tavolo tattico Ginnungagap verrà visualizzata la basetta runica elegante standard con iniziale.</span>`;
+    if (rmBtn) rmBtn.classList.add('hidden');
+  }
+  m.classList.remove('hidden');
+};
+
+window.closePlayerStlModal = function() {
+  const m = document.getElementById('modal-player-stl-uploader');
+  if (m) m.classList.add('hidden');
+};
+
+window.handlePlayerStlFileUpload = function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'stl' && ext !== 'glb' && ext !== 'gltf' && ext !== 'obj') {
+    alert("Formato non valido. Carica un file 3D (.stl, .glb o .obj).");
+    return;
+  }
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    ch.custom3dModel = {
+      type: ext,
+      name: file.name,
+      size: file.size,
+      dataUrl: evt.target.result
+    };
+    window.propagateCharacterToCampaigns(ch);
+    window.saveDB();
+    window.openPlayerStlModal();
+    if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+    if (typeof window.showToast === 'function') {
+      window.showToast('Miniatura 3D Salvata', `"${file.name}" collegato all'eroe.`);
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearPlayerStlFile = function() {
+  const ch = window.getMyCharacter();
+  if (!ch) return;
+  delete ch.custom3dModel;
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+  window.openPlayerStlModal();
+  if (typeof window.renderActiveCharacter === 'function') window.renderActiveCharacter();
+};
