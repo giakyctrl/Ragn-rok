@@ -35,16 +35,26 @@ window.Map3D = (function() {
   let prevMouseY = 0;
 
   // Strumenti Dungeon Alchemist
-  let activeTab = 'rooms'; // 'rooms', 'stairs', 'structures', 'furniture', 'lights', 'nature', 'terrain'
-  let toolMode = 'build'; // 'build', 'delete', 'select', 'room_painter'
+  let activeMode = 'rooms'; // 'rooms', 'objects', 'terrain', 'environment', 'tokens'
+  let activeTab = 'stairs'; // 'stairs', 'structures', 'furniture', 'lights', 'nature'
+  let toolMode = 'room_painter'; // 'build', 'delete', 'select', 'room_painter', 'terrain', 'tokens'
   let selectedAssetId = 'house_viking_cabin';
-  let selectedRoomTheme = 'tavern'; // 'tavern', 'jarl_hall', 'forge', 'cabin', 'crypt', 'camp'
-  let selectedRoomSize = 'medium'; // 'small' (4x4), 'medium' (6x6), 'large' (8x6)
+  let selectedRoomTheme = 'town_entrance';
+  let selectedRoomSize = 'large';
   let currentElevation = 0; // 0m (Terra), 1.5m (Mezzanino), 3.0m (1° Piano), 4.5m (2° Piano)
   let assetRotationY = 0; // radianti (rotazione tasto R)
 
-  // Atmosfera & Effetti
-  let currentAtmosphere = 'giorno'; // 'giorno', 'notte_aurora', 'bufera', 'cripta'
+  // Pittura Biomi & Terreno (Stile Dungeon Alchemist)
+  let selectedTerrainId = 'terrain_snow';
+  let terrainBrushSize = 1; // 1 o 3
+
+  // Illuminazione, Tempo & Atmosfere Dinamiche (Stile Dungeon Alchemist)
+  let currentTimeOfDay = 'day'; // 'day' (Giorno), 'dusk' (Tramonto), 'night' (Notte)
+  let currentWeather = 'clear'; // 'clear' (Sereno), 'snow' (Bufera), 'aurora' (Aurora Boreale), 'fog' (Nebbia Spettrale)
+  let currentTorchMultiplier = 1.0; // 0.0x, 1.0x, 1.5x, 2.0x
+  let currentAtmosphere = 'giorno'; // backwards compatibility
+  let isCinematic = false;
+
   let dirLight = null;
   let hemiLight = null;
   let snowParticles = null;
@@ -1333,57 +1343,121 @@ window.Map3D = (function() {
     return mapTiles;
   }
 
-  function setAtmosphere(mode) {
-    currentAtmosphere = mode;
+  // ============================================================================
+  // ILLUMINAZIONE, ORA DEL GIORNO & EFFETTI METEO (DUNGEON ALCHEMIST ENGINE)
+  // ============================================================================
+  function setTimeOfDay(time) {
+    currentTimeOfDay = time;
+    updateEnvironmentLighting();
+    renderDockUI();
+  }
 
+  function setWeather(weather) {
+    currentWeather = weather;
+    updateEnvironmentLighting();
+    renderDockUI();
+  }
+
+  function setTorchMultiplier(mult) {
+    currentTorchMultiplier = mult;
+    updateEnvironmentLighting();
+    renderDockUI();
+  }
+
+  function updateEnvironmentLighting() {
     if (!scene) return;
 
-    if (mode === 'giorno') {
-      scene.background = new THREE.Color(0x0a111e);
-      scene.fog = new THREE.FogExp2(0x0a111e, 0.012);
-      if (hemiLight) hemiLight.color.setHex(0xe0f2fe);
-      if (hemiLight) hemiLight.groundColor.setHex(0x1e293b);
-      if (dirLight) {
-        dirLight.color.setHex(0xffedd5);
-        dirLight.intensity = 1.3;
-        dirLight.position.set(15, 25, 15);
+    // 1. Ora del Giorno: Luce Solare Direzionale & Luce Emisferica
+    if (currentTimeOfDay === 'day') {
+      scene.background = new THREE.Color(0x0e1b2e);
+      scene.fog = new THREE.FogExp2(0x0e1b2e, 0.009);
+      if (hemiLight) {
+        hemiLight.color.setHex(0xe0f2fe);
+        hemiLight.groundColor.setHex(0x1e293b);
+        hemiLight.intensity = 1.0;
       }
-      if (snowParticles) snowParticles.visible = false;
-    }
-    else if (mode === 'notte_aurora') {
-      scene.background = new THREE.Color(0x030712);
-      scene.fog = new THREE.FogExp2(0x030712, 0.018);
-      if (hemiLight) hemiLight.color.setHex(0x065f46); // Bagliore verde aurora
-      if (hemiLight) hemiLight.groundColor.setHex(0x022c22);
       if (dirLight) {
-        dirLight.color.setHex(0x38bdf8); // Luce lunare fredda
-        dirLight.intensity = 0.6;
-        dirLight.position.set(-15, 20, -10);
+        dirLight.color.setHex(0xfffaed);
+        dirLight.intensity = 1.35;
+        dirLight.position.set(18, 28, 16);
       }
-      if (snowParticles) snowParticles.visible = false;
-    }
-    else if (mode === 'bufera') {
-      scene.background = new THREE.Color(0x1e293b);
-      scene.fog = new THREE.FogExp2(0x1e293b, 0.035);
-      if (hemiLight) hemiLight.color.setHex(0x94a3b8);
+    } else if (currentTimeOfDay === 'dusk') {
+      scene.background = new THREE.Color(0x2d121c);
+      scene.fog = new THREE.FogExp2(0x2d121c, 0.013);
+      if (hemiLight) {
+        hemiLight.color.setHex(0xfb923c);
+        hemiLight.groundColor.setHex(0x451a03);
+        hemiLight.intensity = 0.85;
+      }
       if (dirLight) {
-        dirLight.color.setHex(0xcfd8dc);
-        dirLight.intensity = 0.8;
+        dirLight.color.setHex(0xf59e0b);
+        dirLight.intensity = 1.15;
+        dirLight.position.set(28, 10, 14);
       }
-      if (snowParticles) snowParticles.visible = true;
-    }
-    else if (mode === 'cripta') {
-      scene.background = new THREE.Color(0x020408);
-      scene.fog = new THREE.FogExp2(0x020408, 0.045);
-      if (hemiLight) hemiLight.color.setHex(0x0f172a);
-      if (hemiLight) hemiLight.intensity = 0.2;
+    } else if (currentTimeOfDay === 'night') {
+      scene.background = new THREE.Color(0x020617);
+      scene.fog = new THREE.FogExp2(0x020617, 0.016);
+      if (hemiLight) {
+        hemiLight.color.setHex(0x0f172a);
+        hemiLight.groundColor.setHex(0x020617);
+        hemiLight.intensity = 0.35;
+      }
       if (dirLight) {
-        dirLight.intensity = 0.1;
+        dirLight.color.setHex(0x93c5fd);
+        dirLight.intensity = 0.40;
+        dirLight.position.set(-15, 22, -12);
       }
-      if (snowParticles) snowParticles.visible = false;
     }
 
-    renderAtmosphereButtons();
+    // 2. Fenomeni Meteo & Atmosfere
+    if (currentWeather === 'clear') {
+      if (snowParticles) snowParticles.visible = false;
+    } else if (currentWeather === 'snow') {
+      if (snowParticles) snowParticles.visible = true;
+      scene.fog = new THREE.FogExp2(0x1e293b, 0.032);
+      if (hemiLight) hemiLight.color.setHex(0xcfd8dc);
+    } else if (currentWeather === 'aurora') {
+      if (snowParticles) snowParticles.visible = false;
+      scene.background = new THREE.Color(0x021612);
+      scene.fog = new THREE.FogExp2(0x021612, 0.018);
+      if (hemiLight) {
+        hemiLight.color.setHex(0x059669); // Bagliore verde smeraldo
+        hemiLight.groundColor.setHex(0x064e3b);
+        hemiLight.intensity = 0.75;
+      }
+      if (dirLight) {
+        dirLight.color.setHex(0x38bdf8); // Riflesso ciano
+      }
+    } else if (currentWeather === 'fog') {
+      if (snowParticles) snowParticles.visible = false;
+      scene.fog = new THREE.FogExp2(scene.background.getHex(), 0.045); // Densa foschia
+    }
+
+    // 3. Regolazione Torce e Luci Dinamiche
+    dynamicPointLights.forEach(l => {
+      const base = l.userData.baseIntensity || 1.4;
+      l.intensity = base * currentTorchMultiplier;
+    });
+  }
+
+  // Compatibilità retroattiva per codice/test esistenti
+  function setAtmosphere(mode) {
+    currentAtmosphere = mode;
+    if (mode === 'giorno') {
+      currentTimeOfDay = 'day';
+      currentWeather = 'clear';
+    } else if (mode === 'notte_aurora') {
+      currentTimeOfDay = 'night';
+      currentWeather = 'aurora';
+    } else if (mode === 'bufera') {
+      currentTimeOfDay = 'day';
+      currentWeather = 'snow';
+    } else if (mode === 'cripta') {
+      currentTimeOfDay = 'night';
+      currentWeather = 'fog';
+    }
+    updateEnvironmentLighting();
+    renderDockUI();
   }
 
   function initSnowParticles() {
@@ -1487,7 +1561,14 @@ window.Map3D = (function() {
 
       if (cursorBox) {
         cursorBox.position.set(snapX, currentElevation + 0.05, snapZ);
-        cursorBox.visible = (toolMode !== 'delete');
+        if (toolMode === 'terrain') {
+          cursorBox.visible = true;
+          const s = (terrainBrushSize === 3) ? 3 : 1;
+          cursorBox.scale.set(s, 1, s);
+        } else {
+          cursorBox.scale.set(1, 1, 1);
+          cursorBox.visible = (toolMode !== 'delete');
+        }
       }
 
       if (ghostGroup && toolMode === 'build' && userRole === 'DM') {
@@ -1525,6 +1606,154 @@ window.Map3D = (function() {
   // ============================================================================
   // GESTIONE CLICK E AZIONI
   // ============================================================================
+    // ============================================================================
+  // PITTURA BIOMI & TERRENO (DUNGEON ALCHEMIST TERRAIN BRUSH)
+  // ============================================================================
+  function paintTerrainAt(centerX, centerZ, terrainId, brushSize) {
+    const half = (brushSize === 3) ? 1 : 0;
+    for (let dx = -half; dx <= half; dx++) {
+      for (let dz = -half; dz <= half; dz++) {
+        const tx = centerX + dx * GRID_SIZE;
+        const tz = centerZ + dz * GRID_SIZE;
+        // Rimuovi terreno esistente a quota 0
+        mapTiles = mapTiles.filter(t => !(Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && Math.abs(t.y) < 0.1 && t.type.startsWith('terrain_')));
+        mapTiles.push({
+          id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+          x: tx,
+          y: 0,
+          z: tz,
+          type: terrainId,
+          rotY: 0
+        });
+      }
+    }
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+  }
+
+  function fillEntireMapWithBiome(terrainId) {
+    let replacedCount = 0;
+    mapTiles.forEach(t => {
+      if (t.type.startsWith('terrain_')) {
+        t.type = terrainId;
+        replacedCount++;
+      }
+    });
+
+    if (replacedCount < 16) {
+      const radius = 6;
+      for (let x = -radius; x <= radius; x++) {
+        for (let z = -radius; z <= radius; z++) {
+          const tx = x * GRID_SIZE;
+          const tz = z * GRID_SIZE;
+          const exists = mapTiles.some(t => Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && Math.abs(t.y) < 0.1);
+          if (!exists) {
+            mapTiles.push({
+              id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+              x: tx,
+              y: 0,
+              z: tz,
+              type: terrainId,
+              rotY: 0
+            });
+          }
+        }
+      }
+    }
+
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+    if (typeof window.showToast === 'function') {
+      window.showToast("Bioma Applicato", `Intera mappa rigenerata con il bioma selezionato!`, "success");
+    }
+  }
+
+  // ============================================================================
+  // MODALITÀ CINEMATICA (DUNGEON ALCHEMIST CINEMATIC FIRST-PERSON VIEW)
+  // ============================================================================
+  function toggleCinematicMode(forceState) {
+    isCinematic = (typeof forceState === 'boolean') ? forceState : !isCinematic;
+    const header = document.getElementById('map3d-header');
+    const dock = document.getElementById('map3d-dock');
+    const hud = document.getElementById('map3d-cinematic-hud');
+    const btn = document.getElementById('map3d-btn-cinematic');
+
+    if (isCinematic) {
+      if (header) header.classList.add('hidden');
+      if (dock) dock.classList.add('hidden');
+      if (hud) hud.classList.remove('hidden');
+      if (btn) btn.classList.add('ring-2', 'ring-purple-400');
+      cameraMode = 'pov';
+      povPos.set(cameraTarget.x, currentElevation + 1.7, cameraTarget.z);
+      povYaw = cameraYaw;
+      povPitch = 0;
+      if (gridHelper) gridHelper.visible = false;
+      if (cursorBox) cursorBox.visible = false;
+      if (ghostGroup) ghostGroup.visible = false;
+      if (typeof window.showToast === 'function') {
+        window.showToast("Modalità Cinematica Attiva", "WASD per camminare, Mouse Dx per orientare lo sguardo, F per foto HD, ESC per tornare all'editor.", "info");
+      }
+    } else {
+      if (header) header.classList.remove('hidden');
+      if (dock) dock.classList.remove('hidden');
+      if (hud) hud.classList.add('hidden');
+      if (btn) btn.classList.remove('ring-2', 'ring-purple-400');
+      cameraMode = 'tactical';
+      if (gridHelper) gridHelper.visible = true;
+      if (cursorBox) cursorBox.visible = true;
+      if (ghostGroup) ghostGroup.visible = true;
+    }
+  }
+
+  // ============================================================================
+  // SPAWNER PEDINE & MOSTRI NORRENI PER IL DM
+  // ============================================================================
+  function spawnMonsterToken(monsterType) {
+    const bestiary = {
+      'wolf': { name: "Lupo dell'Inverno", type: "Bestia", hp: 32, ac: 13, icon: "🐺", color: 0x64748b },
+      'draugr': { name: "Draugr dei Ghiacci", type: "Non Morto", hp: 45, ac: 14, icon: "🧟", color: 0x0284c7 },
+      'berserker': { name: "Berserker Nemico", type: "Umanoide", hp: 67, ac: 13, icon: "👹", color: 0xb91c1c },
+      'skeleton': { name: "Scheletro Guerriero", type: "Non Morto", hp: 22, ac: 12, icon: "💀", color: 0x94a3b8 },
+      'jotunn': { name: "Jötunn del Gelo", type: "Gigante", hp: 138, ac: 15, icon: "🧌", color: 0x38bdf8 }
+    };
+    const m = bestiary[monsterType] || bestiary['wolf'];
+    const tokenKey = 'enemy_' + Date.now().toString(36);
+
+    if (window.activeDmWorkspaceCode && window.campaignsData && window.campaignsData[window.activeDmWorkspaceCode]) {
+      const camp = window.campaignsData[window.activeDmWorkspaceCode];
+      if (!camp.members) camp.members = {};
+      camp.members[tokenKey] = {
+        name: m.name,
+        charClass: m.type,
+        hp: m.hp,
+        maxHp: m.hp,
+        ac: m.ac,
+        posX: snappedCoord.x,
+        posY: currentElevation + 0.25,
+        posZ: snappedCoord.z,
+        isEnemy: true,
+        color: m.color
+      };
+      if (typeof window.saveCampaignsToStorage === 'function') window.saveCampaignsToStorage();
+      if (typeof window.syncCampaignToFirebase === 'function') window.syncCampaignToFirebase(window.activeDmWorkspaceCode);
+    }
+    syncCampaignMiniatures();
+    if (typeof window.showToast === 'function') {
+      window.showToast("Pedina Schierata", `[${m.name}] posizionato sulla mappa!`, "success");
+    }
+  }
+
+  function centerCameraOnMiniature(uKey) {
+    const mini = miniatureObjects[uKey];
+    if (mini) {
+      cameraTarget.copy(mini.currentPos);
+      if (typeof window.showToast === 'function') {
+        const name = mini.data?.charData?.name || uKey;
+        window.showToast("Telecamera Centrata", `Inquadrato ${name}`, "info");
+      }
+    }
+  }
+
   function handlePointerDown(e) {
     if (e.button === 2) {
       isRightMouseDown = true;
@@ -1537,6 +1766,10 @@ window.Map3D = (function() {
       if (toolMode === 'room_painter' && userRole === 'DM') {
         // Genera stanza procedurale alle coordinate cliccate
         generateProceduralRoom(snappedCoord.x, snappedCoord.z, selectedRoomTheme, selectedRoomSize);
+      }
+      else if (toolMode === 'terrain' && userRole === 'DM') {
+        // Dipingi il terreno alle coordinate con il bioma selezionato
+        paintTerrainAt(snappedCoord.x, snappedCoord.z, selectedTerrainId, terrainBrushSize);
       }
       else if (toolMode === 'build' && userRole === 'DM') {
         // Piazza asset singolo
@@ -1847,6 +2080,24 @@ window.Map3D = (function() {
       currentElevation = Math.max(0.0, currentElevation - 1.5);
       renderElevatorUI();
     }
+    // Tasto F: Snapshot HD istantaneo
+    if (e.code === 'KeyF') {
+      captureSnapshot();
+    }
+    // Tasto Escape: Esci da modalità cinematica
+    if (e.code === 'Escape' && isCinematic) {
+      toggleCinematicMode(false);
+    }
+    // Alt + Home: Toggle Modalità Cinematica
+    if (e.code === 'Home' && e.altKey) {
+      e.preventDefault();
+      toggleCinematicMode();
+    }
+    // Alt + G: Toggle Griglia D&D
+    if (e.code === 'KeyG' && e.altKey) {
+      e.preventDefault();
+      toggleGrid();
+    }
   }
 
   function onKeyUp(e) {
@@ -1921,7 +2172,8 @@ window.Map3D = (function() {
     screen.className = 'hidden fixed inset-0 z-50 bg-[#06090e] flex flex-col select-none overflow-hidden';
     screen.innerHTML = `
       <!-- Header Superiore Dungeon Alchemist -->
-      <header class="px-4 py-2.5 bg-slate-950/95 border-b border-slate-800 flex justify-between items-center z-20 backdrop-blur-md">
+      <header id="map3d-header" class="px-4 py-2 bg-slate-950/95 border-b border-slate-800 flex justify-between items-center z-20 backdrop-blur-md">
+        <!-- Logo e Titolo -->
         <div class="flex items-center gap-3">
           <!-- Runa Ufficiale della Homepage -->
           <svg class="w-7 h-7 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="square" stroke-linejoin="miter">
@@ -1932,34 +2184,51 @@ window.Map3D = (function() {
               <span>DUNGEON ALCHEMIST — 3D MAP MAKER</span>
               <span id="map3d-role-badge" class="text-[9px] px-2 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300 font-mono font-bold">${userRole}</span>
             </h2>
-            <span class="text-[10px] text-slate-400">Generatore Stanze &amp; Case • Scale Multilivello • WASD per muoverti • Tasto R per ruotare</span>
+            <span class="text-[10px] text-slate-400">Generatore Automatico di Mappe 3D • Sistema Biomi • Luci Dinamiche &amp; Meteo</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Atmosfere Cinematiche -->
-          <div id="map3d-atmos-buttons" class="hidden sm:flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs"></div>
+        <!-- Barra Principale Modalità di Creazione (Stile Dungeon Alchemist) -->
+        <nav id="map3d-mode-nav" class="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl p-1 shadow-inner">
+          <button type="button" onclick="window.Map3D.switchMode('rooms')" id="nav-mode-rooms" class="nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition bg-amber-500 text-slate-950 shadow">
+            🏠 Disegna Stanza
+          </button>
+          <button type="button" onclick="window.Map3D.switchMode('objects')" id="nav-mode-objects" class="nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:bg-slate-800">
+            🪑 Oggetti
+          </button>
+          <button type="button" onclick="window.Map3D.switchMode('terrain')" id="nav-mode-terrain" class="nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:bg-slate-800">
+            ⛰️ Terreno &amp; Biomi
+          </button>
+          <button type="button" onclick="window.Map3D.switchMode('environment')" id="nav-mode-environment" class="nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:bg-slate-800">
+            🌤️ Ambiente &amp; Luce
+          </button>
+          <button type="button" onclick="window.Map3D.switchMode('tokens')" id="nav-mode-tokens" class="nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:bg-slate-800">
+            ♟️ Token &amp; Eroi
+          </button>
+        </nav>
 
-          <!-- Toggle Griglia -->
-          <button type="button" onclick="window.Map3D.toggleGrid()" id="map3d-btn-grid" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold" title="Attiva/Disattiva Griglia">
+        <!-- Azioni Rapide Destra -->
+        <div class="flex items-center gap-2">
+          <!-- Modalità Cinematica Prima Persona -->
+          <button type="button" onclick="window.Map3D.toggleCinematicMode()" id="map3d-btn-cinematic" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-950/80 to-indigo-950/80 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1 transition shadow" title="Modalità Cinematica POV (Alt+Home)">
+            🎥 Cinematica
+          </button>
+
+          <!-- Toggle Griglia D&D -->
+          <button type="button" onclick="window.Map3D.toggleGrid()" id="map3d-btn-grid" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold" title="Attiva/Disattiva Griglia D&D (Alt+G)">
             📐 Griglia
           </button>
 
-          <!-- Toggle POV / Esplora a Piedi -->
-          <button type="button" onclick="window.Map3D.toggleCameraMode()" id="map3d-btn-camera" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-sky-300 hover:text-sky-200 text-xs font-bold flex items-center gap-1" title="Vista Prima Persona POV">
-            👁️ <span id="map3d-camera-label">Top-Down</span>
-          </button>
-
           <!-- Snapshot HD -->
-          <button type="button" onclick="window.Map3D.captureSnapshot()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-amber-300 hover:text-amber-200 text-xs font-bold flex items-center gap-1" title="Cattura Snapshot HD della Mappa">
-            📸 Snapshot HD
+          <button type="button" onclick="window.Map3D.captureSnapshot()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-amber-300 hover:text-amber-200 text-xs font-bold flex items-center gap-1" title="Cattura Snapshot HD della Mappa (Tasto F)">
+            📸 Foto HD
           </button>
 
           <!-- Esporta / Importa JSON -->
-          <button type="button" onclick="window.Map3D.exportMapJSON()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 hover:text-emerald-200 text-xs font-bold" title="Esporta File JSON">
+          <button type="button" onclick="window.Map3D.exportMapJSON()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 hover:text-emerald-200 text-xs font-bold" title="Esporta Mappa in File JSON">
             💾 Esporta
           </button>
-          <label class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-indigo-300 hover:text-indigo-200 text-xs font-bold cursor-pointer" title="Importa File JSON">
+          <label class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-indigo-300 hover:text-indigo-200 text-xs font-bold cursor-pointer" title="Importa Mappa da File JSON">
             📂 Importa
             <input type="file" accept=".json" onchange="window.Map3D.importMapJSON(event)" class="hidden">
           </label>
@@ -1976,41 +2245,29 @@ window.Map3D = (function() {
         
         <!-- DOCK LATERALE SINISTRO STILE DUNGEON ALCHEMIST -->
         <aside id="map3d-dock" class="w-80 bg-slate-950/95 border-r border-slate-800 flex flex-col z-20 backdrop-blur-md overflow-hidden transition-all duration-300">
-          
-          <!-- Tab Categories Bar -->
-          <div class="flex overflow-x-auto no-scrollbar border-b border-slate-800 bg-slate-900/60 p-1.5 gap-1">
-            <button type="button" onclick="window.Map3D.switchTab('rooms')" id="tab-btn-rooms" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-amber-500 text-slate-950">🏠 Stanze</button>
-            <button type="button" onclick="window.Map3D.switchTab('stairs')" id="tab-btn-stairs" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🪜 Scale</button>
-            <button type="button" onclick="window.Map3D.switchTab('structures')" id="tab-btn-structures" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🧱 Mura</button>
-            <button type="button" onclick="window.Map3D.switchTab('furniture')" id="tab-btn-furniture" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🪑 Arredi</button>
-            <button type="button" onclick="window.Map3D.switchTab('lights')" id="tab-btn-lights" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🔥 Luci</button>
-            <button type="button" onclick="window.Map3D.switchTab('nature')" id="tab-btn-nature" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🌲 Natura</button>
-            <button type="button" onclick="window.Map3D.switchTab('terrain')" id="tab-btn-terrain" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300">🪨 Terreni</button>
-          </div>
-
-          <!-- Azioni Rapide & Modalità (Piazza, Cancella, Ruota) -->
-          <div class="p-2.5 border-b border-slate-800 bg-slate-900/40 flex items-center justify-between gap-1.5">
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="window.Map3D.setToolMode('build')" id="mode-btn-build" class="px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-sky-500 text-slate-950 transition">Piazza</button>
-              <button type="button" onclick="window.Map3D.setToolMode('delete')" id="mode-btn-delete" class="px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-slate-900 text-slate-400 hover:text-red-300 transition">Gomma</button>
-              <button type="button" onclick="window.Map3D.rotateAsset()" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-amber-300 hover:bg-slate-800 border border-slate-700 transition" title="Ruota (Tasto R)">Ruota 90° (R)</button>
-            </div>
-            
-            <!-- Elevazione / Piano -->
-            <div id="map3d-elevation-box" class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
-              <span class="text-[10px] text-slate-400 font-mono">Piano:</span>
-              <button type="button" onclick="window.Map3D.adjustElevation(-1.5)" class="text-xs text-sky-400 hover:text-white px-1 font-bold">-</button>
-              <span id="map3d-elev-val" class="text-xs font-mono font-bold text-amber-300">0.0m</span>
-              <button type="button" onclick="window.Map3D.adjustElevation(1.5)" class="text-xs text-sky-400 hover:text-white px-1 font-bold">+</button>
-            </div>
-          </div>
-
-          <!-- Asset List Container -->
-          <div id="map3d-asset-list" class="flex-1 overflow-y-auto p-2.5 space-y-2"></div>
+          <!-- Contenuto dinamico del dock renderizzato da renderDockUI() -->
+          <div id="map3d-dock-content" class="flex-1 overflow-y-auto p-2.5 space-y-2"></div>
         </aside>
 
-        <!-- Viewport 3D -->
+        <!-- Viewport 3D Three.js -->
         <div id="map3d-viewport" class="flex-1 w-full h-full relative overflow-hidden"></div>
+
+        <!-- Floating HUD Modalità Cinematica -->
+        <div id="map3d-cinematic-hud" class="hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-30 bg-slate-950/85 backdrop-blur-md border border-amber-500/40 rounded-full px-5 py-2 flex items-center gap-4 text-xs shadow-2xl text-slate-200 pointer-events-auto">
+            <span class="font-cinzel font-bold text-amber-400 flex items-center gap-1.5 tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              MODALITÀ CINEMATICA
+            </span>
+            <span class="h-4 w-px bg-slate-700"></span>
+            <span class="text-slate-300">🚶 <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-sky-300">WASD</kbd> Cammina</span>
+            <span class="text-slate-300">🖱️ <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-sky-300">Mouse Dx</kbd> Guarda</span>
+            <button type="button" onclick="window.Map3D.captureSnapshot()" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/50 text-sky-200 font-bold flex items-center gap-1">
+              📸 Foto HD (<kbd class="text-[9px] font-mono">F</kbd>)
+            </button>
+            <button type="button" onclick="window.Map3D.toggleCinematicMode(false)" class="px-3 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-200 font-cinzel font-bold">
+              ✕ Esci (<kbd class="text-[9px] font-mono">ESC</kbd>)
+            </button>
+          </div>
       </div>
     `;
 
@@ -2018,45 +2275,57 @@ window.Map3D = (function() {
   }
 
   function renderAtmosphereButtons() {
-    const box = document.getElementById('map3d-atmos-buttons');
-    if (!box) return;
-
-    const list = [
-      { id: 'giorno', label: '☀️ Giorno' },
-      { id: 'notte_aurora', label: '🌌 Aurora' },
-      { id: 'bufera', label: '❄️ Bufera' },
-      { id: 'cripta', label: '🕯️ Cripta' }
-    ];
-
-    box.innerHTML = list.map(a => `
-      <button type="button" onclick="window.Map3D.setAtmosphere('${a.id}')"
-              class="px-2 py-1 rounded-lg font-bold transition ${currentAtmosphere === a.id ? 'bg-sky-500 text-slate-950' : 'text-slate-400 hover:text-white'}">
-        ${a.label}
-      </button>
-    `).join('');
+    // Compatibilità vuota: i bottoni atmosfere hardcoded nell'header sono stati eliminati a favore del pannello Ambiente & Luce
   }
 
-  function renderDockUI() {
-    const listEl = document.getElementById('map3d-asset-list');
-    if (!listEl) return;
-
-    // Aggiorna classi tab
-    ['rooms', 'stairs', 'structures', 'furniture', 'lights', 'nature', 'terrain'].forEach(t => {
-      const btn = document.getElementById(`tab-btn-${t}`);
+  function switchMode(mode) {
+    activeMode = mode;
+    
+    // Aggiorna classi bottoni modalità nell'header
+    ['rooms', 'objects', 'terrain', 'environment', 'tokens'].forEach(m => {
+      const btn = document.getElementById(`nav-mode-${m}`);
       if (btn) {
-        btn.className = (activeTab === t)
-          ? 'px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-amber-500 text-slate-950 shadow-md'
-          : 'px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 whitespace-nowrap transition bg-slate-900 text-slate-300 hover:bg-slate-800';
+        if (m === activeMode) {
+          btn.className = 'nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition bg-amber-500 text-slate-950 shadow';
+        } else {
+          btn.className = 'nav-mode-btn px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:bg-slate-800';
+        }
       }
     });
 
-    if (activeTab === 'rooms') {
-      // Room Painter UI
-      const rooms = ASSET_CATALOG.rooms;
-      listEl.innerHTML = `
-        <div class="norse-panel rounded-xl p-3 border border-amber-500/40 space-y-2 mb-3 bg-amber-950/20">
-          <span class="text-[10px] font-cinzel font-bold text-amber-300 uppercase tracking-wider block">Generatore Stanze &amp; Case</span>
-          <p class="text-[11px] text-slate-300 leading-tight">Scegli una stanza a tema e le dimensioni. Clicca poi su <strong>"Genera Stanza"</strong> per piazzare l'intera struttura arredata in 1 clic!</p>
+    if (mode === 'rooms') {
+      toolMode = 'room_painter';
+    } else if (mode === 'objects') {
+      toolMode = 'build';
+      const assets = ASSET_CATALOG[activeTab] || [];
+      if (assets.length > 0) {
+        selectedAssetId = assets[0].id;
+        updateGhostPreview();
+      }
+    } else if (mode === 'terrain') {
+      toolMode = 'terrain';
+    } else if (mode === 'environment') {
+      toolMode = 'select';
+    } else if (mode === 'tokens') {
+      toolMode = 'tokens';
+    }
+
+    renderDockUI();
+  }
+
+  function renderDockUI() {
+    const dockEl = document.getElementById('map3d-dock-content');
+    if (!dockEl) return;
+
+    // =========================================================================
+    // 1. MODALITÀ: DISEGNA STANZA (AI ROOM GENERATOR)
+    // =========================================================================
+    if (activeMode === 'rooms') {
+      const rooms = ASSET_CATALOG.rooms || [];
+      dockEl.innerHTML = `
+        <div class="norse-panel rounded-xl p-3 border border-amber-500/40 space-y-2 mb-2 bg-amber-950/20">
+          <span class="text-[10px] font-cinzel font-bold text-amber-300 uppercase tracking-wider block">Generatore Stanze con AI</span>
+          <p class="text-[11px] text-slate-300 leading-tight">Scegli il tema architettonico e la misura. Clicca <strong>"Genera"</strong> per piazzare l'intera stanza auto-arredata in 1 clic!</p>
           
           <div class="flex items-center gap-2 pt-1">
             <label class="text-[10px] text-slate-400 font-bold uppercase">Misura:</label>
@@ -2070,14 +2339,14 @@ window.Map3D = (function() {
 
         <div class="space-y-2">
           ${rooms.map(r => `
-            <div class="p-2.5 rounded-xl border transition cursor-pointer flex flex-col gap-1.5 ${selectedRoomTheme === r.theme ? 'bg-amber-500/20 border-amber-400' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+            <div class="p-2.5 rounded-xl border transition cursor-pointer flex flex-col gap-1.5 ${selectedRoomTheme === r.theme ? 'bg-amber-500/20 border-amber-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
                  onclick="window.Map3D.selectRoomTheme('${r.theme}')">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-xl">${r.icon}</span>
                   <span class="font-cinzel font-bold text-xs text-white">${r.name}</span>
                 </div>
-                <button type="button" onclick="event.stopPropagation(); window.Map3D.spawnRoomNow('${r.theme}')" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-cinzel font-black text-[10px] shadow">
+                <button type="button" onclick="event.stopPropagation(); window.Map3D.spawnRoomNow('${r.theme}')" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-[10px] shadow">
                   Genera
                 </button>
               </div>
@@ -2086,13 +2355,52 @@ window.Map3D = (function() {
           `).join('')}
         </div>
       `;
-    } else {
-      // Asset Catalog List
-      const assets = ASSET_CATALOG[activeTab] || [];
-      listEl.innerHTML = `
-        <div class="grid grid-cols-1 gap-2">
-          ${assets.map(a => `
-            <div class="p-2.5 rounded-xl border transition cursor-pointer flex items-center gap-2.5 ${selectedAssetId === a.id ? 'bg-sky-500/20 border-sky-400' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+    }
+    // =========================================================================
+    // 2. MODALITÀ: OGGETTI & ARREDI (STRUCTURES, FURNITURE, LIGHTS, NATURE)
+    // =========================================================================
+    else if (activeMode === 'objects') {
+      const subTabs = [
+        { id: 'stairs', label: '🪜 Scale' },
+        { id: 'structures', label: '🧱 Mura' },
+        { id: 'furniture', label: '🪑 Arredi' },
+        { id: 'lights', label: '🔥 Luci' },
+        { id: 'nature', label: '🌲 Natura' }
+      ];
+
+      const currentAssets = ASSET_CATALOG[activeTab] || [];
+
+      dockEl.innerHTML = `
+        <!-- Sub-Tabs Oggetti -->
+        <div class="flex overflow-x-auto no-scrollbar border-b border-slate-800 bg-slate-900/60 p-1 gap-1 rounded-xl mb-2">
+          ${subTabs.map(st => `
+            <button type="button" onclick="window.Map3D.switchTab('${st.id}')"
+                    class="flex-1 py-1 px-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition ${activeTab === st.id ? 'bg-amber-500 text-slate-950 font-cinzel shadow' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+              ${st.label}
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Strumenti Azione: Piazza / Gomma / Ruota / Piano -->
+        <div class="p-2 border border-slate-800 bg-slate-900/60 rounded-xl flex items-center justify-between gap-1 mb-2">
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="window.Map3D.setToolMode('build')" id="mode-btn-build" class="px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold ${toolMode === 'build' ? 'bg-sky-500 text-slate-950' : 'bg-slate-950 text-slate-300'} transition">Piazza</button>
+            <button type="button" onclick="window.Map3D.setToolMode('delete')" id="mode-btn-delete" class="px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold ${toolMode === 'delete' ? 'bg-rose-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-red-300'} transition">Gomma</button>
+            <button type="button" onclick="window.Map3D.rotateAsset()" class="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-amber-300 border border-slate-800 hover:bg-slate-800 transition" title="Ruota 90° (Tasto R)">Ruota (R)</button>
+          </div>
+          
+          <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 font-mono">Piano:</span>
+            <button type="button" onclick="window.Map3D.adjustElevation(-1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">-</button>
+            <span id="map3d-elev-val" class="text-[11px] font-mono font-bold text-amber-300">${currentElevation.toFixed(1)}m</span>
+            <button type="button" onclick="window.Map3D.adjustElevation(1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">+</button>
+          </div>
+        </div>
+
+        <!-- Lista Asset 3D GLB -->
+        <div class="grid grid-cols-1 gap-1.5">
+          ${currentAssets.map(a => `
+            <div class="p-2 rounded-xl border transition cursor-pointer flex items-center gap-2.5 ${selectedAssetId === a.id ? 'bg-sky-500/20 border-sky-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
                  onclick="window.Map3D.selectAsset('${a.id}')">
               <span class="text-2xl">${a.icon}</span>
               <div class="min-w-0 flex-1">
@@ -2101,6 +2409,189 @@ window.Map3D = (function() {
               </div>
             </div>
           `).join('')}
+        </div>
+      `;
+    }
+    // =========================================================================
+    // 3. MODALITÀ: TERRENO & BIOMI (DUNGEON ALCHEMIST TERRAIN BRUSH)
+    // =========================================================================
+    else if (activeMode === 'terrain') {
+      const biomes = [
+        { id: 'terrain_snow', name: 'Taiga Innevata', icon: '❄️', desc: 'Manto nevoso profondo e candido di Midgardr' },
+        { id: 'terrain_packed_dirt', name: 'Sentiero Terra & Fango', icon: '🟤', desc: 'Terra battuta calpestata da mercanti ed eserciti' },
+        { id: 'terrain_planks_tavern', name: 'Tavolato in Legno', icon: '🪵', desc: "Pavimento rustico in assi d'abete per interni" },
+        { id: 'terrain_flagstone', name: 'Lastricato Fortezza', icon: '🧱', desc: 'Pietra squadrata tagliata per sale e cinte murarie' },
+        { id: 'terrain_mountain_rock', name: 'Roccia Viva di Montagna', icon: '⛰️', desc: 'Granito scuro naturale delle vette alpine' },
+        { id: 'terrain_runic_circle', name: 'Lastra con Runa Sacra', icon: 'ᛈ', desc: 'Cerchio magico intagliato con incisioni luminose' }
+      ];
+
+      dockEl.innerHTML = `
+        <div class="norse-panel rounded-xl p-3 border border-sky-500/40 space-y-2 mb-2 bg-sky-950/20">
+          <span class="text-[10px] font-cinzel font-bold text-sky-300 uppercase tracking-wider block">Pennello Biomi &amp; Terreno</span>
+          <p class="text-[11px] text-slate-300 leading-tight">Dipingi il suolo cliccando sulla mappa. Scegli la dimensione del pennello o riempi l'intera area in un colpo solo.</p>
+          
+          <div class="flex items-center gap-2 pt-1">
+            <label class="text-[10px] text-slate-400 font-bold uppercase">Pennello:</label>
+            <div class="flex gap-1 flex-1">
+              <button type="button" onclick="window.Map3D.setTerrainBrushSize(1)" class="flex-1 py-1 rounded-lg text-[10px] font-bold ${terrainBrushSize === 1 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">🖌️ 1x1 Singolo</button>
+              <button type="button" onclick="window.Map3D.setTerrainBrushSize(3)" class="flex-1 py-1 rounded-lg text-[10px] font-bold ${terrainBrushSize === 3 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">🖌️ 3x3 Area</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          ${biomes.map(b => `
+            <div class="p-2.5 rounded-xl border transition cursor-pointer flex flex-col gap-1.5 ${selectedTerrainId === b.id ? 'bg-sky-500/20 border-sky-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+                 onclick="window.Map3D.selectTerrain('${b.id}')">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">${b.icon}</span>
+                  <span class="font-cinzel font-bold text-xs text-white">${b.name}</span>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); window.Map3D.fillEntireMapWithBiome('${b.id}')"
+                        class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 text-[10px] font-bold border border-sky-500/30"
+                        title="Applica a tutte le tessere terreno">
+                  Riempi Tutto
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-400 leading-tight">${b.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    // =========================================================================
+    // 4. MODALITÀ: AMBIENTE & LUCE (TIME OF DAY, WEATHER, DYNAMIC LIGHTS)
+    // =========================================================================
+    else if (activeMode === 'environment') {
+      const timesOfDay = [
+        { id: 'day', label: 'Giorno', icon: '☀️', desc: 'Luce solare brillante e nitida' },
+        { id: 'dusk', label: 'Tramonto', icon: '🌅', desc: 'Ora dorata con ombre lunghe e calde' },
+        { id: 'night', label: 'Notte', icon: '🌙', desc: 'Cielo scuro stellato e luce lunare fredda' }
+      ];
+
+      const weathers = [
+        { id: 'clear', label: 'Sereno', icon: '☀️', desc: 'Aria nitida, cielo terso e visibilità perfetta' },
+        { id: 'snow', label: 'Bufera di Neve', icon: '❄️', desc: 'Fiocchi 3D animati cadenti in tempo reale' },
+        { id: 'aurora', label: 'Aurora Boreale', icon: '🌌', desc: 'Bagliori mistici verde smeraldo e ciano nel cielo' },
+        { id: 'fog', label: 'Nebbia Spettrale', icon: '🌫️', desc: 'Densa foschia volumetrica a bassa quota' }
+      ];
+
+      dockEl.innerHTML = `
+        <div class="space-y-3">
+          <!-- 1. Ora del Giorno -->
+          <div class="norse-panel rounded-xl p-3 border border-amber-500/40 bg-amber-950/20 space-y-2">
+            <span class="text-[10px] font-cinzel font-bold text-amber-300 uppercase tracking-wider block">Ora del Giorno (Time of Day)</span>
+            <div class="grid grid-cols-3 gap-1.5">
+              ${timesOfDay.map(t => `
+                <button type="button" onclick="window.Map3D.setTimeOfDay('${t.id}')"
+                        class="p-2 rounded-xl flex flex-col items-center gap-1 border transition ${currentTimeOfDay === t.id ? 'bg-amber-500 text-slate-950 font-bold border-amber-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                  <span class="text-xl">${t.icon}</span>
+                  <span class="text-[10px] font-cinzel font-bold">${t.label}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 2. Meteo & Fenomeni Nordici -->
+          <div class="norse-panel rounded-xl p-3 border border-sky-500/40 bg-sky-950/20 space-y-2">
+            <span class="text-[10px] font-cinzel font-bold text-sky-300 uppercase tracking-wider block">Meteo &amp; Fenomeni Nordici</span>
+            <div class="space-y-1.5">
+              ${weathers.map(w => `
+                <div class="p-2 rounded-xl border transition cursor-pointer flex items-center justify-between ${currentWeather === w.id ? 'bg-sky-500/20 border-sky-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+                     onclick="window.Map3D.setWeather('${w.id}')">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">${w.icon}</span>
+                    <div>
+                      <div class="font-cinzel font-bold text-xs text-white">${w.label}</div>
+                      <div class="text-[10px] text-slate-400">${w.desc}</div>
+                    </div>
+                  </div>
+                  <span class="text-xs ${currentWeather === w.id ? 'text-sky-300 font-bold' : 'text-slate-600'}">✓</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 3. Illuminazione Torce & Fiamme -->
+          <div class="norse-panel rounded-xl p-3 border border-orange-500/40 bg-orange-950/20 space-y-2">
+            <span class="text-[10px] font-cinzel font-bold text-orange-300 uppercase tracking-wider block">Intensità Fiamme &amp; Torce</span>
+            <p class="text-[10px] text-slate-300 leading-tight">Le torce, i camini e le lanterne proiettano luce dinamica calda su muri e arredi.</p>
+            <div class="grid grid-cols-4 gap-1 pt-1">
+              <button type="button" onclick="window.Map3D.setTorchMultiplier(0)" class="py-1 rounded-lg text-[10px] font-bold ${currentTorchMultiplier === 0 ? 'bg-orange-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">Spente (0x)</button>
+              <button type="button" onclick="window.Map3D.setTorchMultiplier(1)" class="py-1 rounded-lg text-[10px] font-bold ${currentTorchMultiplier === 1 ? 'bg-orange-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">1.0x</button>
+              <button type="button" onclick="window.Map3D.setTorchMultiplier(1.5)" class="py-1 rounded-lg text-[10px] font-bold ${currentTorchMultiplier === 1.5 ? 'bg-orange-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">1.5x</button>
+              <button type="button" onclick="window.Map3D.setTorchMultiplier(2)" class="py-1 rounded-lg text-[10px] font-bold ${currentTorchMultiplier === 2 ? 'bg-orange-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">2.0x</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    // =========================================================================
+    // 5. MODALITÀ: TOKEN & EROI (CAMPAIGN MEMBERS & MONSTER SPAWNER)
+    // =========================================================================
+    else if (activeMode === 'tokens') {
+      const camp = (window.campaignsData && window.campaignsData[currentCampCode]) || {};
+      const members = camp.members || {};
+      const memberList = Object.entries(members).map(([k, v]) => ({ key: k, ...v }));
+
+      const monsterList = [
+        { id: 'wolf', name: "Lupo dell'Inverno", icon: '🐺', hp: 32, type: 'Bestia' },
+        { id: 'draugr', name: 'Draugr dei Ghiacci', icon: '🧟', hp: 45, type: 'Non Morto' },
+        { id: 'berserker', name: 'Berserker Nemico', icon: '👹', hp: 67, type: 'Umanoide' },
+        { id: 'skeleton', name: 'Scheletro Guerriero', icon: '💀', hp: 22, type: 'Non Morto' },
+        { id: 'jotunn', name: 'Jötunn del Gelo', icon: '🧌', hp: 138, type: 'Gigante' }
+      ];
+
+      dockEl.innerHTML = `
+        <div class="space-y-3">
+          <!-- Membri Attivi della Campagna -->
+          <div class="norse-panel rounded-xl p-3 border border-sky-500/40 bg-sky-950/20 space-y-2">
+            <span class="text-[10px] font-cinzel font-bold text-sky-300 uppercase tracking-wider block">Pedine Eroi in Gioco (${memberList.length})</span>
+            ${memberList.length === 0 ? `
+              <p class="text-[10px] text-slate-400 italic">Nessun eroe presente in questa campagna.</p>
+            ` : `
+              <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                ${memberList.map(m => `
+                  <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between gap-1.5">
+                    <div class="min-w-0 flex-1">
+                      <div class="font-bold text-xs text-white truncate flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full ${m.isEnemy ? 'bg-rose-500' : 'bg-emerald-400'}"></span>
+                        ${m.name || m.key}
+                      </div>
+                      <div class="text-[9px] text-slate-400">${m.charClass || 'Guerriero'} • PV: ${m.hp || 20}/${m.maxHp || 20}</div>
+                    </div>
+                    <button type="button" onclick="window.Map3D.centerCameraOnMiniature('${m.key}')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 text-[10px] font-bold border border-slate-700">
+                      Inquadra
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+
+          <!-- Spawner Mostri Norreni del DM -->
+          <div class="norse-panel rounded-xl p-3 border border-rose-500/40 bg-rose-950/20 space-y-2">
+            <span class="text-[10px] font-cinzel font-bold text-rose-300 uppercase tracking-wider block">Schiera Mostri del Bestiario (DM)</span>
+            <p class="text-[10px] text-slate-300 leading-tight">Posiziona istantaneamente un nemico sulla griglia alla coordinata del cursore.</p>
+            <div class="space-y-1.5">
+              ${monsterList.map(m => `
+                <div class="p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">${m.icon}</span>
+                    <div>
+                      <div class="font-bold text-xs text-rose-200">${m.name}</div>
+                      <div class="text-[9px] text-slate-400">${m.type} • PV: ${m.hp}</div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="window.Map3D.spawnMonsterToken('${m.id}')"
+                          class="px-2.5 py-1 rounded bg-rose-950 hover:bg-rose-900 border border-rose-500/50 text-rose-200 font-cinzel font-bold text-[10px] shadow">
+                    Schiera
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
         </div>
       `;
     }
@@ -2116,17 +2607,15 @@ window.Map3D = (function() {
   return {
     openMap: openTacticalMap,
     closeMap: closeTacticalMap,
+    switchMode: switchMode,
     switchTab: function(tab) {
       activeTab = tab;
-      if (tab === 'rooms') {
-        toolMode = 'room_painter';
-      } else {
-        toolMode = 'build';
-        const assets = ASSET_CATALOG[tab] || [];
-        if (assets.length > 0) {
-          selectedAssetId = assets[0].id;
-          updateGhostPreview();
-        }
+      activeMode = 'objects';
+      toolMode = 'build';
+      const assets = ASSET_CATALOG[tab] || [];
+      if (assets.length > 0) {
+        selectedAssetId = assets[0].id;
+        updateGhostPreview();
       }
       renderDockUI();
     },
@@ -2153,8 +2642,8 @@ window.Map3D = (function() {
       toolMode = mode;
       const bBuild = document.getElementById('mode-btn-build');
       const bDelete = document.getElementById('mode-btn-delete');
-      if (bBuild) bBuild.className = (mode === 'build') ? 'px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-sky-500 text-slate-950 transition' : 'px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-slate-900 text-slate-300 transition';
-      if (bDelete) bDelete.className = (mode === 'delete') ? 'px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-rose-600 text-white transition' : 'px-3 py-1.5 rounded-lg text-xs font-cinzel font-bold bg-slate-900 text-slate-400 transition';
+      if (bBuild) bBuild.className = (mode === 'build') ? 'px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold bg-sky-500 text-slate-950 transition' : 'px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold bg-slate-950 text-slate-300 transition';
+      if (bDelete) bDelete.className = (mode === 'delete') ? 'px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold bg-rose-600 text-white transition' : 'px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold bg-slate-950 text-slate-400 transition';
     },
     rotateAsset: function() {
       assetRotationY = (assetRotationY + Math.PI / 2) % (Math.PI * 2);
@@ -2164,7 +2653,21 @@ window.Map3D = (function() {
       currentElevation = Math.max(0.0, Math.min(6.0, currentElevation + delta));
       renderElevatorUI();
     },
-    setAtmosphere: setAtmosphere,
+    setTerrainBrushSize: function(sz) {
+      terrainBrushSize = sz;
+      renderDockUI();
+    },
+    selectTerrain: function(id) {
+      selectedTerrainId = id;
+      toolMode = 'terrain';
+      renderDockUI();
+    },
+    fillEntireMapWithBiome: fillEntireMapWithBiome,
+    setTimeOfDay: setTimeOfDay,
+    setWeather: setWeather,
+    setTorchMultiplier: setTorchMultiplier,
+    setAtmosphere: setAtmosphere, // backwards compatibility
+    toggleCinematicMode: toggleCinematicMode,
     toggleGrid: function() {
       if (gridHelper) gridHelper.visible = !gridHelper.visible;
       const btn = document.getElementById('map3d-btn-grid');
@@ -2173,15 +2676,12 @@ window.Map3D = (function() {
     toggleCameraMode: function() {
       if (cameraMode === 'tactical') {
         cameraMode = 'isometric';
-        document.getElementById('map3d-camera-label').textContent = 'Isometrica';
       } else if (cameraMode === 'isometric') {
         cameraMode = 'pov';
         povPos.set(cameraTarget.x, currentElevation + 1.7, cameraTarget.z);
         povYaw = cameraYaw;
-        document.getElementById('map3d-camera-label').textContent = 'POV 1ª Persona';
       } else {
         cameraMode = 'tactical';
-        document.getElementById('map3d-camera-label').textContent = 'Top-Down';
       }
     },
     captureSnapshot: function() {
@@ -2230,6 +2730,8 @@ window.Map3D = (function() {
       };
       reader.readAsText(file);
     },
+    spawnMonsterToken: spawnMonsterToken,
+    centerCameraOnMiniature: centerCameraOnMiniature,
     getMapTiles: function() {
       return mapTiles;
     },
