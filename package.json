@@ -1,6 +1,6 @@
 {
   "name": "yggdrasill",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Companion Visuale e Gestionale per sessioni D&D 5e / Journey to Ragnarok con Fucina 3D e Dungeon Alchemist Map Maker",
   "main": "main.js",
   "author": "giakyctrl",

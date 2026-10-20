@@ -37,16 +37,26 @@ window.Map3D = (function() {
   // Strumenti Dungeon Alchemist
   let activeMode = 'rooms'; // 'rooms', 'objects', 'terrain', 'environment', 'tokens'
   let activeTab = 'stairs'; // 'stairs', 'structures', 'furniture', 'lights', 'nature'
-  let toolMode = 'room_painter'; // 'build', 'delete', 'select', 'room_painter', 'terrain', 'tokens'
+  let toolMode = 'room_painter'; // 'build', 'delete', 'select', 'room_painter', 'terrain', 'liquid', 'sculpt_raise', 'sculpt_lower', 'sculpt_level', 'sculpt_reset', 'tokens'
   let selectedAssetId = 'house_viking_cabin';
   let selectedRoomTheme = 'town_entrance';
   let selectedRoomSize = 'large';
   let currentElevation = 0; // 0m (Terra), 1.5m (Mezzanino), 3.0m (1° Piano), 4.5m (2° Piano)
   let assetRotationY = 0; // radianti (rotazione tasto R)
+  let currentAssetScale = 1.0; // 0.5x, 0.75x, 1.0x, 1.5x, 2.0x, 3.0x
 
-  // Pittura Biomi & Terreno (Stile Dungeon Alchemist)
+  // Dimensioni e Confini Mappa (D&D Grid Squares)
+  let mapSize = { width: 20, height: 20 }; // 20x20 = 30m x 30m standard
+  let mapBoundaryGroup = null;
+
+  // Pittura Biomi, Alture & Liquidi 3D (Stile Dungeon Alchemist)
+  let terrainSubTab = 'biomes'; // 'biomes', 'sculpt', 'liquids', 'map_size'
   let selectedTerrainId = 'terrain_snow';
   let terrainBrushSize = 1; // 1 o 3
+  let sculptBrushSize = 1; // 1 o 3
+  let targetSculptLevel = 1.5;
+  let selectedLiquidId = 'liquid_water';
+  let liquidElevation = -0.2; // -0.5m, -0.2m, 0.0m, 1.5m
 
   // Illuminazione, Tempo & Atmosfere Dinamiche (Stile Dungeon Alchemist)
   let currentTimeOfDay = 'day'; // 'day' (Giorno), 'dusk' (Tramonto), 'night' (Notte)
@@ -665,11 +675,55 @@ window.Map3D = (function() {
             "name": "Lastra con Runa Sacra",
             "icon": "ᛈ",
             "desc": "Cerchio magico intagliato nel suolo"
+        },
+        {
+            "id": "terrain_grass",
+            "name": "Prato Smeraldo & Muschio",
+            "icon": "🌿",
+            "desc": "Manto erboso folto e muschio verde per radure e boschi"
+        },
+        {
+            "id": "terrain_sand",
+            "name": "Sabbia dei Fiordi & Coste",
+            "icon": "🏜️",
+            "desc": "Sabbia costiera dorata per spiagge e litorali"
+        },
+        {
+            "id": "terrain_cobblestone",
+            "name": "Ciottoli & Selciato Rustico",
+            "icon": "🪨",
+            "desc": "Pietre tondeggianti da fiume per piazzali di villaggi"
+        }
+    ],
+    "liquids": [
+        {
+            "id": "liquid_water",
+            "name": "Acqua Cristallina dei Fiordi",
+            "icon": "💧",
+            "desc": "Acqua turchese con moto ondoso animato"
+        },
+        {
+            "id": "liquid_lava",
+            "name": "Lava Vulcanica Incandescente",
+            "icon": "🌋",
+            "desc": "Magma ardente con luce dinamica PointLight e fumo caldo"
+        },
+        {
+            "id": "liquid_acid",
+            "name": "Pozza d'Acido Tossico",
+            "icon": "🧪",
+            "desc": "Liquido chimico fluorescente verde brillante con bagliore"
+        },
+        {
+            "id": "liquid_swamp",
+            "name": "Melma di Palude Norrena",
+            "icon": "🪵",
+            "desc": "Acqua stagnante scura e torbida da acquitrino"
         }
     ]
 };
 
-  function createAssetMesh(type, rotY = 0) {
+  function createAssetMesh(type, rotY = 0, elevY = 0) {
     const group = new THREE.Group();
     group.rotation.y = rotY;
 
@@ -682,6 +736,9 @@ window.Map3D = (function() {
     const goldBronzeMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.6 });
     const thatchMat = new THREE.MeshStandardMaterial({ color: 0xca8a04, roughness: 0.95 });
     const snowMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.9 });
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.85 });
+    const sandMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.95 });
+    const cobbleMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 });
     const fireMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xfbbf24, emissiveIntensity: 1.2, roughness: 0.2 });
     const runeGlowMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0ea5e9, emissiveIntensity: 1.0, roughness: 0.3 });
     const bearFurMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.95 });
@@ -998,6 +1055,100 @@ window.Map3D = (function() {
         break;
       }
 
+      case 'terrain_grass': {
+        const grassTile = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.1, GRID_SIZE), grassMat);
+        grassTile.position.y = -0.05;
+        grassTile.receiveShadow = true;
+        group.add(grassTile);
+        // Ciuffetti d'erba decorativi
+        const tuftMat = new THREE.MeshStandardMaterial({ color: 0x40916c, roughness: 0.9 });
+        const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.2, 4), tuftMat);
+        tuft.position.set(0.3, 0.08, -0.2);
+        tuft.rotation.z = 0.2;
+        group.add(tuft);
+        break;
+      }
+
+      case 'terrain_sand': {
+        const sandTile = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.1, GRID_SIZE), sandMat);
+        sandTile.position.y = -0.05;
+        sandTile.receiveShadow = true;
+        group.add(sandTile);
+        break;
+      }
+
+      case 'terrain_cobblestone': {
+        const cobbleTile = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.1, GRID_SIZE), cobbleMat);
+        cobbleTile.position.y = -0.05;
+        cobbleTile.receiveShadow = true;
+        group.add(cobbleTile);
+        break;
+      }
+
+      // Liquidi 3D Dinamici
+      case 'liquid_water': {
+        const waterMat = new THREE.MeshStandardMaterial({
+          color: 0x0284c7,
+          roughness: 0.05,
+          metalness: 0.15,
+          transparent: true,
+          opacity: 0.78
+        });
+        const waterMesh = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.12, GRID_SIZE), waterMat);
+        waterMesh.position.y = -0.04;
+        group.add(waterMesh);
+        group.userData.isLiquid = true;
+        group.userData.liquidType = 'water';
+        break;
+      }
+
+      case 'liquid_lava': {
+        const lavaMat = new THREE.MeshStandardMaterial({
+          color: 0x991b1b,
+          emissive: 0xf97316,
+          emissiveIntensity: 1.8,
+          roughness: 0.4
+        });
+        const lavaMesh = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.14, GRID_SIZE), lavaMat);
+        lavaMesh.position.y = -0.03;
+        group.add(lavaMesh);
+        group.userData.isLiquid = true;
+        group.userData.liquidType = 'lava';
+        break;
+      }
+
+      case 'liquid_acid': {
+        const acidMat = new THREE.MeshStandardMaterial({
+          color: 0x16a34a,
+          emissive: 0x84cc16,
+          emissiveIntensity: 1.5,
+          transparent: true,
+          opacity: 0.85,
+          roughness: 0.2
+        });
+        const acidMesh = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.12, GRID_SIZE), acidMat);
+        acidMesh.position.y = -0.04;
+        group.add(acidMesh);
+        group.userData.isLiquid = true;
+        group.userData.liquidType = 'acid';
+        break;
+      }
+
+      case 'liquid_swamp': {
+        const swampMat = new THREE.MeshStandardMaterial({
+          color: 0x2d3a24,
+          transparent: true,
+          opacity: 0.90,
+          roughness: 0.45
+        });
+        const swampMesh = new THREE.Mesh(new THREE.BoxGeometry(GRID_SIZE, 0.12, GRID_SIZE), swampMat);
+        swampMesh.position.y = -0.04;
+        group.add(swampMesh);
+        group.userData.isLiquid = true;
+        group.userData.liquidType = 'swamp';
+        break;
+      }
+
       default: {
         // Fallback generico scatola legno
         const defMesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), woodPlankMat);
@@ -1005,6 +1156,15 @@ window.Map3D = (function() {
         group.add(defMesh);
         break;
       }
+    }
+
+    // Scogliere 3D per terreni sopraelevati (Alture & Rilievi)
+    if (type.startsWith('terrain_') && elevY > 0.08) {
+      const cliffGeo = new THREE.BoxGeometry(GRID_SIZE * 0.99, elevY, GRID_SIZE * 0.99);
+      const cliffMesh = new THREE.Mesh(cliffGeo, stoneDarkMat);
+      cliffMesh.position.y = -elevY / 2;
+      cliffMesh.receiveShadow = true;
+      group.add(cliffMesh);
     }
 
     return group;
@@ -1305,12 +1465,25 @@ window.Map3D = (function() {
     dynamicPointLights.forEach(l => scene.remove(l));
     dynamicPointLights = [];
 
+    updateMapBoundaries();
+
     mapTiles.forEach(tile => {
-      const mesh = createAssetMesh(tile.type, tile.rotY || 0);
+      const mesh = createAssetMesh(tile.type, tile.rotY || 0, tile.y || 0);
       mesh.position.set(tile.x, tile.y || 0, tile.z);
-      mesh.userData = { tileId: tile.id, tileData: tile };
+      if (tile.scale && tile.scale !== 1.0) {
+        mesh.scale.set(tile.scale, tile.scale, tile.scale);
+      }
+      mesh.userData = { tileId: tile.id, tileData: tile, baseY: tile.y || 0, isLiquid: mesh.userData.isLiquid };
       scene.add(mesh);
       renderedMeshes.push(mesh);
+
+      // Luce dinamica per lava vulcanica
+      if (tile.type === 'liquid_lava') {
+        const pLight = new THREE.PointLight(0xf97316, 1.3, 7.5);
+        pLight.position.set(tile.x, (tile.y || 0) + 0.8, tile.z);
+        scene.add(pLight);
+        dynamicPointLights.push(pLight);
+      }
 
       // Aggiungi luci dinamiche calde per torce, lampioni, bracieri e camini
       if (tile.type === 'light_torch' || tile.type === 'fireplace_hearth') {
@@ -1516,8 +1689,18 @@ window.Map3D = (function() {
         povPos.z - Math.cos(povYaw) * Math.cos(povPitch)
       );
       camera.lookAt(lookTarget);
+    } else if (cameraMode === 'topdown') {
+      // Vista dall'Alto 2D Zenithale
+      const panSpeed = (cameraDistance * 0.85) * delta;
+      if (keysPressed['KeyW'] || keysPressed['ArrowUp']) cameraTarget.z -= panSpeed;
+      if (keysPressed['KeyS'] || keysPressed['ArrowDown']) cameraTarget.z += panSpeed;
+      if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) cameraTarget.x -= panSpeed;
+      if (keysPressed['KeyD'] || keysPressed['ArrowRight']) cameraTarget.x += panSpeed;
+
+      camera.position.set(cameraTarget.x, cameraTarget.y + cameraDistance, cameraTarget.z);
+      camera.lookAt(cameraTarget.x, cameraTarget.y, cameraTarget.z);
     } else {
-      // Telecamera Tattica / Isometrica TaleSpire & Dungeon Alchemist
+      // Telecamera 3D Libera Orbitale
       const panSpeed = (cameraDistance * 0.75) * delta;
       const forward = new THREE.Vector3(-Math.sin(cameraYaw), 0, -Math.cos(cameraYaw));
       const right = new THREE.Vector3(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw));
@@ -1591,6 +1774,7 @@ window.Map3D = (function() {
     }
 
     const previewMesh = createAssetMesh(selectedAssetId, 0);
+    ghostGroup.scale.set(currentAssetScale, currentAssetScale, currentAssetScale);
     // Rendi semi-trasparente
     previewMesh.traverse(child => {
       if (child.isMesh && child.material) {
@@ -1641,9 +1825,10 @@ window.Map3D = (function() {
     });
 
     if (replacedCount < 16) {
-      const radius = 6;
-      for (let x = -radius; x <= radius; x++) {
-        for (let z = -radius; z <= radius; z++) {
+      const halfW = Math.floor(mapSize.width / 2);
+      const halfH = Math.floor(mapSize.height / 2);
+      for (let x = -halfW; x <= halfW; x++) {
+        for (let z = -halfH; z <= halfH; z++) {
           const tx = x * GRID_SIZE;
           const tz = z * GRID_SIZE;
           const exists = mapTiles.some(t => Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && Math.abs(t.y) < 0.1);
@@ -1754,6 +1939,212 @@ window.Map3D = (function() {
     }
   }
 
+    // ============================================================================
+  // CONFINI E DIMENSIONI MAPPA (DUNGEON ALCHEMIST BOUNDS)
+  // ============================================================================
+  function updateMapBoundaries() {
+    if (!scene) return;
+    if (mapBoundaryGroup) scene.remove(mapBoundaryGroup);
+    mapBoundaryGroup = new THREE.Group();
+
+    const halfW = (mapSize.width / 2) * GRID_SIZE;
+    const halfH = (mapSize.height / 2) * GRID_SIZE;
+
+    const points = [
+      new THREE.Vector3(-halfW, 0.05, -halfH),
+      new THREE.Vector3(halfW, 0.05, -halfH),
+      new THREE.Vector3(halfW, 0.05, halfH),
+      new THREE.Vector3(-halfW, 0.05, halfH),
+      new THREE.Vector3(-halfW, 0.05, -halfH)
+    ];
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+    const line = new THREE.Line(lineGeo, lineMat);
+    mapBoundaryGroup.add(line);
+
+    // Marker angolari luminescenti
+    const cornerGeo = new THREE.BoxGeometry(0.3, 0.6, 0.3);
+    const cornerMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 1.2 });
+    [
+      [-halfW, -halfH], [halfW, -halfH], [halfW, halfH], [-halfW, halfH]
+    ].forEach(([cx, cz]) => {
+      const cMesh = new THREE.Mesh(cornerGeo, cornerMat);
+      cMesh.position.set(cx, 0.3, cz);
+      mapBoundaryGroup.add(cMesh);
+    });
+
+    scene.add(mapBoundaryGroup);
+
+    // Aggiorna anche la griglia magnetica
+    if (gridHelper) scene.remove(gridHelper);
+    const maxDim = Math.max(mapSize.width, mapSize.height) * GRID_SIZE;
+    const maxDiv = Math.max(mapSize.width, mapSize.height);
+    gridHelper = new THREE.GridHelper(maxDim, maxDiv, 0x38bdf8, 0x1e293b);
+    gridHelper.position.y = 0.01;
+    scene.add(gridHelper);
+  }
+
+  function setMapSize(w, h) {
+    mapSize.width = Math.max(8, Math.min(60, parseInt(w, 10) || 20));
+    mapSize.height = Math.max(8, Math.min(60, parseInt(h, 10) || 20));
+    updateMapBoundaries();
+    cameraTarget.set(0, 0, 0);
+    cameraDistance = Math.max(18, Math.max(mapSize.width, mapSize.height) * 1.2);
+    renderDockUI();
+    if (typeof window.showToast === 'function') {
+      window.showToast("Dimensioni Mappa", `Area impostata a ${mapSize.width}x${mapSize.height} caselle (${mapSize.width * 1.5}m x ${mapSize.height * 1.5}m)`, "info");
+    }
+  }
+
+  function clearMapTiles() {
+    if (!confirm("Sei sicuro di voler svuotare tutti gli elementi della mappa?")) return;
+    mapTiles = [];
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+    if (typeof window.showToast === 'function') {
+      window.showToast("Mappa Svuotata", "Tutte le strutture, terreni e arredi sono stati rimossi.", "info");
+    }
+  }
+
+  // ============================================================================
+  // SCULTURA DEL TERRENO: ALTURE & DEPRESSIONI (DUNGEON ALCHEMIST TERRAIN SCULPT)
+  // ============================================================================
+  function sculptTerrainAt(centerX, centerZ, deltaY, brushSize) {
+    const half = (brushSize === 3) ? 1 : 0;
+    for (let dx = -half; dx <= half; dx++) {
+      for (let dz = -half; dz <= half; dz++) {
+        const tx = centerX + dx * GRID_SIZE;
+        const tz = centerZ + dz * GRID_SIZE;
+
+        const existing = mapTiles.find(t => Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && t.type.startsWith('terrain_'));
+        if (existing) {
+          existing.y = Math.max(-3.0, Math.min(6.0, (existing.y || 0) + deltaY));
+        } else {
+          mapTiles.push({
+            id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+            x: tx,
+            y: Math.max(-3.0, Math.min(6.0, deltaY)),
+            z: tz,
+            type: selectedTerrainId,
+            rotY: 0
+          });
+        }
+      }
+    }
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+  }
+
+  function levelTerrainAt(centerX, centerZ, targetY, brushSize) {
+    const half = (brushSize === 3) ? 1 : 0;
+    for (let dx = -half; dx <= half; dx++) {
+      for (let dz = -half; dz <= half; dz++) {
+        const tx = centerX + dx * GRID_SIZE;
+        const tz = centerZ + dz * GRID_SIZE;
+
+        const existing = mapTiles.find(t => Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && t.type.startsWith('terrain_'));
+        if (existing) {
+          existing.y = targetY;
+        } else {
+          mapTiles.push({
+            id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+            x: tx,
+            y: targetY,
+            z: tz,
+            type: selectedTerrainId,
+            rotY: 0
+          });
+        }
+      }
+    }
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+  }
+
+  // ============================================================================
+  // PITTURA LIQUIDI 3D (ACQUA, LAVA, ACIDO, PALUDE)
+  // ============================================================================
+  function paintLiquidAt(centerX, centerZ, liquidId, brushSize, elev) {
+    const half = (brushSize === 3) ? 1 : 0;
+    for (let dx = -half; dx <= half; dx++) {
+      for (let dz = -half; dz <= half; dz++) {
+        const tx = centerX + dx * GRID_SIZE;
+        const tz = centerZ + dz * GRID_SIZE;
+
+        // Rimuovi eventuale liquido precedente a quella coordinata
+        mapTiles = mapTiles.filter(t => !(Math.abs(t.x - tx) < 0.1 && Math.abs(t.z - tz) < 0.1 && t.type.startsWith('liquid_')));
+
+        mapTiles.push({
+          id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+          x: tx,
+          y: elev,
+          z: tz,
+          type: liquidId,
+          rotY: 0
+        });
+      }
+    }
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+  }
+
+  function fillBasinsWithWater() {
+    let filled = 0;
+    mapTiles.forEach(t => {
+      if (t.type.startsWith('terrain_') && (t.y || 0) < -0.1) {
+        // Riempi la depressione d'acqua
+        const exists = mapTiles.some(l => Math.abs(l.x - t.x) < 0.1 && Math.abs(l.z - t.z) < 0.1 && l.type.startsWith('liquid_'));
+        if (!exists) {
+          mapTiles.push({
+            id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+            x: t.x,
+            y: (t.y || 0) + 0.3,
+            z: t.z,
+            type: 'liquid_water',
+            rotY: 0
+          });
+          filled++;
+        }
+      }
+    });
+    rebuildSceneMeshes();
+    saveMapToCampaign();
+    if (typeof window.showToast === 'function') {
+      window.showToast("Fosse Riempite", `${filled} specchi d'acqua creati nei canali e depressioni!`, "success");
+    }
+  }
+
+  // ============================================================================
+  // TOGGLE VISTA DALL'ALTO (2D ZENITHALE) vs TELECAMERA 3D LIBERA
+  // ============================================================================
+  function toggleTopDownView() {
+    if (cameraMode === 'topdown') {
+      cameraMode = 'tactical';
+      cameraPitch = 0.85;
+      cameraYaw = Math.PI / 4;
+      const label = document.getElementById('map3d-viewmode-label');
+      if (label) label.textContent = "Vista 2D (Dall'Alto)";
+      if (typeof window.showToast === 'function') {
+        window.showToast("Telecamera 3D Libera", "Ruota a 360° con tasto destro mouse e naviga in prospettiva 3D.", "info");
+      }
+    } else {
+      cameraMode = 'topdown';
+      cameraPitch = Math.PI / 2 - 0.0001;
+      cameraYaw = 0;
+      const label = document.getElementById('map3d-viewmode-label');
+      if (label) label.textContent = "Vista 3D (Libera)";
+      if (typeof window.showToast === 'function') {
+        window.showToast("Vista dall'Alto (2D)", "Inquadratura zenitale a 90° dall'alto per combattimenti tattici D&D.", "info");
+      }
+    }
+  }
+
+  function setAssetScale(scale) {
+    currentAssetScale = Math.max(0.25, Math.min(4.0, scale));
+    updateGhostPreview();
+    renderDockUI();
+  }
+
   function handlePointerDown(e) {
     if (e.button === 2) {
       isRightMouseDown = true;
@@ -1764,19 +2155,30 @@ window.Map3D = (function() {
 
     if (e.button === 0) {
       if (toolMode === 'room_painter' && userRole === 'DM') {
-        // Genera stanza procedurale alle coordinate cliccate
         generateProceduralRoom(snappedCoord.x, snappedCoord.z, selectedRoomTheme, selectedRoomSize);
       }
       else if (toolMode === 'terrain' && userRole === 'DM') {
-        // Dipingi il terreno alle coordinate con il bioma selezionato
         paintTerrainAt(snappedCoord.x, snappedCoord.z, selectedTerrainId, terrainBrushSize);
       }
+      else if (toolMode === 'liquid' && userRole === 'DM') {
+        paintLiquidAt(snappedCoord.x, snappedCoord.z, selectedLiquidId, terrainBrushSize, liquidElevation);
+      }
+      else if (toolMode === 'sculpt_raise' && userRole === 'DM') {
+        sculptTerrainAt(snappedCoord.x, snappedCoord.z, +0.75, sculptBrushSize);
+      }
+      else if (toolMode === 'sculpt_lower' && userRole === 'DM') {
+        sculptTerrainAt(snappedCoord.x, snappedCoord.z, -0.75, sculptBrushSize);
+      }
+      else if (toolMode === 'sculpt_level' && userRole === 'DM') {
+        levelTerrainAt(snappedCoord.x, snappedCoord.z, targetSculptLevel, sculptBrushSize);
+      }
+      else if (toolMode === 'sculpt_reset' && userRole === 'DM') {
+        levelTerrainAt(snappedCoord.x, snappedCoord.z, 0.0, sculptBrushSize);
+      }
       else if (toolMode === 'build' && userRole === 'DM') {
-        // Piazza asset singolo
-        placeAssetAt(snappedCoord.x, snappedCoord.y, snappedCoord.z, selectedAssetId, assetRotationY);
+        placeAssetAt(snappedCoord.x, snappedCoord.y, snappedCoord.z, selectedAssetId, assetRotationY, currentAssetScale);
       }
       else if (toolMode === 'delete' && userRole === 'DM') {
-        // Rimuovi asset alla coordinata
         removeAssetAt(snappedCoord.x, snappedCoord.y, snappedCoord.z);
       }
       else {
@@ -1808,16 +2210,17 @@ window.Map3D = (function() {
     }
   }
 
-  function placeAssetAt(x, y, z, type, rotY) {
-    // Rimuovi eventuale tile preesistente
-    mapTiles = mapTiles.filter(t => !(Math.abs(t.x - x) < 0.1 && Math.abs(t.z - z) < 0.1 && Math.abs(t.y - y) < 0.1));
+  function placeAssetAt(x, y, z, type, rotY, scale = currentAssetScale) {
+    // Rimuovi eventuale tile non-terreno preesistente alla stessa coordinata
+    mapTiles = mapTiles.filter(t => !(Math.abs(t.x - x) < 0.1 && Math.abs(t.z - z) < 0.1 && Math.abs(t.y - y) < 0.1 && !t.type.startsWith('terrain_') && !t.type.startsWith('liquid_')));
     mapTiles.push({
       id: 'tile_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
       x: x,
       y: y,
       z: z,
       type: type,
-      rotY: rotY
+      rotY: rotY,
+      scale: scale || 1.0
     });
     rebuildSceneMeshes();
     saveMapToCampaign();
@@ -2047,6 +2450,14 @@ window.Map3D = (function() {
         l.intensity = 1.2 + Math.sin(time * 6 + idx) * 0.2;
       });
 
+      // Animazione moto ondoso per liquidi 3D (Acqua, Lava, Acido)
+      renderedMeshes.forEach(m => {
+        if (m.userData && m.userData.isLiquid) {
+          const wave = Math.sin(time * 2.8 + m.position.x * 0.9 + m.position.z * 0.9) * 0.025;
+          m.position.y = (m.userData.baseY || 0) + wave;
+        }
+      });
+
       renderer.render(scene, camera);
     }
     renderLoop();
@@ -2116,6 +2527,11 @@ window.Map3D = (function() {
       if (cameraMode === 'pov') {
         povYaw -= dx * 0.003;
         povPitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, povPitch - dy * 0.003));
+      } else if (cameraMode === 'topdown') {
+        // Pan su assi X e Z in vista dall'alto
+        const panSpeed = cameraDistance * 0.0016;
+        cameraTarget.x -= dx * panSpeed;
+        cameraTarget.z -= dy * panSpeed;
       } else {
         cameraYaw += dx * 0.005;
         cameraPitch = Math.max(0.15, Math.min(Math.PI / 2 - 0.05, cameraPitch - dy * 0.005));
@@ -2209,6 +2625,11 @@ window.Map3D = (function() {
 
         <!-- Azioni Rapide Destra -->
         <div class="flex items-center gap-2">
+          <!-- Toggle Vista dall'Alto 2D vs 3D Libera -->
+          <button type="button" onclick="window.Map3D.toggleTopDownView()" id="map3d-btn-viewmode" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-sky-300 hover:text-sky-200 text-xs font-bold flex items-center gap-1 transition shadow" title="Alterna Vista dall'Alto 2D Zenithale e Telecamera 3D Libera">
+            📐 <span id="map3d-viewmode-label">Vista 2D (Dall'Alto)</span>
+          </button>
+
           <!-- Modalità Cinematica Prima Persona -->
           <button type="button" onclick="window.Map3D.toggleCinematicMode()" id="map3d-btn-cinematic" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-950/80 to-indigo-950/80 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1 transition shadow" title="Modalità Cinematica POV (Alt+Home)">
             🎥 Cinematica
@@ -2381,19 +2802,34 @@ window.Map3D = (function() {
           `).join('')}
         </div>
 
-        <!-- Strumenti Azione: Piazza / Gomma / Ruota / Piano -->
-        <div class="p-2 border border-slate-800 bg-slate-900/60 rounded-xl flex items-center justify-between gap-1 mb-2">
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="window.Map3D.setToolMode('build')" id="mode-btn-build" class="px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold ${toolMode === 'build' ? 'bg-sky-500 text-slate-950' : 'bg-slate-950 text-slate-300'} transition">Piazza</button>
-            <button type="button" onclick="window.Map3D.setToolMode('delete')" id="mode-btn-delete" class="px-2.5 py-1 rounded-lg text-[11px] font-cinzel font-bold ${toolMode === 'delete' ? 'bg-rose-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-red-300'} transition">Gomma</button>
-            <button type="button" onclick="window.Map3D.rotateAsset()" class="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-amber-300 border border-slate-800 hover:bg-slate-800 transition" title="Ruota 90° (Tasto R)">Ruota (R)</button>
+        <!-- Strumenti Azione: Piazza / Gomma / Ruota / Piano / SCALA -->
+        <div class="p-2 border border-slate-800 bg-slate-900/60 rounded-xl space-y-1.5 mb-2">
+          <div class="flex items-center justify-between gap-1">
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="window.Map3D.setToolMode('build')" id="mode-btn-build" class="px-2 py-1 rounded-lg text-[10px] font-cinzel font-bold ${toolMode === 'build' ? 'bg-sky-500 text-slate-950' : 'bg-slate-950 text-slate-300'} transition">Piazza</button>
+              <button type="button" onclick="window.Map3D.setToolMode('delete')" id="mode-btn-delete" class="px-2 py-1 rounded-lg text-[10px] font-cinzel font-bold ${toolMode === 'delete' ? 'bg-rose-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-red-300'} transition">Gomma</button>
+              <button type="button" onclick="window.Map3D.rotateAsset()" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-950 text-amber-300 border border-slate-800 hover:bg-slate-800 transition" title="Ruota 90° (Tasto R)">Ruota (R)</button>
+            </div>
+            
+            <div class="flex items-center gap-0.5 bg-slate-950 px-1.5 py-0.5 rounded-lg border border-slate-800">
+              <span class="text-[9px] text-slate-400 font-mono">Piano:</span>
+              <button type="button" onclick="window.Map3D.adjustElevation(-1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">-</button>
+              <span id="map3d-elev-val" class="text-[10px] font-mono font-bold text-amber-300">${currentElevation.toFixed(1)}m</span>
+              <button type="button" onclick="window.Map3D.adjustElevation(1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">+</button>
+            </div>
           </div>
-          
-          <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
-            <span class="text-[9px] text-slate-400 font-mono">Piano:</span>
-            <button type="button" onclick="window.Map3D.adjustElevation(-1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">-</button>
-            <span id="map3d-elev-val" class="text-[11px] font-mono font-bold text-amber-300">${currentElevation.toFixed(1)}m</span>
-            <button type="button" onclick="window.Map3D.adjustElevation(1.5)" class="text-xs text-sky-400 hover:text-white px-0.5 font-bold">+</button>
+
+          <!-- Scalatura Strutture ed Oggetti -->
+          <div class="flex items-center justify-between gap-1 pt-1 border-t border-slate-800/80">
+            <span class="text-[9px] text-slate-400 font-mono">Scala Asset:</span>
+            <div class="flex items-center gap-0.5">
+              ${[0.5, 0.75, 1.0, 1.5, 2.0, 3.0].map(sc => `
+                <button type="button" onclick="window.Map3D.setAssetScale(${sc})"
+                        class="px-1.5 py-0.5 rounded text-[9px] font-bold ${currentAssetScale === sc ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-950 text-slate-400 hover:text-white'}">
+                  ${sc}x
+                </button>
+              `).join('')}
+            </div>
           </div>
         </div>
 
@@ -2416,53 +2852,204 @@ window.Map3D = (function() {
     // 3. MODALITÀ: TERRENO & BIOMI (DUNGEON ALCHEMIST TERRAIN BRUSH)
     // =========================================================================
     else if (activeMode === 'terrain') {
+      const terrainTabs = [
+        { id: 'biomes', label: '🎨 Biomi' },
+        { id: 'sculpt', label: '⛰️ Alture' },
+        { id: 'liquids', label: '🌊 Liquidi' },
+        { id: 'map_size', label: '🗺️ Misura' }
+      ];
+
       const biomes = [
         { id: 'terrain_snow', name: 'Taiga Innevata', icon: '❄️', desc: 'Manto nevoso profondo e candido di Midgardr' },
-        { id: 'terrain_packed_dirt', name: 'Sentiero Terra & Fango', icon: '🟤', desc: 'Terra battuta calpestata da mercanti ed eserciti' },
-        { id: 'terrain_planks_tavern', name: 'Tavolato in Legno', icon: '🪵', desc: "Pavimento rustico in assi d'abete per interni" },
-        { id: 'terrain_flagstone', name: 'Lastricato Fortezza', icon: '🧱', desc: 'Pietra squadrata tagliata per sale e cinte murarie' },
+        { id: 'terrain_grass', name: 'Prato Smeraldo & Muschio', icon: '🌿', desc: 'Erba folta e muschio verde per radure e boschi' },
         { id: 'terrain_mountain_rock', name: 'Roccia Viva di Montagna', icon: '⛰️', desc: 'Granito scuro naturale delle vette alpine' },
+        { id: 'terrain_packed_dirt', name: 'Sentiero Terra & Fango', icon: '🟤', desc: 'Terra battuta calpestata da mercanti ed eserciti' },
+        { id: 'terrain_sand', name: 'Sabbia dei Fiordi & Coste', icon: '🏜️', desc: 'Sabbia costiera dorata per spiagge e litorali' },
+        { id: 'terrain_flagstone', name: 'Lastricato Fortezza', icon: '🧱', desc: 'Pietra squadrata tagliata per sale e cinte murarie' },
+        { id: 'terrain_planks_tavern', name: 'Tavolato in Legno', icon: '🪵', desc: "Pavimento rustico in assi d'abete per interni" },
         { id: 'terrain_runic_circle', name: 'Lastra con Runa Sacra', icon: 'ᛈ', desc: 'Cerchio magico intagliato con incisioni luminose' }
       ];
 
-      dockEl.innerHTML = `
-        <div class="norse-panel rounded-xl p-3 border border-sky-500/40 space-y-2 mb-2 bg-sky-950/20">
-          <span class="text-[10px] font-cinzel font-bold text-sky-300 uppercase tracking-wider block">Pennello Biomi &amp; Terreno</span>
-          <p class="text-[11px] text-slate-300 leading-tight">Dipingi il suolo cliccando sulla mappa. Scegli la dimensione del pennello o riempi l'intera area in un colpo solo.</p>
-          
-          <div class="flex items-center gap-2 pt-1">
-            <label class="text-[10px] text-slate-400 font-bold uppercase">Pennello:</label>
-            <div class="flex gap-1 flex-1">
-              <button type="button" onclick="window.Map3D.setTerrainBrushSize(1)" class="flex-1 py-1 rounded-lg text-[10px] font-bold ${terrainBrushSize === 1 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">🖌️ 1x1 Singolo</button>
-              <button type="button" onclick="window.Map3D.setTerrainBrushSize(3)" class="flex-1 py-1 rounded-lg text-[10px] font-bold ${terrainBrushSize === 3 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">🖌️ 3x3 Area</button>
-            </div>
-          </div>
-        </div>
+      const liquids = [
+        { id: 'liquid_water', name: 'Acqua Cristallina dei Fiordi', icon: '💧', desc: 'Acqua turchese con moto ondoso animato' },
+        { id: 'liquid_lava', name: 'Lava Vulcanica Incandescente', icon: '🌋', desc: 'Magma ardente con luce dinamica PointLight' },
+        { id: 'liquid_acid', name: 'Pozza d\'Acido Tossico', icon: '🧪', desc: 'Liquido fluorescente con bagliore smeraldo' },
+        { id: 'liquid_swamp', name: 'Melma di Palude Norrena', icon: '🪵', desc: 'Acqua stagnante torbida da acquitrino' }
+      ];
 
-        <div class="space-y-2">
-          ${biomes.map(b => `
-            <div class="p-2.5 rounded-xl border transition cursor-pointer flex flex-col gap-1.5 ${selectedTerrainId === b.id ? 'bg-sky-500/20 border-sky-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
-                 onclick="window.Map3D.selectTerrain('${b.id}')">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">${b.icon}</span>
-                  <span class="font-cinzel font-bold text-xs text-white">${b.name}</span>
-                </div>
-                <button type="button" onclick="event.stopPropagation(); window.Map3D.fillEntireMapWithBiome('${b.id}')"
-                        class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 text-[10px] font-bold border border-sky-500/30"
-                        title="Applica a tutte le tessere terreno">
-                  Riempi Tutto
-                </button>
-              </div>
-              <p class="text-[10px] text-slate-400 leading-tight">${b.desc}</p>
-            </div>
+      dockEl.innerHTML = `
+        <!-- Sub-Navigatore Terreno & Biomi -->
+        <div class="flex border-b border-slate-800 bg-slate-900/60 p-1 gap-1 rounded-xl mb-2">
+          ${terrainTabs.map(st => `
+            <button type="button" onclick="window.Map3D.switchTerrainSubTab('${st.id}')"
+                    class="flex-1 py-1 px-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition ${terrainSubTab === st.id ? 'bg-sky-500 text-slate-950 font-cinzel shadow' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+              ${st.label}
+            </button>
           `).join('')}
         </div>
+
+        ${terrainSubTab === 'biomes' ? `
+          <!-- SOTTO-SCHEDA 1: BIOMI -->
+          <div class="norse-panel rounded-xl p-2.5 border border-sky-500/40 space-y-2 mb-2 bg-sky-950/20">
+            <span class="text-[10px] font-cinzel font-bold text-sky-300 uppercase tracking-wider block">Pennello Biomi di Midgardr</span>
+            <div class="flex items-center justify-between gap-1">
+              <label class="text-[10px] text-slate-400 font-bold uppercase">Pennello:</label>
+              <div class="flex gap-1">
+                <button type="button" onclick="window.Map3D.setTerrainBrushSize(1)" class="px-2 py-0.5 rounded text-[10px] font-bold ${terrainBrushSize === 1 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">1x1 Singolo</button>
+                <button type="button" onclick="window.Map3D.setTerrainBrushSize(3)" class="px-2 py-0.5 rounded text-[10px] font-bold ${terrainBrushSize === 3 ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">3x3 Area</button>
+              </div>
+            </div>
+            <button type="button" onclick="window.Map3D.fillEntireMapWithBiome(window.Map3D.getSelectedTerrainId())"
+                    class="w-full py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-600/40 border border-sky-400/50 text-sky-200 text-[10px] font-bold transition flex items-center justify-center gap-1.5 shadow">
+              🌐 Riempi Intera Mappa (${mapSize.width}x${mapSize.height}) con Questo Bioma
+            </button>
+          </div>
+
+          <div class="space-y-1.5">
+            ${biomes.map(b => `
+              <div class="p-2 rounded-xl border transition cursor-pointer flex flex-col gap-1 ${selectedTerrainId === b.id ? 'bg-sky-500/20 border-sky-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+                   onclick="window.Map3D.selectTerrain('${b.id}')">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">${b.icon}</span>
+                    <span class="font-cinzel font-bold text-xs text-white">${b.name}</span>
+                  </div>
+                  <span class="text-xs ${selectedTerrainId === b.id ? 'text-sky-300 font-bold' : 'text-slate-600'}">✓</span>
+                </div>
+                <p class="text-[9px] text-slate-400 leading-tight">${b.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+        ` : terrainSubTab === 'sculpt' ? `
+          <!-- SOTTO-SCHEDA 2: SCULTURA ALTURE & DEPRESSIONI -->
+          <div class="norse-panel rounded-xl p-2.5 border border-amber-500/40 space-y-2 mb-2 bg-amber-950/20">
+            <span class="text-[10px] font-cinzel font-bold text-amber-300 uppercase tracking-wider block">Scultura Alture &amp; Fosse 3D</span>
+            <p class="text-[10px] text-slate-300 leading-tight">Crea colline, altopiani o scava fosse. I dislivelli formano scogliere 3D navigabili!</p>
+            
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button type="button" onclick="window.Map3D.setToolMode('sculpt_raise')"
+                      class="py-1.5 px-2 rounded-lg text-[10px] font-bold border transition ${toolMode === 'sculpt_raise' ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                ⛰️ Alza (+0.75m)
+              </button>
+              <button type="button" onclick="window.Map3D.setToolMode('sculpt_lower')"
+                      class="py-1.5 px-2 rounded-lg text-[10px] font-bold border transition ${toolMode === 'sculpt_lower' ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                🕳️ Abbassa (-0.75m)
+              </button>
+              <button type="button" onclick="window.Map3D.setToolMode('sculpt_level')"
+                      class="py-1.5 px-2 rounded-lg text-[10px] font-bold border transition ${toolMode === 'sculpt_level' ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                📏 Livella a Quota
+              </button>
+              <button type="button" onclick="window.Map3D.setToolMode('sculpt_reset')"
+                      class="py-1.5 px-2 rounded-lg text-[10px] font-bold border transition ${toolMode === 'sculpt_reset' ? 'bg-rose-600 text-white border-rose-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                🧹 Azzera (0.0m)
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-amber-500/30">
+              <span class="text-[9px] text-slate-400 font-mono">Quota Target:</span>
+              <div class="flex gap-0.5">
+                ${[-1.5, 0.0, 1.5, 3.0].map(h => `
+                  <button type="button" onclick="window.Map3D.setTargetSculptLevel(${h})"
+                          class="px-1.5 py-0.5 rounded text-[9px] font-bold ${targetSculptLevel === h ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">
+                    ${h > 0 ? '+' : ''}${h.toFixed(1)}m
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[9px] text-slate-400 font-mono">Pennello:</span>
+              <div class="flex gap-1">
+                <button type="button" onclick="window.Map3D.setSculptBrushSize(1)" class="px-2 py-0.5 rounded text-[10px] font-bold ${sculptBrushSize === 1 ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">1x1 Singolo</button>
+                <button type="button" onclick="window.Map3D.setSculptBrushSize(3)" class="px-2 py-0.5 rounded text-[10px] font-bold ${sculptBrushSize === 3 ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">3x3 Area</button>
+              </div>
+            </div>
+          </div>
+        ` : terrainSubTab === 'liquids' ? `
+          <!-- SOTTO-SCHEDA 3: LIQUIDI 3D (ACQUA, LAVA, ACIDO, PALUDE) -->
+          <div class="norse-panel rounded-xl p-2.5 border border-cyan-500/40 space-y-2 mb-2 bg-cyan-950/20">
+            <span class="text-[10px] font-cinzel font-bold text-cyan-300 uppercase tracking-wider block">Liquidi 3D Dinamici</span>
+            <p class="text-[10px] text-slate-300 leading-tight">Dipingi specchi d'acqua o colate di lava con onde animate e luci calde.</p>
+            
+            <div class="flex items-center justify-between pt-1 border-t border-cyan-500/30">
+              <span class="text-[9px] text-slate-400 font-mono">Profondità / Quota:</span>
+              <div class="flex gap-0.5">
+                ${[-0.5, -0.2, 0.0, 1.5].map(lh => `
+                  <button type="button" onclick="window.Map3D.setLiquidElevation(${lh})"
+                          class="px-1.5 py-0.5 rounded text-[9px] font-bold ${liquidElevation === lh ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-slate-300'}">
+                    ${lh > 0 ? '+' : ''}${lh.toFixed(1)}m
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <button type="button" onclick="window.Map3D.fillBasinsWithWater()"
+                    class="w-full py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/40 border border-cyan-400/50 text-cyan-200 text-[10px] font-bold transition flex items-center justify-center gap-1 shadow">
+              💧 Riempi Tutte le Fosse Scavate con Acqua
+            </button>
+          </div>
+
+          <div class="space-y-1.5">
+            ${liquids.map(l => `
+              <div class="p-2 rounded-xl border transition cursor-pointer flex flex-col gap-1 ${selectedLiquidId === l.id && toolMode === 'liquid' ? 'bg-cyan-500/20 border-cyan-400 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}"
+                   onclick="window.Map3D.selectLiquid('${l.id}')">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">${l.icon}</span>
+                    <span class="font-cinzel font-bold text-xs text-white">${l.name}</span>
+                  </div>
+                  <span class="text-xs ${selectedLiquidId === l.id && toolMode === 'liquid' ? 'text-cyan-300 font-bold' : 'text-slate-600'}">✓</span>
+                </div>
+                <p class="text-[9px] text-slate-400 leading-tight">${l.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <!-- SOTTO-SCHEDA 4: DIMENSIONI E CONFINI MAPPA -->
+          <div class="norse-panel rounded-xl p-2.5 border border-indigo-500/40 space-y-2 mb-2 bg-indigo-950/20">
+            <span class="text-[10px] font-cinzel font-bold text-indigo-300 uppercase tracking-wider block">Dimensioni &amp; Confini Mappa</span>
+            <p class="text-[10px] text-slate-300 leading-tight">Area attiva: <strong>${mapSize.width} x ${mapSize.height}</strong> caselle (${mapSize.width * 1.5}m x ${mapSize.height * 1.5}m).</p>
+
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button type="button" onclick="window.Map3D.setMapSize(15, 15)" class="py-1.5 rounded-lg text-[10px] font-bold ${mapSize.width === 15 ? 'bg-indigo-500 text-slate-950 font-bold' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                15 x 15 (22.5m)
+              </button>
+              <button type="button" onclick="window.Map3D.setMapSize(20, 20)" class="py-1.5 rounded-lg text-[10px] font-bold ${mapSize.width === 20 ? 'bg-indigo-500 text-slate-950 font-bold' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                20 x 20 (30.0m)
+              </button>
+              <button type="button" onclick="window.Map3D.setMapSize(30, 30)" class="py-1.5 rounded-lg text-[10px] font-bold ${mapSize.width === 30 ? 'bg-indigo-500 text-slate-950 font-bold' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                30 x 30 (45.0m)
+              </button>
+              <button type="button" onclick="window.Map3D.setMapSize(40, 40)" class="py-1.5 rounded-lg text-[10px] font-bold ${mapSize.width === 40 ? 'bg-indigo-500 text-slate-950 font-bold' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                40 x 40 (60.0m)
+              </button>
+            </div>
+
+            <!-- Misure Personalizzate -->
+            <div class="pt-2 border-t border-indigo-500/30 space-y-1.5">
+              <span class="text-[9px] text-slate-400 font-mono uppercase block">Misure Personalizzate:</span>
+              <div class="flex items-center gap-1.5">
+                <input id="map-input-w" type="number" min="8" max="60" value="${mapSize.width}" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white text-center font-mono">
+                <span class="text-xs text-slate-400">x</span>
+                <input id="map-input-h" type="number" min="8" max="60" value="${mapSize.height}" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white text-center font-mono">
+                <button type="button" onclick="window.Map3D.setMapSize(document.getElementById('map-input-w').value, document.getElementById('map-input-h').value)"
+                        class="flex-1 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-cinzel font-bold text-[10px]">
+                  Applica
+                </button>
+              </div>
+            </div>
+
+            <!-- Svuota Mappa -->
+            <div class="pt-2 border-t border-indigo-500/30">
+              <button type="button" onclick="window.Map3D.clearMapTiles()"
+                      class="w-full py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-200 text-[10px] font-bold transition">
+                🗑️ Svuota Intera Mappa
+              </button>
+            </div>
+          </div>
+        `}
       `;
     }
-    // =========================================================================
-    // 4. MODALITÀ: AMBIENTE & LUCE (TIME OF DAY, WEATHER, DYNAMIC LIGHTS)
-    // =========================================================================
     else if (activeMode === 'environment') {
       const timesOfDay = [
         { id: 'day', label: 'Giorno', icon: '☀️', desc: 'Luce solare brillante e nitida' },
@@ -2737,6 +3324,43 @@ window.Map3D = (function() {
     },
     getMiniaturesCount: function() {
       return Object.keys(miniatureObjects).length;
-    }
+    },
+    // Nuove API Dungeon Alchemist Complete
+    setMapSize: setMapSize,
+    getMapSize: function() { return mapSize; },
+    clearMapTiles: clearMapTiles,
+    setAssetScale: setAssetScale,
+    getAssetScale: function() { return currentAssetScale; },
+    toggleTopDownView: toggleTopDownView,
+    switchTerrainSubTab: function(tab) {
+      terrainSubTab = tab;
+      if (tab === 'biomes') toolMode = 'terrain';
+      else if (tab === 'sculpt') toolMode = 'sculpt_raise';
+      else if (tab === 'liquids') toolMode = 'liquid';
+      renderDockUI();
+    },
+    selectLiquid: function(id) {
+      selectedLiquidId = id;
+      toolMode = 'liquid';
+      renderDockUI();
+    },
+    setLiquidElevation: function(elev) {
+      liquidElevation = parseFloat(elev) || 0.0;
+      renderDockUI();
+    },
+    fillBasinsWithWater: fillBasinsWithWater,
+    setSculptBrushSize: function(sz) {
+      sculptBrushSize = sz;
+      renderDockUI();
+    },
+    setTargetSculptLevel: function(lvl) {
+      targetSculptLevel = lvl;
+      renderDockUI();
+    },
+    sculptTerrainAt: sculptTerrainAt,
+    levelTerrainAt: levelTerrainAt,
+    paintLiquidAt: paintLiquidAt,
+    paintTerrainAt: paintTerrainAt,
+    getSelectedTerrainId: function() { return selectedTerrainId; }
   };
 })();

@@ -51,10 +51,10 @@ jobs:
           files: |
             dist-electron/*.exe
             dist-electron/*.zip
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'v1.0.3' }}
-          name: ${{ startsWith(github.ref, 'refs/tags/') && format('Yggdrasill {0} — Desktop App (.exe & Portable)', github.ref_name) || 'Yggdrasill v1.0.3 — Desktop App (.exe & Portable)' }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'v1.0.4' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && format('Yggdrasill {0} — Desktop App (.exe & Portable)', github.ref_name) || 'Yggdrasill v1.0.4 — Desktop App (.exe & Portable)' }}
           body: |
-            # Yggdrasill v1.0.3 — Desktop App per Windows (Stile Dungeon Alchemist Definitivo)
+            # Yggdrasill v1.0.4 — Desktop App per Windows (Dungeon Alchemist Complete: Biomi, Alture, Liquidi & Scalatura)
 
             Companion Visuale e Gestionale definitivo per sessioni dal vivo di **D&D 5e / Journey to Ragnarok** con **Fucina 3D per Miniature (stile HeroForge)** e **Map Maker 3D (stile Dungeon Alchemist)**.
 
@@ -62,8 +62,8 @@ jobs:
 
             ### 📦 Download Disponibili:
             - **`Yggdrasill-Windows-x64-Portable.zip` (CONSIGLIATO)**: Archivio portatile non compresso da installer, include il launcher anti-blocco `Avvia_Yggdrasill.bat`. Estrai ed avvia subito senza installazione!
-            - **`Yggdrasill-Portable-1.0.3.exe`**: Singolo file eseguibile portatile pronto all'uso.
-            - **`Yggdrasill-Setup-1.0.3.exe`**: Installer tradizionale Windows con scorciatoie sul Desktop e Menu Avvio.
+            - **`Yggdrasill-Portable-1.0.4.exe`**: Singolo file eseguibile portatile pronto all'uso.
+            - **`Yggdrasill-Setup-1.0.4.exe`**: Installer tradizionale Windows con scorciatoie sul Desktop e Menu Avvio.
 
             ---
 
@@ -74,20 +74,25 @@ jobs:
 
             ---
 
-            ### ⚔️ Novità Versione 1.0.3 (Dungeon Alchemist True Architecture):
-            - **Nuova Barra Superiore e Struttura a 5 Modalità (Autentico Stile Dungeon Alchemist)**:
-              * Rimossi i vecchi bottoni singoli nell'header: ora l'editor è diviso organicamente nelle 5 discipline creative principali.
-              * `[ 🏠 Disegna Stanza ]`: Generatore AI procedurale con 8 temi architettonici norreni (Entrata Villaggio con torrette e palizzata, Taverna dell'Idromele, Sala del Trono del Jarl, Capanna Vichinga, Torre di Guardia, Fucina del Fabbro, Cripta Sotterranea, Accampamento Innevato) e selettore dimensioni (4x4, 6x6, 8x6).
-              * `[ 🪑 Oggetti ]`: Catalogo 3D categorizzato per Scale multilivello con corrimano/parapetto (+1.5m), Mura e portali in pietra/legno, Arredi di lusso e tavoli da banchetto, Casse e scorte, Luci e Natura.
-              * `[ ⛰️ Terreno & Biomi ]`: Motore di pittura del terreno con pennello 1x1 e 3x3 per dipingere Manto Nevoso, Sentieri in Terra Battuta/Fango, Tavolato in Legno, Lastricato Fortezza, Roccia Montana e Lastre Runiche Sacre, oltre al pulsante *Riempi Intera Mappa*.
-              * `[ 🌤️ Ambiente & Luce ]`: Pannello dedicato con separazione rigorosa tra **Ora del Giorno** (*Giorno pieno*, *Tramonto aureo*, *Notte profonda*) ed **Effetti Meteo** (*Sereno*, *Bufera di Neve con particelle 3D animate*, *Aurora Boreale vibrante verde/ciano*, *Nebbia Spettrale volumetrica*), oltre al moltiplicatore d'intensità per le torce e fiamme dinamiche.
-              * `[ ♟️ Token & Eroi ]`: Gestione pedine con miniature 3D eroi, sincronizzazione real-time e spawner istantaneo di mostri norreni del DM (Lupo dell'Inverno, Draugr dei Ghiacci, Berserker, Scheletri, Jötunn).
-            - **Modalità Cinematica Prima Persona (`Alt + Home` / Tasto `🎥 Cinematica`)**:
-              * Esplorazione immersiva della mappa ad altezza occhi (1.7m) con comandi WASD per camminare e mouse a 360°.
-              * Interfaccia grafica completamente nascosta per la massima spettacolarità, con floating HUD minimo ed elegante.
-              * Tasto rapido **`F`** per scattare istantaneamente uno snapshot HD pulito senza UI, e **`ESC`** per tornare all'editor.
-            - **Logo Runa Homepage Ufficiale**:
-              * Runa Peorð geometrica autentica integrata nell'icona .ico, splashscreen, favicon e topbar.
+            ### ⚔️ Novità Versione 1.0.4 (Dungeon Alchemist Advanced Features):
+            - **Dimensioni e Confini Mappa Configurabili**:
+              * Preset rapidi: **15x15** (22.5m x 22.5m), **20x20** (30m x 30m), **30x30** (45m x 45m), **40x40** (60m x 60m) e dimensioni personalizzate al metro.
+              * Riquadro perimetrale ciano luminescente sul piano WebGL per delimitare chiaramente l'area modificabile.
+            - **Pittura Biomi Diversificati**:
+              * Selezione rapida e pennello biomi tra: *Neve di Midgardr*, *Prato Smeraldo & Muschio*, *Roccia Basaltica*, *Sabbia dei Fiordi*, *Ciottoli e Selciato*.
+              * Pennello a raggio singolo (1x1) o allargato (3x3).
+            - **Scultura Terreno 3D (Alture, Colline & Depressioni)**:
+              * Pennello per innalzare alture (+0.75m o quota fissa) e scavare trincee/depressioni (-0.75m).
+              * Generazione procedurale automatica di **scogliere rocciose verticali (cliff skirts)** sotto ogni porzione sopraelevata.
+            - **Liquidi 3D Dinamici con Luci Reali**:
+              * *Acqua Cristallina dei Fiordi* con mesh sinusoidale e onde ondulatorie animate in tempo reale.
+              * *Lava Vulcanica Incandescente* con bagliore emissivo e sorgente luminosa reale PointLight arancione dinamica.
+              * *Acido Tossico Fluorescente* e *Melma di Palude*.
+              * Pulsante automatico *Riempi Depressioni con Acqua*.
+            - **Strutture ed Edifici Scalabili**:
+              * Selettore di scala rapido (0.5x, 0.75x, 1.0x, 1.5x, 2.0x, 3.0x) per case vichinghe, torri, palizzate, alberi o casse.
+            - **Doppia Modalità Telecamera (2D Zenitale vs 3D Libera)**:
+              * Commutazione istantanea con un clic tra *Vista 2D (Dall'Alto a 90° con Pan & Zoom)* per VTT/proiezione a tavolo e *Vista 3D Libera Orbitale a 360°*.
           draft: false
           prerelease: false
         env:
