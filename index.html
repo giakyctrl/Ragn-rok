@@ -308,9 +308,12 @@
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                       <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
                       <button type="button" onclick="window.openClanDetailModal(window.getMyCharacter() ? (window.getMyCharacter().clanId || window.getMyCharacter().clan || window.getMyCharacter().clanName) : null)" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Clan di Midgardr</button>
-                      <button type="button" onclick="window.openPlayerStlModal()" id="sheet-stl-btn" class="text-[10px] px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-bold hover:bg-cyan-900 transition flex items-center gap-1 shadow" title="Collega il file 3D (.STL) esportato da Hero Forge per la mappa VTT">
+                      <button type="button" onclick="window.openPlayerStlModal()" id="sheet-stl-btn" class="text-[10px] px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-bold hover:bg-cyan-900 transition flex items-center gap-1 shadow" title="Collega il file 3D (.STL) per la mappa VTT">
                         <svg class="w-3.5 h-3.5 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
                         <span id="sheet-stl-btn-label">Miniatura 3D (.STL)</span>
+                      </button>
+                      <button type="button" onclick="window.Forge3D && window.Forge3D.openModal()" id="sheet-forge3d-btn" class="text-[10px] px-2.5 py-0.5 rounded bg-gradient-to-r from-amber-600/30 to-amber-500/20 border border-amber-400 text-amber-300 font-cinzel font-black hover:from-amber-600/50 hover:to-amber-500/40 transition flex items-center gap-1 shadow-[0_0_10px_rgba(245,158,11,0.25)]" title="Fucina 3D: Personalizza la tua miniatura stile Hero Forge">
+                        <span class="text-xs">ᚠ</span> Fucina 3D
                       </button>
                       <button type="button" onclick="window.openPlayerMarketModal()" id="sheet-gold-btn" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold hover:bg-amber-500/30 transition flex items-center gap-1 shadow" title="Apri Kaupang di Midgard (Mercato)"><span id="sheet-gold-val">50</span> mo</button>
                     </div>
@@ -429,6 +432,10 @@
             <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
           </div>
           <div class="flex items-center gap-2">
+                        <button type="button" id="dm-talespire-map-btn" onclick="window.Map3D.openMap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 border border-sky-400 text-sky-100 font-cinzel font-bold text-xs flex items-center gap-1.5 transition shadow-lg">
+              <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              <span>MAPPA 3D (TaleSpire)</span>
+            </button>
             <button type="button" id="dm-map-link" onclick="window.openEmbeddedGinnungagap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/40 transition shadow-lg">
               <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
             </button>
@@ -908,11 +915,64 @@
         <p id="cdm-desc" class="whitespace-pre-line"></p>
       </div>
 
-      <div class="flex justify-end gap-2 pt-1">
-        <button type="button" id="cdm-roll-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 font-cinzel font-black text-xs text-white shadow-lg">
-          <svg class="w-4 h-4 text-white inline mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg> ATTACCA / TIRA DANNI
+      <div class="flex flex-wrap justify-end gap-2 pt-1">
+        <button type="button" id="cdm-equip-btn" onclick="window.toggleCardEquippedFromModal()" class="hidden px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 font-cinzel font-black text-xs text-white shadow-lg transition">
+          <svg class="w-4 h-4 text-white inline mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span id="cdm-equip-label">EQUIPAGGIA</span>
+        </button>
+        <button type="button" id="cdm-roll-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 font-cinzel font-black text-xs text-white shadow-lg transition">
+          <svg class="w-4 h-4 text-white inline mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6 2 2-6-3-3-5 7z"/><path d="m5 14 5 5"/></svg> <span id="cdm-roll-label">DICHIARA AL TAVOLO</span>
         </button>
         <button type="button" onclick="window.closeCardDetailModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-cinzel font-bold text-xs text-slate-300">
+          Chiudi
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- MODALE ISPETTORE REGOLE, CARATTERISTICHE E ABILITÀ (ZERO DADI VIRTUALI - GIOCO FISICO AL TAVOLO) -->
+  <div id="rule-inspector-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/80 backdrop-blur-md" onclick="if(event.target===this) window.closeRuleInspector()">
+    <div class="norse-panel max-w-md w-full rounded-2xl p-5 border border-sky-500/40 shadow-[0_0_25px_rgba(56,189,248,0.35)] animate-modal-pop space-y-4" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-sky-400 font-norse text-xl">ᛈ</span>
+          <div>
+            <span id="rim-type" class="text-[9px] font-cinzel font-bold uppercase tracking-wider text-amber-300 block">CARATTERISTICA</span>
+            <h3 id="rim-title" class="font-cinzel font-black text-base text-white">FORZA (FOR)</h3>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeRuleInspector()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-center" id="rim-stats-row">
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-sky-500/30 shadow-inner">
+          <span class="text-[10px] text-slate-400 font-bold uppercase block" id="rim-stat-label-1">Punteggio</span>
+          <span id="rim-score" class="font-mono text-xl font-black text-white">16</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 shadow-inner">
+          <span class="text-[10px] text-amber-400 font-bold uppercase block" id="rim-stat-label-2">Modificatore</span>
+          <span id="rim-mod" class="font-mono text-2xl font-black text-amber-300">+3</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-sky-950/40 border border-sky-400/30 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-sky-500/20 border border-sky-400/50 flex items-center justify-center text-sky-300 flex-shrink-0 font-bold text-base">
+          🎲
+        </div>
+        <div class="text-xs">
+          <strong class="text-sky-200 block font-cinzel">Tiro Fisico al Tavolo:</strong>
+          <span id="rim-instruction" class="text-slate-300 leading-snug block mt-0.5">Lancia il tuo d20 fisico al tavolo e aggiungi il modificatore indicato.</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2 max-h-52 overflow-y-auto">
+        <div class="text-[11px] font-bold text-amber-300 uppercase tracking-wide">Regola Ufficiale D&D 5e / JtR:</div>
+        <p id="rim-description" class="leading-relaxed text-slate-300 whitespace-pre-line"></p>
+        <div id="rim-extra-box" class="pt-1.5 text-[11px] text-sky-200 border-t border-slate-800/80 hidden"></div>
+      </div>
+
+      <div class="flex justify-end pt-1">
+        <button type="button" onclick="window.closeRuleInspector()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cinzel font-bold text-xs transition">
           Chiudi
         </button>
       </div>
@@ -927,6 +987,7 @@
         <button type="button" onclick="window.closeAuthModal()" class="text-slate-400 text-xs font-bold">Chiudi</button>
       </div>
       <p id="auth-subtitle" class="text-xs text-slate-400"></p>
+      <div id="auth-error" class="hidden text-rose-400 bg-rose-950/60 border border-rose-500/40 rounded-xl p-2.5 text-[11px] font-semibold text-center"></div>
       <form onsubmit="window.handleAuthSubmit(event)" class="space-y-3 text-xs">
         <input id="auth-username" type="text" required placeholder="Nome Utente" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
         <input id="auth-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
@@ -954,11 +1015,18 @@
     <button type="button" onclick="window.closeAnimModal()" class="mt-6 px-8 py-2.5 rounded-xl bg-slate-800 border border-sky-400/40 font-cinzel font-bold text-xs text-sky-200">CONTINUA</button>
   </div>
 
+  <!-- Three.js & OrbitControls per La Fucina dell'Eroe 3D (Offline First) -->
+  <script src="assets/vendor/three.min.js"></script>
+  <script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+  <script src="assets/vendor/OrbitControls.js"></script>
+  <script>if(!window.THREE||!window.THREE.OrbitControls){document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script>');}</script>
   <script src="data.js?v=26"></script>
   <script src="rules.js?v=26"></script>
   <script src="forge.js?v=26"></script>
+  <script src="forge3d.js?v=26"></script>
   <script src="app.js?v=26"></script>
   <script src="dm.js?v=26"></script>
+  <script src="map3d.js?v=26"></script>
 
   <!-- MODALE DETTAGLIO CLAN DI MIDGARDR -->
   <div id="clan-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/90 backdrop-blur-md" onclick="if(event.target===this) window.closeClanDetailModal()">
@@ -1300,5 +1368,7 @@
     </div>
   </div>
 
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
 </body>
 </html>

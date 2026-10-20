@@ -844,3 +844,35 @@ body {
     height: 195px !important;
   }
 }
+
+
+/* ============================================================================
+   TOAST NOTIFICATIONS NORRENE
+   ============================================================================ */
+.norse-toast {
+  pointer-events: auto;
+  background: rgba(10, 16, 26, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 15px rgba(56, 189, 248, 0.25);
+  animation: toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.norse-toast.toast-warning {
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 15px rgba(245, 158, 11, 0.25);
+}
+.norse-toast.toast-error {
+  border-color: rgba(244, 63, 94, 0.65);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 15px rgba(244, 63, 94, 0.25);
+}
+.norse-toast.toast-success {
+  border-color: rgba(52, 211, 153, 0.65);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 15px rgba(52, 211, 153, 0.25);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

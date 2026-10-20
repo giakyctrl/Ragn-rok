@@ -1,3 +1,33 @@
+// ============================================================================
+// SISTEMA TOAST NOTIFICHE NORRENO (Zero Alert bloccanti)
+// ============================================================================
+window.showToast = function(title, msg, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm pointer-events-none';
+    document.body.appendChild(container);
+  }
+  const el = document.createElement('div');
+  const borderClass = type === 'warning' ? 'toast-warning' : type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : '';
+  const icon = type === 'warning' ? '⚠️' : type === 'error' ? '❌' : type === 'success' ? '✨' : 'ᛈ';
+  el.className = `norse-toast ${borderClass} flex items-start gap-3 pointer-events-auto shadow-2xl`;
+  el.innerHTML = `
+    <span class="text-base select-none">${icon}</span>
+    <div class="flex-1 min-w-0">
+      <strong class="font-cinzel text-xs text-white block truncate">${title}</strong>
+      <p class="text-[11px] text-slate-300 leading-snug mt-0.5">${msg}</p>
+    </div>
+  `;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px) scale(0.95)';
+    setTimeout(() => { try { el.remove(); } catch(e){} }, 320);
+  }, 4200);
+};
+
 // Fallback difensivi globali per garantire resilienza all'interfaccia e alle sezioni
 if (typeof window.classifyCardToDdbSection !== 'function') {
   window.classifyCardToDdbSection = function(card) {
@@ -226,6 +256,14 @@ function loadLocalDB() {
 }
 
 window.dbState = loadLocalDB();
+if (window.electronAPI && typeof window.electronAPI.loadOfflineBackup === 'function') {
+  window.electronAPI.loadOfflineBackup().then(res => {
+    if (res && res.success && res.data && (!window.dbState || Object.keys(window.dbState.users || {}).length === 0)) {
+      window.dbState = res.data;
+      if (typeof window.renderAllViews === 'function') window.renderAllViews();
+    }
+  }).catch(() => {});
+}
 window.currentUser = localStorage.getItem('yggdrasill_v3_user') || null;
 window.activeCharId = null;
 window.activeDdbSection = 'abilities';
@@ -258,6 +296,14 @@ window.syncMemberCharToUser = function(uKey, mChar) {
 window.addEventListener('storage', (e) => {
   if (e.key === 'yggdrasill_v3_db') {
     window.dbState = loadLocalDB();
+if (window.electronAPI && typeof window.electronAPI.loadOfflineBackup === 'function') {
+  window.electronAPI.loadOfflineBackup().then(res => {
+    if (res && res.success && res.data && (!window.dbState || Object.keys(window.dbState.users || {}).length === 0)) {
+      window.dbState = res.data;
+      if (typeof window.renderAllViews === 'function') window.renderAllViews();
+    }
+  }).catch(() => {});
+}
     window.enforceMaintenanceCheck();
     window.renderAllViews();
     window.checkIncomingLiveEvents();
@@ -314,19 +360,38 @@ window.getEffectiveFirebaseUrl = function() {
 };
 
 window.updateServerStatusIndicators = function(connected) {
-  window.isServerConnected = connected;
+  window.isServerConnected = !!connected;
   const sub = document.getElementById('welcome-status-sub');
   const pill = document.getElementById('main-server-pill');
 
-  const text = connected ? "Server connesso" : "Modalità Locale (Offline)";
+  const text = connected ? "Server connesso" : "Server non connesso (Sola Lettura Offline)";
   const cls = connected ? "text-[10px] text-emerald-400 font-semibold" : "text-[10px] text-amber-400 font-semibold";
   const pillCls = connected
-    ? "text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-semibold"
-    : "text-[9px] px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-400 font-semibold";
+    ? "text-[9px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold flex items-center gap-1.5 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+    : "text-[9px] px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold flex items-center gap-1.5";
 
-  if (sub) { sub.textContent = text; sub.className = cls; }
-  if (pill) { pill.textContent = text; pill.className = pillCls; }
+  const dot = connected
+    ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>`
+    : `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>`;
+
+  if (sub) { sub.innerHTML = `${dot} ${text}`; sub.className = cls; }
+  if (pill) { pill.innerHTML = `${dot} ${text}`; pill.className = pillCls; }
 };
+
+window.requireOnlineAction = function(actionName) {
+  if (!window.isServerConnected) {
+    if (typeof window.showToast === 'function') {
+      window.showToast("Server non connesso (Sola Lettura Offline)", `"${actionName}" richiede la connessione al server Firebase per la sincronizzazione cloud della campagna. In modalità offline le statistiche e le carte rimangono consultabili liberamente.`, "warning");
+    } else {
+      alert(`[Sola Lettura Offline] "${actionName}" richiede la connessione attiva al server Firebase di Yggdrasill.`);
+    }
+    return false;
+  }
+  return true;
+};
+
+window.addEventListener('online', () => window.updateServerStatusIndicators(true));
+window.addEventListener('offline', () => window.updateServerStatusIndicators(false));
 
 window.initCloudConnection = function() {
   const url = window.getEffectiveFirebaseUrl();
@@ -394,6 +459,9 @@ window.saveDB = function() {
 
   const serialized = JSON.stringify(window.dbState);
   try { localStorage.setItem('yggdrasill_v3_db', serialized); } catch (e) { console.error("LocalStorage save error:", e); }
+  if (window.electronAPI && typeof window.electronAPI.saveOfflineBackup === 'function') {
+    try { window.electronAPI.saveOfflineBackup(window.dbState); } catch (e) {}
+  }
 
   if (window.fbRef) {
     try {
@@ -512,6 +580,12 @@ window.openAuthModal = function(mode) {
   window.authMode = mode || 'login';
   document.getElementById('auth-title').textContent = window.authMode === 'register' ? 'Registrati' : 'Accedi';
   document.getElementById('auth-subtitle').textContent = window.authMode === 'register' ? 'Crea il tuo account.' : 'Inserisci credenziali.';
+  const errEl = document.getElementById('auth-error');
+  if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
+  const uInput = document.getElementById('auth-username');
+  const pInput = document.getElementById('auth-password');
+  if (uInput) uInput.value = '';
+  if (pInput) pInput.value = '';
   const m = document.getElementById('auth-modal');
   m.classList.remove('hidden'); m.classList.add('flex');
 };
@@ -523,12 +597,24 @@ window.closeAuthModal = function() {
 
 window.handleAuthSubmit = async function(e) {
   e.preventDefault();
+  const errEl = document.getElementById('auth-error');
+  if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
+
   const uName = document.getElementById('auth-username').value.trim();
   const uPass = document.getElementById('auth-password').value.trim();
   if (!uName || !uPass) return;
 
+  const showAuthError = (msg) => {
+    if (errEl) {
+      errEl.textContent = msg;
+      errEl.classList.remove('hidden');
+    } else {
+      window.showToast("Errore Autenticazione", msg, "error");
+    }
+  };
+
   const userKey = uName.toLowerCase();
-  if (window.fbRef) {
+  if (window.fbRef && window.isServerConnected) {
     try {
       const snap = await Promise.race([window.fbRef.once('value'), new Promise((_, r) => setTimeout(() => r(), 2000))]);
       if (snap && snap.val()) {
@@ -541,6 +627,99 @@ window.handleAuthSubmit = async function(e) {
 
   if (userKey === window.ADMIN_CREDENTIALS.username.toLowerCase() && uPass === window.ADMIN_CREDENTIALS.password) {
     if (!window.dbState.users[userKey]) window.dbState.users[userKey] = { username: "admin", password: uPass, characters: [] };
+    if (!window.dbState.users[userKey].characters || window.dbState.users[userKey].characters.length === 0) {
+      window.dbState.users[userKey].characters = [{
+        id: 'char_admin_default',
+        owner: 'admin',
+        name: 'Ragnarr Pelle di Ferro',
+        race: 'Umano di Midgardr',
+        clan: 'bear_warriors',
+        clanId: 'bear_warriors',
+        clanName: "Guerrieri dell'Orso",
+        clanCrest: "assets/clans/Logo-Bear_Warriors.png",
+        clanBanner: "assets/clans/OrsiGuerrireri.png",
+        clanTrait: "[Clan Guerrieri dell'Orso] Furia di Bjorn: Vantaggio alle prove di Forza per sfondare o lottare; spirito indomito in mischia.",
+        clanMotto: "La forza della montagna scorre nel sangue dei berserkir.",
+        classId: 'barbaro',
+        className: 'Barbaro',
+        subclass: 'Signore della Tempesta (Storm Lord - JtR)',
+        level: 5,
+        hitDie: '1d12',
+        background: 'Huscarl (Guardia Scelta del Jarl)',
+        gold: 85,
+        alignment: "Legale Onorevole (Rispetta la legge del Clan e l'Onore)",
+        virtue: 'Coraggio (Courage)',
+        avatar: 'assets/heroes/portraits/norse_hero_01.jpg',
+        fullArt: 'assets/heroes/full_barbaro.jpg',
+        hp: 55,
+        maxHp: 55,
+        ac: 16,
+        atkBonus: 3,
+        speed: '9m',
+        defenses: 'Resistenza Danni Fisici in Ira',
+        inspiration: true,
+        condition: 'Normale',
+        stats: { FOR: 18, DES: 14, COS: 16, INT: 10, SAG: 12, CAR: 10 },
+        saves: { FOR: true, DES: false, COS: true, INT: false, SAG: false, CAR: false },
+        proficientSkills: ['atletica', 'intimidire', 'percezione', 'sopravvivenza', 'asatru'],
+        traits: [
+          "[Clan Guerrieri dell'Orso] Furia di Bjorn",
+          "[Stirpe] Sangue di Midgardr: Resilienza",
+          "[Archetipo] Signore della Tempesta",
+          "[Liv.1] Ira Barbarica (3/riposo)",
+          "[Liv.1] Difesa Senza Armatura",
+          "[Liv.2] Attacco Irruento",
+          "[Liv.3] Furia del Signore della Tempesta",
+          "[Liv.5] Attacco Extra"
+        ],
+        cards: [
+          {
+            id: 'card_ulfberht_ragnarr',
+            name: 'Spada Ulfberht',
+            type: 'arma',
+            rarity: 'Raro',
+            cost: '150 mo',
+            damage: '1d8+4 Tagliente',
+            range: 'Mischia (1.5m)',
+            desc: 'Acciaio crogiolo forgiato dai maestri di Midgardr.',
+            equipped: true,
+            img: 'assets/items/spada_ulfberht.jpg'
+          },
+          {
+            id: 'card_shield_ragnarr',
+            name: "Scudo dell'Orso",
+            type: 'scudo',
+            rarity: 'Non Comune',
+            cost: '50 mo',
+            damage: '+2 CA',
+            range: 'Personale',
+            desc: 'Pesante scudo tondo con rinforzi in ferro battuto.',
+            equipped: true,
+            img: 'assets/items/scudo_ombra_fronde.jpg'
+          }
+        ]
+      }];
+    }
+    if (!window.dbState.campaigns || Object.keys(window.dbState.campaigns).length === 0) {
+      window.dbState.campaigns = {
+        'MIDGARD-VALHALLA': {
+          code: 'MIDGARD-VALHALLA',
+          title: 'Il Fimbulvetr di Midgardr',
+          dm: 'admin',
+          createdAt: Date.now(),
+          chest: [],
+          members: {
+            'admin': window.dbState.users[userKey].characters[0]
+          }
+        }
+      };
+    } else {
+      const firstCamp = Object.values(window.dbState.campaigns)[0];
+      if (firstCamp && window.dbState.users[userKey].characters.length > 0) {
+        if (!firstCamp.members) firstCamp.members = {};
+        firstCamp.members[userKey] = window.dbState.users[userKey].characters[0];
+      }
+    }
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
     localStorage.setItem('yggdrasill_current_user', userKey);
@@ -549,7 +728,14 @@ window.handleAuthSubmit = async function(e) {
   }
 
   if (window.authMode === 'register') {
-    if (window.dbState.users[userKey]) { alert("Nome utente già esistente."); return; }
+    if (!window.isServerConnected && (!window.dbState.users || Object.keys(window.dbState.users).length === 0)) {
+      showAuthError("Connessione assente: per registrare un nuovo account connettiti al server Firebase di Yggdrasill.");
+      return;
+    }
+    if (window.dbState.users[userKey]) {
+      showAuthError("Nome utente già esistente. Scegline un altro o effettua il login.");
+      return;
+    }
     window.dbState.users[userKey] = { username: uName, password: uPass, characters: [] };
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
@@ -557,7 +743,10 @@ window.handleAuthSubmit = async function(e) {
     window.closeAuthModal(); window.saveDB(); window.enterAfterLogin();
   } else {
     const acc = window.dbState.users[userKey];
-    if (!acc || acc.password !== uPass) { alert("Credenziali errate."); return; }
+    if (!acc || acc.password !== uPass) {
+      showAuthError("Credenziali errate. Verifica nome utente o password.");
+      return;
+    }
     window.currentUser = userKey;
     localStorage.setItem('yggdrasill_v3_user', userKey);
     localStorage.setItem('yggdrasill_current_user', userKey);
@@ -803,6 +992,7 @@ window.cancelCharacterForm = function() {
 
 window.saveFullCharacterSheet = function(e) {
   e.preventDefault();
+  if (!window.requireOnlineAction('Creazione nuovo personaggio')) return;
   const raceObj = window.JTR_RACES.find(r => r.id === document.getElementById('cf-race').value) || window.JTR_RACES[0];
   const clsObj = window.JTR_CLASSES.find(c => c.id === document.getElementById('cf-class').value) || window.JTR_CLASSES[0];
   const chosenClanKey = document.getElementById('cf-clan')?.value || window.selectedBuilderClanId;
@@ -972,17 +1162,21 @@ window.chooseLevelUpHpMethod = function(method) {
     computedHpGain = Math.max(1, Math.floor(dieNum / 2) + 1 + cosMod);
     document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
     document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
-    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Media): +${computedHpGain}`;
+    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Media Manuale D&D): +${computedHpGain}`;
   } else {
-    const roll = Math.floor(Math.random() * dieNum) + 1;
-    computedHpGain = Math.max(1, roll + cosMod);
+    const defaultVal = Math.floor(dieNum / 2) + 1;
+    const inputVal = prompt(`Lancia il tuo Dado Vita fisico al tavolo (1d${dieNum}).
+Inserisci il valore ottenuto (da 1 a ${dieNum}):`, String(defaultVal));
+    const parsed = Math.max(1, Math.min(dieNum, parseInt(inputVal) || defaultVal));
+    computedHpGain = Math.max(1, parsed + cosMod);
     document.getElementById('btn-hp-roll').className = "p-2.5 rounded-xl bg-slate-900 border border-sky-400 text-white font-bold text-center";
     document.getElementById('btn-hp-avg').className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-center";
-    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Tiro d${dieNum}=${roll}): +${computedHpGain}`;
+    document.getElementById('lvlup-hp-result').textContent = `Incremento PF (Tiro Fisico al Tavolo ${parsed} + COS ${cosMod}): +${computedHpGain}`;
   }
 };
 
 window.confirmPlayerLevelUp = function() {
+  if (!window.requireOnlineAction('Avanzamento di Livello')) return;
   const ch = window.getMyCharacter();
   if (!ch || ch.id !== currentLevelUpCharId) return;
 
@@ -1245,19 +1439,30 @@ window.openCardDetailModal = function(cardId) {
   document.getElementById('cdm-components').textContent = card.components || 'Nessuna';
   document.getElementById('cdm-desc').textContent = card.desc || 'Nessuna descrizione disponibile.';
 
-  const rollBtn = document.getElementById('cdm-roll-btn');
-  if (rollBtn) {
-    if (card.damage && card.damage.includes('d')) {
-      rollBtn.classList.remove('hidden');
-      rollBtn.onclick = () => {
-        if (typeof window.deployCardInCombat === 'function') {
-          window.deployCardInCombat(card.id);
-          window.closeCardDetailModal();
-        }
-      };
+  // Equip button per armi, corazze, scudi
+  const equipBtn = document.getElementById('cdm-equip-btn');
+  const equipLabel = document.getElementById('cdm-equip-label');
+  if (equipBtn && equipLabel) {
+    const isEquipable = ['arma', 'scudo', 'armatura', 'oggetto'].includes((card.type || '').toLowerCase());
+    if (isEquipable && ch && ch.cards && ch.cards.some(c => c.id === card.id || c.canonicalId === card.id)) {
+      equipBtn.classList.remove('hidden');
+      const isEq = !!card.equipped;
+      equipLabel.textContent = isEq ? 'DISINQUIPAGGIA' : 'EQUIPAGGIA';
     } else {
-      rollBtn.classList.add('hidden');
+      equipBtn.classList.add('hidden');
     }
+  }
+
+  const rollBtn = document.getElementById('cdm-roll-btn');
+  const rollLabel = document.getElementById('cdm-roll-label');
+  if (rollBtn) {
+    rollBtn.classList.remove('hidden');
+    const isSpell = ['incantesimo', 'magia', 'runa'].includes((card.type || '').toLowerCase());
+    if (rollLabel) rollLabel.textContent = isSpell ? 'ANNUNCIA INCANTESIMO' : 'DICHIARA ATTACCO AL TAVOLO';
+    rollBtn.onclick = () => {
+      window.deployCardInCombat(card.id);
+      window.closeCardDetailModal();
+    };
   }
 
   modal.classList.remove('hidden');
@@ -1328,6 +1533,23 @@ window.closeClanDetailModal = function() {
   }
 };
 
+
+window.toggleCardEquippedFromModal = function() {
+  const ch = window.getMyCharacter();
+  if (!ch || !window.currentActiveCardModalId) return;
+  const card = (ch.cards || []).find(c => c.id === window.currentActiveCardModalId || c.canonicalId === window.currentActiveCardModalId);
+  if (!card) return;
+
+  card.equipped = !card.equipped;
+  if (typeof window.recalculateCharacterAC === 'function') {
+    window.recalculateCharacterAC(ch);
+  }
+  window.propagateCharacterToCampaigns(ch);
+  window.saveDB();
+  window.showToast(card.equipped ? "Oggetto Equipaggiato" : "Oggetto Riposto", `"${card.name}" è ora ${card.equipped ? 'equipaggiato attivamente' : 'nell\'inventario'}.`, 'success');
+  window.openCardDetailModal(card.id);
+  window.renderAllViews();
+};
 window.closeCardDetailModal = function() {
   const modal = document.getElementById('card-detail-modal');
   if (modal) {
@@ -1342,23 +1564,36 @@ window.deployCardInCombat = function(cardId) {
   const card = ch.cards.find(c => c.id === cardId);
   if (!card) return;
 
-  const d20 = Math.floor(Math.random() * 20) + 1;
-  const hitStr = d20 === 20 ? 'CRITICO 20!' : `${d20 + ch.atkBonus} (${d20}+${ch.atkBonus})`;
+  const profBonus = ch.atkBonus || 2;
+  const isSpell = ['incantesimo', 'magia', 'runa'].includes((card.type || '').toLowerCase());
+  
+  let hitFormula = `1d20${profBonus >= 0 ? '+' + profBonus : profBonus}`;
+  let dmgFormula = card.damage || '1d4';
 
-  let dmgResult = card.damage;
-  const clean = String(card.damage).toLowerCase().replace(/\s+/g, '');
-  if (clean.includes('d')) {
-    let total = 0;
-    clean.split('+').forEach(part => {
-      if (part.includes('d')) {
-        const [cnt, sides] = part.split('d');
-        for (let i = 0; i < (parseInt(cnt)||1); i++) total += Math.floor(Math.random() * (parseInt(sides)||6)) + 1;
-      } else if (!isNaN(parseInt(part))) total += parseInt(part);
-    });
-    dmgResult = d20 === 20 ? total * 2 : total;
+  if (isSpell) {
+    const stats = ch.stats || { FOR:10, DES:10, COS:10, INT:10, SAG:10, CAR:10 };
+    const intMod = Math.floor(((stats.INT || 10) - 10) / 2);
+    const sagMod = Math.floor(((stats.SAG || 10) - 10) / 2);
+    const carMod = Math.floor(((stats.CAR || 10) - 10) / 2);
+    const cls = (ch.className || '').toLowerCase();
+    let spellMod = intMod;
+    if (cls.includes('chieric') || cls.includes('gothi') || cls.includes('druid') || cls.includes('ranger')) spellMod = sagMod;
+    else if (cls.includes('bard') || cls.includes('skald') || cls.includes('stregon') || cls.includes('warlock') || cls.includes('paladin')) spellMod = carMod;
+    else spellMod = Math.max(intMod, sagMod, carMod);
+    const spellAtk = profBonus + spellMod;
+    const spellDC = 8 + profBonus + spellMod;
+    hitFormula = `1d20+${spellAtk} (CD ${spellDC})`;
   }
 
-  const evt = { type: 'CARD_DEPLOY', timestamp: Date.now(), actor: ch.name, card: card, hit: hitStr, dmg: dmgResult };
+  const evt = {
+    type: 'CARD_DEPLOY',
+    timestamp: Date.now(),
+    actor: ch.name,
+    card: card,
+    hit: hitFormula,
+    dmg: dmgFormula
+  };
+
   Object.values(window.dbState.campaigns || {}).forEach(camp => {
     if (camp.members && camp.members[window.currentUser] && camp.members[window.currentUser].id === ch.id) {
       camp.globalEvent = evt;
@@ -1428,6 +1663,7 @@ window.closeTradeModal = function() {
 };
 
 window.executeTrade = function() {
+  if (!window.requireOnlineAction('Scambio carte tra giocatori')) return;
   const val = document.getElementById('trade-recipient').value;
   if (!val) return;
   const [targetUserKey, campCode] = val.split('|');
@@ -1487,12 +1723,22 @@ window.displayGlobalAnimation = function(evt) {
     box.innerHTML = `<h2 class="font-norse text-3xl font-black text-sky-300">RIPOSO LUNGO</h2><p class="text-xs text-slate-300">Punti Ferita rigenerati al 100%.</p>`;
   } else if (evt.type === 'CARD_DEPLOY') {
     box.innerHTML = `
-      <span class="text-xs font-cinzel uppercase text-sky-400">${evt.actor} usa</span>
-      <div class="flex justify-center my-2">${window.buildYgoCardHTML(evt.card, false)}</div>
-      <div class="norse-panel rounded-xl p-3 grid grid-cols-2 divide-x divide-slate-800">
-        <div><span class="text-[10px] text-slate-400 block">Tiro D20</span><span class="font-cinzel font-black text-xl text-sky-300">${evt.hit}</span></div>
-        <div><span class="text-[10px] text-slate-400 block">Danno / Effetto</span><span class="font-cinzel font-black text-xl text-red-400">${evt.dmg}</span></div>
+      <div class="text-center space-y-1">
+        <span class="text-[10px] font-cinzel font-bold uppercase tracking-widest text-sky-400 block">${evt.actor} DICHIARA AZIONE</span>
+        <h2 class="font-cinzel font-black text-lg text-white">${evt.card?.name || 'Azione di Combattimento'}</h2>
       </div>
+      <div class="flex justify-center my-2">${window.buildYgoCardHTML(evt.card, false)}</div>
+      <div class="norse-panel rounded-xl p-3 grid grid-cols-2 divide-x divide-slate-800 text-center">
+        <div>
+          <span class="text-[10px] text-slate-400 block font-bold uppercase">Formula per Colpire</span>
+          <span class="font-mono font-black text-sm text-sky-300">${evt.hit}</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 block font-bold uppercase">Danni / Effetto</span>
+          <span class="font-mono font-black text-sm text-red-400">${evt.dmg}</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-amber-300 text-center font-bold">🎲 Tira i dadi fisici sul tavolo da gioco reale!</p>
     `;
   }
   modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -1506,6 +1752,137 @@ window.closeAnimModal = function() {
 // ============================================================================
 // 8. RENDERING SCHEDA D&D BEYOND E CAMPAGNE CON BOX CELESTE GHIACCIATO
 // ============================================================================
+
+// ============================================================================
+// ISPETTORE REGOLE & DADO FISICO AL TAVOLO (ZERO DADI VIRTUALI)
+// ============================================================================
+window.showRuleInspector = function(cfg) {
+  const modal = document.getElementById('rule-inspector-modal');
+  if (!modal) return;
+  const typeEl = document.getElementById('rim-type');
+  const titleEl = document.getElementById('rim-title');
+  const statL1 = document.getElementById('rim-stat-label-1');
+  const scoreEl = document.getElementById('rim-score');
+  const statL2 = document.getElementById('rim-stat-label-2');
+  const modEl = document.getElementById('rim-mod');
+  const instrEl = document.getElementById('rim-instruction');
+  const descEl = document.getElementById('rim-description');
+  const extraBox = document.getElementById('rim-extra-box');
+
+  if (typeEl) typeEl.textContent = cfg.type || 'REGOLE & MECCANICHE';
+  if (titleEl) titleEl.textContent = cfg.title || '';
+  if (statL1) statL1.textContent = cfg.label1 || 'Punteggio';
+  if (scoreEl) scoreEl.textContent = cfg.val1 !== undefined ? cfg.val1 : '—';
+  if (statL2) statL2.textContent = cfg.label2 || 'Modificatore';
+  if (modEl) modEl.textContent = cfg.val2 !== undefined ? cfg.val2 : '—';
+  if (instrEl) instrEl.textContent = cfg.instruction || 'Lancia 1d20 fisico al tavolo e aggiungi il modificatore indicato.';
+  if (descEl) descEl.textContent = cfg.desc || '';
+  if (extraBox) {
+    if (cfg.extra) {
+      extraBox.innerHTML = cfg.extra;
+      extraBox.classList.remove('hidden');
+    } else {
+      extraBox.classList.add('hidden');
+    }
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeRuleInspector = function() {
+  const modal = document.getElementById('rule-inspector-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.inspectAbility = function(key, label, score, mod) {
+  const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+  const abilityDescs = {
+    FOR: "La FORZA misura la potenza muscolare, la prestanza atletica e l'energia fisica grezza. Determina l'efficacia dei colpi in mischia, la capacità di lottare, scalare rupi scoscese nei Nove Mondi, sfondare scudi o porte e il carico trasportabile.",
+    DES: "La DESTREZZA misura l'agilità corporea, la prontezza di riflessi, l'equilibrio e la coordinazione motoria. Determina la Classe Armatura (CA), l'Iniziativa in battaglia, il tiro con l'arco, la rapidità di mano e il muoversi furtivi tra le ombre.",
+    COS: "La COSTITUZIONE rappresenta la salute vitale, la tempra del guerriero e la resistenza corporea al gelo del Fimbulvetr, veleni, fatica e stanchezza. Aggiunge il suo modificatore a ogni Dado Vita e determina la concentrazione sugli incantesimi.",
+    INT: "L'INTELLIGENZA misura l'acume analitico, la memoria storica dei Nove Mondi, la capacità di investigare indizi e la conoscenza arcana del Futhark antico.",
+    SAG: "La SAGGEZZA riflette la sintonia con l'ambiente, la percezione vigile, l'intuito morale e la profonda conoscenza dei Miti e delle Divinità Norrene tramite l'abilità ASATRU.",
+    CAR: "Il CARISMA misura la forza della personalità, l'ascendente da Jarl o Skaldo, la presenza regale, la persuasione nel Thing e la capacità di intimidire i rivali o incutere reverenza nei nemici."
+  };
+
+  window.showRuleInspector({
+    type: "CARATTERISTICA BASE (D&D 5E)",
+    title: `${label} (${key})`,
+    label1: "Punteggio",
+    val1: score,
+    label2: "Modificatore",
+    val2: modStr,
+    instruction: `Tira 1d20 fisico al tavolo da gioco e somma ${modStr} al risultato del dado.`,
+    desc: abilityDescs[key] || "Caratteristica primaria del personaggio secondo le regole ufficiali di D&D 5e e Journey to Ragnarok.",
+    extra: `<strong>Prove Comuni associate a ${key}:</strong> Consulta le abilità della scheda per calcolare eventuali competenze addizionali.`
+  });
+};
+
+window.inspectSave = function(key, label, score, mod, isProf, profBonus) {
+  const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+  window.showRuleInspector({
+    type: "TIRO SALVEZZA (D&D 5E / JTR)",
+    title: `TIRO SALVEZZA: ${label}`,
+    label1: isProf ? "Competenza" : "Base",
+    val1: isProf ? `+${profBonus}` : "Nessuna",
+    label2: "Bonus Totale",
+    val2: modStr,
+    instruction: `Lancia 1d20 fisico al tavolo e aggiungi ${modStr} per superare la Classe Difficoltà (CD) dell'effetto avverso.`,
+    desc: `I Tiri Salvezza rappresentano il tentativo istintivo di resistere a un pericolo immediato (trappole, magie avversarie, soffi di drago o veleno).`,
+    extra: `Stato: <strong>${isProf ? 'Competente (+Bonus Competenza incluso)' : 'Non Competente (Solo Modificatore di Caratteristica)'}</strong>.`
+  });
+};
+
+window.inspectSkill = function(skillId, skillName, statKey, mod, isProf) {
+  const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+  let desc = `Misura l'esperienza del personaggio nell'applicazione pratica della caratteristica ${statKey}.`;
+  if (skillId === 'asatru') {
+    desc = "ASATRU (Saggezza - Abilità Ufficiale di Journey to Ragnarok):\nMisura la devozione, la conoscenza degli Dei Aesir e Vanir, dei riti sacri del Blót, dei sacrifici e della cosmologia dei Nove Mondi. Consente di interpretare presagi divini, identificare creature mitologiche (Jötnar, Alfar, Norne, Hel) e invocare il rispetto sacerdotale nei santuari di Midgardr.";
+  } else if (skillId === 'atletica') {
+    desc = "ATLETICA (Forza): Arrampicarsi, saltare, nuotare nelle acque gelide, afferrare o atterrare nemici in lotta e superare ostacoli fisici gravosi.";
+  } else if (skillId === 'percezione') {
+    desc = "PERCEZIONE (Saggezza): Notare dettagli nascosti, avvistare nemici in agguato, udire passi furtivi o percepire odori nell'aria.";
+  } else if (skillId === 'furtivita') {
+    desc = "FURTIVITÀ (Destrezza): Muoversi silenziosamente senza farsi scorgere né udire dai nemici tra le ombre o la nebbia.";
+  } else if (skillId === 'storia') {
+    desc = "STORIA (Intelligenza): Ricordare saghe leggendarie, genealogie dei Clan, battaglie passate e antiche usanze di Midgardr.";
+  } else if (skillId === 'sopravvivenza') {
+    desc = "SOPRAVVIVENZA (Saggezza): Seguire tracce nella neve, cacciare selvaggina selvaggia, orientarsi nella tormenta polare e trovare riparo.";
+  }
+
+  window.showRuleInspector({
+    type: skillId === 'asatru' ? "ABILITÀ NORRENA ESCLUSIVA (JTR)" : "ABILITÀ (D&D 5E)",
+    title: `${skillName} (${statKey})`,
+    label1: "Caratteristica",
+    val1: statKey,
+    label2: "Modificatore",
+    val2: modStr,
+    instruction: `Tira 1d20 fisico al tavolo e somma ${modStr} per effettuare la prova di ${skillName}.`,
+    desc: desc,
+    extra: `Competenza: <strong>${isProf ? 'Sì (Bonus di Competenza applicato)' : 'No'}</strong>.`
+  });
+};
+
+window.inspectCompanionAttack = function(compName, atkName, bonus, dmgFormula) {
+  const bonusStr = bonus >= 0 ? `+${bonus}` : `${bonus}`;
+  window.showRuleInspector({
+    type: "ATTACCO COMPAGNO / CREATURA",
+    title: `${compName} • ${atkName}`,
+    label1: "Bonus per Colpire",
+    val1: bonusStr,
+    label2: "Formula Danni",
+    val2: dmgFormula,
+    instruction: `Tira 1d20 fisico al tavolo (+${bonusStr}) contro la CA del bersaglio. Se colpisci, tira i dadi di danno fisici (${dmgFormula})!`,
+    desc: `Attacco naturale o manovra tattica eseguita da ${compName} al servizio dell'eroe. Nessun dado viene tirato virtualmente dall'applicazione.`,
+    extra: `Danno da tirare fisicamente: <strong>${dmgFormula}</strong>.`
+  });
+};
+window.rollCompanionAttack = window.inspectCompanionAttack;
+
 window.renderDdbSectionContent = function(ch) {
   const body = document.getElementById('ddb-section-body');
   if (!body || !ch) return;
@@ -1529,7 +1906,7 @@ window.renderDdbSectionContent = function(ch) {
       const mod = Math.floor((score - 10) / 2);
       const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
       return `
-        <button type="button" onclick="alert('Test ${label}: ' + (Math.floor(Math.random()*20)+1 + ${mod}))" class="ddb-ability-card active:scale-95 transition">
+        <button type="button" onclick="window.inspectAbility('${key}', '${label}', ${score}, ${mod})" class="ddb-ability-card active:scale-95 transition cursor-pointer" title="Tocca per consultare la regola e tirare il d20 al tavolo">
           <span class="text-[9px] font-extrabold text-slate-300 tracking-wider block">${label}</span>
           <div class="ddb-ability-mod-box">${modStr}</div>
           <div class="ddb-ability-score-pill">${score}</div>
@@ -1543,7 +1920,7 @@ window.renderDdbSectionContent = function(ch) {
       const mod = Math.floor((score - 10) / 2) + (isProf ? profBonus : 0);
       const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
       return `
-        <button type="button" onclick="alert('Tiro Salvezza ${label}: ' + (Math.floor(Math.random()*20)+1 + ${mod}))" class="ddb-save-pill active:scale-95 transition">
+        <button type="button" onclick="window.inspectSave('${key}', '${label}', ${score}, ${mod}, ${isProf}, ${profBonus})" class="ddb-save-pill active:scale-95 transition cursor-pointer" title="Tocca per consultare il tiro salvezza">
           <div class="flex items-center gap-2.5">
             <span class="ddb-prof-dot ${isProf ? 'proficient' : ''}"></span>
             <span class="text-xs font-extrabold text-white tracking-wide">${label}</span>
@@ -1581,7 +1958,7 @@ window.renderDdbSectionContent = function(ch) {
           const mod = Math.floor(((stats[sk.stat] || 10) - 10) / 2) + (isProf ? profBonus : 0);
           const mStr = mod >= 0 ? `+${mod}` : `${mod}`;
           return `
-            <button type="button" onclick="alert('Abilità ${sk.name}: ' + (Math.floor(Math.random()*20)+1 +${mod}))" class="ddb-save-pill w-full">
+            <button type="button" onclick="window.inspectSkill('${sk.id}', '${sk.name}', '${sk.stat}', ${mod}, ${isProf})" class="ddb-save-pill w-full cursor-pointer hover:border-amber-400/60 transition" title="Tocca per consultare l'abilità">
               <div class="flex items-center gap-2.5">
                 <span class="ddb-prof-dot ${isProf ? 'proficient' : ''}"></span>
                 <span class="text-[10px] font-bold text-slate-400 w-8">${sk.stat}</span>
@@ -2696,6 +3073,11 @@ window.renderAllViews = function() {
                 <h4 class="font-cinzel font-bold text-base text-white">${camp.title}</h4>
               </div>
               <div class="flex items-center gap-2">
+                <button type="button" onclick="window.Map3D.openMap('${camp.code}', 'PLAYER')"
+                        class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  <span>MAPPA 3D</span>
+                </button>
                 <button type="button" onclick="window.openEmbeddedGinnungagap('${camp.code}', 'PLAYER')"
                         class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
                   <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
@@ -2892,9 +3274,9 @@ window.adjustCompanionHp = function(delta) {
 };
 
 window.rollCompanionAttack = function(compName, atkName, bonus, dmgFormula) {
-  const d20 = Math.floor(Math.random() * 20) + 1;
-  const total = d20 + bonus;
-  alert(` ${compName} esegue ${atkName}!\nTiro per Colpire: 1d20+${bonus} = ${total} (Dado: ${d20})\nDanno inflitto: ${dmgFormula}`);
+  if (typeof window.inspectCompanionAttack === 'function') {
+    window.inspectCompanionAttack(compName, atkName, bonus, dmgFormula);
+  }
 };
 
 // ============================================================================
@@ -3162,15 +3544,16 @@ window.castSpell = function(cardId) {
   else spellMod = Math.max(intMod, sagMod, carMod);
 
   const profBonus = ch.atkBonus || 2;
-  const d20 = Math.floor(Math.random() * 20) + 1;
-  const atkTotal = d20 + profBonus + spellMod;
+  const spellAtk = profBonus + spellMod;
   const spellDC = 8 + profBonus + spellMod;
 
-  alert(` ${ch.name} incanala le rune e lancia "${card.name}"!\n\n` +
-        ` Tiro Attacco Magico: 1d20+${profBonus + spellMod} = ${atkTotal} (Dado: ${d20})\n` +
-        ` CD Salvezza per i Nemici: ${spellDC}\n` +
-        ` Danno / Effetto: ${card.damage || 'Effetto magico applicato!'}\n` +
-        ` Lore: ${card.desc || ''}`);
+  window.showToast(
+    `Incantesimo: ${card.name}`,
+    `Attacco Magico: 1d20+${spellAtk} | CD Salvezza Nemici: ${spellDC} | Danno/Effetto: ${card.damage || 'Vedi scheda'}. Tira fisicamente al tavolo!`,
+    'info'
+  );
+
+  window.deployCardInCombat(card.id);
 };
 
 // ============================================================================

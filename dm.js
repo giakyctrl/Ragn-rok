@@ -148,17 +148,18 @@ window.dmMassLevelUp = function() {
     if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   });
   window.saveDB();
-  alert("Promozione di livello inviata a tutti i giocatori del party!");
+  if (typeof window.showToast === "function") window.showToast("Party Promosso!", "Notifica di Level Up inviata a tutti i membri del gruppo.", "success");
 };
 
 window.dmSingleLevelUp = function(uKey) {
+  if (typeof window.requireOnlineAction === 'function' && !window.requireOnlineAction('Promozione Eroe Livello')) return;
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp || !camp.members[uKey]) return;
   const mChar = camp.members[uKey];
   mChar.pendingLevelUp = true;
   if (typeof window.syncMemberCharToUser === 'function') window.syncMemberCharToUser(uKey, mChar);
   window.saveDB();
-  alert(`Promozione di livello inviata a ${mChar.name}!`);
+  if (typeof window.showToast === "function") window.showToast("Eroe Promosso!", `Level Up inviato con successo a ${mChar.name}.`, "success");
 };
 
 window.dmTriggerTactical = function(type) {
@@ -309,16 +310,17 @@ window.renderDmCompendiumCards = function() {
 };
 
 window.dmAssignCardFromCompendium = function(cardId) {
+  if (typeof window.requireOnlineAction === 'function' && !window.requireOnlineAction('Assegnazione Carta')) return;
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
   if (!camp) {
-    alert("Nessuna campagna attiva selezionata.");
+    if (typeof window.showToast === "function") window.showToast("Attenzione", "Nessuna campagna attiva selezionata.", "warning");
     return;
   }
 
   const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
   const original = all.find(c => c.id === cardId);
   if (!original) {
-    alert("Carta non trovata nel database.");
+    if (typeof window.showToast === "function") window.showToast("Errore Database", "Carta non trovata nel compendio.", "error");
     return;
   }
 
@@ -347,7 +349,7 @@ window.dmAssignCardFromCompendium = function(cardId) {
   }
 
   window.saveDB();
-  alert(`Carta "${original.name}" assegnata con successo a: ${targetName}!`);
+  if (typeof window.showToast === "function") window.showToast("Carta Assegnata", `"${original.name}" consegnata a: ${targetName}!`, "success");
   window.renderDmViews();
 };
 
@@ -417,7 +419,7 @@ window.dmCreateAndAssignCard = function(e) {
   window.updateDmCardPreview();
   window.saveDB();
 
-  alert(`Carta "${newCard.name}" creata, assegnata a ${targetName} e registrata nel Database Admin globale!`);
+  if (typeof window.showToast === "function") window.showToast("Carta Creata", `"${newCard.name}" assegnata a ${targetName} e salvata nel Realm!`, "success");
   window.switchDmCreateMode('compendium');
   window.renderDmViews();
 };
@@ -496,6 +498,10 @@ window.renderDmViews = function() {
                   <h4 class="font-cinzel font-bold text-base text-white">${c.title}</h4>
                 </div>
                 <div class="flex items-center gap-2">
+                  <button type="button" onclick="event.stopPropagation(); window.Map3D.openMap('${c.code}', 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
+                    <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span>MAPPA 3D</span>
+                  </button>
                   <button type="button" onclick="event.stopPropagation(); window.openEmbeddedGinnungagap('${c.code}', 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
                     <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
                   </button>
@@ -659,7 +665,7 @@ window.dmPromptSetPlayerGold = function(uKey) {
   if (res === null) return;
   const val = parseInt(res, 10);
   if (isNaN(val) || val < 0) {
-    alert("Valore monete non valido.");
+    if (typeof window.showToast === "function") window.showToast("Valore Non Valido", "Inserisci un numero valido di monete.", "warning");
     return;
   }
   mChar.gold = val;
@@ -789,18 +795,18 @@ window.renderDmTradeCatalog = function() {
 
 window.dmAddCardToMarket = function(cardId) {
   const camp = window.dbState.campaigns[window.activeDmWorkspaceCode];
-  if (!camp) return alert("Nessuna campagna attiva selezionata.");
+  if (!camp) { if (typeof window.showToast === "function") window.showToast("Attenzione", "Nessuna campagna attiva selezionata.", "warning"); return; }
   if (!camp.market) camp.market = [];
 
   const all = typeof window.getAllCards === 'function' ? window.getAllCards() : (window.GLOBAL_CARDS_DATABASE || []);
   const card = all.find(c => c.id === cardId);
-  if (!card) return alert("Carta non trovata.");
+  if (!card) { if (typeof window.showToast === "function") window.showToast("Carta Mancante", "Carta non trovata.", "warning"); return; }
 
   const defaultGold = window.parseCostToGold ? window.parseCostToGold(card.cost) : 10;
   const input = prompt(`Prezzo in Monete d'Oro (mo) per mettere in vendita "${card.name}":`, defaultGold);
   if (input === null) return;
   const priceGold = parseInt(input, 10);
-  if (isNaN(priceGold) || priceGold < 0) return alert("Prezzo non valido.");
+  if (isNaN(priceGold) || priceGold < 0) { if (typeof window.showToast === "function") window.showToast("Prezzo Errato", "Inserisci un prezzo in monete valido.", "warning"); return; }
 
   const marketItem = {
     ...card,
@@ -812,7 +818,7 @@ window.dmAddCardToMarket = function(cardId) {
   camp.market.push(marketItem);
   window.saveDB();
   window.renderDmTradeViews();
-  alert(`"${card.name}" è ora disponibile nel Kaupang per ${priceGold} mo!`);
+  if (typeof window.showToast === "function") window.showToast("Kaupang di Midgard", `"${card.name}" è in vendita nel mercato per ${priceGold} mo!`, "success");
 };
 
 window.dmRemoveCardFromMarket = function(marketId) {
@@ -832,7 +838,7 @@ window.dmEditMarketItemPrice = function(marketId) {
   const input = prompt(`Nuovo prezzo in Monete d'Oro per "${item.name}":`, cur);
   if (input === null) return;
   const val = parseInt(input, 10);
-  if (isNaN(val) || val < 0) return alert("Prezzo non valido.");
+  if (isNaN(val) || val < 0) { if (typeof window.showToast === "function") window.showToast("Prezzo Errato", "Prezzo non valido.", "warning"); return; }
   item.priceGold = val;
   item.cost = val + ' mo';
   window.saveDB();
@@ -1699,7 +1705,7 @@ window.handleDirectEnemyStlUpload = function(event, enemyId) {
 
   const ext = file.name.split('.').pop().toLowerCase();
   if (!['stl', 'glb', 'gltf', 'obj'].includes(ext)) {
-    alert("Formato non valido. Carica un file 3D (.stl, .glb o .obj).");
+    if (typeof window.showToast === "function") window.showToast("Formato 3D Non Valido", "Carica un file .stl, .glb o .obj.", "error");
     return;
   }
 
@@ -1821,7 +1827,7 @@ window.handleEnemyStlFileUpload = function(event) {
 
   const ext = file.name.split('.').pop().toLowerCase();
   if (ext !== 'stl' && ext !== 'glb' && ext !== 'gltf' && ext !== 'obj') {
-    alert("Formato non valido. Carica un file 3D (.stl, .glb o .obj).");
+    if (typeof window.showToast === "function") window.showToast("Formato 3D Non Valido", "Carica un file .stl, .glb o .obj.", "error");
     return;
   }
 
