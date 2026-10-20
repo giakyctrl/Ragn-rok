@@ -29,7 +29,7 @@ jobs:
         run: |
           npm install --legacy-peer-deps
 
-      - name: Build Windows .exe Installer with Electron Builder
+      - name: Build Windows Packages with Electron Builder
         run: |
           npm run build:win
         env:
@@ -38,9 +38,10 @@ jobs:
       - name: Upload Build Artifacts to Workflow Run
         uses: actions/upload-artifact@v4
         with:
-          name: Yggdrasill-Windows-x64-Setup
+          name: Yggdrasill-Windows-Packages
           path: |
             dist-electron/*.exe
+            dist-electron/*.zip
           if-no-files-found: warn
 
       - name: Create or Update GitHub Release
@@ -48,23 +49,36 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           files: |
-            dist-electron/Yggdrasill_Setup.exe
-          tag_name: ${{ github.ref_name || 'v1.0.0' }}
-          name: "Yggdrasill v1.0.0 — Desktop App (.exe)"
+            dist-electron/*.exe
+            dist-electron/*.zip
+          tag_name: ${{ github.ref_name || 'v1.0.2' }}
+          name: "Yggdrasill v1.0.2 — Desktop App (.exe & Portable)"
           body: |
-            # Yggdrasill — Desktop App per Windows (.exe)
+            # Yggdrasill v1.0.2 — Desktop App per Windows
 
-            Applicazione nativa Desktop (.exe) per PC Windows a supporto visivo e gestionale delle sessioni live di D&D 5e ambientate in "Journey to Ragnarok".
+            Companion Visuale e Gestionale definitivo per sessioni dal vivo di **D&D 5e / Journey to Ragnarok** con **Fucina 3D per Miniature (stile HeroForge)** e **Map Maker 3D (stile Dungeon Alchemist)**.
 
-            ### Moduli e Novita:
-            - **Zero Dadi Virtuali**: Nessun popup o tiro automatico. L'app evidenzia modificatori, CD e formule di danno lasciando i lanci fisici al tavolo reale.
-            - **Offline-First**: Accesso istantaneo alla scheda eroe anche offline con cache locale duratura e sync protetto su Firebase.
-            - **La Fucina dell'Eroe 3D (forge3d.js)**: Personalizzazione procedurale dell'eroe (stile HeroForge) con piedistallo runico, razze, barbe, capelli, elmi, armature, armi e scudi.
-            - **Map Builder 3D (map3d.js)**: Griglia tattica D&D 1.5m stile TaleSpire con telecamera WASD, elementi posizionabili (rocce, neve, ghiaccio, mura, pilastri runici, alberi, torce dinamiche) e miniature sincronizzate in tempo reale.
-            - **60 FPS Hardware Acceleration**: Ottimizzazione con GPU Instancing Three.js e accelerazione hardware Electron.
+            ---
 
-            ### Installazione:
-            Scarica Yggdrasill_Setup.exe ed eseguilo su Windows.
+            ### 📦 Download Disponibili:
+            - **`Yggdrasill-Windows-x64-Portable.zip` (CONSIGLIATO)**: Archivio portatile non compresso da installer, include il launcher anti-blocco `Avvia_Yggdrasill.bat`. Estrai ed avvia subito senza installazione!
+            - **`Yggdrasill-Portable-1.0.2.exe`**: Singolo file eseguibile portatile pronto all'uso.
+            - **`Yggdrasill-Setup-1.0.2.exe`**: Installer tradizionale Windows con scorciatoie sul Desktop e Menu Avvio.
+
+            ---
+
+            ### 🛡️ Nota per Microsoft Defender / Windows SmartScreen
+            Essendo un'applicazione indipendente open-source priva di un costoso certificato commerciale EV (oltre 500$/anno):
+            - **Se usi il pacchetto ZIP:** Estrai la cartella ed esegui `Avvia_Yggdrasill.bat` (oppure `Yggdrasill.exe`). Lo script rimuove in automatico il blocco temporaneo di Windows (*Mark-of-the-Web*).
+            - **Se usi l'installer `.exe`:** Nella schermata blu di Windows SmartScreen (*"PC protetto da Windows"*), clicca su **"Ulteriori informazioni"** e poi sul pulsante **"Esegui comunque"**.
+
+            ---
+
+            ### ⚔️ Novità Versione 1.0.2:
+            - **Map Maker 3D Stile Dungeon Alchemist**: Motore 3D potenziato con 46 veri modelli `.glb` ad alta qualità (scale con corrimano, case norrene con tetto a scandole e paglia, cancelli, palizzate difensive, carretti mercantili, lanterne, stendardi e alberi).
+            - **Generatore di Entrata del Villaggio Vichingo**: Generazione procedurale in 1 clic dell'ingresso fortificato con palizzata, torri di guardia, rampe e carro merci (ispirato al video tutorial Dungeon Alchemist).
+            - **Runa Ufficiale**: Runa autentica della homepage applicata all'icona di sistema dell'app, favicon e interfaccia.
+            - **Zero Dadi Virtuali & Offline-First**: Supporto al gioco dal vivo fedele alle regole *Journey to Ragnarok*.
           draft: false
           prerelease: false
         env:

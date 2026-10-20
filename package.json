@@ -1,7 +1,7 @@
 {
   "name": "yggdrasill",
-  "version": "1.0.1",
-  "description": "Companion Visuale e Gestionale per sessioni D&D 5e / Journey to Ragnarok con Fucina 3D e Map Builder TaleSpire",
+  "version": "1.0.2",
+  "description": "Companion Visuale e Gestionale per sessioni D&D 5e / Journey to Ragnarok con Fucina 3D e Dungeon Alchemist Map Maker",
   "main": "main.js",
   "author": "giakyctrl",
   "license": "MIT",
@@ -20,22 +20,29 @@
     "appId": "com.yggdrasill.ragnarok",
     "productName": "Yggdrasill",
     "copyright": "Copyright © 2026 giakyctrl",
-    "artifactName": "Yggdrasill_Setup.${ext}",
     "directories": {
       "output": "dist-electron",
       "buildResources": "build"
     },
     "win": {
       "icon": "build/icon.ico",
+      "legalTrademarks": "Yggdrasill - Journey to Ragnarok",
+      "publisherName": "giakyctrl",
       "target": [
         {
-          "target": "nsis",
+          "target": "zip",
           "arch": [
             "x64"
           ]
         },
         {
           "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
           "arch": [
             "x64"
           ]
@@ -49,7 +56,15 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Yggdrasill",
       "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico"
+      "uninstallerIcon": "build/icon.ico",
+      "artifactName": "Yggdrasill-Setup-${version}.${ext}",
+      "differentialPackage": false
+    },
+    "portable": {
+      "artifactName": "Yggdrasill-Portable-${version}.${ext}"
+    },
+    "zip": {
+      "artifactName": "Yggdrasill-Windows-x64-Portable.${ext}"
     },
     "files": [
       "index.html",
@@ -65,6 +80,7 @@
       "assets/**/*",
       "build/icon.ico",
       "build/icon.png",
+      "Avvia_Yggdrasill.bat",
       "main.js",
       "preload.js",
       "package.json"
