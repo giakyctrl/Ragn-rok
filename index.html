@@ -294,11 +294,11 @@
                 
                 <!-- Identità Eroe -->
                 <div class="flex items-center gap-3.5 pb-2 border-b border-slate-800/80">
-                  <div class="relative flex-shrink-0 cursor-pointer group" onclick="window.openPlayerStlModal()" title="Clicca sulla foto del personaggio per caricare il file .STL della miniatura 3D per Ginnungagap">
-                    <img id="sheet-avatar" src="" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-500/50 group-hover:border-cyan-400 group-hover:brightness-110 shadow-[0_0_15px_rgba(201,160,80,0.25)] transition duration-200">
-                    <div class="absolute inset-0 rounded-2xl bg-slate-950/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition border border-cyan-400/80 pointer-events-none">
-                      <svg class="w-5 h-5 text-cyan-300 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
-                      <span class="text-[8px] font-mono font-bold text-cyan-200 uppercase tracking-tighter">Carica .STL</span>
+                  <div class="relative flex-shrink-0 cursor-pointer group" onclick="window.Forge3D && window.Forge3D.openModal()" title="Tocca per aprire la Fucina 3D dell'Eroe">
+                    <img id="sheet-avatar" src="" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-500/50 group-hover:border-amber-400 group-hover:brightness-110 shadow-[0_0_15px_rgba(201,160,80,0.25)] transition duration-200">
+                    <div class="absolute inset-0 rounded-2xl bg-slate-950/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition border border-amber-400/80 pointer-events-none">
+                      <span class="text-xs text-amber-300 font-cinzel font-black">ᚠ 3D</span>
+                      <span class="text-[8px] font-mono font-bold text-amber-200 uppercase tracking-tighter">Fucina Eroe</span>
                     </div>
                     <button type="button" onclick="event.stopPropagation(); window.toggleHeroicInspiration()" id="sheet-insp-badge" class="ddb-insp-btn" title="Ispirazione Eroica"><svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg></button>
                   </div>
@@ -308,10 +308,7 @@
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                       <span id="sheet-camp-badge" class="inline-block text-[10px] px-2 py-0.5 rounded bg-sky-950/80 border border-sky-500/30 text-sky-300 font-mono"></span>
                       <button type="button" onclick="window.openClanDetailModal(window.getMyCharacter() ? (window.getMyCharacter().clanId || window.getMyCharacter().clan || window.getMyCharacter().clanName) : null)" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-cinzel font-bold hover:bg-amber-500/30 transition">Clan di Midgardr</button>
-                      <button type="button" onclick="window.openPlayerStlModal()" id="sheet-stl-btn" class="text-[10px] px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-bold hover:bg-cyan-900 transition flex items-center gap-1 shadow" title="Collega il file 3D (.STL) per la mappa VTT">
-                        <svg class="w-3.5 h-3.5 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
-                        <span id="sheet-stl-btn-label">Miniatura 3D (.STL)</span>
-                      </button>
+
                       <button type="button" onclick="window.Forge3D && window.Forge3D.openModal()" id="sheet-forge3d-btn" class="text-[10px] px-2.5 py-0.5 rounded bg-gradient-to-r from-amber-600/30 to-amber-500/20 border border-amber-400 text-amber-300 font-cinzel font-black hover:from-amber-600/50 hover:to-amber-500/40 transition flex items-center gap-1 shadow-[0_0_10px_rgba(245,158,11,0.25)]" title="Fucina 3D: Personalizza la tua miniatura stile Hero Forge">
                         <span class="text-xs">ᚠ</span> Fucina 3D
                       </button>
@@ -432,12 +429,9 @@
             <h2 id="dm-ws-title" class="font-cinzel font-bold text-base text-white"></h2>
           </div>
           <div class="flex items-center gap-2">
-                        <button type="button" id="dm-talespire-map-btn" onclick="window.Map3D.openMap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 border border-sky-400 text-sky-100 font-cinzel font-bold text-xs flex items-center gap-1.5 transition shadow-lg">
-              <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-              <span>MAPPA 3D (TaleSpire)</span>
-            </button>
-            <button type="button" id="dm-map-link" onclick="window.openEmbeddedGinnungagap(window.activeDmWorkspaceCode, 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-amber-600/20 border border-amber-400 text-amber-300 font-cinzel font-bold text-xs flex items-center gap-1.5 hover:bg-amber-500/40 transition shadow-lg">
-              <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+            <button type="button" id="dm-mapmaker-btn" onclick="window.Map3D.openMap(window.activeDmWorkspaceCode, 'DM')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-sky-600 to-indigo-700 hover:brightness-110 border border-amber-400 text-white font-cinzel font-black text-xs flex items-center gap-1.5 transition shadow-xl">
+              <svg class="w-4 h-4 text-amber-300" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="12"><path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/></svg>
+              <span>MAP MAKER 3D (Dungeon Alchemist)</span>
             </button>
             <div class="bg-slate-950 border border-amber-500/50 px-3 py-1.5 rounded-xl text-right">
               <span class="text-[8px] text-slate-400 uppercase block">Codice Sala</span>
@@ -840,10 +834,7 @@
 
     </section>
 
-    <!-- 4. GINNUNGAGAP INTEGRATO DENTRO YGGDRASILL (TAVOLO TATTICO 3D DEI NOVE MONDI) -->
-    <section id="screen-ginnungagap" class="hidden fixed inset-0 z-50 bg-[#06090e] flex flex-col">
-      <iframe id="ginnungagap-iframe" class="w-full h-full border-0" src="about:blank"></iframe>
-    </section>
+    
   </div>
 
   <!-- MENU SEZIONI CON SFONDO BLURRATO -->
@@ -1282,34 +1273,7 @@
           </div>
         </div>
 
-        <!-- RIGA 5: MINIATURA 3D (.STL / .GLB / .OBJ) PER TAVOLO VTT -->
-        <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-700 space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="text-[10px] font-cinzel font-bold text-cyan-300 uppercase flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-cyan-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
-              Miniatura 3D Personale (.STL / .GLB / .OBJ)
-            </label>
-            <button type="button" id="enemy-stl-clear-btn" onclick="window.clearEnemyStlFile()" class="hidden text-[10px] text-rose-400 hover:text-rose-300 font-bold">Rimuovi File 3D</button>
-          </div>
-          <div id="enemy-stl-status-badge" class="text-xs"></div>
-          <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-amber-400 rounded-xl p-3 cursor-pointer bg-slate-900/50 hover:bg-slate-900 transition text-center">
-            <span class="text-xs text-slate-300 font-semibold">Trascina o clicca per caricare un file .STL (da Hero Forge o 3D Print)</span>
-            <span class="text-[10px] text-slate-500 mt-0.5">Il modello 3D apparirà autonomamente sul tavolo VTT al momento dello schieramento</span>
-            <input type="file" id="enemy-stl-file-input" accept=".stl,.glb,.gltf,.obj" onchange="window.handleEnemyStlFileUpload(event)" class="hidden">
-          </label>
-        </div>
-
-        <!-- RIGA 6: TRATTI E NOTE -->
-        <div class="space-y-2 pt-1 border-t border-slate-800">
-          <div>
-            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Tratti Speciali, Privilegi &amp; Azioni Leggendarie</label>
-            <textarea id="enemy-form-traits" rows="2" placeholder="Resistenze, immunità o abilità passive norrene..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs resize-none"></textarea>
-          </div>
-          <div>
-            <label class="block text-[10px] font-cinzel font-bold text-amber-400 uppercase mb-1">Note &amp; Lore del Dungeon Master</label>
-            <textarea id="enemy-form-notes" rows="2" placeholder="Comportamento in combattimento, lore e bottino..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs resize-none"></textarea>
-          </div>
-        </div>
+        
 
         <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-800">
           <button type="button" onclick="window.closeDmEnemyEditorModal()" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs">Annulla</button>
@@ -1321,52 +1285,7 @@
     </div>
   </div>
 
-  <!-- MODALE CARICAMENTO MINIATURA 3D (.STL / .GLB / .OBJ) GIOCATORE -->
-  <div id="modal-player-stl-uploader" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="norse-panel norse-border-gold rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl bg-[#0b101b] border-2 border-cyan-500/50">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
-          <h3 class="font-cinzel font-black text-sm text-white uppercase tracking-wider">Miniatura 3D per Ginnungagap</h3>
-        </div>
-        <button type="button" onclick="window.closePlayerStlModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <p class="text-slate-300 leading-relaxed">
-          Carica qui il modello 3D esportato da <a href="https://www.heroforge.com" target="_blank" class="text-cyan-400 underline font-semibold">Hero Forge</a> o dal tuo modellatore 3D.
-        </p>
-        <div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/40 text-[11px] text-amber-200/90 space-y-1">
-          <div class="font-bold flex items-center gap-1.5 text-amber-300">
-            <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            Colori vs Scultura 3D:
-          </div>
-          <p>&bull; <strong>.GLB / .GLTF</strong>: Mantiene al 100% tutti i colori, abiti e texture dipinte originali di Hero Forge.</p>
-          <p>&bull; <strong>.STL</strong>: Geometria pura per stampa 3D; viene renderizzata come autentica miniatura in peltro/metallo dettagliato.</p>
-        </div>
-
-        <div id="player-stl-current-status" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
-          <!-- Stato attuale -->
-        </div>
-
-        <label class="flex flex-col items-center justify-center border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 rounded-2xl p-6 cursor-pointer bg-slate-900/40 hover:bg-slate-900 transition text-center space-y-1">
-          <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 16-9 5-9-5V8l9-5 9 5v8z"/><path d="m3.27 6.96 8.73 4.88 8.73-4.88"/><path d="M12 22.08V12"/></svg>
-          <span class="text-sm text-white font-bold">Seleziona o Trascina file .STL</span>
-          <span class="text-[10px] text-slate-500">Supportati: .stl, .glb, .gltf, .obj</span>
-          <input type="file" id="player-stl-file-input" accept=".stl,.glb,.gltf,.obj" onchange="window.handlePlayerStlFileUpload(event)" class="hidden">
-        </label>
-      </div>
-
-      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-        <button type="button" id="player-stl-remove-btn" onclick="window.clearPlayerStlFile()" class="hidden text-xs text-rose-400 hover:text-rose-300 font-bold">
-          Rimuovi Miniatura 3D
-        </button>
-        <button type="button" onclick="window.closePlayerStlModal()" class="ml-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-cinzel font-bold text-xs">
-          Chiudi
-        </button>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>

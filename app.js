@@ -3074,13 +3074,9 @@ window.renderAllViews = function() {
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" onclick="window.Map3D.openMap('${camp.code}', 'PLAYER')"
-                        class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                  <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                  <span>MAPPA 3D</span>
-                </button>
-                <button type="button" onclick="window.openEmbeddedGinnungagap('${camp.code}', 'PLAYER')"
-                        class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                  <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+                        class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-2 transition">
+                  <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="12"><path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/></svg>
+                  <span>MAP MAKER 3D</span>
                 </button>
                 <span class="text-[10px] text-slate-400 font-mono">${membersEntries.length} Eroi</span>
               </div>

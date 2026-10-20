@@ -498,12 +498,9 @@ window.renderDmViews = function() {
                   <h4 class="font-cinzel font-bold text-base text-white">${c.title}</h4>
                 </div>
                 <div class="flex items-center gap-2">
-                  <button type="button" onclick="event.stopPropagation(); window.Map3D.openMap('${c.code}', 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                    <svg class="w-3.5 h-3.5 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                    <span>MAPPA 3D</span>
-                  </button>
-                  <button type="button" onclick="event.stopPropagation(); window.openEmbeddedGinnungagap('${c.code}', 'DM')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-cinzel font-black text-xs shadow-md flex items-center gap-1.5 transition">
-                    <span class="text-sm">ᚱ</span> GINNUNGAGAP (VTT 3D)
+                  <button type="button" onclick="event.stopPropagation(); window.Map3D.openMap('${c.code}', 'DM')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-sky-600 to-indigo-700 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-md flex items-center gap-2 transition">
+                    <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="12"><path d="M 82 14 L 54 38 L 26 14 L 26 126 L 54 102 L 82 126"/></svg>
+                    <span>MAP MAKER 3D</span>
                   </button>
                   <button type="button" onclick="window.toggleSwipeDeleteState(event, '${c.code}')" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] text-slate-400">Elimina</button>
                   <span class="font-cinzel font-bold text-xs text-sky-300">APRI &rarr;</span>
@@ -1677,10 +1674,10 @@ window.renderDmEnemiesViews = function() {
           ` : ''}
         </div>
 
-        <!-- AZIONI: SCHIERA SU GINNUNGAGAP, SCHEDA COMPLETA, CLONA, ELIMINA -->
+        <!-- AZIONI: SCHIERA SULLA MAPPA 3D, SCHEDA COMPLETA, CLONA, ELIMINA -->
         <div class="pt-3 border-t border-slate-800/80 flex flex-col gap-2">
-          <button type="button" onclick="window.deployEnemyToGinnungagap('${e.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg shadow-red-950/40 flex items-center justify-center transition active:scale-95">
-            ${iconSword} SCHIERA SU GINNUNGAGAP
+          <button type="button" onclick="window.deployEnemyToMap3D('${e.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:brightness-110 text-white font-cinzel font-black text-xs shadow-lg shadow-red-950/40 flex items-center justify-center transition active:scale-95">
+            ${iconSword} SCHIERA SULLA MAPPA 3D
           </button>
           <div class="grid grid-cols-3 gap-1.5 text-[10px]">
             <button type="button" onclick="window.openDmEnemyEditorModal('${e.id}')" class="py-1.5 px-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white transition flex items-center justify-center font-bold font-cinzel">
@@ -1995,47 +1992,33 @@ window.deleteEnemySheet = function(enemyId) {
   }
 };
 
-window.deployEnemyToGinnungagap = function(enemyId) {
-  const campCode = window.activeDmWorkspaceCode;
-  if (!campCode) return;
-  const enemies = window.getCampaignEnemies(campCode);
-  const enemy = enemies.find(e => e.id === enemyId);
+window.deployEnemyToMap3D = function(enemyId) {
+  const campCode = window.activeDmWorkspaceCode || 'MIDGARD-VALHALLA';
+  const camp = window.dbState && window.dbState.campaigns && window.dbState.campaigns[campCode];
+  if (!camp) return;
+  const enemy = (camp.customEnemies || []).find(e => e.id === enemyId);
   if (!enemy) return;
 
-  // 1. Accoda in sessionStorage per Ginnungagap
-  try {
-    const pending = JSON.parse(sessionStorage.getItem('ginnungagap_pending_enemy_spawns') || '[]');
-    pending.push({
-      ...enemy,
-      campCode: campCode,
-      timestamp: Date.now()
-    });
-    sessionStorage.setItem('ginnungagap_pending_enemy_spawns', JSON.stringify(pending));
-  } catch(e) {}
-
-  // 2. Broadcast Channel
-  try {
-    const bus = new BroadcastChannel(`ginnungagap_${campCode}`);
-    bus.postMessage({
-      type: 'SPAWN_ENEMY_SHEET',
-      enemy: enemy,
-      timestamp: Date.now()
-    });
-    setTimeout(() => { try { bus.close(); } catch(e){} }, 1000);
-  } catch(e) {}
-
-  // 3. Se iframe è già montato e attivo
-  const iframe = document.getElementById('ginnungagap-iframe');
-  if (iframe && iframe.contentWindow && iframe.contentWindow.Ginnungagap && typeof iframe.contentWindow.dmSpawnEnemyFromSheet === 'function') {
-    iframe.contentWindow.dmSpawnEnemyFromSheet(enemy);
-    if (typeof window.showToast === 'function') {
-      window.showToast('Schierato su Ginnungagap', `[${enemy.name}] schierato sul tavolo tattico VTT!`);
-    }
-  } else {
-    // Apri embedded Ginnungagap
-    if (typeof window.showToast === 'function') {
-      window.showToast('Lancio Ginnungagap', `Apertura tavolo tattico con [${enemy.name}] pronto sul campo!`);
-    }
-    window.openEmbeddedGinnungagap(campCode, 'DM');
+  if (!camp.members) camp.members = {};
+  const tokenKey = 'enemy_' + enemy.id + '_' + Date.now().toString(36);
+  camp.members[tokenKey] = {
+    id: tokenKey,
+    name: enemy.name,
+    charClass: enemy.type || 'Mostro',
+    level: enemy.cr || 1,
+    hp: enemy.hp || 30,
+    maxHp: enemy.hp || 30,
+    ac: enemy.ac || 14,
+    posX: 0,
+    posY: 0.25,
+    posZ: 0,
+    isEnemy: true
+  };
+  window.saveDB();
+  if (typeof window.showToast === 'function') {
+    window.showToast("Nemico Schierato", `[${enemy.name}] schierato sulla Mappa 3D!`, "success");
+  }
+  if (window.Map3D && typeof window.Map3D.openMap === 'function') {
+    window.Map3D.openMap(campCode, 'DM');
   }
 };
