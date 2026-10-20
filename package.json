@@ -20,6 +20,7 @@
     "appId": "com.yggdrasill.ragnarok",
     "productName": "Yggdrasill",
     "copyright": "Copyright © 2026 giakyctrl",
+    "artifactName": "Yggdrasill-Windows-x64-Portable.${ext}",
     "directories": {
       "output": "dist-electron",
       "buildResources": "build"
@@ -62,9 +63,6 @@
     },
     "portable": {
       "artifactName": "Yggdrasill-Portable-${version}.${ext}"
-    },
-    "zip": {
-      "artifactName": "Yggdrasill-Windows-x64-Portable.${ext}"
     },
     "files": [
       "index.html",
