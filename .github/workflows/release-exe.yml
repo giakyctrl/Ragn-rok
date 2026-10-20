@@ -1,0 +1,71 @@
+name: Release Windows Desktop App (.exe)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Package Windows Executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          npm install --legacy-peer-deps
+
+      - name: Build Windows .exe Installer with Electron Builder
+        run: |
+          npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifacts to Workflow Run
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yggdrasill-Windows-x64-Setup
+          path: |
+            dist-electron/*.exe
+          if-no-files-found: warn
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          files: |
+            dist-electron/Yggdrasill_Setup.exe
+          tag_name: ${{ github.ref_name || 'v1.0.0' }}
+          name: "Yggdrasill v1.0.0 — Desktop App (.exe)"
+          body: |
+            # Yggdrasill — Desktop App per Windows (.exe)
+
+            Applicazione nativa Desktop (.exe) per PC Windows a supporto visivo e gestionale delle sessioni live di D&D 5e ambientate in "Journey to Ragnarok".
+
+            ### Moduli e Novita:
+            - **Zero Dadi Virtuali**: Nessun popup o tiro automatico. L'app evidenzia modificatori, CD e formule di danno lasciando i lanci fisici al tavolo reale.
+            - **Offline-First**: Accesso istantaneo alla scheda eroe anche offline con cache locale duratura e sync protetto su Firebase.
+            - **La Fucina dell'Eroe 3D (forge3d.js)**: Personalizzazione procedurale dell'eroe (stile HeroForge) con piedistallo runico, razze, barbe, capelli, elmi, armature, armi e scudi.
+            - **Map Builder 3D (map3d.js)**: Griglia tattica D&D 1.5m stile TaleSpire con telecamera WASD, elementi posizionabili (rocce, neve, ghiaccio, mura, pilastri runici, alberi, torce dinamiche) e miniature sincronizzate in tempo reale.
+            - **60 FPS Hardware Acceleration**: Ottimizzazione con GPU Instancing Three.js e accelerazione hardware Electron.
+
+            ### Installazione:
+            Scarica Yggdrasill_Setup.exe ed eseguilo su Windows.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

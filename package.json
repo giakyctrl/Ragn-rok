@@ -1,0 +1,73 @@
+{
+  "name": "yggdrasill",
+  "version": "1.0.0",
+  "description": "Companion Visuale e Gestionale per sessioni D&D 5e / Journey to Ragnarok con Fucina 3D e Map Builder TaleSpire",
+  "main": "main.js",
+  "author": "giakyctrl",
+  "license": "MIT",
+  "homepage": "https://github.com/giakyctrl/Ragn-rok",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win --x64",
+    "build:win": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.yggdrasill.ragnarok",
+    "productName": "Yggdrasill",
+    "copyright": "Copyright © 2026 giakyctrl",
+    "artifactName": "Yggdrasill_Setup.${ext}",
+    "directories": {
+      "output": "dist-electron",
+      "buildResources": "build"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Yggdrasill",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "files": [
+      "index.html",
+      "mappa.html",
+      "style.css",
+      "data.js",
+      "rules.js",
+      "forge.js",
+      "forge3d.js",
+      "app.js",
+      "dm.js",
+      "map3d.js",
+      "assets/**/*",
+      "build/icon.ico",
+      "build/icon.png",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ]
+  }
+}
